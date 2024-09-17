@@ -105,15 +105,36 @@
                 </a-row>
 
                 <a-row :gutter="16">
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8">
-                        <a-form-item :label="$t(`stock.mobile_number`)" name="mobile_number" :help="rules.mobile_number ? rules.mobile_number.message : null
-                            " :validateStatus="rules.mobile_number ? 'error' : null" class="required">
-                            <a-input v-model:value="formData.mobile_number" :placeholder="$t('common.placeholder_default_text', [
-                                $t('stock.mobile_number'),
-                            ])
-                                " />
-                        </a-form-item>
-                    </a-col>
+                 <a-col :xs="24" :sm="24" :md="8" :lg="8">
+                <a-form-item 
+                :label="$t('stock.mobile_number')" 
+                name="mobile_number" 
+                :help="rules.mobile_number ? rules.mobile_number.message : null"
+                :validateStatus="rules.mobile_number ? 'error' : null" 
+                class="required"
+                >
+                <!-- Input Field with Click Event -->
+                <a-input 
+                    v-model:value="formData.mobile_number" 
+                    :placeholder="$t('common.placeholder_default_text', [$t('stock.mobile_number')])"
+                    @keydown.space.prevent="showNumberModal"  />  <!-- Event to open modal -->
+               
+                </a-form-item>
+            </a-col>
+
+            <!-- SalesNumberModel Modal -->
+            <SalesNumberModel
+                v-if="isNumberVisible"
+                :visible="isNumberVisible"
+                :formData="formData"
+                :url="url"
+                :addEditType="addEditType"
+                :pageTitle="pageTitle"
+                :successMessage="successMessage"
+                @addEditSuccess="handleSuccess"
+                @closed="handleClose"
+  />
+
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t(`stock.customer_name`)" name="customer_name" :help="rules.customer_name ? rules.customer_name.message : null
                             " :validateStatus="rules.customer_name ? 'error' : null" class="required">
@@ -124,6 +145,7 @@
                         </a-form-item>
                     </a-col>
 
+                    <!--- modal-->
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t(`stock.address`)" name="address" :help="rules.address ? rules.address.message : null
                             " :validateStatus="rules.address ? 'error' : null" class="required">
@@ -590,18 +612,8 @@
 
 
     
-  <!-- Popup Modal -->
-  <!-- <a-modal
-  v-model:visible="isPopupVisible"
-  title="Party Name Information"
-  @ok="handleOk"
-  @cancel="handleCancel"
->
-  <p>Your popup content goes here...</p>
-</a-modal> -->
-<!--- end new popup-->
-</template>
 
+</template>
 <script>
 import { onMounted, ref, toRefs, computed } from "vue";
 import {
@@ -631,6 +643,9 @@ import FormItemHeading from "../../../../common/components/common/typography/For
 import { some, forEach, find } from "lodash-es";
 import PaymentModeAddButton from "../payments/AddButton.vue";
 import SalesModel from "./SalesModel.vue";
+import SalesNumberModel from "./SalesNumberModel.vue";
+
+
 
 export default {
     components: {
@@ -643,6 +658,7 @@ export default {
         SaveOutlined,
         LoadingOutlined,
         SalesModel,
+        SalesNumberModel,
         TaxAddButton,
         WarehouseAddButton,
         ProductAddButton,
@@ -714,6 +730,17 @@ export default {
             payment_mode_id: undefined,
         });
         const allPayments = ref([]);
+
+        onMounted(async () => {
+                try {
+                    const warehouseUrl = `warehouses?filters=id ne "${selectedWarehouse.value.xid}"&hashable=${selectedWarehouse.value.xid}&limit=10000`;
+                    const response = await axiosAdmin.get(warehouseUrl);
+                    warehouses.value = response.data;
+                } catch (error) {
+                    console.error("Error fetching warehouses:", error);
+                }
+            });
+
 
         onMounted(() => {
             const taxesPromise = axiosAdmin.get(taxUrl);
@@ -920,6 +947,7 @@ export default {
     data() {
             return {
             isModalVisible: false,
+            isNumberVisible:false,
             formData: {
                 stock_date: this.getCurrentDate(),
             },
@@ -942,9 +970,12 @@ export default {
         this.isModalVisible = true;
         this.$refs.dummykeyboard.focus();
         },
-      
+        showNumberModal() {
+      this.isNumberVisible = true;
+    },
         handleClose() {
         this.isModalVisible = false;
+        this.$refs.dummykeyboard.focus();
         },
         focusSearchInput() {
         this.$refs.searchInput.focus(); // Focus on the input field
