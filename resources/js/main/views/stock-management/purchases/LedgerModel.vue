@@ -949,7 +949,7 @@ export default defineComponent({
                 this.$message.error(this.$t("company.updateFailed"));
                 console.error(error);
             }
-            
+
         },
         autoFocusInput() {
             /*this.$nextTick(() => {

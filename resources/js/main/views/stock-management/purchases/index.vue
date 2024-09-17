@@ -1,46 +1,57 @@
 <template>
     <AdminPageHeader>
+
         <template #header>
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="3" :lg="3">
-                   <h3 class="gstinvoice"> GST Invoice List</h3>
+                    <h3 class="gstinvoice">GST Invoice List</h3>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="2" :lg="2">
-                    <svg height="20" viewBox="0 0 576 512"><path class="" d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z" fill="#ff0000"></path></svg>
-                 </a-col>
-                 <a-col :xs="24" :sm="24" :md="10" :lg="10">
-                 </a-col>
+                    <svg height="20" viewBox="0 0 576 512">
+                        <path
+                            class=""
+                            d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"
+                            fill="#ff0000"
+                        ></path>
+                    </svg>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="10" :lg="10"> </a-col>
                 <a-col :xs="24" :sm="24" :md="9" :lg="9">
-                        <a class="btn addEffset" href="/dashboard" title="Home">
-                            <img class="" src="../../../../../../images/homeIcon.png">
-                            <span class="effset"></span> 
-                        </a>
-                        <a-button type="primary" class="bulkaction" >
-                            {{ $t("stock_adjustment.bulk_action") }}
-                          </a-button>
+                    <a class="btn addEffset" href="/dashboard" title="Home">
+                        <img
+                            class=""
+                            src="../../../../../../images/homeIcon.png"
+                        />
+                        <span class="effset"></span>
+                    </a>
+                    <a-button type="primary" class="bulkaction">
+                        {{ $t("stock_adjustment.bulk_action") }}
+                    </a-button>
 
-                          <template
-                          v-if="
-                              permsArray.includes(`${orderPageObject.permission}_create`) ||
-                              permsArray.includes('admin')
-                          ">
-                          
-                          <router-link
-                              :to="{
-                                  name: `admin.stock.${orderPageObject.type}.create`,
-                              }"
-                          >
-                              <a-button type="primary">
-                                  <PlusOutlined />
-                                  {{ $t(`${orderPageObject.langKey}.add`) }}
-                              </a-button>
-                          </router-link>
-                      </template>
+                    <template
+                        v-if="
+                            permsArray.includes(
+                                `${orderPageObject.permission}_create`
+                            ) || permsArray.includes('admin')
+                        "
+                    >
+                        <router-link
+                            :to="{
+                                name: `admin.stock.${orderPageObject.type}.create`,
+                            }"
+                        >
+                            <a-button type="primary">
+                                <PlusOutlined />
+                                {{ $t(`${orderPageObject.langKey}.add`) }}
+                            </a-button>
+                        </router-link>
+                    </template>
                 </a-col>
             </a-row>
-          
         </template>
     </AdminPageHeader>
+
+
 
     <admin-page-filters>
         <a-row :gutter="[16, 16]">
@@ -48,10 +59,11 @@
                 <a-space>
                     <template
                         v-if="
-                            permsArray.includes(`${orderPageObject.permission}_create`) ||
-                            permsArray.includes('admin')
-                        ">
-                        
+                            permsArray.includes(
+                                `${orderPageObject.permission}_create`
+                            ) || permsArray.includes('admin')
+                        "
+                    >
                         <router-link
                             :to="{
                                 name: `admin.stock.${orderPageObject.type}.create`,
@@ -66,7 +78,9 @@
                     <a-button
                         v-if="
                             selectedRowIds.length > 0 &&
-                            (permsArray.includes(`${orderPageObject.permission}_view`) ||
+                            (permsArray.includes(
+                                `${orderPageObject.permission}_view`
+                            ) ||
                                 permsArray.includes('admin'))
                         "
                         type="primary"
@@ -115,43 +129,47 @@
                             </a-select-option>
                         </a-select>
                     </a-col>
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
+
+                        <col :xs="24" :sm="24" :md="5" :lg="5">
                         <div>
-                            <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
-                              <a-space>
-                                <template
-                                  v-if="
-                                    permsArray.includes('stock_adjustments_create') ||
-                                    permsArray.includes('admin')
-                                  "
-                                >
-                                  <a-button type="primary" @click="showModal">
-                                    <PlusOutlined />
-                                    {{ $t("stock_adjustment.filter") }}
-                                  </a-button>
-                                </template>
-                              </a-space>
+                            <a-col :xs="24" :sm="24" :md="7" :lg="7">
+                                <a-space>
+                                    <template
+                                        v-if="
+                                            permsArray.includes(
+                                                'stock_adjustments_create'
+                                            ) || permsArray.includes('admin')
+                                        "
+                                    >
+                                        <a-button
+                                            type="primary"
+                                            @click="showModal"
+                                        >
+                                            <PlusOutlined />
+                                            {{ $t("stock_adjustment.filter") }}
+                                        </a-button>
+                                    </template>
+                                </a-space>
                             </a-col>
                             <ExpenseCategoryModal
-                              v-if="isModalVisible"
-                              :visible="isModalVisible"
-                              :formData="formData"
-                              :url="url"
-                              :addEditType="addEditType"
-                              :pageTitle="pageTitle"
-                              :successMessage="successMessage"
-                              @addEditSuccess="handleSuccess"
-                              @closed="handleClose"
+                                v-if="isModalVisible"
+                                :visible="isModalVisible"
+                                :formData="formData"
+                                :url="url"
+                                :addEditType="addEditType"
+
+                                :successMessage="successMessage"
+                                @addEditSuccess="handleSuccess"
+                                @closed="handleClose"
                             />
-                          </div>
-                    </a-col>
+                        </div>
+                    </col>
                 </a-row>
             </a-col>
         </a-row>
     </admin-page-filters>
 
     <admin-page-table-content>
-      
         <a-row>
             <a-col :span="24">
                 <a-tabs v-model:activeKey="filters.payment_status">
@@ -189,7 +207,7 @@ import common from "../../../../common/composable/common";
 import OrderTable from "../../../components/order/OrderTable.vue";
 import DateRangePicker from "../../../../common/components/common/calendar/DateRangePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
-import ExpenseCategoryModal from './ExpenseCategoryModal.vue'; 
+import ExpenseCategoryModal from "./ExpenseCategoryModal.vue";
 export default {
     components: {
         PlusOutlined,
@@ -200,28 +218,27 @@ export default {
         AdminPageHeader,
     },
     data() {
-            return {
+        return {
             isModalVisible: false,
             formData: {},
-            url: 'your-url-here',
-            addEditType: 'add',
-            pageTitle: 'GST Invoice Filters',
-            successMessage: 'Operation successful!'
-            };
-        },
-        methods: {
+            url: "your-url-here",
+            addEditType: "add",
+            pageTitle: "GST Invoice Filters",
+            successMessage: "Operation successful!",
+        };
+    },
+    methods: {
         showModal() {
-        this.isModalVisible = true;
+            this.isModalVisible = true;
         },
         handleClose() {
-        this.isModalVisible = false;
+            this.isModalVisible = false;
         },
         handleSuccess(xid) {
-        // Handle success logic
-        this.isModalVisible = false;
-        console.log('Success:', xid);
-        }
-        
+            // Handle success logic
+            this.isModalVisible = false;
+            console.log("Success:", xid);
+        },
     },
     setup() {
         const {
@@ -294,35 +311,34 @@ export default {
             permsArray,
             orderStatus,
             formatAmountCurrency,
-           
+
             users,
 
             filters,
             orderType,
             serachDateRangePicker,
-
-            selectedRowIds,
+ selectedRowIds,
             orderTableRef,
         };
     },
 };
 </script>
 <style>
-.ant-row css-wosfq4{
-    height: 69px !important; 
+.ant-row css-wosfq4 {
+    height: 69px !important;
 }
-.gstinvoice{
-    font-weight:bold;
-    font-size:16px;
+.gstinvoice {
+    font-weight: bold;
+    font-size: 16px;
 }
 
-.addEffset{
+.addEffset {
     padding-top: 4px;
-    border-right: 1px solid #e4e4e4;
+    border-right: 1px solid #17d120;
     margin-right: 5px;
     padding-right: 8px;
 }
-.bulkaction{
+.bulkaction {
     background-color: #f78d50 !important;
 }
 </style>
