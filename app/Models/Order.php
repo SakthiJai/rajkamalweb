@@ -6,6 +6,7 @@ use App\Casts\Hash;
 use App\Classes\Common;
 use App\Models\BaseModel;
 use App\Scopes\CompanyScope;
+use App\Models\Station;
 
 class Order extends BaseModel
 {
@@ -13,15 +14,15 @@ class Order extends BaseModel
 
     protected $default = ['xid'];
 
-    protected $guarded = ['id', 'warehouse_id', 'staff_user_id', 'order_type', 'created_at', 'updated_at'];
+    protected $guarded = ['id', 'warehouse_id', 'staff_user_id', 'order_type','party_customer_id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['id', 'warehouse_id', 'from_warehouse_id', 'user_id', 'tax_id', 'staff_user_id', 'cancelled_by'];
+    protected $hidden = ['id', 'warehouse_id','party_id', 'from_warehouse_id', 'user_id', 'tax_id', 'staff_user_id', 'cancelled_by'];
 
-    protected $appends = ['xid', 'x_warehouse_id', 'x_from_warehouse_id', 'x_user_id', 'x_tax_id', 'x_staff_user_id', 'x_cancelled_by', 'document_url'];
+    protected $appends = ['xid', 'x_warehouse_id','party_id', 'x_from_warehouse_id', 'x_user_id', 'x_tax_id', 'x_staff_user_id', 'x_cancelled_by', 'document_url'];
 
     protected $dates = ['order_date'];
 
-    protected $filterable = ['id', 'invoice_number', 'payment_status', 'order_status','party_name', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id,'];
+    protected $filterable = ['id', 'invoice_number', 'payment_status', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id'];
 
     protected $hashableGetterFunctions = [
         'getXWarehouseIdAttribute' => 'warehouse_id',
@@ -50,6 +51,7 @@ class Order extends BaseModel
         'due_amount' => 'double',
         'total_items' => 'double',
         'total_quantity' => 'double',
+        //'party_customer_id' => 'String',
     ];
 
     protected static function boot()
@@ -68,7 +70,15 @@ class Order extends BaseModel
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class, 'order_id', 'id');
+        return $this->hasMany(OrderItem::class, 'order_id', localKey: 'id');
+    }
+    public function partyName()
+    {
+       return $this->belongsTo(LedgerModel::class, 'party_id', 'id');
+    }
+    public function customer()
+    {
+        return $this->belongsTo(LedgerCustomerModel::class,'party_customer_id', 'id');
     }
 
     public function orderPayments()
@@ -83,7 +93,7 @@ class Order extends BaseModel
 
     public function supplier()
     {
-        return $this->belongsTo(Supplier::class, 'user_id', 'id');
+        return $this->belongsTo(Supplier::class, 'user_id', ownerKey: 'id');
     }
 
     public function staffMember()
@@ -110,4 +120,5 @@ class Order extends BaseModel
     {
         return $this->belongsTo(OrderShippingAddress::class, 'id', 'order_id');
     }
+    
 }

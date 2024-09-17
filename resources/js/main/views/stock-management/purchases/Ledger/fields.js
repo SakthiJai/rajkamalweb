@@ -80,9 +80,13 @@ const fields = () => {
 		},
 	];
 
-	const filters = reactive({
-		id: undefined,
-	});
+	const filterableColumns = [
+		{
+			key: "party_name",
+			value: t("common.party_name") 
+		},
+	];
+	
 
 	const editItem = (product) => {
         console.log(product);
@@ -95,7 +99,7 @@ const fields = () => {
 		initData,
 		columns,
 		adjustmentTypes,
-		filters,
+		filterableColumns,
 		editItem,
 	}
 }

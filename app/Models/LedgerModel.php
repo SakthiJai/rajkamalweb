@@ -72,6 +72,10 @@ class LedgerModel extends BaseModel
         $state = State::find($this->stock_state);
         return $state ? $state->state_name : 'Unknown'; 
     }
+    public function bills()
+    {
+        return $this->hasMany(Order::class);
+    }
 
 
 }

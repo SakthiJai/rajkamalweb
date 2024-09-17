@@ -11,19 +11,6 @@
                     </a-button>
                 </template>
             </a-page-header>
-            <ProductModal v-if="isProuctsModalVisible" :visible="isProuctsModalVisible" :formData="formData" :url="url"
-                :successMessage="successMessage" @addEditSuccess="handleSuccess" @closed="handleClose" />
-
-            <!-- <a-page-header class="p-0">
-                <template #extra>
-                    <a-button type="primary" @click="showProductModal">
-                        <template #icon>
-                            <SaveOutlined />
-                        </template>
-                        Add Product
-                    </a-button>
-                </template>
-            </a-page-header> -->
         </template>
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
@@ -60,13 +47,6 @@
             <a-form layout="vertical">
                 <a-row :gutter="16">
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
-                        <!-- <a-form-item :label="$t(`stock.party_name`)" name="party_name":help="rules.party_name ? rules.party_name.message : null
-                            " :validateStatus="rules.party_name ? 'error' : null" class="required">
-                            <a-input v-model:value="formData.party_name" :placeholder="$t('common.placeholder_default_text', [
-                                $t('stock.party_name'),
-                            ])
-                                " />
-                        </a-form-item> -->
                         <a-form-item :label="$t('stock.party_name')" name="party_name" ref="input"
                             :help="rules.party_name ? rules.party_name.message : null"
                             :validateStatus="rules.party_name ? 'error' : null" class="required">
@@ -75,6 +55,19 @@
                                 @focus="showModal" @blur="" />
                         </a-form-item>
                     </a-col>
+                    <!-- <input 
+                    v-model="payment.payment_mode_id" 
+                    type="text" 
+                    placeholder="Enter Payment Mode ID" 
+                    style="width: 120px" /> -->
+
+                    <a-input  hidden v-model:value="formData.party_id"
+                                :placeholder="$t('common.placeholder_default_text', [$t('stock.party_name')])"
+                                />
+
+                                <a-input  hidden v-model:value="formData.party_customer_id"
+                                :placeholder="$t('common.placeholder_default_text', [$t('stock.party_name')])"
+                                />        
 
                     <!--- modal-->
                     <SalesModel v-if="isModalVisible" :visible="isModalVisible" :formData="formData" :url="url"
@@ -91,7 +84,6 @@
                                 " />
                         </a-form-item>
                     </a-col>
-
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t('stock.stock_date')" name="stock_date"
                             :help="rules.stock_date ? rules.stock_date.message : null"
@@ -103,18 +95,15 @@
                         </a-form-item>
                     </a-col>
                 </a-row>
-                <!-- sales modal number -->
-                <SalesNumberModel v-if="isNumberVisible" :visible="isNumberVisible" :formData="formData" :url="url"
-                    :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
-                    @addEditSuccess="handleSuccess" @closed="handleClose" />
-                <!-- sales modal number -->
+
                 <a-row :gutter="16">
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t(`stock.mobile_number`)" name="mobile_number" :help="rules.mobile_number ? rules.mobile_number.message : null
                             " :validateStatus="rules.mobile_number ? 'error' : null" class="required">
-                            <a-input v-model:value="formData.mobile_number"
-                                :placeholder="$t('common.placeholder_default_text', [$t('stock.mobile_number')])"
-                                @keydown.space.prevent="showNumberModal" />
+                            <a-input 
+                            v-model:value="formData.mobile_number" 
+                            :placeholder="$t('common.placeholder_default_text', [$t('stock.mobile_number')])"
+                            @keydown.space.prevent="showNumberModal"  />
                         </a-form-item>
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
@@ -126,6 +115,20 @@
                                 " />
                         </a-form-item>
                     </a-col>
+
+                    <!-- sales modal number -->
+                    <SalesNumberModel
+                    v-if="isNumberVisible"
+                    :visible="isNumberVisible"
+                    :formData="formData"
+                    :url="url"
+                    :addEditType="addEditType"
+                    :pageTitle="pageTitle"
+                    :successMessage="successMessage"
+                    @addEditSuccess="handleSuccess"
+                    @closed="handleClose"
+                    />
+                     <!-- sales modal number -->
 
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t(`stock.address`)" name="address" :help="rules.address ? rules.address.message : null
@@ -141,7 +144,7 @@
 
                 <a-row :gutter="16">
                     <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                        <!-- <a-table :row-key="(record) => record.xid" :dataSource="selectedProducts"
+                        <a-table :row-key="(record) => record.xid" :dataSource="selectedProducts"
                             :columns="orderItemColumns" :pagination="false">
                             <template #bodyCell="{ column, record }">
                                 <template v-if="column.dataIndex === 'name'">
@@ -185,7 +188,6 @@
                                     </a-button>
                                 </template>
                             </template>
-                            
                             <template #summary>
                                 <a-table-summary-row>
                                     <a-table-summary-cell :col-span="4"></a-table-summary-cell>
@@ -202,130 +204,7 @@
                                     </a-table-summary-cell>
                                 </a-table-summary-row>
                             </template>
-                        </a-table> -->
-                        <div id="app" class="table-container">
-                            <table class="responsive-table">
-                                <thead>
-                                    <tr>
-                                        <th v-for="(header, index) in headers" :key="index" class="tableheading">{{
-                                            header
-                                            }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <a-input name="party_name" @click="showProductModal">
-                                            </a-input>
-                                        </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <a-button>
-                                                <template #icon>
-                                                    <EditOutlined />
-                                                </template>
-                                            </a-button>
-                                            <a-button class="buttons">
-                                                <template #icon>
-                                                    <DeleteOutlined />
-                                                </template>
-                                            </a-button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <a-input name="party_name" value="">
-                                            </a-input>
-                                        </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <a-button>
-                                                <template #icon>
-                                                    <EditOutlined />
-                                                </template>
-                                            </a-button>
-                                            <a-button class="buttons">
-                                                <template #icon>
-                                                    <DeleteOutlined />
-                                                </template>
-                                            </a-button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <a-input name="party_name" value="">
-                                            </a-input>
-                                        </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <a-button>
-                                                <template #icon>
-                                                    <EditOutlined />
-                                                </template>
-                                            </a-button>
-                                            <a-button class="buttons">
-                                                <template #icon>
-                                                    <DeleteOutlined />
-                                                </template>
-                                            </a-button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <a-input name="party_name" value="">
-                                            </a-input>
-                                        </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <a-button>
-                                                <template #icon>
-                                                    <EditOutlined />
-                                                </template>
-                                            </a-button>
-                                            <a-button class="buttons">
-                                                <template #icon>
-                                                    <DeleteOutlined />
-                                                </template>
-                                            </a-button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <a-input name="party_name" value="">
-                                            </a-input>
-                                        </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <a-button>
-                                                <template #icon>
-                                                    <EditOutlined />
-                                                </template>
-                                            </a-button>
-                                            <a-button class="buttons">
-                                                <template #icon>
-                                                    <DeleteOutlined />
-                                                </template>
-                                            </a-button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        </a-table>
                     </a-col>
                 </a-row>
 
@@ -451,14 +330,8 @@
                         </a-table>
                     </a-col>
                     <!-- end of table design-->
-
-
-
-
                 </a-row>
-
                 <!--- end new design-->
-
                 <a-row :gutter="16" class="mt-30">
                     <a-col :xs="24" :sm="24" :md="16" :lg="16">
                         <a-row :gutter="16">
@@ -486,24 +359,7 @@
                         </a-row>
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
-                        <a-row :gutter="16" v-if="orderPageObject.type != 'quotations'">
-                            <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                                <a-form-item :label="$t('stock.status')" name="order_status" :help="rules.order_status
-                                    ? rules.order_status.message
-                                    : null
-                                    " :validateStatus="rules.order_status ? 'error' : null" class="required">
-                                    <a-select v-model:value="formData.order_status" :placeholder="$t('common.select_default_text', [
-                                        $t('stock.status'),
-                                    ])
-                                        " :allowClear="true">
-                                        <a-select-option v-for="status in allOrderStatus" :key="status.key"
-                                            :value="status.key">
-                                            {{ status.value }}
-                                        </a-select-option>
-                                    </a-select>
-                                </a-form-item>
-                            </a-col>
-                        </a-row>
+
 
                         <a-row :gutter="16">
                             <a-col :xs="24" :sm="24" :md="24" :lg="24">
@@ -748,7 +604,6 @@ import apiAdmin from "../../../../common/composable/apiAdmin";
 import stockManagement from "./stockManagement";
 import common from "../../../../common/composable/common";
 import fields from "./fields";
-import ProductModal from './Product/ProductModal.vue';
 import TaxAddButton from "../../settings/taxes/AddButton.vue";
 import WarehouseAddButton from "../../settings/warehouses/AddButton.vue";
 import ProductAddButton from "../../product-manager/products/AddButton.vue";
@@ -781,7 +636,6 @@ export default {
         MinusSquareOutlined,
         FormItemHeading,
         PaymentModeAddButton,
-        ProductModal,
         SalesNumberModel,
     },
     setup() {
@@ -986,11 +840,6 @@ export default {
                 payment_mode_id: undefined,
             });
         };
-
-        const selectProduct = (record) => {
-            console.log(record);
-        };
-
         const removeFormField = (item) => {
             let index = formFields.value.indexOf(item);
             if (index !== -1) {
@@ -1023,7 +872,7 @@ export default {
             appSetting,
             editItem,
             orderPageObject,
-            selectProduct,
+
             orderItemColumns,
             salesItemColumns,
             // Add Edit
@@ -1055,19 +904,19 @@ export default {
     },
     data() {
         return {
-            isNumberVisible:false,
             isModalVisible: false,
-            isProuctsModalVisible: false,
-            stockDateColor: '',
+            isNumberVisible:false,
             formData: {
                 stock_date: this.getCurrentDate(),
             },
+            stockDateColor: '',
             url: 'your-url-here',
             addEditType: 'add',
             pageTitle: 'Select Party',
-            successMessage: 'Operation successful!',
-            headers: ['Product', 'Packing', 'Qty', 'Rate', 'Disc', '₹ Amount'],
+            successMessage: 'Operation successful!'
+
         };
+
     },
 
     mounted() {
@@ -1080,35 +929,10 @@ export default {
     },
     methods: {
 
-        
         showNumberModal() {
         this.isNumberVisible = true;
     },
 
-        getCurrentDate() {
-            // returns the current date in the format YYYY-MM-DD
-            return new Date().toISOString().split('T')[0];
-        },
-        showModal() {
-            this.isModalVisible = true;
-            this.$refs.dummykeyboard.focus();
-        },
-        showProductModal() {
-            this.isProuctsModalVisible = true;
-            this.$refs.dummykeyboard.focus();
-        },
-        handleClose() {
-            this.isModalVisible = false;
-            this.isProuctsModalVisible = false;
-        },
-        focusSearchInput() {
-            this.$refs.searchInput.focus(); // Focus on the input field
-        },
-        handleSuccess(xid) {
-            this.isProuctsModalVisible = false;
-            this.isModalVisible = false;
-            console.log('Success:', xid);
-        },
         autoFocusInput() {
             this.$nextTick(() => {
                 this.$refs.DateInput.focus();  // Automatically focus the input
@@ -1124,7 +948,28 @@ export default {
                 this.stockDateColor = '';
             }
         },
+        getCurrentDate() {
+            return new Date().toISOString().split('T')[0];
+        },
+        showModal() {
+            this.isModalVisible = true;
+            this.$refs.dummykeyboard.focus();
+        },
+
+        handleClose() {
+            this.isModalVisible = false;
+            
+        },
+        focusSearchInput() {
+            this.$refs.searchInput.focus(); // Focus on the input field
+        },
+        handleSuccess(xid) {
+            // Handle success logic
+            this.isModalVisible = false;
+            console.log('Success:', xid);
+        },
     },
+
 };
 </script>
 <style>
@@ -1172,14 +1017,5 @@ legend {
 
 .popup.visible {
     display: block;
-}
-
-.table-container {
-    overflow-x: auto;
-    margin: 0 auto;
-}
-
-.responsive-table {
-    width: 100%;
 }
 </style>

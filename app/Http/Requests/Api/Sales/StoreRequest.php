@@ -28,10 +28,10 @@ class StoreRequest extends FormRequest
         $loggedUser = auth('api')->user();
 
         $rules = [
-            'user_id' => 'required',
-            'order_status' => 'required',
-            'product_items'    => 'required',
-            'order_date'    => 'required',
+            //'user_id' => 'required',
+            //'order_status' => 'required',
+            //'product_items'    => 'required',
+            //'order_date'    => 'required',
         ];
 
         // if ($this->has('pay_object') && count($this->pay_object) > 0) {
@@ -46,14 +46,14 @@ class StoreRequest extends FormRequest
         //     }
         // }
 
-        if ($this->invoice_number && $this->invoice_number != '') {
-            $rules['invoice_number'] = [
-                'required',
-                Rule::unique('orders', 'invoice_number')->where(function ($query) use ($company) {
-                    return $query->where('company_id', $company->id);
-                })
-            ];
-        }
+        // if ($this->invoice_number && $this->invoice_number != '') {
+        //     $rules['invoice_number'] = [
+        //         'required',
+        //         Rule::unique('orders', 'invoice_number')->where(function ($query) use ($company) {
+        //             return $query->where('company_id', $company->id);
+        //         })
+        //     ];
+        // }
 
         return $rules;
     }

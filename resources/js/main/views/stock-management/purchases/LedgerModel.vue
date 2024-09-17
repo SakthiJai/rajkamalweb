@@ -18,8 +18,8 @@
                 </button>
             </div>
         </template>
-        <!-- <form  @submit.prevent="onSubmitLedger" layout="vertical" ref="myForm" id="myForm1"> -->
-        <form ref="myForm1" layout="vertical" @submit.prevent="onSubmitLedger">
+        <!-- <form  @submit.prevent="onSubmitLedger" layout="vertical" ref="myForm" id="myForm1" onSubmitLedger> -->
+        <form ref="myForm1" layout="vertical" @submit.prevent="">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="16" :lg="16" class="info">
                     <fieldset class="fieldheightsss">
@@ -37,7 +37,7 @@
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <!-- <input name="party_name" v-model="formDataLedger.party_name" /> -->
-                                        <a-input name="party_name" v-model:value="formDataLedger.party_name"
+                                        <a-input name="party_name" v-model:value="formDataLedger.party_name" v-on:keyup.enter="moveToNextField($event.target)"
                                             :placeholder="$t('common.placeholder_default_text', [$t('stock.party_name')])"></a-input>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
@@ -47,7 +47,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input v-model:value="formDataLedger.account_group"
+                                        <a-input v-model:value="formDataLedger.account_group" v-on:keyup.enter="moveToNextField($event.target)"
                                             :style="{ backgroundColor: accountGroupColor }"
                                             @focus="changeColorOnFocus('accountGroup')"
                                             @blur="resetColorOnBlur('accountGroup')" />
@@ -62,7 +62,9 @@
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
                                         <a-form-item :label="$t('stock.stations')" name="station"
                                             :help="rules.stations ? rules.stations.message : null"
-                                            :validateStatus="rules.stations ? 'error' : null" class="required">
+                                            :validateStatus="rules.stations ? 'error' : null" class="required"
+                                            
+                                            >
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -72,7 +74,7 @@
                                             @blur="resetColorOnBlur('stations')" /> -->
 
                                         <span style="display: flex">
-                                            <StationSearchInput @valueChanged="(productId) => (formDataLedger.station = productId)
+                                            <StationSearchInput v-on:keyup.enter="moveToNextField($event.target)" @valueChanged="(productId) => (formDataLedger.station = productId)
                                                 " @valueSuccess="getStockValue" :productData="data" />
                                         </span>
                                     </a-col>
@@ -82,7 +84,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input v-model:value="formDataLedger.mail_to" type="email" />
+                                        <a-input v-model:value="formDataLedger.mail_to" type="email" v-on:keyup.enter="moveToNextField($event.target)" />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -92,11 +94,11 @@
                             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                                 <a-row :gutter="16">
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.address')" name="address">
+                                        <a-form-item :label="$t('stock.address')" name="address" >
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="19" :lg="19">
-                                        <a-input v-model:value="formDataLedger.address" />
+                                        <a-input v-model:value="formDataLedger.address" v-on:keyup.enter="moveToNextField($event.target)" />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -115,7 +117,7 @@
                                         <!-- <a-input v-model:value="formDataLedger.stock_country" /> -->
                                         <span style="display: flex">
                                             <CountySearchInput @valueChanged="(productId) => (formDataLedger.stock_country = productId)
-                                                " @valueSuccess="getStockValue" :productData="data" />
+                                                " @valueSuccess="getStockValue" :productData="data" v-on:keyup.enter="moveToNextField($event.target)" />
                                         </span>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
@@ -127,7 +129,7 @@
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <!-- <a-input v-model:value="formDataLedger.stock_state" /> -->
                                         <StateSearchInput @valueChanged="(productId) => (formDataLedger.stock_state = productId)
-                                            " @valueSuccess="getStockValue" :productData="data" />
+                                            " @valueSuccess="getStockValue" :productData="data" v-on:keyup.enter="moveToNextField($event.target)" />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -142,7 +144,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input v-model:value="formDataLedger.stock_city" />
+                                        <a-input v-model:value="formDataLedger.stock_city" v-on:keyup.enter="moveToNextField($event.target)" />
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
@@ -151,7 +153,7 @@
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <a-input v-model:value="formDataLedger.stock_pincode" type="number"
-                                            maxlength="6" @input="onInputPincode" />
+                                            maxlength="6" @input="onInputPincode" v-on:keyup.enter="moveToNextField($event.target)"  />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -168,7 +170,7 @@
                                         <!-- <a-input v-model:value="formDataLedger.parent_ledger"
                                             placeholder="Search here.." /> -->
                                         <ParentSearchInput @valueChanged="(productId) => (formDataLedger.parent_ledger = productId)
-                                            " @valueSuccess="getStockValue" :productData="data" />
+                                            " @valueSuccess="getStockValue" :productData="data" v-on:keyup.enter="moveToNextField($event.target)" />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -191,7 +193,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="13" :lg="13">
-                                        <a-select v-model:value="formDataLedger.balancing_method" class="balance">
+                                        <a-select v-model:value="formDataLedger.balancing_method" class="balance" v-on:keyup.enter="moveToNextField($event.target)">
                                             <a-select-option key="1" value="1" aria-selected="true">
                                                 On accounts
                                             </a-select-option>
@@ -214,7 +216,7 @@
                                                     <a-button type="primary" class="indiannumber">
                                                         ₹
                                                     </a-button>
-                                                    <a-input v-model:value="formDataLedger.opening_balance"
+                                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.opening_balance"
                                                         class="amount" style="width:85%"
                                                         @input="onInputOpeningBalance" />
                                                 </a-input-group>
@@ -232,7 +234,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="13" :lg="13">
-                                                <a-input v-model:value="formDataLedger.credit_days" type="number"
+                                                <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.credit_days" type="number"
                                                     @input="onInputCreditDays" />
 
                                             </a-col>
@@ -258,7 +260,7 @@
                                     <a-col :xs="24" :sm="24" :md="13" :lg="13">
                                         <a-input-group compact>
                                             <a-button type="primary" class="indiannumber">+91</a-button>
-                                            <a-input v-model:value="formDataLedger.phone_number" id="phonenumber"
+                                            <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.phone_number" id="phonenumber"
                                                 style="width:74%" @input="onInputPhoneNumber"
                                                 :value="formDataLedger.phone_number" />
                                         </a-input-group>
@@ -280,7 +282,7 @@
                                                     <a-button type="primary" class="indiannumber">
                                                         +91
                                                     </a-button>
-                                                    <a-input v-model:value="formDataLedger.mobile_number"
+                                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.mobile_number"
                                                         style="width:74%" @input="onInputMobileNumber" />
                                                 </a-input-group>
 
@@ -335,7 +337,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                    <a-select v-model:value="formDataLedger.ledger_type" style="width:100%;">
+                                    <a-select v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.ledger_type" style="width:100%;">
                                         <a-select-option key="Registered" value="Registered" aria-selected="true">
                                             Registered
                                         </a-select-option>
@@ -354,13 +356,13 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                    <a-input v-model:value="formDataLedger.pan_number" @input="onInputPanNumber" />
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.pan_number" @input="onInputPanNumber" />
                                 </a-col>
                             </a-row>
 
                             <a-form-item>
                                 <span style="display: flex">
-                                    <ProductSearchInput @valueChanged="(productId) => (formData.product_id = productId)
+                                    <ProductSearchInput v-on:keyup.enter="moveToNextField($event.target)" @valueChanged="(productId) => (formData.product_id = productId)
                                         " @valueSuccess="getStockValue" :productData="data" />
 
                                 </span>
@@ -379,7 +381,7 @@
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-row :gutter="16">
                                 <a-col :xs="24" :sm="24" :md="4" :lg="4">
-                                    <a-select v-model:value="formDataLedger.customer_title" style="width:100%;">
+                                    <a-select v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.customer_title" style="width:100%;">
                                         <a-select-option key="Mr." value="Mr." aria-selected="true">
                                             Mr.
                                         </a-select-option>
@@ -392,7 +394,7 @@
                                     </a-select>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                    <a-input v-model:value="formDataLedger.customer_first_name"
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.customer_first_name"
                                         placeholder="First Name" />
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="3" :lg="3">
@@ -402,7 +404,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                    <a-input v-model:value="formDataLedger.designation" placeholder="Manager" />
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.designation" placeholder="Manager" />
                                 </a-col>
                             </a-row>
 
@@ -411,7 +413,7 @@
 
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                    <a-input v-model:value="formDataLedger.customer_last_name"
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.customer_last_name"
                                         placeholder="Last Name" />
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="3" :lg="3">
@@ -421,7 +423,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                    <a-input v-model:value="formDataLedger.website" placeholder="www.example.com" />
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.website" placeholder="www.example.com" />
                                 </a-col>
                             </a-row>
 
@@ -433,7 +435,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                    <a-select v-model:value="formDataLedger.gender" style="width:100%;">
+                                    <a-select v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.gender" style="width:100%;">
                                         <a-select-option key="Male" value="Male" aria-selected="true">
                                             Male
                                         </a-select-option>
@@ -454,7 +456,7 @@
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                     <span style="display: flex">
                                         <a-input-group compact>
-                                            <a-input v-model:value="formDataLedger.customer_email" />
+                                            <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.customer_email" />
                                         </a-input-group>
                                     </span>
                                 </a-col>
@@ -483,7 +485,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                    <a-input v-model:value="formDataLedger.bank_name" />
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.bank_name" />
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="3" :lg="3">
                                     <a-form-item :label="$t('stock.account_number')" name="account_number"
@@ -492,7 +494,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                    <a-input v-model:value="formDataLedger.account_number"
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.account_number"
                                         @input="onInputACCOUNTNUMBER" />
                                 </a-col>
                             </a-row>
@@ -508,7 +510,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                    <a-input v-model:value="formDataLedger.branch" />
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.branch" />
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="3" :lg="3">
                                     <a-form-item :label="$t('stock.account_type')" name="account_type"
@@ -517,7 +519,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                    <a-select v-model:value="formDataLedger.account_type" style="width:100%;">
+                                    <a-select v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.account_type" style="width:100%;">
                                         <a-select-option key="Saving Account" value="Saving Account" aria-selected="true">
                                             Saving Account
                                         </a-select-option>
@@ -540,7 +542,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                    <a-input v-model:value="formDataLedger.ifsc_code" @input="onInputIFSCCODE" />
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.ifsc_code" @input="onInputIFSCCODE" />
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="3" :lg="3">
                                     <a-form-item :label="$t('stock.holder_name')" name="account_holder_name"
@@ -549,7 +551,7 @@
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                    <a-input v-model:value="formDataLedger.account_holder_name" />
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.account_holder_name" />
                                 </a-col>
                             </a-row>
                         </a-col>
@@ -733,7 +735,7 @@
                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="9" :lg="9">
-                    <button @click="onSubmit" type="submit" id="btn-Ledger" title="Ledger"
+                    <button @click="onSubmitLedger" type="submit" id="btn-Ledger" title="Ledger"
                         class="btn default-btn ng-star-inserted gst">
                         <span class="box">
                             <span class="shortcut ng-star-inserted"><code>F10</code></span>
@@ -932,7 +934,7 @@ export default defineComponent({
     },
 
     methods: {
-        switchTab() {
+        switchTab() { console.log(this.activeKey);
             const tabs = ['taxdetails', 'visibility', 'bankdetails', 'contactinfo'];
             const currentIndex = tabs.indexOf(this.activeKey);
             this.activeKey = tabs[(currentIndex + 1) % tabs.length];
@@ -949,7 +951,7 @@ export default defineComponent({
                 this.$message.error(this.$t("company.updateFailed"));
                 console.error(error);
             }
-
+            
         },
         autoFocusInput() {
             /*this.$nextTick(() => {
@@ -1128,6 +1130,14 @@ export default defineComponent({
             }
             this.formDataLedger.stock_pincode = value;
         },
+        moveToNextField(elem) { console.log(elem.value)
+            const currentIndex = Array.from(elem.form.elements).indexOf(elem);
+            elem.form.elements.item(
+                currentIndex < elem.form.elements.length - 1 ?
+                currentIndex + 1 :
+                0
+            ).focus();
+        }
 
 
     },

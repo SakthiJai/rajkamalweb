@@ -1,11 +1,11 @@
 <?php
 
 namespace App\Models;
-use App\Models\BaseModel;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-class CustomersDetails extends BaseModel
+use App\Models\BaseModel;
+class SalesNumber extends BaseModel
 {
     use HasFactory;
 
@@ -16,6 +16,8 @@ class CustomersDetails extends BaseModel
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $appends = ['xid'];
+    
+    protected $allowedFilters = [ 'name','id' ];
     
     protected $filterable = ['id', 'name'];
 }

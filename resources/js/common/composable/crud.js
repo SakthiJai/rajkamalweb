@@ -57,6 +57,11 @@ const crud = () => {
         viewData.value = {};
     };
 
+    const selectItems = () => {
+        // detailsVisible.value = false;
+        // viewData.value = {};
+    };
+
     const editItem = (item) => {
         console.log(item);
         const itemDetails = {};

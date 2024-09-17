@@ -436,11 +436,7 @@ export default defineComponent({
     margin-top: 0;
 }
 
-.compact-form-item .ant-input,
-.compact-form-item .ant-select {
-    height: 22px;
-    line-height: 22px;
-}
+
 
 .buttons {
     margin-left: 5px;

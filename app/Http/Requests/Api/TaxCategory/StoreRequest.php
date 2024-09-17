@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Requests\Api\SalesNumber;
+namespace App\Http\Requests\Api\TaxCategory;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeleteRequest extends FormRequest
+class StoreRequest extends FormRequest
 {
 	/**
 	 * Determine if the user is authorized to make this request.
 	 *
 	 * @return bool
 	 */
+
 	public function authorize()
 	{
 		return true;
@@ -23,6 +24,14 @@ class DeleteRequest extends FormRequest
 	 */
 	public function rules()
 	{
-		return [];
+
+		$rules = [
+			'name'    => 'required',
+			'short_name'    => 'required',
+			'operator'    => 'required',
+			'operator_value'    => 'required',
+		];
+
+		return $rules;
 	}
 }

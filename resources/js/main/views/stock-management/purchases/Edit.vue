@@ -908,9 +908,7 @@ export default {
             appSetting,
             editItem,
             orderPageObject,
-
             orderItemColumns,
-
             // Add Edit
             addEditVisible,
             addEditFormData,
@@ -919,15 +917,12 @@ export default {
             addEditPageTitle,
             onAddEditSubmit,
             onAddEditClose,
-
             allOrderStatus,
             taxTypes,
             permsArray,
-
             unitAdded,
             taxAdded,
             warehouseAdded,
-
             editOrderDisable,
             inputValueChanged,
         };

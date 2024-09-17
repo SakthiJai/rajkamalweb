@@ -11,7 +11,7 @@ const fields = () => {
     const route = useRoute();
     const orderType = ref(route.meta.orderType);
     const columns = ref([]);
-    const hashableColumns = ['user_id', 'warehouse_id'];
+    const hashableColumns = ['user_id', 'warehouse_id','party_customer_id'];
 
     onMounted(() => {
         if (route.meta && route.meta.orderType) {
@@ -29,6 +29,7 @@ const fields = () => {
         
         tax_id: undefined,
         warehouse_id: undefined,
+        party_customer_id:undefined,
         discount: 0,
         shipping: 0,
         subtotal: 0,
@@ -133,8 +134,14 @@ const fields = () => {
 
     const filterableColumns = [
         {
+            
             key: "invoice_number",
             value: t("stock.invoice_number")
+        },
+        {
+            
+            key: "party_name",
+            value: t("stock.party_name")
         },
     ];
 
@@ -205,10 +212,15 @@ const fields = () => {
     const setupTableColumns = () => {
         var allColumns = [
             {
-                title: t(`stock.invoice_number`),
+                title: t(`stock.bill_no`),
                 dataIndex: "invoice_number",
                 sorter:true
-            }
+            },
+            // {
+            //     title: t(`stock.bill_no`),
+            //     dataIndex: "invoice_number",
+            //     sorter:true
+            // }
         ];
 
         if (pageObject.value.type == 'stock-transfers') {
@@ -219,6 +231,14 @@ const fields = () => {
                 sorter_field:"orders.warehouse_id"
             });
         }
+        if (pageObject.value.type == 'stock-transfers') {
+            allColumns.push({
+                title: t("stock_transfer.warehouse"),
+                dataIndex: "stock",
+                sorter:true,
+                sorter_field:"orders.party_customer_id"
+            });
+        }
 
         allColumns.push({
             title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
@@ -226,41 +246,38 @@ const fields = () => {
             sorter:true
         });
 
-        if (pageObject.value.type != 'stock-transfers') {
+        /*if (pageObject.value.type != 'stock-transfers') {
             allColumns.push({
                 title: t(`${pageObject.value.langKey}.user`),
                 dataIndex: "user_id",
                 sorter:true,
                 sorter_field:"orders.user_id"
             });
-        }
+        }*/
 
         columns.value = [
             ...allColumns,
+            {
+                title: t(`${pageObject.value.langKey}.user`),
+                dataIndex: ['customer', 'cus_name'],
+                sorter:true,
+                //sorter_field:"orders.user_id"
+            },
+            
+           
+            {
+                title: t("stock.party"),
+                dataIndex: ['party_name', 'party_name'],
+                sorter:true,
+                render: () =>{return "Test"} ,
+            },
             {
                 title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_status`),
                 dataIndex: "order_status",
                 sorter:true,
             },
             {
-                title: t("payments.total_amount"),
-                dataIndex: "total_amount",
-                sorter:true,
-                sorter_field:"orders.total"
-
-            },
-            {
-                title: t("payments.paid_amount"),
-                dataIndex: "paid_amount",
-                sorter:true,
-            },
-            {
-                title: t("payments.due_amount"),
-                dataIndex: "due_amount",
-                sorter:true,
-            },
-            {
-                title: t("payments.payment_status"),
+                title: t("stock.sales_amount"),
                 dataIndex: "payment_status",
                 sorter:true,
             },

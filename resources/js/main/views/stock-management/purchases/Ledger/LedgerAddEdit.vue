@@ -1199,6 +1199,7 @@ tr {
 
 .basicdetalis {
     font-size: 15px !important;
+    font-weight:bolder;
 }
 
 .fieldheight {

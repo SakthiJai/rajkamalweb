@@ -14,9 +14,9 @@ class Product extends BaseModel
 
     protected $default = ['xid'];
 
-    protected $guarded = ['id', 'warehouse_id', 'user_id', 'created_at', 'updated_at'];
+    protected $guarded = ['id','packing','stock','unit_first','sales_rate','warehouse_id', 'user_id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['id', 'category_id', 'brand_id', 'unit_id', 'user_id', 'warehouse_id', 'variant_id', 'variant_value_id', 'parent_id'];
+    protected $hidden = ['category_id', 'brand_id', 'unit_id', 'user_id', 'warehouse_id', 'variant_id', 'variant_value_id', 'parent_id'];
 
     protected $appends = ['xid', 'x_category_id', 'x_brand_id', 'x_unit_id', 'x_user_id', 'x_warehouse_id', 'x_variant_id', 'x_variant_value_id', 'x_parent_id', 'image_url'];
 

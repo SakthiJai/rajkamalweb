@@ -40,9 +40,12 @@
         <a-form layout="vertical">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                    <a-form-item name="party_name_search" ref="dummykeyboard" class="required">
-                        <a-input-search ref="searchInput" style="width: 100%" placeholder="Search here.." />
-                    </a-form-item>
+                    <a-input-group compact>
+
+                        <a-input-search ref="searchInput" style="width: 75%" placeholder="search here.."
+                            v-model:value="table.searchString" show-search @change="onTableSearch"
+                            @search="onTableSearch" :loading="table.filterLoading" />
+                    </a-input-group>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="6" :lg="6">
                     <a-form-item name="name">
@@ -74,6 +77,9 @@
             :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
             @addEditSuccess="handleSuccess" @closed="handleClose" />
         <!--- end enterprises model-->
+
+
+
         <!-- data table-->
         <LedgerAddEdit :addEditType="addEditType" :visible="addEditVisible" :url="addEditUrl"
             @addEditSuccess="addEditSuccess" @closed="onCloseAddEdit" :formData="formData" :data="viewData"
@@ -82,57 +88,43 @@
             <a-row>
                 <a-col :span="24">
                     <div class="table-responsive">
-                        <a-table 
-                        :columns="columns" 
-                        :row-key="(record) => record.xid" 
-                        :data-source="table.data"
-                        :pagination="table.pagination" 
-                        :loading="table.loading" 
-                        @change="handleTableChange" 
-                        bordered size="middle">
-                            <template #bodyCell="{ column, record }" v-for="(item, index) in items" :key="index"
-                                :class="{ highlight: index === selectedIndex }">
+                        <a-table :columns="columns" :row-key="(record) => record.xid" :data-source="table.data"
+                            :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
+                            :customRow="customRow" :row-selection="rowSelection" bordered size="middle">
+                            <template #bodyCell="{ column, record, rowIndex }">
                                 <template v-if="column.dataIndex === 'id'">
-                                    <a-badge>
-
-                                        {{ record.product.name }}
+                                    <a-badge :class="{ 'row-highlight': rowIndex === selectedIndex }">
+                                        {{ record.product.name }}-{{ rowSelection }}
                                     </a-badge>
                                 </template>
-                                <template v-if="column.dataIndex === 'party_name'">
-                                    <a-typography-text v-if="record.adjustment_type == 'add'" type="success" strong>
-                                        +{{ record.party_name }}
-                                    </a-typography-text>
-
-                                </template>
-                                
-
+                                <a-typography-text 
+                                v-if="record.adjustment_type === 'add'" 
+                                type="success" 
+                              
+                            >
+                                +{{ record.party_name }}
+                            </a-typography-text>
                                 <template v-if="column.dataIndex === 'station'">
-                                    <a-typography-text v-if="record.adjustment_type == 'add'" type="success" strong>
-                                        +{{ record.station_name }}
+                                    <a-typography-text v-if="record.adjustment_type === 'add'" type="success" strong>
+                                        +{{ record.station }}
                                     </a-typography-text>
-
                                 </template>
                                 <template v-if="column.dataIndex === 'opening_balance'">
-                                    <a-typography-text v-if="record.adjustment_type == 'add'" type="success" strong>
+                                    <a-typography-text v-if="record.adjustment_type === 'add'" type="success" strong>
                                         +{{ record.opening_balance }}
                                     </a-typography-text>
-
                                 </template>
                                 <template v-if="column.dataIndex === 'action'">
-                                    <a-button 
-                                    v-if="permsArray.includes('stock_adjustments_edit') || permsArray.includes('admin')"
-                                    type="primary" 
-                                    @click="editItem(record)" 
-                                    style="margin-left: 4px">
-                                    <template #icon>
-                                        <EditOutlined />
-                                    </template>
-                                </a-button>
-                                    <a-button v-if="
-                                        permsArray.includes('stock_adjustments_delete') ||
-                                        permsArray.includes('admin')
-                                    " type="primary" @click="showDeleteConfirm(record.xid)"
-                                        style="margin-left: 4px">
+                                    <a-button
+                                        v-if="permsArray.includes('stock_adjustments_edit') || permsArray.includes('admin')"
+                                        type="primary" @click="editItem(record)" style="margin-left: 4px">
+                                        <template #icon>
+                                            <EditOutlined />
+                                        </template>
+                                    </a-button>
+                                    <a-button
+                                        v-if="permsArray.includes('stock_adjustments_delete') || permsArray.includes('admin')"
+                                        type="primary" @click="showDeleteConfirm(record.xid)" style="margin-left: 4px">
                                         <template #icon>
                                             <DeleteOutlined />
                                         </template>
@@ -140,40 +132,12 @@
                                 </template>
                             </template>
                         </a-table>
+
                     </div>
                 </a-col>
             </a-row>
         </admin-page-table-content>
         <!--- end-->
-        <!-- <div id="app" class="table-container">
-            <table class="responsive-table">
-                <thead>
-                    <tr>
-                        <th v-for="(header, index) in headers" :key="index" class="tableheading">{{ header }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, index) in items" :key="index" :class="{ highlight: index === selectedIndex }">
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.location }}</td>
-                        <td>{{ item.value }}</td>
-                        <td>
-                            <a-button>
-                                <template #icon>
-                                    <EditOutlined />
-                                </template>
-                            </a-button>
-                            <a-button class="buttons">
-                                <template #icon>
-                                    <DeleteOutlined />
-                                </template>
-                            </a-button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-        </div> -->
         <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="8" :lg="8">
                 <fieldset class="fieldheight">
@@ -194,8 +158,8 @@
                             <span>:</span>
                         </a-col>
                         <a-col :xs="12" :sm="12" :md="4" :lg="4">
-                            <span>{{ (formData.tax_amount) }}</span>
-                            <!-- <span>{{ formatCurrency(formData.tax_amount) }}</span> -->
+                            <span>{{ formDataLedger.party_name }}</span>
+                            
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -209,7 +173,9 @@
                         </a-col>
                         <a-col :xs="12" :sm="12" :md="4" :lg="4">
 
-                            <span>{{ (formData.tax_amount) }}</span>
+ 
+                   <span>{{ formData.party_name }}</span>
+  
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -340,7 +306,7 @@
 </template>
 
 <script>
-import { onMounted, watch } from "vue";
+import { onMounted, watch, ref, computed } from "vue";
 import { defineComponent } from "vue";
 import { PlusOutlined, LoadingOutlined, SaveOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
@@ -374,24 +340,70 @@ export default defineComponent({
 
 
     setup(props, { emit }) {
-        const { url, addEditUrl, hashableColumns, initData, columns, filters } = fields();
+        const { url, addEditUrl, hashableColumns, initData, columns, filterableColumns } = fields();
         const crudVariables = crud();
         const { permsArray, selectedWarehouse } = common();
+        const selectedIndex = ref(-1);
 
         onMounted(() => {
+            crudVariables.table.filterableColumns = filterableColumns;
             crudVariables.crudUrl.value = addEditUrl;
             crudVariables.langKey.value = "expense_category";
             crudVariables.initData.value = { ...initData };
             crudVariables.formData.value = { ...initData };
             crudVariables.hashableColumns.value = [...hashableColumns];
-            reFetchDatatable();
-           
-        });
 
+            reFetchDatatable();
+        });
+        const onSelectChange = (changableRowKeys) => {
+            console.log('selectedRowKeys changed: ', changableRowKeys);
+            selectedRowKeys.value = changableRowKeys;
+        };
+        const selectedRowKeys = []; // Check here to configure the default column
+        const rowSelection = computed(() => {
+            return {
+                selectedRowKeys: unref(0),
+                onChange: onSelectChange,
+                hideDefaultSelections: true,
+                selections: [
+                    Table.SELECTION_ALL,
+                    Table.SELECTION_INVERT,
+                    Table.SELECTION_NONE,
+                    {
+                        key: 'odd',
+                        text: 'Select Odd Row',
+                        onSelect: changableRowKeys => {
+                            let newSelectedRowKeys = [];
+                            newSelectedRowKeys = changableRowKeys.filter((_key, index) => {
+                                if (index % 2 !== 0) {
+                                    return false;
+                                }
+                                return true;
+                            });
+                            selectedRowKeys.value = newSelectedRowKeys;
+                        },
+                    },
+                    {
+                        key: 'even',
+                        text: 'Select Even Row',
+                        onSelect: changableRowKeys => {
+                            let newSelectedRowKeys = [];
+                            newSelectedRowKeys = changableRowKeys.filter((_key, index) => {
+                                if (index % 2 !== 0) {
+                                    return true;
+                                }
+                                return false;
+                            });
+                            selectedRowKeys.value = newSelectedRowKeys;
+                        },
+                    },
+                ],
+            };
+        });
         const reFetchDatatable = () => {
             crudVariables.tableUrl.value = {
                 url,
-                filters,
+                filterableColumns,
             };
 
             crudVariables.fetch({
@@ -403,6 +415,13 @@ export default defineComponent({
             emit("closed");
         };
 
+        const handleKeyDown = (event) => {
+            if (event.key === 'ArrowDown') {
+                selectedIndex.value = (selectedIndex.value + 1) % (crudVariables.table?.data?.length || 0);
+            } else if (event.key === 'ArrowUp') {
+                selectedIndex.value = (selectedIndex.value - 1 + (crudVariables.table?.data?.length || 0)) % (crudVariables.table?.data?.length || 0);
+            }
+        };
         watch(selectedWarehouse, (newVal, oldVal) => {
             reFetchDatatable();
         });
@@ -412,7 +431,7 @@ export default defineComponent({
             permsArray,
             ...crudVariables,
             onClose,
-            filters,
+            filterableColumns,
             reFetchDatatable,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
         };
@@ -429,7 +448,9 @@ export default defineComponent({
             ],
             selectedIndex: 0,
             isModalVisible: false,
+           
             isEnterModal: false,
+            isPopupVisible: false,
             isLoading: false,
             dialog: false,
             formData: {
@@ -445,7 +466,30 @@ export default defineComponent({
                 color: '', // Initially no text color
             },
             buttonStyle: {},
+            formDataLedger: {
+                party_name: "",
+                account_group: "",
+                station: "",
+                mail_to: "",
+                address: "",
+                stock_country: "",
+                stock_state: "",
+                stock_city: "",
+                stock_pincode: "",
+                parent_ledger: "",
+                balancing_method: "1",
+                opening_balance: "",
+                credit_days: "",
+                phone_number: "",
+                mobile_number: "",
+                whatsapp_number: "",
+                ledger_type: "1",
+                gender: "Male",
+                account_type: "Saving Account",
+                customer_title: "Mr."
+            },
         };
+        
     },
 
     mounted() {
@@ -458,10 +502,24 @@ export default defineComponent({
     },
 
     methods: {
-        
+    //     onCloseing(record) {
+    //   console.log(record); 
+    //   this.visible = false; // Hide the modal
+    // },
+    // showModal() {
+    //   this.visible = true; // Show modal method
+    // },
+        onCloseing(record){
+            this.visible = false;
+        },
+        customRow(record) {
+            return {
+                onClick: (event) => {console.log('record', record, 'event', event); this.onCloseing()}
+            }
+        },
         showModal() {
             this.isModalVisible = true;
-        },
+        },  
 
         autoFocusInput() {
             this.$nextTick(() => {
@@ -513,19 +571,13 @@ export default defineComponent({
                     this.isLoading = false;
                     this.isEnterModal = true;
                 }, 500);
-            } else if (event.key === 'ArrowUp') {
-                if (this.selectedIndex === null) {
-                    this.selectedIndex = this.items.length - 1;
-                } else {
-                    this.selectedIndex = (this.selectedIndex - 1 + this.items.length) % this.items.length;
-                }
-                this.handleClose(); // Call this if necessary
             } else if (event.key === 'ArrowDown') {
                 if (this.selectedIndex === null) {
                     this.selectedIndex = 0;
                 } else {
                     this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
                 }
+                console.log(this.selectedIndex)
             } else if (event.key === 'Escape' || event.key === 'Esc') {
                 // Hide the popup
                 this.isModalVisible = false;

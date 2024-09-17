@@ -136,9 +136,9 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('purchase-returns', 'PurchaseReturnsController', $options);
         ApiRoute::resource('stock-transfers', 'StockTransferController', $options);
         ApiRoute::resource('sales', 'SalesController', $options);
-        ApiRoute::resource('salesnumber', 'SalesNumberController', $options);
         ApiRoute::resource('sales-returns', 'SalesReturnsController', $options);
         ApiRoute::resource('store-ledger', 'LedgerController', $options);
+        ApiRoute::resource('sales-number', 'SalesNumberController', $options);
     });
 });
 

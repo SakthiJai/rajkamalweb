@@ -33,32 +33,6 @@
                         <template v-if="column.dataIndex === 'order_date'">
                             {{ formatDate(record.order_date) }}
                         </template>
-                        <template v-if="column.dataIndex === 'warehouse'">
-                            <span
-                                v-if="record.warehouse && record.warehouse.xid"
-                            >
-                                {{ record.warehouse.name }}
-                            </span>
-                        </template>
-                        <a-typography-link @click="userView(record)">
-                            <template v-if="column.dataIndex === 'user_id'">
-                                <user-info :user="record.user" />
-                            </template>
-                        </a-typography-link>
-                        <template v-if="column.dataIndex === 'paid_amount'">
-                            {{ formatAmountCurrency(record.paid_amount) }}
-                        </template>
-                        <template v-if="column.dataIndex === 'total_amount'">
-                            {{ formatAmountCurrency(record.total) }}
-                        </template>
-                        <template v-if="column.dataIndex === 'due_amount'">
-                            {{ formatAmountCurrency(record.due_amount) }}
-                        </template>
-                        <template v-if="column.dataIndex === 'payment_status'">
-                            <PaymentStatus
-                                :paymentStatus="record.payment_status"
-                            />
-                        </template>
                         <template v-if="column.dataIndex === 'order_status'">
                             <OrderStatus :data="record" />
                         </template>
@@ -70,74 +44,7 @@
                                     !record.cancelled
                                 "
                             >
-                                <a-tooltip
-                                    placement="topLeft"
-                                    :title="$t('stock.view_order')"
-                                >
-                                    <a-button
-                                        type="primary"
-                                        @click="viewOrder(record)"
-                                    >
-                                        <template #icon>
-                                            <EyeOutlined />
-                                        </template>
-                                    </a-button>
-                                </a-tooltip>
-                                <a-tooltip
-                                    v-if="
-                                        record.order_status == 'ordered' &&
-                                        !record.cancelled
-                                    "
-                                    placement="topLeft"
-                                    :title="$t('common.confirm')"
-                                >
-                                    <a-button
-                                        type="primary"
-                                        @click="confirmOrder(record)"
-                                    >
-                                        <template #icon>
-                                            <CheckOutlined />
-                                        </template>
-                                    </a-button>
-                                </a-tooltip>
-                                <a-tooltip
-                                    v-if="
-                                        !record.cancelled &&
-                                        record.order_status != 'ordered' &&
-                                        record.order_status != 'delivered'
-                                    "
-                                    placement="topLeft"
-                                    :title="
-                                        $t('online_orders.confirm_delivery')
-                                    "
-                                >
-                                    <a-button
-                                        type="primary"
-                                        @click="confirmDelivery(record)"
-                                    >
-                                        <template #icon>
-                                            <SendOutlined />
-                                        </template>
-                                    </a-button>
-                                </a-tooltip>
-                                <a-tooltip
-                                    v-if="
-                                        !record.cancelled &&
-                                        record.order_status != 'delivered'
-                                    "
-                                    placement="topLeft"
-                                    :title="$t('common.cancel')"
-                                >
-                                    <a-button
-                                        type="primary"
-                                        @click="cancelOrder(record)"
-                                        danger
-                                    >
-                                        <template #icon>
-                                            <StopOutlined />
-                                        </template>
-                                    </a-button>
-                                </a-tooltip>
+ 
                             </a-space>
                             <a-dropdown
                                 v-else-if="
@@ -832,7 +739,7 @@ export default {
             }
 
             datatableVariables.tableUrl.value = {
-                url: `${props.orderType}?fields=id,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode}`,
+                url: `${props.orderType}?fields=id,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},partyName{id,party_name},customer{id,cus_name}`,
                 filterString,
                 filters: {
                     user_id: tableFilter.user_id
