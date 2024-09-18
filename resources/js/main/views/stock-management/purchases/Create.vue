@@ -117,13 +117,19 @@
                                 @keydown.space.prevent="showNumberModal" />
                         </a-form-item>
                     </a-col>
+                     <!-- sales modal number -->
+                <CustomerNameModel v-if="isNameVisible" :visible="isNameVisible" :formData="formData" :url="url"
+                    :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
+                    @addEditSuccess="handleSuccess" @closed="handleClose" />
+                <!-- sales modal number -->
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t(`stock.customer_name`)" name="customer_name" :help="rules.customer_name ? rules.customer_name.message : null
                             " :validateStatus="rules.customer_name ? 'error' : null" class="required">
-                            <a-input v-model:value="formData.customer_name" :placeholder="$t('common.placeholder_default_text', [
-                                $t('stock.customer_name'),
-                            ])
-                                " />
+
+                              <a-input v-model:value="formData.customer_name"
+                                :placeholder="$t('common.placeholder_default_text', [$t('stock.customer_number')])"
+                                @keydown.space.prevent="showCustomerNameModal" />
+
                         </a-form-item>
                     </a-col>
 
@@ -760,6 +766,7 @@ import { some, forEach, find } from "lodash-es";
 import PaymentModeAddButton from "../payments/AddButton.vue";
 import SalesModel from "./SalesModel.vue";
 import SalesNumberModel from "./SalesNumberModel.vue";
+import CustomerNameModel from "./CustomerNameModel.vue"; 
 
 export default {
     components: {
@@ -783,6 +790,7 @@ export default {
         PaymentModeAddButton,
         ProductModal,
         SalesNumberModel,
+        CustomerNameModel,
     },
     setup() {
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
@@ -1056,6 +1064,7 @@ export default {
     data() {
         return {
             isNumberVisible:false,
+            isNameVisible:false,
             isModalVisible: false,
             isProuctsModalVisible: false,
             stockDateColor: '',
@@ -1083,6 +1092,9 @@ export default {
         
         showNumberModal() {
         this.isNumberVisible = true;
+    },
+    showCustomerNameModal(){
+        this.isNameVisible = true;
     },
 
         getCurrentDate() {
