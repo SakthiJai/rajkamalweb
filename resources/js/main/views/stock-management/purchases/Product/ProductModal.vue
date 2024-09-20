@@ -68,18 +68,18 @@
                         <a-table 
                         
                         :columns="columns" 
-                        :row-key="(record) => record" 
+                        :row-key="(record) => record.id" 
                         :data-source="table.data"
                         :pagination="table.pagination" 
                         :loading="table.loading" 
                         
-                        :rowSelection="{
-                            selectedRowKeys: selectedRowKeysValue,
-                            onChange: onSelectChange,
-                            hideDefaultSelections: true,
-                            selections: true,
-                            type: 'radio'
-                        }" 
+                       :rowSelection="{
+                                selectedRowKeys: selectedRowKeysValue,
+                                onChange: onSelectChange,
+                                hideDefaultSelections: true,
+                                selections: true,
+                                type: 'radio'
+                            }" 
                         bordered size="middle">
                             <template #bodyCell="{ column, record }" v-for="(item, index) in items" :key="index"
                                 :class="{ highlight: index === selectedIndex }" @click="selectProduct(record)">
@@ -132,35 +132,7 @@
             </a-row>
         </admin-page-table-content>
         <!--- end-->
-        <!-- <div id="app" class="table-container">
-            <table class="responsive-table">
-                <thead>
-                    <tr>
-                        <th v-for="(header, index) in headers" :key="index" class="tableheading">{{ header }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, index) in items" :key="index" :class="{ highlight: index === selectedIndex }">
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.location }}</td>
-                        <td>{{ item.value }}</td>
-                        <td>
-                            <a-button>
-                                <template #icon>
-                                    <EditOutlined />
-                                </template>
-                            </a-button>
-                            <a-button class="buttons">
-                                <template #icon>
-                                    <DeleteOutlined />
-                                </template>
-                            </a-button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-        </div> -->
+        
         <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="5" :lg="5">
                 <fieldset style="height: 167px;">
@@ -495,6 +467,7 @@ export default defineComponent({
                 { name: 'Recycled Paper', location: 'Delhi', value: '1,500.00 Cr' },
                 { name: 'Scrap Metal', location: 'Mumbai', value: '3,000.00 Cr' }
             ],
+            selectedProductId: { id: 0, name: "" },
             selectedIndex: 0,
             focus: null,
             isAddProductModalVisible: false,
@@ -527,15 +500,24 @@ export default defineComponent({
     },
 
     methods: {
+        customRow(record) {
+            return {
+                onClick: (event) => {
+                    this.rowSelection = event
+                    //console.log('record', record, 'event', record.party_name);
+                }
+            }
+        },
         test: function(event) { console.log("focus");
         switch (event.keyCode) {
             case 38:
-                
-                document.getElementsByClassName('ant-radio-input')[this.focus].click();
-            //console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
-                const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-                console.log('up=>',temp)
-                console.log('up=>',temp.getAttribute('data-row-key'))
+            document.getElementsByClassName('ant-radio-input')[this.focus].click();
+                    const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+                    console.log('up=>', temp)
+                    console.log('up=>', temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
+                    this.selectedProductId.id = temp.getAttribute('data-row-key');
+                    this.selectedProductId.name = temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+                    
             if (this.focus === null) {
                 this.focus = 0;
             } else if (this.focus > 0) {
@@ -550,9 +532,15 @@ export default defineComponent({
                 this.focus++;
             }
             document.getElementsByClassName('ant-radio-input')[this.focus].click();
-            const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-                console.log('down=>',temp1.getAttribute('data-row-key'))
-            
+                    const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+                    console.log('down=>', temp1.getAttribute('data-row-key'))
+                    this.selectedProductId.id = temp1.getAttribute('data-row-key');
+                    this.selectedProductId.name = temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+                    this.selectedProductId.packing = temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+                    this.selectedProductId.quantity = temp1.getElementsByTagName("td")[3].innerHTML.replace(/<[^>]*>?/gm, '')
+                    this.selectedProductId.single_unit_price = temp1.getElementsByTagName("td")[5].innerHTML.replace(/<[^>]*>?/gm, '')
+                    
+                    this.$emit('child-method', this.selectedProductId)
             break;
             }
         },

@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
 	const addEditUrl = "sales-number";
-	const url = "sales-number?fields=id,xid,ledger_id,name,mobile_number,gender,age,billing_discount,customer_type,customer_status";
+	const url = "sales-number?fields=id,xid,ledger_id,cus_name,mobile_number,gender,age,billing_discount,customer_type,customer_status";
 	const hashableColumns = ['id'];
 	const { t } = useI18n();
  
@@ -33,7 +33,7 @@ const fields = () => {
 		// },
 		{
 			title: t("stock.sales_name"),
-			dataIndex: "name",
+			dataIndex: "cus_name",
 			sorter:true
 		},
 		{

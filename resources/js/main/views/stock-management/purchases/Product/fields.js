@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
 	const addEditUrl = "stock-adjustments";
-	const url = "products?fields=xid,id,name,packing,stock,unit,sales_rate";
+	const url = "products?fields=xid,id,name,packing,stock,unit,sales_rate,mrp,purchase_rate,cost,margin,deal_free,w_o_free,hsn_sac,igst,company";
 	const hashableColumns = ['product_id'];
 	const { t } = useI18n();
 

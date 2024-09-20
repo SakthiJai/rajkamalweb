@@ -719,7 +719,7 @@
                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
                     <button type="button" id="btn-Ledger" @click="switchTab" title="Ledger" class="btn default-btn">
                         <span class="box">
-                            <span class="shortcut"><code>F5</code></span>
+                            <span class="shortcut"><code>F6</code></span>
                             <span>Switch Tab</span>
                         </span>
                     </button>
@@ -935,7 +935,7 @@ export default defineComponent({
 
     methods: {
         switchTab() { console.log(this.activeKey);
-            const tabs = ['taxdetails', 'visibility', 'bankdetails', 'contactinfo'];
+            const tabs = ['taxdetails','contactinfo','bankdetails', 'visibility',  ];
             const currentIndex = tabs.indexOf(this.activeKey);
             this.activeKey = tabs[(currentIndex + 1) % tabs.length];
         },
@@ -1028,7 +1028,7 @@ export default defineComponent({
             } else if (event.key === 'F9') {
                 event.preventDefault();
                 this.resetForm();
-            } else if (event.key === 'F5') {
+            } else if (event.key === 'F6') {
                 event.preventDefault();
                 this.switchTab();
             } else if (event.key === 'F10') {

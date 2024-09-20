@@ -3,16 +3,11 @@
         @keydown.esc="hideModal" class="popups">
         <template v-slot:title>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Mode Of Payment</span>
-                
+                <span>Customer List</span>
                 <div @keydown="onKeydown">
                     <a-button :style="buttonStyle" @click="showModal" class="closing">
                         <PlusOutlined />
-                        F2 /Add
-                    </a-button>
-                    <a-button :style="buttonStyle" @click="showModal" class="closing">
-                        <PlusOutlined />
-                        Del /Delete
+                        Create/F2
                     </a-button>
                     <div v-if="isLoading" class="loader-container">
                         <div class="loader">
@@ -39,42 +34,52 @@
                 </span>
             </button>
         </template>
-                    <a-form layout="vertical">
-                        <a-row :gutter="16">
-                            <!-- First Column: Bill Amount -->
-                            <a-col :xs="24" :sm="24" :md="12" :lg="6">
-                        <a-form-item label="Bill Amount">
-                            <a-input
-                            placeholder=""
-                            v-model:value="formData.bill_amount"
-                            >
-                            <template #prefix>₹</template>
-                            </a-input>
-                        </a-form-item>
+        <a-form layout="vertical">
+            <a-row :gutter="16">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <a-input-group compact>
 
-                            </a-col>
-
-                            <!-- Second Column: Balance to be Adjusted -->
-                            <a-col :xs="24" :sm="24" :md="6" :lg="6">
-                            <a-form-item label="Balance to be Adjusted">
-                                <a-input
-                            placeholder=""
-                            v-model:value="formData.balance_adjustment"
-                            >
-                            <template #prefix>₹</template>
-                            </a-input>
-                            </a-form-item>
-                            </a-col>
-                        </a-row>
-                    </a-form>
-
+                        <a-input-search ref="searchInput" @keydown="test"  style="width: 75%" placeholder="search here.."
+                            v-model:value="table.searchString" show-search @change="onTableSearch"
+                            @search="onTableSearch" :loading="table.filterLoading" />
+                    </a-input-group>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="6" :lg="6">
+                    <a-form-item name="name">
+                        <a-select v-model:value="formData.sales_names">
+                            <a-select-option key="1" value="1">
+                                Name
+                            </a-select-option>
+                            <a-select-option key="2" value="2">
+                                Mobile
+                            </a-select-option>
+                            <a-select-option key="3" value="3">
+                                Address
+                            </a-select-option>
+                            <a-select-option key="4" value="4">
+                                GSTIN
+                            </a-select-option>
+                            <a-select-option key="4" value="4">
+                                Search in All
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+        </a-form>
         <admin-page-table-content>
             <a-row>
                 <a-col :span="24">
                     <div class="table-responsive">
-                        <a-table :columns="columns" :row-key="(record) => record.xid" :data-source="table.data"
+                        <a-table :columns="columns" :row-key="(record) => record.id" :data-source="table.data"
                             :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
-                            :customRow="customRow" :row-selection="rowSelection" bordered size="middle">
+                            :customRow="customRow" :rowSelection="{
+        selectedRowKeys: selectedRowKeysValue,
+        onChange: onSelectChange,
+        hideDefaultSelections: true,
+        selections: true,
+        type: 'radio'
+      }" bordered size="middle">
                             <template #bodyCell="{ column, record, rowIndex }">
                                 <template v-if="column.dataIndex === 'id'">
                                     <a-badge :class="{ 'row-highlight': rowIndex === selectedIndex }">
@@ -86,7 +91,7 @@
                                 </a-typography-text>
                                 <template v-if="column.dataIndex === 'name'">
                                     <a-typography-text v-if="record.adjustment_type === 'add'" type="success" strong>
-                                        +{{ record.name }}
+                                        +{{ record.cus_name }}
                                     </a-typography-text>
                                 </template>
                                 <template v-if="column.dataIndex === 'gender'">
@@ -104,7 +109,22 @@
                                         +{{ record.customer_status }}
                                     </a-typography-text>
                                 </template>
-                               
+                                <template v-if="column.dataIndex === 'action'">
+                                    <a-button
+                                        v-if="permsArray.includes('stock_adjustments_edit') || permsArray.includes('admin')"
+                                        type="primary" @click="editItem(record)" style="margin-left: 4px">
+                                        <template #icon>
+                                            <EditOutlined />
+                                        </template>
+                                    </a-button>
+                                    <a-button
+                                        v-if="permsArray.includes('stock_adjustments_delete') || permsArray.includes('admin')"
+                                        type="primary" @click="showDeleteConfirm(record.xid)" style="margin-left: 4px">
+                                        <template #icon>
+                                            <DeleteOutlined />
+                                        </template>
+                                    </a-button>
+                                </template>
                             </template>
                         </a-table>
 
@@ -112,41 +132,10 @@
                 </a-col>
             </a-row>
         </admin-page-table-content>
-        <a-row :gutter="16">
-                            <!-- First Column: Bill Amount -->
-                            <a-col :xs="24" :sm="24" :md="12" :lg="6">
-                        <a-form-item label="Cash Tender">
-                            <a-input
-                            placeholder=""
-                            v-model:value="formData.cash_tender"
-                            >
-                            <template #prefix>₹</template>
-                            </a-input>
-                        </a-form-item>
-
-                            </a-col>
-
-                            <!-- Second Column: Balance to be Adjusted -->
-                            <a-col :xs="24" :sm="24" :md="6" :lg="6">
-                            <a-form-item label="Cash Return">
-                                <a-input
-                            placeholder=""
-                            v-model:value="formData.cash_return"
-                            >
-                            <template #prefix>₹</template>
-                            </a-input>
-                            </a-form-item>
-                            </a-col>
-                        </a-row>
         <!--- end-->
         <template #footer class="floats">
-            <a-button type="primary" :loading="loading" @click="onSubmit" block class="left-align-btn">
-                <template #icon>
-                <SaveOutlined />
-                </template>
-                {{ $t("F10| Save") }}
-            </a-button>
-</template>
+
+        </template>
     </a-modal>
 </template>
 
@@ -156,7 +145,7 @@ import { defineComponent } from "vue";
 import { PlusOutlined, LoadingOutlined, SaveOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import StaffMemberAddButton from "../../../views/users/StaffAddButton.vue";
-import fields from "./PaymentMode/fields";
+import fields from "./SalesNumber/fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
 
@@ -184,6 +173,8 @@ export default defineComponent({
         const crudVariables = crud();
         const { permsArray, selectedWarehouse } = common();
         const selectedIndex = ref(-1);
+        let selectedRowKeysValue=[]; // Check here to configure the default column
+        selectedRowKeysValue[0]=4;
 
         onMounted(() => {
             crudVariables.table.filterableColumns = filterableColumns;
@@ -196,9 +187,13 @@ export default defineComponent({
             reFetchDatatable();
         });
         const onSelectChange = (changableRowKeys) => {
-            console.log('selectedRowKeys changed: ', changableRowKeys);
-            selectedRowKeys.value = changableRowKeys;
-        };
+          
+          console.log('selectedRowKeys changed: ', changableRowKeys);
+         
+          selectedRowKeysValue=changableRowKeys;
+         
+      };
+       
         const selectedRowKeys = []; // Check here to configure the default column
         const rowSelection = computed(() => {
             return {
@@ -288,6 +283,8 @@ export default defineComponent({
             ],
             selectedIndex: 0,
             isModalVisible: false,
+            focus: null,
+            selectedPartyId:{id:null,name:"",mobile_number:"",},
 
             isEnterModal: false,
             isPopupVisible: false,
@@ -311,8 +308,8 @@ export default defineComponent({
     },
 
     mounted() {
-        // document.addEventListener('keydown', this.handleKeyDown);
-        document.addEventListener('keyup', this.handleKeyDown);
+        document.addEventListener('keydown', this.handleKeyDown);
+        //document.addEventListener('keyup', this.handleKeyDown);
         this.autoFocusInput();
     },
     beforeDestroy() {
@@ -399,7 +396,53 @@ export default defineComponent({
                 this.isEnterModal = false;
                 this.isLoading = false;
             }
+            else if (event.key === 'Enter') { 
+               
+               document.documentElement.querySelector(".ant-modal-close-x").click()
+
+           }
         },
+        test: function(event) { 
+        switch (event.keyCode) {
+        case 38:
+            
+            document.getElementsByClassName('ant-radio-input')[this.focus].click();
+           //console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
+            const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+
+            console.log('up=>',temp)
+            
+            console.log('up=>',temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
+            this.selectedPartyId.id = temp.getAttribute('data-row-key');
+            this.selectedPartyId.name= temp.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+            this.selectedPartyId.mobile_number= temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+            
+            console.log('up=>',this.selectedPartyId)
+            this.$emit('cutomer-method',this.selectedPartyId)
+          if (this.focus === null) {
+            this.focus = 0;
+          } else if (this.focus > 0) {
+            this.focus--;
+          }
+          break;
+        case 40:
+            
+          if (this.focus === null) {
+            this.focus = 0;
+          } else if (this.focus < this.items.length - 1) {
+            this.focus++;
+          }
+          document.getElementsByClassName('ant-radio-input')[this.focus].click();
+          const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+            console.log('down=>',temp1.getAttribute('data-row-key'))
+            this.selectedPartyId.name= temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+            this.selectedPartyId.mobile_number= temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+            console.log('up=>',this.selectedPartyId)
+            this.$emit('cutomer-method',this.selectedPartyId)
+          
+          break;
+      }
+    },
 
     },
 
@@ -407,12 +450,10 @@ export default defineComponent({
 </script>
 
 <style>
-
-.left-align-btn{
-    max-width: 115px;
-}
 .popups {
     width: 80% !important;
+    /*vertical-align: top !important;
+  top:15px !important;*/
 }
 
 .ant-modal-footer {

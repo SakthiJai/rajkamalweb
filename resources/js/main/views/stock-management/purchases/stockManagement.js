@@ -28,6 +28,8 @@ const stockManagement = () => {
     const formData = ref({
         order_type: route.params.type,
         invoice_number: "",
+        bill_number:"", 
+        address:"",
         order_date: dayjs().utc().format("YYYY-MM-DDTHH:mm:ssZ"),
         warehouse_id:
             orderType.value == "stock-transfers"
@@ -36,7 +38,7 @@ const stockManagement = () => {
         user_id: undefined,
         terms_condition: selectedWarehouse.value.terms_condition,
         notes: "",
-        order_status: undefined,
+        order_status: null,
         tax_id: undefined,
         tax_rate: 0,
         tax_amount: 0,

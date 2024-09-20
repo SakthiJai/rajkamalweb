@@ -39,7 +39,7 @@
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
                     <a-input-group compact>
 
-                        <a-input-search ref="searchInput" style="width: 75%" placeholder="search here.."
+                        <a-input-search ref="searchInput" @keydown="test"  style="width: 75%" placeholder="search here.."
                             v-model:value="table.searchString" show-search @change="onTableSearch"
                             @search="onTableSearch" :loading="table.filterLoading" />
                     </a-input-group>
@@ -71,9 +71,15 @@
             <a-row>
                 <a-col :span="24">
                     <div class="table-responsive">
-                        <a-table :columns="columns" :row-key="(record) => record.xid" :data-source="table.data"
+                        <a-table :columns="columns" :row-key="(record) => record.id" :data-source="table.data"
                             :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
-                            :customRow="customRow" :row-selection="rowSelection" bordered size="middle">
+                            :customRow="customRow" :rowSelection="{
+        selectedRowKeys: selectedRowKeysValue,
+        onChange: onSelectChange,
+        hideDefaultSelections: true,
+        selections: true,
+        type: 'radio'
+      }" bordered size="middle">
                             <template #bodyCell="{ column, record, rowIndex }">
                                 <template v-if="column.dataIndex === 'id'">
                                     <a-badge :class="{ 'row-highlight': rowIndex === selectedIndex }">
@@ -85,7 +91,7 @@
                                 </a-typography-text>
                                 <template v-if="column.dataIndex === 'name'">
                                     <a-typography-text v-if="record.adjustment_type === 'add'" type="success" strong>
-                                        +{{ record.name }}
+                                        +{{ record.cus_name }}
                                     </a-typography-text>
                                 </template>
                                 <template v-if="column.dataIndex === 'gender'">
@@ -167,6 +173,8 @@ export default defineComponent({
         const crudVariables = crud();
         const { permsArray, selectedWarehouse } = common();
         const selectedIndex = ref(-1);
+        let selectedRowKeysValue=[]; // Check here to configure the default column
+        selectedRowKeysValue[0]=4;
 
         onMounted(() => {
             crudVariables.table.filterableColumns = filterableColumns;
@@ -179,9 +187,13 @@ export default defineComponent({
             reFetchDatatable();
         });
         const onSelectChange = (changableRowKeys) => {
-            console.log('selectedRowKeys changed: ', changableRowKeys);
-            selectedRowKeys.value = changableRowKeys;
-        };
+          
+          console.log('selectedRowKeys changed: ', changableRowKeys);
+         
+          selectedRowKeysValue=changableRowKeys;
+         
+      };
+       
         const selectedRowKeys = []; // Check here to configure the default column
         const rowSelection = computed(() => {
             return {
@@ -271,6 +283,8 @@ export default defineComponent({
             ],
             selectedIndex: 0,
             isModalVisible: false,
+            focus: null,
+            selectedPartyId:{id:null,name:"",mobile_number:"",},
 
             isEnterModal: false,
             isPopupVisible: false,
@@ -294,8 +308,8 @@ export default defineComponent({
     },
 
     mounted() {
-        // document.addEventListener('keydown', this.handleKeyDown);
-        document.addEventListener('keyup', this.handleKeyDown);
+        document.addEventListener('keydown', this.handleKeyDown);
+        //document.addEventListener('keyup', this.handleKeyDown);
         this.autoFocusInput();
     },
     beforeDestroy() {
@@ -382,7 +396,53 @@ export default defineComponent({
                 this.isEnterModal = false;
                 this.isLoading = false;
             }
+            else if (event.key === 'Enter') { 
+               
+               document.documentElement.querySelector(".ant-modal-close-x").click()
+
+           }
         },
+        test: function(event) { 
+        switch (event.keyCode) {
+        case 38:
+            
+            document.getElementsByClassName('ant-radio-input')[this.focus].click();
+           //console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
+            const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+
+            console.log('up=>',temp)
+            
+            console.log('up=>',temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
+            this.selectedPartyId.id = temp.getAttribute('data-row-key');
+            this.selectedPartyId.name= temp.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+            this.selectedPartyId.mobile_number= temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+            
+            console.log('up=>',this.selectedPartyId)
+            this.$emit('cutomer-method',this.selectedPartyId)
+          if (this.focus === null) {
+            this.focus = 0;
+          } else if (this.focus > 0) {
+            this.focus--;
+          }
+          break;
+        case 40:
+            
+          if (this.focus === null) {
+            this.focus = 0;
+          } else if (this.focus < this.items.length - 1) {
+            this.focus++;
+          }
+          document.getElementsByClassName('ant-radio-input')[this.focus].click();
+          const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+            console.log('down=>',temp1.getAttribute('data-row-key'))
+            this.selectedPartyId.name= temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+            this.selectedPartyId.mobile_number= temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+            console.log('up=>',this.selectedPartyId)
+            this.$emit('cutomer-method',this.selectedPartyId)
+          
+          break;
+      }
+    },
 
     },
 

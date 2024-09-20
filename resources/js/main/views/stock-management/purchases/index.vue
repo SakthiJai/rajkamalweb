@@ -220,20 +220,39 @@ export default {
     },
 
     
+    // mounted() {
+    //     // document.addEventListener('keydown', this.handleKeyDown);
+    //     document.addEventListener('keyup', this.handleKeyDown);
+    //     
+    // },
+    // beforeDestroy() {
+    //     document.removeEventListener('keydown', this.handleKeyDown);
+    // },
+
     mounted() {
-        // document.addEventListener('keydown', this.handleKeyDown);
-        document.addEventListener('keyup', this.handleKeyDown);
-        this.autoFocusInput();
-    },
-    beforeDestroy() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-    },
+    // Add keydown event listener for F2 key
+    document.addEventListener('keydown', this.handleKeydown);
+    this.autoFocusInput();
+  },
+  beforeDestroy() {
+    // Remove keydown event listener
+    document.removeEventListener('keydown', this.handleKeydown);
+  },
     methods: {
         selectDateRange(range) {
             this.selectedRange = range.trim();  // Update selected range
             this.buttonLabel = range.trim();  // Update button label to show the selected range
             this.isDropdownOpen = false;  // Close dropdown after selection
         },
+
+        handleKeydown(event) {
+      if (event.key === 'F2') {
+        // Perform route navigation
+        this.$router.push({
+          name: `admin.stock.${this.orderPageObject.type}.create`,
+        });
+      }
+    },
         autoFocusInput() {
             this.$nextTick(() => {
                 this.$refs.searchInput.focus();  // Automatically focus the input

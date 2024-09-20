@@ -14,7 +14,27 @@ class Product extends BaseModel
 
     protected $default = ['xid'];
 
-    protected $guarded = ['id','packing','stock','unit_first','sales_rate','warehouse_id', 'user_id', 'created_at', 'updated_at'];
+    protected $guarded = [
+        'id',
+        'packing',
+        'stock',
+        'unit_first',
+        'sales_rate',
+        'warehouse_id',
+        'user_id',
+        'created_at',
+        'updated_at',
+        'mrp',
+        'purchase_rate',
+        'cost',
+        'margin',
+        'deal_free',
+        'w_o_free',
+        'hsn_sac',
+        'igst',
+        'company'
+    ];
+    
 
     protected $hidden = ['category_id', 'brand_id', 'unit_id', 'user_id', 'warehouse_id', 'variant_id', 'variant_value_id', 'parent_id'];
 

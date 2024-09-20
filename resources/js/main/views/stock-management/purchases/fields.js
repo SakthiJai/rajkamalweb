@@ -26,10 +26,10 @@ const fields = () => {
         user_id: undefined,
         notes: "",
         order_status: undefined,
-        
         tax_id: undefined,
         warehouse_id: undefined,
         party_customer_id:undefined,
+        
         discount: 0,
         shipping: 0,
         subtotal: 0,

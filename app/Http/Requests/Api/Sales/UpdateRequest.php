@@ -31,6 +31,7 @@ class UpdateRequest extends FormRequest
         $id = $convertedId[0];
 
         $rules = [
+            'bill_number' => 'required',
             'order_date' => 'required',
             'user_id' => 'required',
             'order_status' => 'required',

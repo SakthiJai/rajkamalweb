@@ -7,6 +7,7 @@ const fields = () => {
 	const hashableColumns = ['id'];
 	const { t } = useI18n();
 
+	
 	const initData = {
 		xid: undefined,
 		name:undefined,

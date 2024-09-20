@@ -6,24 +6,27 @@ use App\Casts\Hash;
 use App\Classes\Common;
 use App\Models\BaseModel;
 use App\Scopes\CompanyScope;
-use App\Models\Station;
-
 class Order extends BaseModel
 {
     protected $table = 'orders';
 
-    protected $default = ['xid'];
+    
+    protected $default = [
+        'xid',
+        'bill_number',
+        'address',
+        
+    ];
+    protected $guarded = ['id', 'warehouse_id', 'staff_user_id', 'order_type', 'party_customer_id', 'created_at', 'updated_at'];
 
-    protected $guarded = ['id', 'warehouse_id', 'staff_user_id', 'order_type','party_customer_id', 'created_at', 'updated_at'];
+    protected $hidden = ['id', 'warehouse_id','party_id', 'product_id','from_warehouse_id', 'user_id', 'tax_id', 'staff_user_id', 'cancelled_by'];
 
-    protected $hidden = ['id', 'warehouse_id','party_id', 'from_warehouse_id', 'user_id', 'tax_id', 'staff_user_id', 'cancelled_by'];
-
-    protected $appends = ['xid', 'x_warehouse_id','party_id', 'x_from_warehouse_id', 'x_user_id', 'x_tax_id', 'x_staff_user_id', 'x_cancelled_by', 'document_url'];
+    protected $appends = ['xid', 'x_warehouse_id','party_id','product_id', 'x_from_warehouse_id', 'x_user_id', 'x_tax_id', 'x_staff_user_id', 'x_cancelled_by', 'document_url'];
 
     protected $dates = ['order_date'];
 
-    protected $filterable = ['id', 'invoice_number', 'payment_status', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id'];
-
+    protected $filterable = ['id', 'bill_number','address','payment_status','invoice_number', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id','product_id'];
+  
     protected $hashableGetterFunctions = [
         'getXWarehouseIdAttribute' => 'warehouse_id',
         'getXFromWarehouseIdAttribute' => 'from_warehouse_id',
@@ -51,7 +54,7 @@ class Order extends BaseModel
         'due_amount' => 'double',
         'total_items' => 'double',
         'total_quantity' => 'double',
-        //'party_customer_id' => 'String',
+      'bill_number' => 'string',
     ];
 
     protected static function boot()
@@ -76,6 +79,12 @@ class Order extends BaseModel
     {
        return $this->belongsTo(LedgerModel::class, 'party_id', 'id');
     }
+
+    public function productName()
+    {
+       return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
+
     public function customer()
     {
         return $this->belongsTo(LedgerCustomerModel::class,'party_customer_id', 'id');

@@ -57,11 +57,13 @@ const crud = () => {
         viewData.value = {};
     };
 
-    const selectItems = () => {
-        // detailsVisible.value = false;
-        // viewData.value = {};
-    };
-
+    const onSelectChange = (changableRowKeys) => {
+        // selectedRowKeysValue=[];
+         console.log('selectedRowKeys Crud Js: ', changableRowKeys);
+         //selectedRowKeys.value = changableRowKeys;
+         selectedRowKeysValue=changableRowKeys;
+         console.log('selectedRowKeys Crud Js: ', selectedRowKeysValue);
+     };
     const editItem = (item) => {
         console.log(item);
         const itemDetails = {};
