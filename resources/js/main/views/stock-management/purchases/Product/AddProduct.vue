@@ -58,16 +58,21 @@
                             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                                 <a-row :gutter="16">
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.packing')" name="packing">
+                                        <a-form-item :label="$t('stock.packing')" name="packing"
+                                        :help="rules.name ? rules.name.message : null"
+                                            :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input name="packing" v-model:value="formDataLedger.packing"
-                                            value="">
+                                        <a-input name="packing" v-model:value="formDataLedger.packing" value=""
+                                        :help="rules.name ? rules.name.message : null"
+                                        :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-input>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.M_R_P ')" name="mrp">
+                                        <a-form-item :label="$t('stock.M_R_P ')" name="mrp"
+                                        :help="rules.name ? rules.name.message : null"
+                                        :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -75,8 +80,10 @@
                                             <a-button type="primary" class="indiannumber">
                                                 INR
                                             </a-button>
-                                            <a-input v-model:value="formDataLedger.mrp" style="width:81%"
-                                                type="number" maxlength="10" @input="onInputPhoneNumber" />
+                                            <a-input v-model:value="formDataLedger.mrp" style="width: 79%;" 
+                                                type="number" maxlength="10" @input="onInputPhoneNumber" 
+                                                :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required"/>
                                         </a-input-group>
                                     </a-col>
                                 </a-row>
@@ -87,8 +94,7 @@
                                 <a-row :gutter="16">
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
                                         <a-form-item :label="$t('stock.Unit_1st')" name="unit_first"
-                                            :help="rules.unit_first ? rules.unit_first.message : null"
-                                            :validateStatus="rules.unit_first ? 'error' : null" class="required">
+                                            >
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -99,7 +105,9 @@
                                             " @valueSuccess="getStockValue" :productData="data" />
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Purchase_Rate')" name="purchase_rate">
+                                        <a-form-item :label="$t('stock.Purchase_Rate')" name="purchase_rate"
+                                        :help="rules.name ? rules.name.message : null"
+                                        :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -107,8 +115,10 @@
                                             <a-button type="primary" class="indiannumber">
                                                 INR
                                             </a-button>
-                                            <a-input v-model:value="formDataLedger.purchase_rate" style="width:81%"
-                                                type="number" maxlength="10" @input="onInputPhoneNumber" />
+                                            <a-input v-model:value="formDataLedger.purchase_rate" style="width:79%"
+                                                type="number" maxlength="10" @input="onInputPhoneNumber"
+                                                :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required" />
                                         </a-input-group>
                                     </a-col>
                                 </a-row>
@@ -118,13 +128,14 @@
                             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                                 <a-row :gutter="16">
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Unit_in_Decimal')" name="unit_in_decimal"
-                                            :help="rules.unit_in_decimal ? rules.unit_in_decimal.message : null"
-                                            :validateStatus="rules.unit_in_decimal ? 'error' : null" class="required">
+                                        <a-form-item :label="$t('stock.Unit_in_Decimal')" name="unit_in_decimal"          
+                                        :help="rules.name ? rules.name.message : null"
+                                        :validateStatus="rules.name ? 'error' : null" class="required" >
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-select v-model="formDataLedger.unit_in_decimal" style="width:100%;">
+                                        <a-select v-model="formDataLedger.unit_in_decimal" style="width:100%;"
+                                        >
                                             <a-select-option key="No" value="No" aria-selected="true">
                                                 No
                                             </a-select-option>
@@ -134,7 +145,9 @@
                                         </a-select>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Cost')" name="cost">
+                                        <a-form-item :label="$t('stock.Cost')" name="cost"
+                                        :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -142,8 +155,10 @@
                                             <a-button type="primary" class="indiannumber">
                                                 INR
                                             </a-button>
-                                            <a-input v-model:value="formDataLedger.cost" style="width:81%"
-                                                type="number" maxlength="10" @input="onInputPhoneNumber" />
+                                            <a-input v-model:value="formDataLedger.cost" style="width:79%"
+                                                type="number" maxlength="10" @input="onInputPhoneNumber" 
+                                                :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required"/>
                                         </a-input-group>
                                     </a-col>
                                 </a-row>
@@ -166,7 +181,9 @@
                                             " @valueSuccess="getStockValue" :productData="data" />
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Sale_Rate')" name="sale_rate">
+                                        <a-form-item :label="$t('stock.Sale_Rate')" name="sale_rate"
+                                        :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -174,8 +191,10 @@
                                             <a-button type="primary" class="indiannumber">
                                                 INR
                                             </a-button>
-                                            <a-input v-model:value="formDataLedger.sale_rate" style="width:81%"
-                                                type="number" maxlength="10" @input="onInputPhoneNumber" />
+                                            <a-input v-model:value="formDataLedger.sale_rate" style="width:79%"
+                                                type="number" maxlength="10" @input="onInputPhoneNumber" 
+                                                :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required"/>
                                         </a-input-group>
                                     </a-col>
                                 </a-row>
@@ -195,7 +214,8 @@
                                             " @valueSuccess="getStockValue" :productData="data" />
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Rate_B')" name="rate_b">
+                                        <a-form-item :label="$t('stock.Rate_B')" name="rate_b" :help="rules.name ? rules.name.message : null"
+                                        :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -203,8 +223,9 @@
                                             <a-button type="primary" class="indiannumber">
                                                 INR
                                             </a-button>
-                                            <a-input v-model:value="formDataLedger.rate_b" style="width:81%"
-                                                type="number" maxlength="10" @input="onInputPhoneNumber" />
+                                            <a-input v-model:value="formDataLedger.rate_b" style="width:79%"
+                                                type="number" maxlength="10" @input="onInputPhoneNumber"
+                                                 />
                                         </a-input-group>
                                     </a-col>
                                 </a-row>
@@ -225,18 +246,22 @@
                                     </a-col>
                                     
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Free_Scheme')">
+                                        <a-form-item :label="$t('stock.Free_Scheme')"
+                                        value="" :help="rules.name ? rules.name.message : null"
+                                        :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="3" :lg="3">
                                         <a-input name="free_scheme_1" v-model:value="formDataLedger.free_scheme_1"
-                                            value="">
+                                            >
                                         </a-input>
                                     </a-col> 
                                         +
                                     <a-col :xs="24" :sm="24" :md="3" :lg="3">
                                         <a-input name="free_scheme_2" v-model:value="formDataLedger.free_scheme_2"
-                                            value="" style="width:127%">
+                                            value="" style="width:127%"  
+                                            :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-input>
                                     </a-col>
                                 </a-row>
@@ -257,7 +282,9 @@
                                         </a-input> -->
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Scheme_Type')" name="scheme_type">
+                                        <a-form-item :label="$t('stock.Scheme_Type')" name="scheme_type"
+                                        :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -303,7 +330,9 @@
                                         </a-input> -->
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Status')" name="status">
+                                        <a-form-item :label="$t('stock.Status')" name="status"
+                                        :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -334,7 +363,9 @@
                                         </a-input> -->
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.Color_Type')" name="color_type">
+                                        <a-form-item :label="$t('stock.Color_Type')" name="color_type"
+                                                :help="rules.name ? rules.name.message : null"
+                                                :validateStatus="rules.name ? 'error' : null" class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -1005,6 +1036,8 @@ export default defineComponent({
     margin: 0 auto;
 }
 
+indiannumber
+
 .responsive-table {
     width: 100%;
 
@@ -1183,6 +1216,8 @@ button.btn {
     background: #f6f6f6;
     border-color: #c2c2c2;
     color: black;
+    width: 21%; 
+    text-align: center;
 }
 
 .gst {

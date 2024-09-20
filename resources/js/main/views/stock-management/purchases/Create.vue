@@ -132,14 +132,18 @@
 
                         </a-form-item>
                     </a-col>
-
+  
+                    <PaymentModeModal v-if="isPaymentVisible" :visible="isPaymentVisible" :formData="formData" :url="url"
+                    :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
+                    @addEditSuccess="handleSuccess" @closed="handleClose" />
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t(`stock.address`)" name="address" :help="rules.address ? rules.address.message : null
                             " :validateStatus="rules.address ? 'error' : null" class="required">
-                            <a-input v-model:value="formData.address" :placeholder="$t('common.placeholder_default_text', [
-                                $t('stock.address'),
-                            ])
-                                " />
+                            
+                             <a-input v-model:value="formData.address"
+                                :placeholder="$t('common.placeholder_default_text', [$t('common.placeholder_default_text')])"
+                                @keydown.space.prevent="showPaymentModal" />
+
                         </a-form-item>
                     </a-col>
                 </a-row>
@@ -767,6 +771,7 @@ import PaymentModeAddButton from "../payments/AddButton.vue";
 import SalesModel from "./SalesModel.vue";
 import SalesNumberModel from "./SalesNumberModel.vue";
 import CustomerNameModel from "./CustomerNameModel.vue"; 
+import PaymentModeModal from "./PaymentModeModal.vue";
 
 export default {
     components: {
@@ -791,6 +796,7 @@ export default {
         ProductModal,
         SalesNumberModel,
         CustomerNameModel,
+        PaymentModeModal,
     },
     setup() {
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
@@ -1065,6 +1071,7 @@ export default {
         return {
             isNumberVisible:false,
             isNameVisible:false,
+            isPaymentVisible:false,
             isModalVisible: false,
             isProuctsModalVisible: false,
             stockDateColor: '',
@@ -1095,6 +1102,9 @@ export default {
     },
     showCustomerNameModal(){
         this.isNameVisible = true;
+    },
+    showPaymentModal(){
+        this.isPaymentVisible = true;
     },
 
         getCurrentDate() {
