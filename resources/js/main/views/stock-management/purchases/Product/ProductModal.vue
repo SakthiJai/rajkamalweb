@@ -65,21 +65,21 @@
             <a-row>
                 <a-col :span="24">
                     <div class="table-responsive">
-                        <a-table 
-                        
-                        :columns="columns" 
-                        :row-key="(record) => record.id" 
+                        <a-table
+
+                        :columns="columns"
+                        :row-key="(record) => record.id"
                         :data-source="table.data"
-                        :pagination="table.pagination" 
-                        :loading="table.loading" 
-                        
+                        :pagination="table.pagination"
+                        :loading="table.loading"
+
                        :rowSelection="{
                                 selectedRowKeys: selectedRowKeysValue,
                                 onChange: onSelectChange,
                                 hideDefaultSelections: true,
                                 selections: true,
                                 type: 'radio'
-                            }" 
+                            }"
                         bordered size="middle">
                             <template #bodyCell="{ column, record }" v-for="(item, index) in items" :key="index"
                                 :class="{ highlight: index === selectedIndex }" @click="selectProduct(record)">
@@ -96,7 +96,7 @@
 
                                 <template v-if="column.dataIndex === 'station'">
                                     <a-typography-text v-if="record.adjustment_type == 'add'" type="success" strong>
-                                        +{{ record.station }}
+                                        +{{ record.packing }}
                                     </a-typography-text>
 
                                 </template>
@@ -132,7 +132,7 @@
             </a-row>
         </admin-page-table-content>
         <!--- end-->
-        
+
         <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="5" :lg="5">
                 <fieldset style="height: 167px;">
@@ -149,7 +149,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -162,7 +162,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -174,7 +174,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -187,7 +187,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -200,7 +200,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span></span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -220,7 +220,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -233,7 +233,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -245,7 +245,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -258,7 +258,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -278,7 +278,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -291,7 +291,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -303,7 +303,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -316,7 +316,7 @@
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             <span>₹ </span>
-                            <span>0.18</span> 
+                            <span>0.18</span>
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -334,7 +334,7 @@
                             <span>:</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>Power Text Services</span> 
+                            <span>Power Text Services</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
@@ -345,7 +345,7 @@
                             <span>:</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span></span> 
+                            <span></span>
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -353,7 +353,7 @@
         </a-row>
         <template #footer class="floats">
             <div class="floats">
-                
+
                 <a-button type="button" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted"
                     @click="EnterprisesModel"><span class="box"><span
                             class="shortcut ng-star-inserted"><code>F4</code></span><span
@@ -517,7 +517,7 @@ export default defineComponent({
                     console.log('up=>', temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
                     this.selectedProductId.id = temp.getAttribute('data-row-key');
                     this.selectedProductId.name = temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-                    
+
             if (this.focus === null) {
                 this.focus = 0;
             } else if (this.focus > 0) {
@@ -525,7 +525,7 @@ export default defineComponent({
             }
             break;
             case 40:
-                
+
             if (this.focus === null) {
                 this.focus = 0;
             } else if (this.focus < this.items.length - 1) {
@@ -539,7 +539,7 @@ export default defineComponent({
                     this.selectedProductId.packing = temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
                     this.selectedProductId.quantity = temp1.getElementsByTagName("td")[3].innerHTML.replace(/<[^>]*>?/gm, '')
                     this.selectedProductId.single_unit_price = temp1.getElementsByTagName("td")[5].innerHTML.replace(/<[^>]*>?/gm, '')
-                    
+
                     this.$emit('child-method', this.selectedProductId)
             break;
             }
@@ -553,7 +553,7 @@ export default defineComponent({
                 this.$refs.searchInput.focus();  // Automatically focus the input
             });
         },
-        hideModal() { 
+        hideModal() {
             document.documentElement.querySelector(".ant-modal-close-x").click()
             //this.isAddProductModalVisible = false;
         },

@@ -138,13 +138,13 @@ class ProductController extends ApiBaseController
                 }
 
                 foreach ($allWarehouses as $allWarehouse) {
-                    $productDetails = new ProductDetails();
+                    $productDetails = new Product();
                     $productDetails->warehouse_id = $allWarehouse->id;
                     $productDetails->product_id = $newVariantProduct->id;
 
                     $productDetails->tax_id = isset($allVariation['tax_id']) && $allVariation['tax_id'] != '' ? $allVariation['tax_id'] : null;
                     $productDetails->mrp = $allVariation['mrp'];
-                    $productDetails->purchase_price = $allVariation['purchase_price'];
+                    // $productDetails->purchase_price = $allVariation['purchase_price'];
                     $productDetails->sales_price = $allVariation['sales_price'];
                     $productDetails->purchase_tax_type = $allVariation['purchase_tax_type'];
                     $productDetails->sales_tax_type = $allVariation['sales_tax_type'];
@@ -269,6 +269,8 @@ class ProductController extends ApiBaseController
                         $productDetails = new ProductDetails();
                         $productDetails->warehouse_id = $allWarehouse->id;
                         $productDetails->product_id = $newVariantProduct->id;
+
+                        $productDetails->$packing=$allVariation['packing'];
 
                         $productDetails->tax_id = isset($allVariation['tax_id']) && $allVariation['tax_id'] != '' ? $allVariation['tax_id'] : null;
                         $productDetails->mrp = $allVariation['mrp'];

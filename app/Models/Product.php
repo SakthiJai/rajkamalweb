@@ -12,29 +12,87 @@ class Product extends BaseModel
 {
     protected $table = 'products';
 
-    protected $default = ['xid'];
+    // protected $default = ['xid'];
+
+
+
+    protected $default =[
+                        'id',
+                        'company_id',
+                        'warehouse_id',
+                        'product_type',
+                        'parent_id',
+                        'parent_item_code',
+                        'name',
+                        'slug',
+                        'barcode_symbology',
+                        'item_code',
+                        'image',
+                        'category_id',
+                        'brand_id',
+                        'unit_id',
+                        'description',
+                        'user_id',
+                        'created_at',
+                        'updated_at',
+                        'unit_1st',
+                        'unit_in_decimal',
+                        'hsn_sac',
+                        'tax_category',
+                        'company',
+                        'mrp',
+                        'purchase_rate',
+                        'cost',
+                        'sale_rate',
+                        'rate_b',
+                        'free_scheme_1',
+                        'free_scheme_2',
+                        'scheme_type',
+                        'status',
+                        'color_type',
+                        'rate_d',
+                        'rate_f',
+                        'discount',
+                        'item_disc_1_percent',
+                        'volume_disc_1',
+                        'max_disc_percent',
+                        'min_quantity',
+                        'max_quantity',
+                        'reorder_days',
+                        'reorder_qty',
+                        'prohibited',
+                        'visibility',
+                        'mfr_name',
+                        'upload_image',
+                        'packing',
+
+                        'sales_rate',
+
+];
+
+
 
     protected $guarded = [
-        'id',
-        'packing',
-        'stock',
-        'unit_first',
-        'sales_rate',
-        'warehouse_id',
-        'user_id',
-        'created_at',
-        'updated_at',
-        'mrp',
-        'purchase_rate',
-        'cost',
-        'margin',
-        'deal_free',
-        'w_o_free',
-        'hsn_sac',
-        'igst',
-        'company'
+                    'id',
+                    'packing',
+
+                    'unit_first',
+                    'sales_rate',
+                    'warehouse_id',
+                    'user_id',
+                    'created_at',
+                    'updated_at',
+                    'mrp',
+                    'purchase_rate',
+                    'cost',
+                    'margin',
+                    // 'deal_free',
+                    'w_o_free',
+                    'hsn_sac',
+                    'igst',
+                    'company'
     ];
-    
+
 
     protected $hidden = ['category_id', 'brand_id', 'unit_id', 'user_id', 'warehouse_id', 'variant_id', 'variant_value_id', 'parent_id'];
 
