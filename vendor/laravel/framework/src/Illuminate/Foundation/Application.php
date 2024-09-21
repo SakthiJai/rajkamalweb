@@ -1513,6 +1513,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function getNamespace()
     {
+
         if (! is_null($this->namespace)) {
             return $this->namespace;
         }
