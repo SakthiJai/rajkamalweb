@@ -136,14 +136,6 @@
                                                 formDataLedger.packing
                                             "
                                             value=""
-                                            :help="
-                                                rules.name
-                                                    ? rules.name.message
-                                                    : null
-                                            "
-                                            :validateStatus="
-                                                rules.name ? 'error' : null
-                                            "
                                         >
                                         </a-input>
                                     </a-col>
@@ -178,14 +170,6 @@
                                                 type="number"
                                                 maxlength="10"
                                                 @input="onInputPhoneNumber"
-                                                :help="
-                                                    rules.name
-                                                        ? rules.name.message
-                                                        : null
-                                                "
-                                                :validateStatus="
-                                                    rules.name ? 'error' : null
-                                                "
                                             />
                                         </a-input-group>
                                     </a-col>
@@ -257,14 +241,6 @@
                                                 type="number"
                                                 maxlength="10"
                                                 @input="onInputPhoneNumber"
-                                                :help="
-                                                    rules.name
-                                                        ? rules.name.message
-                                                        : null
-                                                "
-                                                :validateStatus="
-                                                    rules.name ? 'error' : null
-                                                "
                                             />
                                         </a-input-group>
                                     </a-col>
@@ -279,13 +255,13 @@
                                             :label="$t('stock.Unit_in_Decimal')"
                                             name="unit_in_decimal"
                                             :help="
-                                                rules.Unit_in_Decimal
-                                                    ? rules.Unit_in_Decimal
+                                                rules.unit_in_decimal
+                                                    ? rules.unit_in_decimal
                                                           .message
                                                     : null
                                             "
                                             :validateStatus="
-                                                rules.Unit_in_Decimal
+                                                rules.unit_in_decimal
                                                     ? 'error'
                                                     : null
                                             "
@@ -346,14 +322,6 @@
                                                 type="number"
                                                 maxlength="10"
                                                 @input="onInputPhoneNumber"
-                                                :help="
-                                                    rules.name
-                                                        ? rules.name.message
-                                                        : null
-                                                "
-                                                :validateStatus="
-                                                    rules.name ? 'error' : null
-                                                "
                                             />
                                         </a-input-group>
                                     </a-col>
@@ -382,12 +350,23 @@
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input
+                                        <HscSacSearchInput
                                             name="hsn_sac"
                                             v-model:value="
                                                 formDataLedger.hsn_sac
                                             "
+                                            placeholder="HSN/SAC"
                                         />
+
+                                        <!-- <UnitSearchInput
+                                            @valueChanged="
+                                                (productId) =>
+                                                    (formDataLedger.parent_ledger =
+                                                        productId)
+                                            "
+                                            @valueSuccess="getStockValue"
+                                            :productData="data"
+                                        /> -->
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
@@ -395,12 +374,12 @@
                                             :label="$t('stock.Sale_Rate')"
                                             name="sale_rate"
                                             :help="
-                                                rules.Sale_Rate
-                                                    ? rules.Sale_Rate.message
+                                                rules.sale_rate
+                                                    ? rules.sale_rate.message
                                                     : null
                                             "
                                             :validateStatus="
-                                                rules.Sale_Rate ? 'error' : null
+                                                rules.sale_rate ? 'error' : null
                                             "
                                         >
                                         </a-form-item>
@@ -414,21 +393,15 @@
                                                 INR
                                             </a-button>
                                             <a-input
+                                                name="sale_rate"
                                                 v-model:value="
                                                     formDataLedger.sale_rate
                                                 "
                                                 style="width: 79%"
+                                                value=""
                                                 type="number"
                                                 maxlength="10"
                                                 @input="onInputPhoneNumber"
-                                                :help="
-                                                    rules.name
-                                                        ? rules.name.message
-                                                        : null
-                                                "
-                                                :validateStatus="
-                                                    rules.name ? 'error' : null
-                                                "
                                             />
                                         </a-input-group>
                                     </a-col>
@@ -458,7 +431,7 @@
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input
+                                        <UnitSearchInput
                                             name="tax_category"
                                             v-model:value="
                                                 formDataLedger.tax_category
@@ -526,7 +499,7 @@
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input
+                                        <UnitSearchInput
                                             name="company"
                                             v-model:value="
                                                 formDataLedger.company
@@ -570,14 +543,6 @@
                                             "
                                             value=""
                                             style="width: 127%"
-                                            :help="
-                                                rules.name
-                                                    ? rules.name.message
-                                                    : null
-                                            "
-                                            :validateStatus="
-                                                rules.name ? 'error' : null
-                                            "
                                         >
                                         </a-input>
                                     </a-col>
@@ -1753,7 +1718,6 @@ export default defineComponent({
                 mfr_name: "",
                 upload_image: "",
                 packing: "",
-
                 sales_rate: "",
             },
             inputColor: "",
