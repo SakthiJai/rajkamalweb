@@ -118,7 +118,7 @@
                                             <a-form-item :label="$t('stock.customs')">
                                         </a-form-item>
                                         </a-col>
-                                        
+
                                     </a-row>
                                     <a-row :gutter="16">
                                         <a-col :xs="24" :sm="24" :md="12" :lg="12" >
@@ -153,7 +153,7 @@
                                         permsArray.includes('admin')
                                     ">
                                         <a-button type="primary" @click="showModal">
-                                            <PlusOutlined />
+                                             <PlusOutlined />
                                             {{ $t("stock_adjustment.filter") }}
                                         </a-button>
                                     </template>
@@ -223,14 +223,14 @@ export default {
     this.autoFocusInput();
   },
   beforeDestroy() {
-  
+
     document.removeEventListener('keydown', this.handleKeydown);
   },
     methods: {
         selectDateRange(range) {
-            this.selectedRange = range.trim(); 
-            this.buttonLabel = range.trim(); 
-            this.isDropdownOpen = false;  
+            this.selectedRange = range.trim();
+            this.buttonLabel = range.trim();
+            this.isDropdownOpen = false;
         },
 
         handleKeydown(event) {

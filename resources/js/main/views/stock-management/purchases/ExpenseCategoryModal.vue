@@ -436,8 +436,6 @@ export default defineComponent({
     margin-top: 0;
 }
 
-
-
 .buttons {
     margin-left: 5px;
 }
