@@ -115,7 +115,7 @@ export default defineComponent({
             url: `store-geo-localtion`,
             data: formData.value,
             success: (res) => {
-                //store.dispatch("auth/updateApp");
+               
             },
             error: (err) => {
                 console.error("API Error:", err);
@@ -125,8 +125,8 @@ export default defineComponent({
 
     document.addEventListener('keydown', (event) => {
     if (event.key === 'F10') {
-        event.preventDefault(); // Prevents the default F5 refresh behavior
-        onSubmit(); // Calls your onSubmit function
+        event.preventDefault();
+        onSubmit(); 
     }
 });
 

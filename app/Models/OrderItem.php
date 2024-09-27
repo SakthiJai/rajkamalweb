@@ -15,7 +15,7 @@ class OrderItem extends BaseModel
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['id', 'order_id', 'user_id', 'order_id', 'product_id', 'unit_id', 'tax_id'];
+    protected $hidden = ['order_id', 'user_id', 'order_id', 'product_id', 'unit_id', 'tax_id'];
 
     protected $appends = ['xid', 'x_order_id', 'x_user_id', 'x_order_id', 'x_product_id', 'x_unit_id', 'x_tax_id'];
 

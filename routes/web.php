@@ -106,6 +106,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('order-payments', 'OrderPaymentController', ['as' => 'api', 'only' => ['index', 'store']]);
         ApiRoute::resource('payment-modes', 'PaymentModeController', ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('store-geo-localtion', 'GeolocationController', $options);
+        ApiRoute::resource('payment-mode', 'PaymentmodesController', $options);
 
         ApiRoute::resource('store-birthday', 'BirthdayController', $options);
 
@@ -121,6 +122,8 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         //ledger//
         ApiRoute::resource('ledger', 'LedgerController', $options);
 
+        ApiRoute::post('sales/store', ['as' => 'api.sales.store', 'uses' => 'SalesController@salesCreate']);
+
         ApiRoute::resource('users', 'UsersController', $options);
         ApiRoute::resource('customers', 'CustomersController', $options);
         ApiRoute::resource('suppliers', 'SuppliersController', $options);
@@ -135,10 +138,14 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('purchases', 'PurchaseController', $options);
         ApiRoute::resource('purchase-returns', 'PurchaseReturnsController', $options);
         ApiRoute::resource('stock-transfers', 'StockTransferController', $options);
-        ApiRoute::resource('sales', 'SalesController', $options);
+        ApiRoute::resource('sales',  'SalesController', $options);
         ApiRoute::resource('sales-returns', 'SalesReturnsController', $options);
         ApiRoute::resource('store-ledger', 'LedgerController', $options);
-        ApiRoute::resource('sales-number', 'SalesNumberController', $options);
+       # ApiRoute::resource('store-ledger/customer', 'LedgerController@customer', $options);
+       #ApiRoute::post('/store-ledger/customer', [LedgerController::class, 'customer']);
+       ApiRoute::post('store-ledger/customer', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@customer']);
+
+        ApiRoute::resource('sales-number', 'SalesNumberController', $options); 
     });
 });
 

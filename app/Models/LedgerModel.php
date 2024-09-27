@@ -53,6 +53,9 @@ class LedgerModel extends BaseModel
         'name',
         'state_name',
         'station_name',
+        'gst_number',
+        'debit',
+        'credit',
     ];
 
     public function getStationNameAttribute()

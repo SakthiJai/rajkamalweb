@@ -65,7 +65,6 @@ class Product extends BaseModel
                         'mfr_name',
                         'upload_image',
                         'packing',
-
                         'sales_rate',
 
 ];

@@ -137,22 +137,7 @@
         </a-row>
 
         <template #footer class="floats">
-            <!-- <div class="floats">
-                <button type="button" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted"><span
-                        class="box"><span class="shortcut ng-star-inserted"><code>F4</code></span><span
-                            class="ng-star-inserted">Ledger</span></span><span class="effect"></span></button>
-                <button type="button" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted"><span
-                        class="box"><span class="shortcut ng-star-inserted"><code>F8</code></span><span
-                            class="ng-star-inserted">Outstanding</span></span><span class="effect"></span></button>
-                <button type="button" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted"><span
-                        class="box">
-                        <span class="shortcut ng-star-inserted"><code>F7</code></span><span
-                            class="ng-star-inserted">All</span></span><span class="effect"></span></button>
-            </div> -->
-            <!-- <a-button key="back" @click="onClose">
-                <span class="shortcut ng-star-inserted"><code>F7</code></span><span
-                class="ng-star-inserted">All</span>
-                </a-button> -->
+            
                 <a-button  key="back" @click="onClose"type="button" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted"><span
                     class="box">
                     <span class="shortcut ng-star-inserted"><code>Esc</code></span><span

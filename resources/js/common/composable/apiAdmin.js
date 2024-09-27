@@ -10,7 +10,7 @@ const api = () => {
     const { t } = useI18n();
     const { appSetting } = common();
 
-    const addEditRequestAdmin = (configObject) => {
+    const addEditRequestAdmin = (configObject) => { 
         loading.value = true;
         const { url, data, success } = configObject;
         var formData = {};

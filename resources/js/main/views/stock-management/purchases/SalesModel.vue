@@ -37,6 +37,11 @@
         <LedgerModel v-if="isModalVisible" :visible="isModalVisible" :formData="formData" :url="url"
             :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
             @addEditSuccess="handleSuccess" @closed="handleClose" />
+
+        <PopupModal v-if="isModalPopup" :visible="isModalPopup" :formDataLedger="formDataLedger" :url="url"
+            :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
+            @addEditSuccess="handleSuccess" @closed="handlePopup" />
+
         <a-form layout="vertical">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
@@ -143,47 +148,19 @@
             </a-row>
         </admin-page-table-content>
         <!--- end-->
-        <!-- <div id="app" class="table-container">
-            <table class="responsive-table">
-                <thead>
-                    <tr>
-                        <th v-for="(header, index) in headers" :key="index" class="tableheading">{{ header }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, index) in items" :key="index" :class="{ highlight: index === selectedIndex }">
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.location }}</td>
-                        <td>{{ item.value }}</td>
-                        <td>
-                            <a-button>
-                                <template #icon>
-                                    <EditOutlined />
-                                </template>
-                            </a-button>
-                            <a-button class="buttons">
-                                <template #icon>
-                                    <DeleteOutlined />
-                                </template>
-                            </a-button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
 
-        </div> -->
         <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="8" :lg="8">
                 <fieldset class="fieldheight">
                     <legend class="basicdetalis">
                         Address
                     </legend>
-
+                    <a-col :xs="12" :sm="12" :md="24" :lg="24">
+                    <span>{{ formData.Address}}</span>
+                </a-col>
                     <br>
-                    <br>
-
                     <a-row :gutter="16">
-                        <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                        <a-col :xs="12" :sm="12" :md="10" :lg="10">
                             {{ $t("stock.contact_detail") }}
 
                         </a-col>
@@ -191,25 +168,21 @@
 
                             <span>:</span>
                         </a-col>
-                        <a-col :xs="12" :sm="12" :md="4" :lg="4">
-                            <span id="sgst_total_text"></span>
+                        <a-col :xs="12" :sm="12" :md="10" :lg="10">
+                            <span>{{ formData.mobile_number }}</span>
 
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
-                        <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                        <a-col :xs="12" :sm="12" :md="10" :lg="10">
                             {{ $t("stock.ac_group") }}
-
                         </a-col>
                         <a-col :xs="12" :sm="12" :md="3" :lg="3">
-
                             <span>:</span>
                         </a-col>
-                        <a-col :xs="12" :sm="12" :md="4" :lg="4">
-
-
-                            <span>{{ formData.party_name }}</span>
-
+            
+                <a-col :xs="12" :sm="12" :md="10" :lg="10">
+                            <span>{{ formData.account_group }}</span>
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -221,16 +194,16 @@
                     </legend>
                     <a-row :gutter="16">
 
-                        <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                        <a-col :xs="12" :sm="12" :md="9" :lg="9">
                             {{ $t("stock.gst_number") }}
 
                         </a-col>
-                        <a-col :xs="12" :sm="12" :md="3" :lg="3">
+                        <a-col :xs="12" :sm="12" :md="2" :lg="2">
 
                             <span>:</span>
                         </a-col>
-                        <a-col :xs="12" :sm="12" :md="4" :lg="4">
-                            <span>{{ (formData.tax_amount) }}</span>
+                        <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                            <span>{{ (formData.gst_number) }}</span>
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -239,7 +212,7 @@
                         OtherInfo
                     </legend>
                     <a-row :gutter="16">
-                        <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                        <a-col :xs="12" :sm="12" :md="10" :lg="10">
                             {{ $t("stock.states") }}
 
                         </a-col>
@@ -247,8 +220,8 @@
 
                             <span>:</span>
                         </a-col>
-                        <a-col :xs="12" :sm="12" :md="4" :lg="4">
-                            <span>{{ (formData.tax_amount) }}</span>
+                        <a-col :xs="12" :sm="12" :md="10" :lg="10">
+                            <span>{{ formData.state_name}}</span>
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -262,7 +235,7 @@
 
 
                         <a-row :gutter="16">
-                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                            <a-col :xs="12" :sm="12" :md="10" :lg="10">
                                 {{ $t("stock.opening") }}
 
                             </a-col>
@@ -270,13 +243,13 @@
 
                                 <span>:</span>
                             </a-col>
-                            <a-col :xs="12" :sm="12" :md="4" :lg="4">
-                                <span>{{ formDataLedger.account_number }}</span>
+                            <a-col :xs="12" :sm="12" :md="10" :lg="10">
+                                <span>₹ {{ formData.opening_balance }}</span>
                                 <!-- <span>{{ formatCurrency(formData.tax_amount) }}</span> -->
                             </a-col>
                         </a-row>
                         <a-row :gutter="16">
-                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                            <a-col :xs="12" :sm="12" :md="10" :lg="10">
                                 {{ $t("stock.debit") }}
 
                             </a-col>
@@ -284,36 +257,36 @@
 
                                 <span>:</span>
                             </a-col>
-                            <a-col :xs="12" :sm="12" :md="4" :lg="4">
-                                <span>{{ (formData.tax_amount) }}</span>
-                                <!-- <span>{{ formatCurrency(formData.tax_amount) }}</span> -->
+                            <a-col :xs="12" :sm="12" :md="10" :lg="10">
+                                <span>₹ {{ (formData.debit) }}</span>
+                              
                             </a-col>
                         </a-row>
                         <a-row :gutter="16">
-                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                            <a-col :xs="12" :sm="12" :md="10" :lg="10">
                                 {{ $t("stock.credit") }}
 
                             </a-col>
                             <a-col :xs="12" :sm="12" :md="3" :lg="3">
                                 <span>:</span>
                             </a-col>
-                            <a-col :xs="12" :sm="12" :md="4" :lg="4">
+                            <a-col :xs="12" :sm="12" :md="10" :lg="10">
 
-                                <span>{{ (formData.tax_amount) }}</span>
+                                <span>₹ {{ (formData.credit) }}</span>
                             </a-col>
 
                         </a-row>
                         <a-row :gutter="16">
-                            <a-col :xs="12" :sm="12" :md="12" :lg="12">
+                            <a-col :xs="12" :sm="12" :md="10" :lg="10">
                                 {{ $t("stock.balance") }}
 
                             </a-col>
                             <a-col :xs="12" :sm="12" :md="3" :lg="3">
                                 <span>:</span>
                             </a-col>
-                            <a-col :xs="12" :sm="12" :md="8" :lg="8">
+                            <a-col :xs="12" :sm="12" :md="10" :lg="10">
 
-                                <span>&#8377; {{ items[selectedIndex].value }}</span>
+                                <span><span>₹ {{ formData.opening_balance }}</span></span>
                             </a-col>
 
                         </a-row>
@@ -325,7 +298,7 @@
             <div class="floats">
                 <a-button type="button" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted"
                     @click="EnterprisesModel"><span class="box"><span
-                            class="shortcut ng-star-inserted"><code>F4</code></span><span
+                            class="shortcut ng-star-inserted"><code>F6</code></span><span
                             class="ng-star-inserted">Ledger</span></span><span class="effect"></span></a-button>
                 <a-button type="button" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted"><span
                         class="box"><span class="shortcut ng-star-inserted"><code>F8</code></span><span
@@ -351,6 +324,7 @@ import fields from "./Ledger/fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
 import LedgerAddEdit from "./Ledger/LedgerAddEdit.vue";
+import PopupModal from "./PopupModal.vue";
 export default defineComponent({
     props: [
         "formData",
@@ -370,6 +344,7 @@ export default defineComponent({
         LedgerModel,
         EnterprisesModel,
         LedgerAddEdit,
+        PopupModal,
     },
 
 
@@ -387,17 +362,18 @@ export default defineComponent({
             crudVariables.formData.value = { ...initData };
             crudVariables.hashableColumns.value = [...hashableColumns];
 
+
             reFetchDatatable();
         });
         const onSelectChange = (changableRowKeys) => {
 
             console.log('selectedRowKeys changed: ', changableRowKeys);
 
-            selectedRowKeysValue = changableRowKeys;
+            selectedRowKeysValue = [changableRowKeys];
 
         };
-        let selectedRowKeysValue = []; 
-        selectedRowKeysValue[0] = 4;
+        let selectedRowKeysValue = [15];
+
         const reFetchDatatable = () => {
             crudVariables.tableUrl.value = {
                 url,
@@ -407,6 +383,7 @@ export default defineComponent({
             crudVariables.fetch({
                 page: 1,
             });
+
         };
 
         const onClose = () => {
@@ -448,6 +425,7 @@ export default defineComponent({
             focus: null,
             selectedPartyId: { id: 0, name: "" },
             selectedIndex: 0,
+            isModalPopup: false,
             isModalVisible: false,
             isEnterModal: false,
             isPopupVisible: false,
@@ -461,34 +439,37 @@ export default defineComponent({
             pageTitle: 'Select Party',
             successMessage: 'Operation successful!',
             buttonStyle: {
-                backgroundColor: '', // Initially no background color
+                backgroundColor: '', 
                 borderColor: '',
-                color: '', // Initially no text color
+                color: '',
             },
             buttonStyle: {},
-            formDataLedger: {
-                account_number: '' // Initially empty or predefined account number
+            formData: {
+                account_number: '',
+                Address:'',
+                state_name:'',
+                mobile_number:'',
+                opening_balance:'',
+                gst_number:'',
+                debit:'',
+                credit:''
             }
-              
+
         };
-     
+
     },
 
     mounted() {
-        document.addEventListener('keydown', this.handleKeyDown);
-        // document.addEventListener('keyup', this.handleKeyDown);
+        //document.addEventListener('keydown', this.handleKeyDown);
+        document.addEventListener('keyup', this.handleKeyDown);
         this.autoFocusInput();
+        setTimeout(function () { this.selectedRowKeysValue = [15] }, 2000);
     },
     beforeDestroy() {
-        // document.removeEventListener('keydown', this.handleKeyDown);
+        document.removeEventListener('keyup', this.handleKeyDown);
     },
 
     methods: {
-
-        onInputACCOUNTNUMBER(event) {
-            // You can handle any extra input processing logic here if needed
-            this.formDataLedger.account_number = event.target.value;
-        },
         customRow(record) {
             return {
 
@@ -499,50 +480,78 @@ export default defineComponent({
             }
         },
 
-        
-        test: function (event) {
+        test(event) {
             switch (event.keyCode) {
-                case 38:
-
-                    document.getElementsByClassName('ant-radio-input')[this.focus].click();
-                    //console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
-                    const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-
-                    console.log('up=>', temp)
-
-                    console.log('up=>', temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
-                    this.selectedPartyId.id = temp.getAttribute('data-row-key');
-                    this.selectedPartyId.name = temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-                    //this.$emit('child-method',this.selectedPartyId)
+                case 38: // Arrow up
                     if (this.focus === null) {
                         this.focus = 0;
                     } else if (this.focus > 0) {
                         this.focus--;
                     }
+                    this.updateSelection();
                     break;
-                case 40:
-
+                case 40: // Arrow down
                     if (this.focus === null) {
                         this.focus = 0;
-                    } else if (this.focus < this.items.length - 1) {
+                    } else if (this.focus < this.table.data.length - 1) {
                         this.focus++;
                     }
-                    document.getElementsByClassName('ant-radio-input')[this.focus].click();
-                    const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-                    console.log('down=>', temp1.getAttribute('data-row-key'))
-                    this.selectedPartyId.id = temp1.getAttribute('data-row-key');
-                    this.selectedPartyId.name = temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-                    this.$emit('child-method', this.selectedPartyId)
-
+                    this.updateSelection();
+                    break;
+                case 46:
+                    this.autoFocusInput();
+                    this.showPopupModal();
                     break;
             }
         },
 
-        
+       
+
+        updateSelection() {
+            const currentRadioInput = document.getElementsByClassName('ant-radio-input')[this.focus];
+            currentRadioInput.click();
+            const currentRow = currentRadioInput.closest('tr');
+            const selectedRowKey = currentRow.getAttribute('data-row-key');
+            console.log('Selected Row Key:', selectedRowKey); 
+            this.selectedPartyId.id = selectedRowKey;
+            this.selectedPartyId.name = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+            if (Array.isArray(this.table.data) && this.table.data.length > 0) {
+                this.table.data.forEach(row => {
+                    console.log('Row ID:', row.id);
+                    if (row.id === selectedRowKey || row.id == selectedRowKey) {
+                        this.formData.party_name = row.party_name;
+                        this.formData.account_group = row.account_group;
+                        this.formData.Address = row.Address;
+                        this.formData.state_name = row.state_name;
+                        this.formData.mobile_number= row.mobile_number ;  
+                        this.formData.opening_balance = row.opening_balance;
+                        this.formData.gst_number = row.gst_number;
+                        this.formData.debit = row.debit;
+                        this.formData.credit = row.credit;
+                        console.log('Matched Row:', row);
+                        console.log('accountgroup:', row.state_name);
+                    }
+                });
+            } else {
+                console.error('Table data is not an array or is empty.');
+            }
+            this.$emit('child-method', this.selectedPartyId);
+            console.log(this.table.data);
+        },
+
+
+
+
+
+        showPopupModal() {
+            this.isModalPopup = true;
+        },
+        handlePopup() {
+            this.isModalPopup = false;
+        },
         showModal() {
             this.isModalVisible = true;
         },
-
         updatePartyName(newName) {
             this.formDataLedger.party_name = newName;
         },
@@ -554,13 +563,10 @@ export default defineComponent({
         hideModal() {
             this.isModalVisible = false;
         },
-
         EnterprisesModel() {
             this.isEnterModal = true;
             //this.isLoading = true;
         },
-
-
         handleClose() {
 
             this.isModalVisible = false;
@@ -577,80 +583,38 @@ export default defineComponent({
             this.isModalVisible = false;
             console.log('Success:', xid);
         },
-        // handleKeyDown(event) {
-        //     //console.log('key=>',event.key)
-        //     if (event.key === 'F2') {
-        //         // Show loader
-        //         this.isLoading = true;
-        //         setTimeout(() => {
-        //             this.isLoading = false;
-        //             this.buttonStyle = {
-        //                 backgroundColor: 'green',
-        //                 borderColor: 'green',
-        //                 color: 'white',
-        //             };
-        //             this.isModalVisible = true;
-        //         }, 500);
-        //     } else if (event.key === 'F4') {
-        //         this.isLoading = true;
-        //         setTimeout(() => {
-        //             this.isLoading = false;
-        //             this.isEnterModal = true;
-        //         }, 500);
-        //     } /*else if (event.key === 'ArrowDown') {  this.selectedRowKeysValue=[6] 
-        //         if (this.selectedIndex === null) {
-        //             this.selectedIndex = 0;
-        //         } else {
-        //             this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
-        //         }
-        //         console.log(this.selectedIndex)
-        //     }*/ else if (event.key === 'Escape' || event.key === 'Esc') {
-        //         // Hide the popup
-        //         this.isModalVisible = false;
-        //         this.isEnterModal = false;
-        //         this.isLoading = false;
-        //     }
-        //     else if (event.key === 'Enter') {
 
-        //         document.documentElement.querySelector(".ant-modal-close-x").click()
-        //         const nextIndex = index + 1;
-        //         const nextInput = this.$refs[`input-${nextIndex}`]
-        //     } else if (nextInput) {
-        //         nextInput.focus();
-        //     }
-        // },
 
-            handleKeyDown(event, index) {
-          if (event.key === 'F2') {
-            this.isLoading = true;
-            setTimeout(() => {
-              this.isLoading = false;
-              this.isModalVisible = true;
-            }, 500);
-          } else if (event.key === 'F4') {
-            this.isLoading = true;
-            setTimeout(() => {
-              this.isLoading = false;
-              this.isEnterModal = true;
-            }, 500);
-          } else if (event.key === 'Escape' || event.key === 'Esc') {
-            this.isModalVisible = false;
-            this.isEnterModal = false;
-            this.isLoading = false;
-          } else if (event.key === 'Enter') {
-            // Close modal
-            document.documentElement.querySelector(".ant-modal-close-x").click()
-            // Move focus to the next input
-            const nextIndex = index + 1;
-            const nextInput = this.$refs[`input-${nextIndex}`];
-            if (nextInput && nextInput[0]) {
-              nextInput[0].focus();
+        handleKeyDown(event) {
+            const activeElement = document.activeElement;
+            const index = parseInt(activeElement.id.split('_').pop()); // Get the current input index
+
+            if (event.key === 'F2') {
+                this.isLoading = true;
+                setTimeout(() => {
+                    this.isLoading = false;
+                    this.isModalVisible = true;
+                }, 500);
+            } else if (event.key === 'F6') {
+                this.isLoading = true;
+                setTimeout(() => {
+                    this.isLoading = false;
+                    this.isEnterModal = true;
+                }, 500);
+            } else if (event.key === 'Escape' || event.key === 'Esc') {
+                this.isModalVisible = false;
+
+            } else if (event.key === 'Enter') {
+                console.log(this.selectedPartyId)
+                // Close modal by clicking the modal close button
+                const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
+                if (modalCloseButton) {
+                    modalCloseButton.click();
+                    this.$emit('close-method');
+
+                }
             }
-          }
-        },
-
-     
-
+        }
     },
 
 });

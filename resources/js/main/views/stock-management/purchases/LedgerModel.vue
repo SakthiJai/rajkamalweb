@@ -18,7 +18,7 @@
                 </button>
             </div>
         </template>
-        <!-- <form  @submit.prevent="onSubmitLedger" layout="vertical" ref="myForm" id="myForm1" onSubmitLedger> -->
+        
         <form ref="myForm1" layout="vertical" @submit.prevent="">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="16" :lg="16" class="info">
@@ -36,8 +36,8 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <!-- <input name="party_name" v-model="formDataLedger.party_name" /> -->
-                                        <a-input name="party_name" v-model:value="formDataLedger.party_name" v-on:keyup.enter="moveToNextField($event.target)"
+                                      
+                                        <a-input name="party_name" ref="partyInput"  v-model:value="formDataLedger.party_name" v-on:keyup.enter="moveToNextField($event.target)"
                                             :placeholder="$t('common.placeholder_default_text', [$t('stock.party_name')])"></a-input>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
@@ -217,7 +217,7 @@
                                                         ₹
                                                     </a-button>
                                                     <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.opening_balance"
-                                                        class="amount" style="width:85%"
+                                                        class="amount" style="width:79%"
                                                         @input="onInputOpeningBalance" />
                                                 </a-input-group>
                                             </a-col>
@@ -357,6 +357,17 @@
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                     <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.pan_number" @input="onInputPanNumber" />
+                                </a-col>
+                            </a-row>
+                            <a-row :gutter="16">
+                                <a-col :xs="24" :sm="24" :md="5" :lg="5">
+                                    <a-form-item :label="$t('stock.gst_number')" name="gst_number"
+                                        :help="rules.gst_number ? rules.gst_number.message : null"
+                                        :validateStatus="rules.gst_number ? 'error' : null">
+                                    </a-form-item>
+                                </a-col>
+                                <a-col :xs="24" :sm="24" :md="7" :lg="7">
+                                    <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.gst_number" @input="onInputPanNumber" />
                                 </a-col>
                             </a-row>
 
@@ -719,7 +730,7 @@
                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
                     <button type="button" id="btn-Ledger" @click="switchTab" title="Ledger" class="btn default-btn">
                         <span class="box">
-                            <span class="shortcut"><code>F6</code></span>
+                            <span class="shortcut"><code>F4</code></span>
                             <span>Switch Tab</span>
                         </span>
                     </button>
@@ -873,13 +884,13 @@ export default defineComponent({
                 stock_city: "",
                 stock_pincode: "",
                 parent_ledger: "",
-                balancing_method: "1",
+                balancing_method: "",
                 opening_balance: "",
                 credit_days: "",
                 phone_number: "",
                 mobile_number: "",
                 whatsapp_number: "",
-                ledger_type: "1",
+                ledger_type: "",
                 gender: "Male",
                 account_type: "Saving Account",
                 customer_title: "Mr."
@@ -938,7 +949,12 @@ export default defineComponent({
             const tabs = ['taxdetails','contactinfo','bankdetails', 'visibility',  ];
             const currentIndex = tabs.indexOf(this.activeKey);
             this.activeKey = tabs[(currentIndex + 1) % tabs.length];
+
+            this.$nextTick(() => {
+                this.focusFirstInput();
+            }); 
         },
+        
         resetForm() {
             if (this.$refs.myForm1) {
                 this.$refs.myForm1.resetFields();
@@ -954,9 +970,9 @@ export default defineComponent({
             
         },
         autoFocusInput() {
-            /*this.$nextTick(() => {
-                this.$refs.partyInput.focus();  // Automatically focus the input
-            });*/
+            this.$nextTick(() => {
+                this.$refs.partyInput.focus(); 
+            });
         },
         showGSTModal() {
             this.isModalGST = true;
@@ -1028,7 +1044,7 @@ export default defineComponent({
             } else if (event.key === 'F9') {
                 event.preventDefault();
                 this.resetForm();
-            } else if (event.key === 'F6') {
+            } else if (event.key === 'F4') {
                 event.preventDefault();
                 this.switchTab();
             } else if (event.key === 'F10') {
@@ -1144,8 +1160,9 @@ export default defineComponent({
 
 
     mounted() {
-        // Add keydown event listener to capture F9 key
+       
         window.addEventListener('keydown', this.handleKeydown);
+        this.autoFocusInput();
     },
     beforeDestroy() {
         // Remove event listener when component is destroyed

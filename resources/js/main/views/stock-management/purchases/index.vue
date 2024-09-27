@@ -218,31 +218,19 @@ export default {
             },
         };
     },
-
-    
-    // mounted() {
-    //     // document.addEventListener('keydown', this.handleKeyDown);
-    //     document.addEventListener('keyup', this.handleKeyDown);
-    //     
-    // },
-    // beforeDestroy() {
-    //     document.removeEventListener('keydown', this.handleKeyDown);
-    // },
-
     mounted() {
-    // Add keydown event listener for F2 key
     document.addEventListener('keydown', this.handleKeydown);
     this.autoFocusInput();
   },
   beforeDestroy() {
-    // Remove keydown event listener
+  
     document.removeEventListener('keydown', this.handleKeydown);
   },
     methods: {
         selectDateRange(range) {
-            this.selectedRange = range.trim();  // Update selected range
-            this.buttonLabel = range.trim();  // Update button label to show the selected range
-            this.isDropdownOpen = false;  // Close dropdown after selection
+            this.selectedRange = range.trim(); 
+            this.buttonLabel = range.trim(); 
+            this.isDropdownOpen = false;  
         },
 
         handleKeydown(event) {

@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
 	const addEditUrl = "store-ledger";
-	const url = "store-ledger?fields=id,xid,party_name,station_name,station,name,state_name,Address,stock_country,stock_state,stock_city,parent_ledger,account_group,mail_to,stock_pincode,balancing_method,opening_balance,credit_days,phone_number,mobile_number,whatsapp_number,ledger_type,pan_number,customer_title,customer_first_name,customer_last_name,gender,designation,website,customer_email,bank_name,branch,ifsc_code,account_number,account_type,account_holder_name";
+	const url = "store-ledger?fields=id,xid,party_name,gst_number,debit,credit,station_name,station,name,state_name,Address,stock_country,stock_state,stock_city,parent_ledger,account_group,mail_to,stock_pincode,balancing_method,opening_balance,credit_days,phone_number,mobile_number,whatsapp_number,ledger_type,pan_number,customer_title,customer_first_name,customer_last_name,gender,designation,website,customer_email,bank_name,branch,ifsc_code,account_number,account_type,account_holder_name";
 	const hashableColumns = ['id'];
 	const { t } = useI18n();
 
@@ -43,7 +43,11 @@ const fields = () => {
 		ifsc_code: undefined,
 		account_number: undefined,
 		account_type: undefined,
-		account_holder_name: undefined
+		account_holder_name: undefined,
+		gst_number:undefined,
+		debit:undefined,
+		credit:undefined,
+		
 	};
 	
 
@@ -64,6 +68,7 @@ const fields = () => {
 			dataIndex: "opening_balance",
 			sorter:true
 		},
+		
 		{
 			title: t("common.action"),
 			dataIndex: "action",

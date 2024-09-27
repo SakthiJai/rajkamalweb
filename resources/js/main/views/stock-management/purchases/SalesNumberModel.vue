@@ -5,10 +5,15 @@
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span>Customer List</span>
                 <div @keydown="onKeydown">
-                    <a-button :style="buttonStyle" @click="showModal" class="closing">
+                    <a-button :style="buttonStyle" @click="showCustomerModal" class="closing">
                         <PlusOutlined />
                         Create/F2
                     </a-button>
+
+                    <!--  customer modal-->
+                    <CustomerModal v-if="isCustomerModal" :visible="isCustomerModal" :formDataLedger="formDataLedger" :url="url" :addEditType="addEditType":pageTitle="pageTitle" :successMessage="successMessage" @addEditSuccess="handleSuccess" @closed="handleCutomerCloses" />
+
+                    <!-- end customer modal-->
                     <div v-if="isLoading" class="loader-container">
                         <div class="loader">
                             <svg focusable="false" class="anticon-spin" data-icon="sync" width="30px" height="30px"
@@ -39,7 +44,7 @@
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
                     <a-input-group compact>
 
-                        <a-input-search ref="searchInput" @keydown="test"  style="width: 75%" placeholder="search here.."
+                        <a-input-search ref="searchInput" @keydown="test" style="width: 75%" placeholder="search here.."
                             v-model:value="table.searchString" show-search @change="onTableSearch"
                             @search="onTableSearch" :loading="table.filterLoading" />
                     </a-input-group>
@@ -74,12 +79,12 @@
                         <a-table :columns="columns" :row-key="(record) => record.id" :data-source="table.data"
                             :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
                             :customRow="customRow" :rowSelection="{
-        selectedRowKeys: selectedRowKeysValue,
-        onChange: onSelectChange,
-        hideDefaultSelections: true,
-        selections: true,
-        type: 'radio'
-      }" bordered size="middle">
+                                selectedRowKeys: selectedRowKeysValue,
+                                onChange: onSelectChange,
+                                hideDefaultSelections: true,
+                                selections: true,
+                                type: 'radio'
+                            }" bordered size="middle">
                             <template #bodyCell="{ column, record, rowIndex }">
                                 <template v-if="column.dataIndex === 'id'">
                                     <a-badge :class="{ 'row-highlight': rowIndex === selectedIndex }">
@@ -91,7 +96,7 @@
                                 </a-typography-text>
                                 <template v-if="column.dataIndex === 'name'">
                                     <a-typography-text v-if="record.adjustment_type === 'add'" type="success" strong>
-                                        +{{ record.cus_name }}
+                                        +{{ record.name }}
                                     </a-typography-text>
                                 </template>
                                 <template v-if="column.dataIndex === 'gender'">
@@ -137,6 +142,10 @@
 
         </template>
     </a-modal>
+
+    <PopupModal v-if="isModalPopup" :visible="isModalPopup" :formDataLedger="formDataLedger" :url="url"
+            :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
+            @addEditSuccess="handleSuccess" @closed="handlePopup" />
 </template>
 
 <script>
@@ -148,6 +157,8 @@ import StaffMemberAddButton from "../../../views/users/StaffAddButton.vue";
 import fields from "./SalesNumber/fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
+import CustomerModal from "./CustomerModal.vue";
+import PopupModal from "./PopupModal.vue";
 
 export default defineComponent({
     props: [
@@ -165,6 +176,8 @@ export default defineComponent({
         StaffMemberAddButton,
         DeleteOutlined,
         EditOutlined,
+        CustomerModal,
+        PopupModal,
     },
 
 
@@ -173,8 +186,8 @@ export default defineComponent({
         const crudVariables = crud();
         const { permsArray, selectedWarehouse } = common();
         const selectedIndex = ref(-1);
-        let selectedRowKeysValue=[]; // Check here to configure the default column
-        selectedRowKeysValue[0]=4;
+        let selectedRowKeysValue = []; // Check here to configure the default column
+        selectedRowKeysValue[0] = 4;
 
         onMounted(() => {
             crudVariables.table.filterableColumns = filterableColumns;
@@ -187,13 +200,13 @@ export default defineComponent({
             reFetchDatatable();
         });
         const onSelectChange = (changableRowKeys) => {
-          
-          console.log('selectedRowKeys changed: ', changableRowKeys);
-         
-          selectedRowKeysValue=changableRowKeys;
-         
-      };
-       
+
+            console.log('selectedRowKeys changed: ', changableRowKeys);
+
+            selectedRowKeysValue = changableRowKeys;
+
+        };
+
         const selectedRowKeys = []; // Check here to configure the default column
         const rowSelection = computed(() => {
             return {
@@ -284,11 +297,12 @@ export default defineComponent({
             selectedIndex: 0,
             isModalVisible: false,
             focus: null,
-            selectedPartyId:{id:null,name:"",mobile_number:"",},
-
+            selectedPartyId: { id: null, name: "", mobile_number: "", },
+            isModalPopup: false,
             isEnterModal: false,
             isPopupVisible: false,
             isLoading: false,
+            isCustomerModal:false,
             dialog: false,
             formData: {
                 sales_names: '1',
@@ -298,9 +312,9 @@ export default defineComponent({
             pageTitle: 'Select Party',
             successMessage: 'Operation successful!',
             buttonStyle: {
-                backgroundColor: '', // Initially no background color
+                backgroundColor: '',
                 borderColor: '',
-                color: '', // Initially no text color
+                color: '',
             },
             buttonStyle: {},
         };
@@ -319,6 +333,17 @@ export default defineComponent({
     methods: {
         onClose() {
             this.visible = false;
+        },
+        showCustomerModal(){
+            this.isCustomerModal=true;
+        },
+
+        showPopupModal() {
+            this.isModalPopup = true;
+        },
+
+        handlePopup() {
+            this.isModalPopup = false;
         },
 
         customRow(record) {
@@ -396,53 +421,60 @@ export default defineComponent({
                 this.isEnterModal = false;
                 this.isLoading = false;
             }
-            else if (event.key === 'Enter') { 
-               
-               document.documentElement.querySelector(".ant-modal-close-x").click()
+            else if (event.key === 'Enter') {
+                console.log("Test");
+                this.$emit('mobile-method')
+                //document.documentElement.querySelector(".ant-modal-close-x").click()
 
-           }
+            }
         },
-        test: function(event) { 
-        switch (event.keyCode) {
-        case 38:
-            
-            document.getElementsByClassName('ant-radio-input')[this.focus].click();
-           //console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
-            const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+        test: function (event) {
+            switch (event.keyCode) {
+                case 38:
 
-            console.log('up=>',temp)
-            
-            console.log('up=>',temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
-            this.selectedPartyId.id = temp.getAttribute('data-row-key');
-            this.selectedPartyId.name= temp.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
-            this.selectedPartyId.mobile_number= temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-            
-            console.log('up=>',this.selectedPartyId)
-            this.$emit('cutomer-method',this.selectedPartyId)
-          if (this.focus === null) {
-            this.focus = 0;
-          } else if (this.focus > 0) {
-            this.focus--;
-          }
-          break;
-        case 40:
-            
-          if (this.focus === null) {
-            this.focus = 0;
-          } else if (this.focus < this.items.length - 1) {
-            this.focus++;
-          }
-          document.getElementsByClassName('ant-radio-input')[this.focus].click();
-          const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-            console.log('down=>',temp1.getAttribute('data-row-key'))
-            this.selectedPartyId.name= temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
-            this.selectedPartyId.mobile_number= temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-            console.log('up=>',this.selectedPartyId)
-            this.$emit('cutomer-method',this.selectedPartyId)
-          
-          break;
-      }
-    },
+                    document.getElementsByClassName('ant-radio-input')[this.focus].click();
+                    //console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
+                    const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+
+                    console.log('up=>', temp)
+
+                    console.log('up=>', temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
+                    this.selectedPartyId.id = temp.getAttribute('data-row-key');
+                    this.selectedPartyId.name = temp.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+                    this.selectedPartyId.mobile_number = temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+
+                    console.log('up=>', this.selectedPartyId)
+                    this.$emit('cutomer-method', this.selectedPartyId)
+                    if (this.focus === null) {
+                        this.focus = 0;
+                    } else if (this.focus > 0) {
+                        this.focus--;
+                    }
+                    break;
+                case 40:
+
+                    if (this.focus === null) {
+                        this.focus = 0;
+                    } else if (this.focus < this.items.length - 1) {
+                        this.focus++;
+                    }
+                    document.getElementsByClassName('ant-radio-input')[this.focus].click();
+                    const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+                    console.log('down=>', temp1.getAttribute('data-row-key'))
+                    this.selectedPartyId.id = temp1.getAttribute('data-row-key');
+                    this.selectedPartyId.name = temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+                    this.selectedPartyId.mobile_number = temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+                    console.log('up=>', this.selectedPartyId)
+                    this.$emit('cutomer-method', this.selectedPartyId)
+
+                    break;
+
+                    case 46:
+                    this.autoFocusInput();
+                    this.showPopupModal();
+                    break;
+            }
+        },
 
     },
 

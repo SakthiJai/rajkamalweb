@@ -137,6 +137,10 @@
 
         </template>
     </a-modal>
+
+    <PopupModal v-if="isModalPopup" :visible="isModalPopup" :formDataLedger="formDataLedger" :url="url"
+            :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
+            @addEditSuccess="handleSuccess" @closed="handlePopup" />
 </template>
 
 <script>
@@ -148,6 +152,7 @@ import StaffMemberAddButton from "../../../views/users/StaffAddButton.vue";
 import fields from "./SalesNumber/fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
+import PopupModal from "./PopupModal.vue";
 
 export default defineComponent({
     props: [
@@ -165,6 +170,7 @@ export default defineComponent({
         StaffMemberAddButton,
         DeleteOutlined,
         EditOutlined,
+        PopupModal,
     },
 
 
@@ -287,6 +293,7 @@ export default defineComponent({
             selectedPartyId:{id:null,name:"",mobile_number:"",},
 
             isEnterModal: false,
+            isModalPopup: false,
             isPopupVisible: false,
             isLoading: false,
             dialog: false,
@@ -321,6 +328,14 @@ export default defineComponent({
             this.visible = false;
         },
 
+
+        showPopupModal() {
+            this.isModalPopup = true;
+        },
+
+        handlePopup() {
+            this.isModalPopup = false;
+        },
         customRow(record) {
             return {
                 onClick: (event) => { console.log('record', record, 'event', event); this.onCloseing() }
@@ -434,13 +449,19 @@ export default defineComponent({
           }
           document.getElementsByClassName('ant-radio-input')[this.focus].click();
           const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-            console.log('down=>',temp1.getAttribute('data-row-key'))
+            console.log('down5555=>',temp1.getAttribute('data-row-key'))
+            this.selectedPartyId.id = temp1.getAttribute('data-row-key');
             this.selectedPartyId.name= temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
             this.selectedPartyId.mobile_number= temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
             console.log('up=>',this.selectedPartyId)
             this.$emit('cutomer-method',this.selectedPartyId)
           
           break;
+
+          case 46:
+                    this.autoFocusInput();
+                    this.showPopupModal();
+                    break;
       }
     },
 
