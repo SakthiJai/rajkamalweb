@@ -331,6 +331,69 @@
                         </a-menu-item>
                     </a-sub-menu>
 
+                    <!--Menu Accounting Trasfer added  -->
+                    <a-sub-menu key="accounting_transfer">
+                        <template #title>
+                            <CalculatorOutlined />
+                            <span>Accounting Trans.</span>
+                        </template>
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.recipt.index',
+                                    });
+                                }
+                            "
+                            key="recipt"
+                        >
+                            {{ "Recipt" }}
+                        </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.payment.index',
+                                    });
+                                }
+                            "
+                            key="payment"
+                        >
+                            {{ "Payment" }}
+                        </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.contra.index',
+                                    });
+                                }
+                            "
+                            key="contra"
+                        >
+                            {{ "Contra" }}
+                        </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.journal.index',
+                                    });
+                                }
+                            "
+                            key="journal"
+                        >
+                            {{ "Journal" }}
+                        </a-menu-item>
+                    </a-sub-menu>
+
                     <a-sub-menu
                         key="purchases"
                         v-if="
@@ -943,11 +1006,10 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                     
-                      <a-sub-menu key="master_menu">
+                    <a-sub-menu key="master_menu">
                         <template #title>
-                        <TeamOutlined />
-                        <span>Master Menu</span>
+                            <TeamOutlined />
+                            <span>Master Menu</span>
                         </template>
                         <a-menu-item
                             @click="
@@ -960,11 +1022,10 @@
                             "
                             key="country"
                         >
-                            {{ ("Country") }}
-                            
+                            {{ "Country" }}
                         </a-menu-item>
 
-                         <a-menu-item
+                        <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -975,10 +1036,10 @@
                             "
                             key="state"
                         >
-                            {{ ("State") }}
+                            {{ "State" }}
                         </a-menu-item>
 
-                            <a-menu-item
+                        <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -989,12 +1050,9 @@
                             "
                             key="station"
                         >
-                            {{ ("Station") }}
+                            {{ "Station" }}
                         </a-menu-item>
-                        
                     </a-sub-menu>
-                                        
-
 
                     <a-menu-item
                         @click="
@@ -1123,6 +1181,7 @@ export default defineComponent({
             "cash_bank",
             "subscription",
             "hrm",
+            "accounting_transfer",
         ];
         const store = useStore();
         const route = useRoute();
