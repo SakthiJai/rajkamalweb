@@ -331,12 +331,24 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                    <!--Menu Accounting Trasfer added  -->
-                    <a-sub-menu key="accounting_transfer">
+                    <!-- altered account treans  -->
+                    <a-sub-menu
+                        key="accounting_transfer"
+                        v-if="
+                            permsArray.includes('recipt_view') ||
+                            permsArray.includes('payment_view') ||
+                            permsArray.includes('contra_view') ||
+                            permsArray.includes('journal_view') ||
+                            permsArray.includes('admin')
+                        "
+                    >
                         <template #title>
-                            <CalculatorOutlined />
-                            <span>Accounting Trans.</span>
+                            <span>
+                                <CalculatorOutlined />
+                                <span>{{ $t("Accounting Trans.") }}</span>
+                            </span>
                         </template>
+
                         <a-menu-item
                             @click="
                                 () => {
@@ -347,8 +359,12 @@
                                 }
                             "
                             key="recipt"
+                            v-if="
+                                permsArray.includes('recipt_view') ||
+                                permsArray.includes('admin')
+                            "
                         >
-                            {{ "Recipt" }}
+                            {{ $t("Recipt") }}
                         </a-menu-item>
 
                         <a-menu-item
@@ -361,8 +377,12 @@
                                 }
                             "
                             key="payment"
+                            v-if="
+                                permsArray.includes('payment_view') ||
+                                permsArray.includes('admin')
+                            "
                         >
-                            {{ "Payment" }}
+                            {{ $t("Payment") }}
                         </a-menu-item>
 
                         <a-menu-item
@@ -375,8 +395,12 @@
                                 }
                             "
                             key="contra"
+                            v-if="
+                                permsArray.includes('contra_view') ||
+                                permsArray.includes('admin')
+                            "
                         >
-                            {{ "Contra" }}
+                            {{ $t("Contra") }}
                         </a-menu-item>
 
                         <a-menu-item
@@ -389,10 +413,16 @@
                                 }
                             "
                             key="journal"
+                            v-if="
+                                permsArray.includes('journal_view') ||
+                                permsArray.includes('admin')
+                            "
                         >
-                            {{ "Journal" }}
+                            {{ $t("Journal") }}
                         </a-menu-item>
                     </a-sub-menu>
+
+                    <!-- ends  -->
 
                     <a-sub-menu
                         key="purchases"

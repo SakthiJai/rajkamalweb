@@ -13,6 +13,12 @@ import ExpensesRoutes from "./expenses";
 import CountryRoutes from "./country";
 import StateRoutes from "./state";
 import StationRoutes from "./station";
+import PaymentRoutes from "./payment";
+import JournalRoutes from "./journal";
+
+import ContraRoutes from "./contra";
+
+
 import UserRoutes from "./users";
 import SettingRoutes from "./settings";
 import ReportsRoutes from "./reports";
@@ -85,6 +91,9 @@ const router = createRouter({
         ...CountryRoutes,
         ...StateRoutes,
         ...StationRoutes,
+        ...PaymentRoutes,
+        ...ContraRoutes,
+        ...JournalRoutes,
     ],
     scrollBehavior: () => ({ left: 0, top: 0 }),
 });
