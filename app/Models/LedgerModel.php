@@ -16,9 +16,10 @@ class LedgerModel extends BaseModel
     protected $table = 'ledger';
     protected $appends = ['xid','station_name','name','state_name'];
     protected $filterable = ['id','party_name'];
-    protected $allowedFilters = [ 'party_name','id' ];
+    protected $allowedFilters = [ 'id','party_name', ];
     protected $default = [
         'xid',
+        'id',
         'party_name',
         'station',
         'Address',
@@ -58,13 +59,21 @@ class LedgerModel extends BaseModel
         'credit',
     ];
 
+
+    public function getNameAttribute()
+    {
+       
+        return $this->attributes['party_name'];
+    }
+    
+
     public function getStationNameAttribute()
     {
         $station = Station::find($this->station);
         return $station ? $station->station_name : 'Unknown'; 
     }
 
-    public function getNameAttribute()
+    public function getNamesAttribute()
     {
         $counrty = Country::find($this->stock_country);
         return $counrty ? $counrty->name : 'Unknown'; 
@@ -79,6 +88,7 @@ class LedgerModel extends BaseModel
     {
         return $this->hasMany(Order::class);
     }
+
 
 
 }

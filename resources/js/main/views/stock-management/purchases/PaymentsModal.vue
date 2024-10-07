@@ -1,11 +1,11 @@
 <template>
     <a-modal :open="visible" :width="drawerWidth" :closable="false" :centered="true" @ok="onSubmit"
-        @keydown.esc="hideModal" >
+        @keydown.esc="hideModal">
         <template v-slot:title>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span>Mode Of Payment</span>
                 <div @keydown="onKeydown">
-                    
+
                     <div v-if="isLoading" class="loader-container">
                         <div class="loader">
                             <svg focusable="false" class="anticon-spin" data-icon="sync" width="30px" height="30px"
@@ -31,7 +31,7 @@
                 </span>
             </button>
         </template>
-       
+
         <a-form layout="vertical">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
@@ -42,12 +42,11 @@
                         </a-col>
                         <a-col :xs="24" :sm="24" :md="7" :lg="7">
                             <a-input-group compact>
-                                <a-button type="primary" class="indiannumber">
+                                <a-span type="primary" class="indiannumbers">
                                     ₹
-                                </a-button> 
-                                <a-input readonly  @keydown="test" ref="searchInput" :value=formatCurrency(billValue)
-                                    class="amount" style="width:79%"
-                                     />
+                                </a-span>
+                                <a-input readonly @keydown="test" ref="searchInput" :value=formatCurrency(billValue)
+                                    class="amount" style="width:79%" autocomplete="off"  @keyup.enter="focusNext" />
                             </a-input-group>
                         </a-col>
                         <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -56,12 +55,11 @@
                         </a-col>
                         <a-col :xs="24" :sm="24" :md="6" :lg="6">
                             <a-input-group compact>
-                                <a-button type="primary" class="indiannumber">
+                                <a-span type="primary" class="indiannumbers">
                                     ₹
-                                </a-button>
-                                <a-input readonly :value=formatCurrency(billValue)
-                                    class="amount" style="width:79%"
-                                     />
+                                </a-span>
+                                <a-input readonly id="adjust_balance" :value=formatCurrency(billValue) class="amount"
+                                    style="width:79%" autocomplete="off"  @keyup.enter="focusNext" />
                             </a-input-group>
                         </a-col>
                     </a-row>
@@ -69,88 +67,100 @@
             </a-row>
         </a-form>
         <!-- data table-->
-       
+
         <admin-page-table-content>
             <a-row>
                 <a-col :span="24">
                     <div class="table-responsive">
                         <table class="responsive-table">
-                                    <thead>
-                                        <tr>
-                                            <th v-for="(header, index) in columns" :key="index" class="tableheading">{{ header.title }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(data, index) in table.data" :key="index">
-                                            <td style="width:25%">{{data.settlement_mode }}</td>                                          
+                            <thead>
+                                <tr>
+                                    <th v-for="(header, index) in columns" :key="index" class="tableheading">&nbsp;&nbsp;{{
+                                        header.title }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(data, index) in table.data" :key="index">
+                                    <!-- <td style="width:25%">&nbsp;&nbsp;{{ data.settlement_mode }}</td> -->
+                                    <td style="width:25%">
+                                       &nbsp;&nbsp;{{ data.settlement_mode }}
+                                      </td>
 
-                                            <td style="width:15%">
-                                                <input :value="data.amount"  :id="`amount_${index}`"
-                                @keydown.space.prevent="showCustomerModal" class="ant-input css-dev-only-do-not-override-wosfq4 amount" @blur="" />
-                                            </td>
-                                            <td style="width:15%"><input :id="`remarks_${index}`" class="ant-input css-dev-only-do-not-override-wosfq4 amount" :value="data.remarks" 
-                                                @keydown.space.prevent="showCustomerModal" @blur="" /></td>
-                                            
-                                            
-                                        </tr>
-                                    </tbody>
-                                </table>
-                       
+                                    <td style="width:15%">
+                                        <input autocomplete="off" @keypress="onlyForCurrency" :value="data.amount"
+                                            :v-model="data.amount" :id="`amount_${index}`"
+                                            @keydown.space.prevent="showCustomerModal"
+                                            class="ant-input css-dev-only-do-not-override-wosfq4 amount"
+                                            @keyup="updateBalance(index, $event)"   @keyup.enter="focusNext" />
+                                    </td>
+                                    <td style="width:15%"><input autocomplete="off" :v-model="data.remarks"
+                                            :id="`remarks_${index}`"
+                                            class="ant-input css-dev-only-do-not-override-wosfq4 amount"
+                                            @focus="updateBalanceRemarks(index, $event)"
+                                            @keydown="updateBalanceRemarks(index, $event)" :value="data.remarks"   @keyup.enter="focusNext" /></td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+
 
                     </div>
                 </a-col>
             </a-row>
+            <a-row :gutter="16" class="mt-10">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                    <a-row :gutter="16">
+                        <a-col :xs="24" :sm="24" :md="4" :lg="4">
+                            <a-form-item :label="$t('stock.cash_tender')" name="cash_tender">
+                            </a-form-item>
+                        </a-col>
+                        <a-col :xs="24" :sm="24" :md="7" :lg="7">
+                            <a-input-group compact>
+                                <a-span type="primary" class="indiannumbers">
+                                    ₹
+                                </a-span>
+                                <a-input id="cash_tender" @keypress="onlyForCurrency"
+                                    @keyup="updateCashReturn(index, $event)" v-model="formDataLedger.cash_tender"
+                                    class="amount" style="width:79%" autocomplete="off"   @keyup.enter="focusNext" />
+                            </a-input-group>
+                        </a-col>
+                        <a-col :xs="24" :sm="24" :md="4" :lg="4">
+                            <a-form-item :label="$t('stock.cash_return')" name="cash_return">
+                            </a-form-item>
+                        </a-col>
+                        <a-col :xs="24" :sm="24" :md="7" :lg="7">
+                            <a-input-group compact>
+                                <a-span type="primary" class="indiannumbers">
+                                    ₹
+                                </a-span>
+                                <a-input readonly id="cash_return" tabindex="-1"
+                                    v-model:value="formDataLedger.cash_return"  autocomplete="off" class="amount" style="width:79%"  @keyup.enter="focusNext" />
+                            </a-input-group>
+                        </a-col>
+                    </a-row>
+                </a-col>
+            </a-row>
         </admin-page-table-content>
         <!--- end-->
-        <a-row :gutter="16">
-            <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                <a-row :gutter="16">
-                    <a-col :xs="24" :sm="24" :md="3" :lg="3">
-                        <a-form-item :label="$t('stock.cash_tender')" name="cash_tender">
-                        </a-form-item>
-                    </a-col>
-                    <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                        <a-input-group compact>
-                            <a-button type="primary" class="indiannumber">
-                                ₹
-                            </a-button>
-                            <a-input  v-model:value="formDataLedger.cash_tender"
-                                class="amount" style="width:79%"
-                                 />
-                        </a-input-group>
-                    </a-col>
-                    <a-col :xs="24" :sm="24" :md="3" :lg="3">
-                        <a-form-item :label="$t('stock.cash_return')" name="cash_return">
-                        </a-form-item>
-                    </a-col>
-                    <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                        <a-input-group compact>
-                            <a-button type="primary" class="indiannumber">
-                                ₹
-                            </a-button>
-                            <a-input  v-model:value="formDataLedger.cash_return"
-                                class="amount" style="width:79%"
-                                 />
-                        </a-input-group>
-                    </a-col>
-                </a-row>
-            </a-col>
-        </a-row>
 
-        
-        <template #footer >
-            <div class="floats">
-                <a-button  type="submit" id="btn-Ledger" title="Ledger"
-                class="btn default-btn ng-star-inserted gst">
-                <span class="box">
-                    <span class="shortcut ng-star-inserted"><code>F10</code></span>
-                    <span class="ng-star-inserted">Save</span>
-                </span>
-                <span class="effect"></span>
-            </a-button>
+
+
+        <template #footer>
+            <div >
+                <a-button type="submit" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted gst"
+                    @click="saveBillAmtEntry">
+                    <span class="box">
+                        <span class="shortcut ng-star-inserted"><code>F8</code></span>
+                        <span class="ng-star-inserted">Save</span>
+                    </span>
+                    <span class="effect"></span>
+                </a-button>
             </div>
         </template>
     </a-modal>
+
 </template>
 
 <script>
@@ -162,6 +172,7 @@ import StaffMemberAddButton from "../../../views/users/StaffAddButton.vue";
 import fields from "./Payments/fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
+import { message, notification } from "ant-design-vue";
 export default defineComponent({
     props: [
         "formData",
@@ -170,8 +181,13 @@ export default defineComponent({
         "addEditType",
         "pageTitle",
         "successMessage",
-        "billValue"
+        "billValue",
+        "billNumber"
     ],
+    created() {
+        console.log('created:', this.billNumber)
+        this.reFetchDatatable(this.billNumber);
+    },
     components: {
         PlusOutlined,
         LoadingOutlined,
@@ -189,6 +205,8 @@ export default defineComponent({
         const selectedIndex = ref(-1);
 
         onMounted(() => {
+            let vm = this;
+            console.log("Calling 123", this);
             crudVariables.table.filterableColumns = filterableColumns;
             crudVariables.crudUrl.value = addEditUrl;
             crudVariables.langKey.value = "expense_category";
@@ -197,7 +215,7 @@ export default defineComponent({
             crudVariables.hashableColumns.value = [...hashableColumns];
 
 
-            reFetchDatatable();
+
         });
         const onSelectChange = (changableRowKeys) => {
 
@@ -208,7 +226,9 @@ export default defineComponent({
         };
         let selectedRowKeysValue = [15];
 
-        const reFetchDatatable = () => {
+        const reFetchDatatable = (bill) => {
+            console.log('bill', bill)
+            const url = 'payment-mode?fields=id,xid,bill_amount,balance_adjusted,amount,settlement_mode,remarks,cash_tender,cash_return,bill_number&filters=(bill_number%20lk%20%22%25' + bill + '%25%22%20)';
             crudVariables.tableUrl.value = {
                 url,
                 filterableColumns,
@@ -273,33 +293,33 @@ export default defineComponent({
             pageTitle: 'Select Party',
             successMessage: 'Operation successful!',
             buttonStyle: {
-                backgroundColor: '', 
+                backgroundColor: '',
                 borderColor: '',
                 color: '',
             },
             buttonStyle: {},
             formData: {
                 account_number: '',
-                Address:'',
-                state_name:'',
-                mobile_number:'',
-                opening_balance:'',
-                gst_number:'',
-                debit:'',
-                credit:''
+                Address: '',
+                state_name: '',
+                mobile_number: '',
+                opening_balance: '',
+                gst_number: '',
+                debit: '',
+                credit: ''
             }
 
         };
 
     },
     mounted() {
-        //document.addEventListener('keydown', this.handleKeyDown);
-        document.addEventListener('keyup', this.handleKeyDown);
+        //    document.addEventListener('keydown', this.handleKeyDownpay);
+        document.addEventListener('keyup', this.handleKeydown);
         this.autoFocusInput();
         setTimeout(function () { this.selectedRowKeysValue = [15] }, 2000);
     },
     beforeDestroy() {
-        document.removeEventListener('keyup', this.handleKeyDown);
+        //document.removeEventListener('keyup', this.handleKeydown);
     },
     methods: {
         customRow(record) {
@@ -340,10 +360,10 @@ export default defineComponent({
             currentRadioInput.click();
             const currentRow = currentRadioInput.closest('tr');
             const selectedRowKey = currentRow.getAttribute('data-row-key');
-            console.log('Selected Row Key:', selectedRowKey); 
+            console.log('Selected Row Key:', selectedRowKey);
             this.selectedPaymentId.id = selectedRowKey;
             this.selectedPaymentId.settlement_mode = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
-        
+
             this.$emit('child-method', this.selectedPaymentId);
             console.log(this.table.data);
         },
@@ -389,17 +409,24 @@ export default defineComponent({
             console.log('Success:', xid);
         },
 
+        focusNext(e) {
+      const formElements = Array.from(
+        document.querySelectorAll('input, select')
+      );
+      const currentIndex = formElements.indexOf(e.target);
+      if (currentIndex !== -1 && currentIndex < formElements.length - 1) {
+        formElements[currentIndex + 1].focus();
+      }
+    },
 
-        handleKeyDown(event) {
+    handleKeydown(event) {
             const activeElement = document.activeElement;
             const index = parseInt(activeElement.id.split('_').pop()); // Get the current input index
 
-            if (event.key === 'F2') {
-                this.isLoading = true;
-                setTimeout(() => {
-                    this.isLoading = false;
-                    this.isModalVisible = true;
-                }, 500);
+            if (event.key === 'F8') {
+                event.preventDefault(); 
+                this.saveBillAmtEntry();
+              
             } else if (event.key === 'F4') {
                 this.isLoading = true;
                 setTimeout(() => {
@@ -410,17 +437,157 @@ export default defineComponent({
                 this.isModalVisible = false;
 
             } else if (event.key === 'Enter') {
-                console.log(this.selectedPaymentId)
-                const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
-                if (modalCloseButton) {
-                    modalCloseButton.click();
-                    this.$emit('close-method');
 
-                }
+
             }
         },
         formatCurrency(value) {
             return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        },
+        updateBalance(index, event) {
+            console.log(document.getElementById('amount_' + index).value, event.keyCode)
+            if (event.keyCode == 9) {
+                document.getElementById('amount_' + index).focus()
+                return false;
+            }
+            this.table.data[index].amount = document.getElementById('amount_' + index).value;
+            console.log(this.table.data[index], this.billValue);
+            var sum = this.getTotalEnteredAmt();
+            if (Number(sum) > Number(this.billValue)) {
+                notification.warning({
+                    placement: "bottomRight",
+                    message: "Please Enter less then Bill amount !",
+                    //description: configObject.successMessage
+                });
+                this.table.data[index].amount = 0;
+                document.getElementById('adjust_balance').value = 0;
+                document.getElementById('amount_' + index).focus();
+            }
+            else {
+
+            }
+            document.getElementById('adjust_balance').value = this.formatCurrency(Number(this.billValue) - Number(sum));
+            //Please Enter less then Bill amount
+
+        },
+        updateBalanceRemarks(index, event) {
+            const amt = document.getElementById('amount_' + index).value
+            console.log(document.getElementById('amount_' + index).value, event.keyCode)
+            if (amt == undefined || amt == "" || amt.trim() == "") {
+                document.getElementById('amount_' + index).focus()
+                return false;
+            }
+            else if (amt > 0 && event.keyCode == 9) {
+                console.log('Tab on remarks');
+                document.getElementById('cash_tender').focus();
+                event.preventDefault()
+                return false;
+            }
+            this.table.data[index].remarks = document.getElementById('remarks_' + index).value;
+
+        },
+        getTotalEnteredAmt() {
+            let total = 0;
+
+            this.table.data.forEach((element) => {
+
+                if (element.amount != null && element.amount > 0) {
+                    total += Number(element.amount);
+                }
+
+            })
+
+            return total;
+        },
+        onlyForCurrency($event) {
+            // console.log($event.keyCode); //keyCodes value
+            let keyCode = ($event.keyCode ? $event.keyCode : $event.which);
+
+            // only allow number and one dot
+            if ((keyCode < 48 || keyCode > 57) && (keyCode !== 46 || this.price.indexOf('.') != -1)) { // 46 is dot
+                $event.preventDefault();
+            }
+
+            // restrict to 2 decimal places
+            if (this.price != null && this.price.indexOf(".") > -1 && (this.price.split('.')[1].length > 1)) {
+                $event.preventDefault();
+            }
+        },
+        updateCashReturn(index, event) {
+            var sum = this.getTotalEnteredAmt();
+            var cashTender = document.getElementById('cash_tender').value;
+            if (Number(sum) > 0 && Number(cashTender) > 0 && event.keyCode != 9) {
+                const cashRetun = Number(cashTender) - Number(sum);
+                document.getElementById('cash_return').value = (cashRetun > 0 ? cashRetun : 0);
+            }
+            else if (event.keyCode == 9) {
+                // document.getElementById('btn-Ledger').focus();
+            }
+
+        },
+        success(resonse) {
+            notification.success({
+                placement: "bottomRight",
+                message: resonse.message,
+                description: resonse.message
+            });
+            this.$emit('closed');
+        },
+        saveBillAmtEntry() {
+            console.log(this.table.data);
+            this.table.data.forEach((element) => {
+                if (element.amount != null || element.amount != undefined || Number(element.amount) > 0) {
+                    element.bill_amount = this.billValue;
+                    element.cash_tender = document.getElementById('cash_tender').value;
+                    element.cash_return = document.getElementById('cash_return').value;
+                    element.invoice_number = document.getElementById('form_item_bill_number').value;
+                }
+            })
+            this.loading = true;
+            axiosAdmin
+                .post("sales/savepayment", { data: this.table.data })
+                .then(response => {
+                    // Toastr Notificaiton
+                    this.success(response);
+                })
+                .catch(errorResponse => {
+                    var err = errorResponse.data;
+                    const errorCode = errorResponse.status;
+                    var errorRules = {};
+
+                    if (errorCode == 422) {
+                        if (err.error && typeof err.error.details != "undefined") {
+                            var keys = Object.keys(err.error.details);
+                            for (var i = 0; i < keys.length; i++) {
+                                // Escape dot that comes with error in array fields
+                                var key = keys[i].replace(".", "\\.");
+
+                                errorRules[key] = {
+                                    required: true,
+                                    message: err.error.details[keys[i]][0],
+                                };
+                            }
+                        }
+
+                        rules.value = errorRules;
+                        message.error(t("common.fix_errors"));
+                    }
+
+                    if (err && err.message) {
+                        message.error(err.message);
+                        err = {
+                            error: {
+                                ...err
+                            }
+                        }
+                    }
+
+
+
+                    //loading.value = false;
+                });
+            //  this.$emit('closed');
+
         },
     },
 
@@ -608,5 +775,10 @@ body.is-loading {
 
 .loader {
     text-align: center;
+}
+.indiannumbers{
+    padding: 4px 7px !important;
+    background: #eaeaea;
+    border-color: #c2c2c2;
 }
 </style>

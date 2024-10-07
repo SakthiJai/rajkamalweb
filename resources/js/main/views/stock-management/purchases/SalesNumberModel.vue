@@ -46,7 +46,7 @@
 
                         <a-input-search ref="searchInput" @keydown="test" style="width: 75%" placeholder="search here.."
                             v-model:value="table.searchString" show-search @change="onTableSearch"
-                            @search="onTableSearch" :loading="table.filterLoading" />
+                            @search="onTableSearch" :loading="table.filterLoading" @focus="checkSelectedCustomer" />
                     </a-input-group>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="6" :lg="6">
@@ -187,7 +187,7 @@ export default defineComponent({
         const { permsArray, selectedWarehouse } = common();
         const selectedIndex = ref(-1);
         let selectedRowKeysValue = []; // Check here to configure the default column
-        selectedRowKeysValue[0] = 4;
+       
 
         onMounted(() => {
             crudVariables.table.filterableColumns = filterableColumns;
@@ -259,17 +259,17 @@ export default defineComponent({
             });
         };
 
-        const onClose = () => {
+        const onClose = () => { console.log("cloed cll ");
             emit("closed");
         };
 
-        const handleKeyDown = (event) => {
+        /*const handleKeyDown = (event) => {
             if (event.key === 'ArrowDown') {
                 selectedIndex.value = (selectedIndex.value + 1) % (crudVariables.table?.data?.length || 0);
             } else if (event.key === 'ArrowUp') {
                 selectedIndex.value = (selectedIndex.value - 1 + (crudVariables.table?.data?.length || 0)) % (crudVariables.table?.data?.length || 0);
             }
-        };
+        };*/
         watch(selectedWarehouse, (newVal, oldVal) => {
             reFetchDatatable();
         });
@@ -348,7 +348,9 @@ export default defineComponent({
 
         customRow(record) {
             return {
-                onClick: (event) => { console.log('record', record, 'event', event); this.onCloseing() }
+                onClick: (event) => { console.log('record', record, 'event', event); 
+                //this.onCloseing()
+             }
             }
         },
         showModal() {
@@ -370,6 +372,7 @@ export default defineComponent({
         },
         onClose() {
             this.isNumberVisible = false;
+            this.$emit('closed');
 
         },
 
@@ -389,7 +392,7 @@ export default defineComponent({
             console.log('Success:', xid);
         },
         handleKeyDown(event) {
-            console.log(event.key)
+            console.log('handleKeyDowns',event.key)
             if (event.key === 'F2') {
                 // Show loader
                 this.isLoading = true;
@@ -421,21 +424,28 @@ export default defineComponent({
                 this.isEnterModal = false;
                 this.isLoading = false;
             }
-            else if (event.key === 'Enter') {
+            /*else if (event.key === 'Enter') {
                 console.log("Test");
-                this.$emit('mobile-method')
+               
                 //document.documentElement.querySelector(".ant-modal-close-x").click()
 
-            }
+            }*/
         },
+        removeClass() {
+  const rows = Array.from(document.querySelectorAll('tr.ant-table-row-selected'));
+  rows.forEach(row => {
+    row.classList.remove('ant-table-row-selected');
+  });
+},
         test: function (event) {
             switch (event.keyCode) {
                 case 38:
-
-                    document.getElementsByClassName('ant-radio-input')[this.focus].click();
+                    this.removeClass()
+                    if(this.items.length>0){
+                    document.getElementsByClassName('ant-radio-input')[this.focus];
                     //console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
                     const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-
+                    temp.classList.add("ant-table-row-selected");    
                     console.log('up=>', temp)
 
                     console.log('up=>', temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
@@ -450,23 +460,32 @@ export default defineComponent({
                     } else if (this.focus > 0) {
                         this.focus--;
                     }
+                }
                     break;
                 case 40:
-
+                if(this.items.length>0){
+                    this.removeClass()
                     if (this.focus === null) {
                         this.focus = 0;
                     } else if (this.focus < this.items.length - 1) {
                         this.focus++;
                     }
-                    document.getElementsByClassName('ant-radio-input')[this.focus].click();
+                    document.getElementsByClassName('ant-radio-input')[this.focus];
                     const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
+                    temp1.classList.add("ant-table-row-selected");   
                     console.log('down=>', temp1.getAttribute('data-row-key'))
                     this.selectedPartyId.id = temp1.getAttribute('data-row-key');
                     this.selectedPartyId.name = temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
                     this.selectedPartyId.mobile_number = temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
                     console.log('up=>', this.selectedPartyId)
                     this.$emit('cutomer-method', this.selectedPartyId)
-
+                }
+                    break;
+                    case 13:
+                    if(this.items.length>0){
+                        console.log("Test");
+                        this.$emit('mobile-method')
+                    }
                     break;
 
                     case 46:
@@ -475,6 +494,65 @@ export default defineComponent({
                     break;
             }
         },
+        checkSelectedCustomer()
+        {
+          console.log('this.selectedRowKeysValue',this.selectedRowKeysValue)
+            if(this.selectedRowKeysValue==undefined )
+            {
+                
+                var that = this;
+                this.focus=0;
+                setTimeout(function(){
+                    const currentRadioInput = document.getElementsByClassName('ant-radio-input')[0];
+               // currentRadioInput.click();
+                const currentRow = currentRadioInput.closest('tr');
+                currentRow.classList.add("ant-table-row-selected");   
+                const selectedRowKey = currentRow.getAttribute('data-row-key');
+                console.log('Selected Row Key1:', selectedRowKey); 
+                that.selectedPartyId.id =selectedRowKey;
+                that.selectedPartyId.name= currentRow.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+                that.selectedPartyId.mobile_number= currentRow.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+                console.log('up=>',that.selectedPartyId)
+                
+                document.querySelectorAll('.ant-radio-input').forEach((elem) => { 
+                elem.addEventListener("change", function(event) { 
+                var item = event.target.value;
+                console.log('<>',item);
+                const currentRadioInput1 = document.getElementsByClassName('ant-radio-input')[that.focus];
+                const currentRow1 = event.target.closest('tr');
+                const selectedRowKey1 = currentRow1.getAttribute('data-row-key');
+                console.log('Selected Row Key11:', selectedRowKey1); 
+                that.selectedPartyId.id =selectedRowKey1;
+                that.selectedPartyId.name= currentRow1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+                that.selectedPartyId.mobile_number= currentRow1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+
+                const currentRadioInput = document.getElementsByClassName('ant-table-row-selected');
+                const myElem = document.querySelectorAll(".ant-table-row-selected");
+                let name ='';
+                    myElem.forEach(function (elem, index) {
+                   // console.log(  elem.closest('tr'));
+                   name = elem.closest('tr').getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+                    //console.log(name);
+                    });
+                    
+                    const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
+                            if (modalCloseButton) {
+                               // 
+                               console.log(that.selectedPartyId)
+                               that.$emit('cutomer-method',that.selectedPartyId)
+                               modalCloseButton.click();
+                               
+                                 return false;
+
+                            }
+
+                });
+            });
+                },2000);
+                  
+            }
+            
+        }
 
     },
 

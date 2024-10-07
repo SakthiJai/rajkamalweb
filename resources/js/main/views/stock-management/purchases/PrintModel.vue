@@ -49,33 +49,37 @@
                 </span>
             </button>
         </template>
-
+        <form>
         <a-col :xs="24" :sm="24" :md="24" :lg="24" class="info">
             <fieldset>
                 <legend class="basicdetalis">Format</legend>
                 <a-row :gutter="16">
                     <a-col :xs="24" :sm="24" :md="24" :lg="24">
                         <a-form-item
-                            :label="$t('Select Format')"
-                            name="name"
-                            :help="rules.name ? rules.name.message : null"
-                            :validateStatus="rules.name ? 'error' : null"
-                            class="required compact-form-item"
-                        >
-                            <a-select v-model:value="formData.business_type">
-                                <a-select-option key="1" value="1">
-                                    General Billing
-                                </a-select-option>
-                            </a-select>
-                        </a-form-item>
+    :label="$t('Select Format')"
+    name="name"
+    :help="rules.name ? rules.name.message : null"
+    :validateStatus="rules.name ? 'error' : null"
+    class="required compact-form-item"
+  >
+    <select
+      id="billing_print"
+      v-model="formData.business_type"
+      ref="billingPrintSelect"
+      class="ant-input css-dev-only-do-not-override-wosfq4"
+    >
+      <option value="1">General Billing</option>
+    </select>
+  </a-form-item>
                     </a-col>
                 </a-row>
             </fieldset>
         </a-col>
+    </form>
 
         <template #footer>
             <button
-                @click="onSubmit"
+                @click="previewpdf"
                 type="submit"
                 id="btn-Ledger"
                 title="Ledger"
@@ -120,10 +124,10 @@
                 type="button"
                 id="btn-Ledger"
                 title="Ledger"
-                @click="PrinterOutlined"
+                @click="PrinterOutlined" @keydown="handleKeydowns" tabindex="0"
                 class="btn default-btn ng-star-inserted"
             >
-                <span class="box"
+                <span class="box" @click="printpdf"
                     ><span class="shortcut ng-star-inserted"
                         ><code>P</code></span
                     ><span class="ng-star-inserted">Print</span>
@@ -148,11 +152,7 @@
                 <span class="effect"></span>
             </button>
 
-            <!--
-            <a-button type="button" v-print="`#${tableName}`">
-                <PrinterOutlined />
-                {{ $t("common.print") }}
-            </a-button> -->
+        
 
             <button
                 type="button"
@@ -197,11 +197,12 @@ import {
 } from "@ant-design/icons-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import StaffMemberAddButton from "../../../views/users/StaffAddButton.vue";
+import { message, notification } from "ant-design-vue";
 // import PrinterOutlined from "@ant-design/icons-vue";
 // import WhatsAppOutlined from "@ant-design/icons-vue";
 
 export default defineComponent({
-    business_type: "2",
+    
     props: [
         "formData",
         "visible",
@@ -262,9 +263,22 @@ export default defineComponent({
             isModalVisible: false,
             isModalVisibles: false,
             isModalVisibleing: false,
-            business_type: "2",
+            //business_type: "2",
+            formData:{
+                business_type:"1",
+            },
+            
         };
     },
+
+    mounted() {
+            document.addEventListener('keydown', this.handleKeyDownPrint);
+            this.autoFocusInput();
+            
+        },
+        beforeDestroy() {
+            //window.removeEventListener("keydown", this.handleleKeydown);
+        },
 
     methods: {
         onClose() {
@@ -273,7 +287,7 @@ export default defineComponent({
 
         handleSuccess(xid) {
             this.isModalVisible = false;
-            document.removeEventListener("keydown", this.handleKeydown);
+            //document.removeEventListener("keydown", this.handleKeydown);
             console.log("Success:", xid);
         },
         // handleKeydown(event) {
@@ -286,44 +300,171 @@ export default defineComponent({
         },
         handleClose() {
             this.isModalVisible = false;
-            document.removeEventListener("keydown", this.handleKeydown);
+            //document.removeEventListener("keydown", this.handleKeydown);
         },
         handleCloses() {
             this.isModalVisibles = false;
-            document.removeEventListener("keydown", this.handleKeydown);
+            //document.removeEventListener("keydown", this.handleKeydown);
         },
         handleClosing() {
             this.isModalVisibleing = false;
         },
-        handleKeydown(event) {
+        handleKeyDownPrint(event) { console.log("event",event.key);
             if (event.key === "Escape") {
                 this.handleClose();
-            } else if (event.key === "F") {
-                event.preventDefault();
-                this.resetForm();
-            }
-        },
-
-        handleKeydown(event) {
-            if (event.key === "P") {
-                this.handlePrint();
-            }
+            } 
+            else if (event.key.toUpperCase() == 'F') {
+        event.preventDefault();
+        this.printpdf(); 
+        console.log("demo");
+      }
+      else if (event.key.toUpperCase() == 'P') {
+        event.preventDefault();
+        this.printpdf(); 
+        console.log("demo");
+      }
         },
         handlePrint() {
             console.log("Printing...");
         },
 
+        handleKeydowns(event) {
+      if (event.key === 'F') {
+        event.preventDefault();
+        this.printpdf(); 
+        console.log("demo");
+      }
+    },
+
         sendWhatsAppMessage() {
             console.log("Sending WhatsApp message...");
             // ":/" use  the WhatsApp API
         },
+        success(data)
+        {
+            javascipt:window.open('/storage/app/public/fun.pdf');
+        },
 
-        mounted() {
-            window.addEventListener("keydown", this.handleKeydown);
+        autoFocusInput() {
+      this.$nextTick(() => {
+        // Check if the element exists before calling focus()
+        if (this.$refs.billingPrintSelect) {
+          this.$refs.billingPrintSelect.focus();
+        }
+      });
+    },
+        printpdf()
+        {
+            console.log("PDF click");
+            this.loading= true;          
+            axiosAdmin
+            .post("sales/getInvoicePdf", {invoice:document.getElementById('form_item_bill_number').value})
+            .then(response => {              
+                this.$emit('closed');
+                let w=window.open(response,'_blank'); 
+                w.print(); 
+            })
+            .catch(errorResponse => {
+                var err = errorResponse.data;
+                const errorCode = errorResponse.status;
+                var errorRules = {};
+
+                if (errorCode == 422) {
+                    if (err.error && typeof err.error.details != "undefined") {
+                        var keys = Object.keys(err.error.details);
+                        for (var i = 0; i < keys.length; i++) {
+                            // Escape dot that comes with error in array fields
+                            var key = keys[i].replace(".", "\\.");
+
+                            errorRules[key] = {
+                                required: true,
+                                message: err.error.details[keys[i]][0],
+                            };
+                        }
+                    }
+
+                    rules.value = errorRules;
+                    message.error(t("common.fix_errors"));
+                }
+
+                if (err && err.message) {
+                    message.error(err.message);
+                    err = {
+                        error: {
+                            ...err
+                        }
+                    }
+                }
+
+               
+
+                //loading.value = false;
+            });
+          //  this.$emit('closed');
+
+        
         },
-        beforeDestroy() {
-            window.removeEventListener("keydown", this.handleleKeydown);
+        previewpdf()
+        {
+            console.log("PDF click");
+            this.loading= true;          
+            axiosAdmin
+            .post("sales/getInvoicePdf", {invoice:document.getElementById('form_item_bill_number').value})
+            .then(response => {              
+                
+                let w=window.open(response,'_blank'); 
+                w.print(); 
+            })
+            .catch(errorResponse => {
+                var err = errorResponse.data;
+                const errorCode = errorResponse.status;
+                var errorRules = {};
+
+                if (errorCode == 422) {
+                    if (err.error && typeof err.error.details != "undefined") {
+                        var keys = Object.keys(err.error.details);
+                        for (var i = 0; i < keys.length; i++) {
+                            // Escape dot that comes with error in array fields
+                            var key = keys[i].replace(".", "\\.");
+
+                            errorRules[key] = {
+                                required: true,
+                                message: err.error.details[keys[i]][0],
+                            };
+                        }
+                    }
+
+                    rules.value = errorRules;
+                    message.error(t("common.fix_errors"));
+                }
+
+                if (err && err.message) {
+                    message.error(err.message);
+                    err = {
+                        error: {
+                            ...err
+                        }
+                    }
+                }
+
+               
+
+                //loading.value = false;
+            });
+          //  this.$emit('closed');
+
+        
         },
+        WhatsAppOutlined()
+        {
+            notification.warning({
+                        placement:  "bottomRight",
+                        message: "We are on the way to bring the Whatsapp Integration !",
+                        description: ""
+            });
+        },
+
+       
     },
 });
 </script>

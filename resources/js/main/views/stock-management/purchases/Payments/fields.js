@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
 	const addEditUrl = "payment-mode";
-	const url = "payment-mode?fields=id,xid,bill_amount,balance_adjusted,amount,settlement_mode,remarks,cash_tender,cash_return";
+	const url = "payment-mode?fields=id,xid,bill_amount,balance_adjusted,amount,settlement_mode,remarks,cash_tender,cash_return,bill_number";
 	const hashableColumns = ['id'];
 	const { t } = useI18n();
  
@@ -53,8 +53,8 @@ const fields = () => {
 
 	const filterableColumns = [
 		{
-			key: "name",
-			value: t("common.name") 
+			key: "bill_number",
+			value: 'bill_number'
 		},
 	];
 	

@@ -752,13 +752,14 @@ class AuthController extends ApiBaseController
 
         foreach ($topCustomers as $topCustomer) {
             $customer = Customer::select('id', 'name', 'profile_image')->find($topCustomer->user_id);
-
+            if($customer){
             $results[] = [
-                'customer_id' => $customer->xid,
+                'customer_id' => $customer->xid ?? "",
                 'customer' => $customer,
                 'total_amount' => $topCustomer->total_amount,
                 'total_sales' => $topCustomer->total_sales,
             ];
+        }
         }
 
         return $results;

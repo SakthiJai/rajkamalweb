@@ -25,12 +25,12 @@ class SalesCreateRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'party_name' => 'required',
-            'bill_number' => 'required',
-            'order_status' => 'required',
-            'party_customer_mobile' => 'required',
-            'party_customer_name' => 'required',
-            'address' => 'required',
+            // 'party_name' => 'required',
+            // 'bill_number' => 'required',
+            // 'order_status' => 'required',
+            // 'party_customer_mobile' => 'required',
+            // 'party_customer_name' => 'required',
+            // 'address' => 'required',
         ];
 
         return $rules;

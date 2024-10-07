@@ -2,8 +2,8 @@
     <AdminPageHeader>
         <template #header>
             <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="3" :lg="3">
-                    <h3 class="gstinvoice"> GST Invoice List</h3>
+                <a-col :xs="24" :sm="24" :md="4" :lg="4">
+                    <h3 class="gstinvoice"> Receipt Voucher List</h3>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="2" :lg="2">
                     <svg height="20" viewBox="0 0 576 512">
@@ -12,30 +12,25 @@
                             fill="#ff0000"></path>
                     </svg>
                 </a-col>
-                <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                <a-col :xs="24" :sm="24" :md="13" :lg="13">
                 </a-col>
-                <a-col :xs="24" :sm="24" :md="7" :lg="7">
+                <a-col :xs="24" :sm="24" :md="5" :lg="5">
                     <a class="btn addEffset" href="/dashboard" title="Home">
                         <img class="" src="../../../../../../images/homeIcon.png">
                         <span class="effset"></span>
                     </a>
-                    <a-button type="primary" class="bulkaction">
-                        {{ $t("stock_adjustment.bulk_action") }}
-                    </a-button>
 
-                    <template v-if="
+                   <template v-if="
                         permsArray.includes(`${orderPageObject.permission}_create`) ||
                         permsArray.includes('admin')
                     ">
 
-                        <router-link :to="{
-                            name: `admin.stock.${orderPageObject.type}.create`,
-                        }">
+                       
                             <a-button type="primary" class="creating">
                                 <PlusOutlined />
                                 Create F2
                             </a-button>
-                        </router-link>
+                        
                     </template>
                 </a-col>
             </a-row>
@@ -49,8 +44,8 @@
             <a-col :xs="24" :sm="24" :md="12" :lg="24" :xl="24">
                 <a-row :gutter="[16, 16]">
                     <a-col :xs="24" :sm="24" :md="12" :lg="10" :xl="10">
-                        <a-input ref="searchInput" style="width: 100%" v-model:value="filters.searchString" 
-                            placeholder="Search here" @keydown="test" @keydown.enter="handleEnterKey" />
+                        <a-input-search ref="searchInput" style="width: 100%" v-model:value="filters.searchString"
+                            show-search placeholder="Search here" @keydown="test" @keydown.enter="handleEnterKey" />
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="12" :lg="3" :xl="3">
                         <div class="dropdown">
@@ -114,14 +109,14 @@
                                     <hr class="hrtages">
                                     </hr>
                                     <a-row :gutter="16">
-                                        <a-col :xs="24" :sm="24" :md="12" :lg="12" >
+                                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
                                             <a-form-item :label="$t('stock.customs')">
-                                        </a-form-item>
+                                            </a-form-item>
                                         </a-col>
-                                        
+
                                     </a-row>
                                     <a-row :gutter="16">
-                                        <a-col :xs="24" :sm="24" :md="12" :lg="12" >
+                                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
                                             <DateTimePicker :dateTime="formData.anniversary_date" @dateTimeChanged="(changedDateTime) =>
                                                 (formData.freeze_upto = changedDateTime)
                                                 " />
@@ -133,37 +128,15 @@
                                         </a-col>
                                     </a-row>
                                     <a-col :xs="24" :sm="24" :md="24" :lg="24" id="customdate">
-                                    <a-button type="primary" class="creating">
-                                        Apply
-                                    </a-button>
-                                </a-col>
+                                        <a-button type="primary" class="creating">
+                                            Apply
+                                        </a-button>
+                                    </a-col>
 
                                 </div>
                             </ul>
                         </div>
 
-                    </a-col>
-
-                    <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
-                        <div>
-                            <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="6">
-                                <a-space>
-                                    <template v-if="
-                                        permsArray.includes('stock_adjustments_create') ||
-                                        permsArray.includes('admin')
-                                    ">
-                                        <a-button type="primary" @click="showModal">
-                                            <PlusOutlined />
-                                            {{ $t("stock_adjustment.filter") }}
-                                        </a-button>
-                                    </template>
-                                </a-space>
-                            </a-col>
-                            <ExpenseCategoryModal v-if="isModalVisible" :visible="isModalVisible" :formData="formData"
-                                :url="url" :addEditType="addEditType" :pageTitle="pageTitle"
-                                :successMessage="successMessage" @addEditSuccess="handleSuccess"
-                                @closed="handleClose" />
-                        </div>
                     </a-col>
                 </a-row>
             </a-col>
@@ -171,8 +144,9 @@
     </admin-page-filters>
 
     <admin-page-table-content>
-        <OrderTable ref="orderTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
-            :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect" />
+        <ReceiptTable ref="orderTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
+            :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)"
+            v-on:child-select="updateselect" />
     </admin-page-table-content>
 </template>
 <script>
@@ -180,17 +154,17 @@ import { onMounted, watch, ref } from "vue";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import { useRoute } from "vue-router";
 import common from "../../../../common/composable/common";
-import OrderTable from "../../../components/order/OrderTable.vue";
+import ReceiptTable from "../../../components/receipt/ReceiptTable.vue";
 import DateRangePicker from "../../../../common/components/common/calendar/DateRangePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
-import ExpenseCategoryModal from './ExpenseCategoryModal.vue';
+import ExpenseCategoryModal from '../../stock-management/purchases/ExpenseCategoryModal.vue';
 import DateTimePicker from "../../../../common/components/common/calendar/DatePicker.vue"
 export default {
     components: {
         PlusOutlined,
         DeleteOutlined,
         ExpenseCategoryModal,
-        OrderTable,
+        ReceiptTable,
         DateRangePicker,
         AdminPageHeader,
         DateTimePicker,
@@ -204,7 +178,7 @@ export default {
             pageTitle: 'GST Invoice Filters',
             successMessage: 'Operation successful!',
             isDropdownOpen: false,
-             accountGroupColor: '',
+            accountGroupColor: '',
 
             buttonLabel: 'Today',
             selectedRange: 'Today',
@@ -219,34 +193,33 @@ export default {
         };
     },
     mounted() {
-    document.addEventListener('keydown', this.handleKeydown);
-    this.autoFocusInput();
-  },
-  beforeDestroy() {
-  
-    document.removeEventListener('keydown', this.handleKeydown);
-  },
-    methods: 
-    {
+        document.addEventListener('keydown', this.handleKeydown);
+        this.autoFocusInput();
+    },
+    beforeDestroy() {
+
+        document.removeEventListener('keydown', this.handleKeydown);
+    },
+    methods: {
         selectDateRange(range) {
-            this.selectedRange = range.trim(); 
-            this.buttonLabel = range.trim(); 
-            this.isDropdownOpen = false;  
+            this.selectedRange = range.trim();
+            this.buttonLabel = range.trim();
+            this.isDropdownOpen = false;
         },
 
         handleKeydown(event) {
-      if (event.key === 'F2') {
-        // Perform route navigation
-        this.$router.push({
-          name: `admin.stock.${this.orderPageObject.type}.create`,
-        });
-      }
+            if (event.key === 'F2') {
+                // Perform route navigation
+                this.$router.push({
+                    name: `admin.stock.${this.orderPageObject.type}.create`,
+                });
+            }
         },
         handleEnterKey() {
-      // Perform route navigation when Enter is pressed
-      /*this.$router.push({
-        name: `admin.stock.${this.orderPageObject.type}.create`,
-      });*/
+            // Perform route navigation when Enter is pressed
+            this.$router.push({
+                name: `admin.stock.${this.orderPageObject.type}.create`,
+            });
         },
         autoFocusInput() {
             this.$nextTick(() => {
@@ -267,7 +240,7 @@ export default {
             this.isModalVisible = false;
             console.log('Success:', xid);
         },
-                changeColorOnFocus(inputField) {
+        changeColorOnFocus(inputField) {
             if (inputField === 'partyName') {
                 this.partyNameColor = '#ffd451';
             } else if (inputField === 'accountGroup') {
@@ -285,35 +258,10 @@ export default {
                 this.stationsColor = '';
             }
         },
-        //     handleKeyPress(event) {
-        //   this.$refs.orderTable.test(event);
-        //   console.log(122);
+        updateselect(event) {
+            this.$refs.orderTable.test(event);
 
-        // },
-
-        updateselect(event){
-        //this.$refs.orderTable.test(event);
-        let data = {
-        id: 25,
-        description: "pass data through params"
-      };
-        this.$router.push({
-        name: `admin.stock.${this.orderPageObject.type}.create`,
-        params: { data }
-      });
-       
         },
-        test(event) 
-        {
-            console.log('key code',event.keyCode,this.orderTableRef);
-            this.orderTableRef.test(event);
-            
-        },
-       
-
-    
-        
-
     },
     setup() {
         const {
@@ -435,9 +383,9 @@ export default {
 
 .dropdown-menusing {
     display: block !important;
-    position: absolute !important; 
+    position: absolute !important;
     padding: 10px !important;
-    list-style: none !important ;
+    list-style: none !important;
     border-radius: 4px !important;
     width: 300px !important;
 }
@@ -511,14 +459,17 @@ export default {
 .matdatepanel {
     margin-top: 20px;
 }
-#customdate{
-    float:right;
-    margin-top:12px;
+
+#customdate {
+    float: right;
+    margin-top: 12px;
 }
+
 :where(.css-dev-only-do-not-override-wosfq4).ant-form-item {
-    margin-bottom:5px !important;
+    margin-bottom: 5px !important;
 }
-.hrtages{
-    margin-top:22px;
+
+.hrtages {
+    margin-top: 22px;
 }
 </style>

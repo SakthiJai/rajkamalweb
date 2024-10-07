@@ -6,6 +6,7 @@ use App\Casts\Hash;
 use App\Classes\Common;
 use App\Models\BaseModel;
 use App\Scopes\CompanyScope;
+
 class Order extends BaseModel
 {
     protected $table = 'orders';
@@ -13,17 +14,22 @@ class Order extends BaseModel
         'xid',
         'bill_number',
         'address',
+         'party_name',
         
     ]; 
+    //protected $fillable = ['party_name','party_name'];
     protected $guarded = ['id', 'warehouse_id', 'staff_user_id', 'order_type', 'party_customer_id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['warehouse_id','party_id', 'product_id','payment_id','from_warehouse_id', 'user_id', 'tax_id', 'staff_user_id', 'cancelled_by'];
+    protected $hidden = ['warehouse_id', 'product_id','payment_id','from_warehouse_id', 'user_id', 'tax_id', 'staff_user_id', 'cancelled_by'];
 
-    protected $appends = ['xid', 'x_warehouse_id','party_id','product_id','payment_id', 'x_from_warehouse_id', 'x_user_id', 'x_tax_id', 'x_staff_user_id', 'x_cancelled_by', 'document_url'];
+    protected $appends = ['xid', 'x_warehouse_id','party_id','product_id','payment_id', 'x_from_warehouse_id', 'x_user_id', 'x_tax_id', 'x_staff_user_id', 'x_cancelled_by', 'document_url','party_name'];
 
     protected $dates = ['order_date'];
 
     protected $filterable = ['id', 'bill_number','address','payment_status','invoice_number', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id','product_id','payment_id',];
+
+
+    protected $fillable  = ['id', 'bill_number','address','payment_status','invoice_number', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id','product_id','payment_id',];
   
     protected $hashableGetterFunctions = [
         'getXWarehouseIdAttribute' => 'warehouse_id',
@@ -54,6 +60,15 @@ class Order extends BaseModel
         'total_quantity' => 'double',
         'bill_number' => 'string',
     ];
+
+
+    // public function getPartyNameAttribute()
+    // {
+
+    //     $partyname = LedgerModel::find(id: $this->party_name);
+    //     return $partyname ? $partyname->party_name : 'Unknown'; 
+    // }
+    
 
     protected static function boot()
     {
@@ -131,6 +146,11 @@ class Order extends BaseModel
     public function shippingAddress()
     {
         return $this->belongsTo(OrderShippingAddress::class, 'id', 'order_id');
+    }
+    
+    public function getPartyIdAttribute()
+    {
+       return  15;
     }
     
 }

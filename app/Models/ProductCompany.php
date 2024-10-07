@@ -16,7 +16,7 @@ class ProductCompany extends BaseModel
 
     protected $filterable = ['name'];
 
-    protected $hidden = ['id',];
+    protected $hidden = [];
 
     protected $appends = ['xid'];
 

@@ -213,7 +213,7 @@
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="13" :lg="13">
                                                 <a-input-group compact>
-                                                    <a-button type="primary" class="indiannumber">
+                                                    <a-button type="primary" class="indiannumbers">
                                                         ₹
                                                     </a-button>
                                                     <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.opening_balance"
@@ -259,7 +259,7 @@
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="13" :lg="13">
                                         <a-input-group compact>
-                                            <a-button type="primary" class="indiannumber">+91</a-button>
+                                            <a-button type="primary" class="indiannumbers">+91</a-button>
                                             <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.phone_number" id="phonenumber"
                                                 style="width:74%" @input="onInputPhoneNumber"
                                                 :value="formDataLedger.phone_number" />
@@ -279,7 +279,7 @@
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="13" :lg="13">
                                                 <a-input-group compact>
-                                                    <a-button type="primary" class="indiannumber">
+                                                    <a-button type="primary" class="indiannumbers">
                                                         +91
                                                     </a-button>
                                                     <a-input v-on:keyup.enter="moveToNextField($event.target)" v-model:value="formDataLedger.mobile_number"
@@ -303,7 +303,7 @@
                                             <a-col :xs="24" :sm="24" :md="13" :lg="13">
                                                 <span style="display: flex">
                                                     <a-input-group compact>
-                                                        <a-button type="primary" class="indiannumber">
+                                                        <a-button type="primary" class="indiannumbers">
                                                             +91
                                                         </a-button>
                                                         <a-input v-model:value="formDataLedger.whatsapp_number" c
@@ -1040,7 +1040,7 @@ export default defineComponent({
         },
         handleKeydown(event) {
             if (event.key === 'Escape') {
-                this.handleClose();
+                this.isLegerModalVisible=false;
             } else if (event.key === 'F9') {
                 event.preventDefault();
                 this.resetForm();
@@ -1049,7 +1049,7 @@ export default defineComponent({
                 this.switchTab();
             } else if (event.key === 'F10') {
                 event.preventDefault();
-                this.onSubmitLedger();
+                //this.onSubmitLedger();
             }
         },
         changeColorOnFocus(inputField) {
@@ -1368,7 +1368,7 @@ button.btn {
 }
 
 .indiannumber {
-    padding: 4px 7px !important;
+    padding: 4px 10px !important;
     background: #f6f6f6;
     border-color: #c2c2c2;
     color: black;
@@ -1425,5 +1425,12 @@ button.btn {
 
 .ant-form-item-explain-error {
     font-size: 13px;
+}
+.indiannumbers {
+    padding: 2px 7px !important;
+    background: #f6f6f6;
+    border-color: #c2c2c2;
+    color: black;
+    height:26px;
 }
 </style>

@@ -41,13 +41,13 @@
 
                         <a-input-search ref="searchInput" @keydown="test"  style="width: 75%" placeholder="search here.."
                             v-model:value="table.searchString" show-search @change="onTableSearch"
-                            @search="onTableSearch" :loading="table.filterLoading" />
+                            @search="onTableSearch" :loading="table.filterLoading" @focus="checkSelectedCustomer" />
                     </a-input-group>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="6" :lg="6">
                     <a-form-item name="name">
                         <a-select v-model:value="formData.sales_names">
-                            <a-select-option key="1" value="1">
+                            <a-select-option key="1" value="1" selected>
                                 Name
                             </a-select-option>
                             <a-select-option key="2" value="2">
@@ -180,7 +180,7 @@ export default defineComponent({
         const { permsArray, selectedWarehouse } = common();
         const selectedIndex = ref(-1);
         let selectedRowKeysValue=[]; // Check here to configure the default column
-        selectedRowKeysValue[0]=4;
+       
 
         onMounted(() => {
             crudVariables.table.filterableColumns = filterableColumns;
@@ -464,6 +464,57 @@ export default defineComponent({
                     break;
       }
     },
+    checkSelectedCustomer()
+        {
+          console.log('this.selectedRowKeysValue',this.selectedRowKeysValue)
+            if(this.selectedRowKeysValue==undefined )
+            {
+                
+                var that = this;
+                
+                setTimeout(function(){
+                    const currentRadioInput = document.getElementsByClassName('ant-radio-input')[0];
+                currentRadioInput.click();
+                const currentRow = currentRadioInput.closest('tr');
+                const selectedRowKey = currentRow.getAttribute('data-row-key');
+                console.log('Selected Row Key1:', selectedRowKey); 
+                this.selectedPartyId.id =selectedRowKey;
+                this.selectedPartyId.name= currentRow.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+                this.selectedPartyId.mobile_number= currentRow.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+                console.log('up=>',this.selectedPartyId)
+                
+                document.querySelectorAll('.ant-radio-input').forEach((elem) => { 
+                elem.addEventListener("change", function(event) { 
+                var item = event.target.value;
+                console.log('<>',item);
+
+                const currentRadioInput = document.getElementsByClassName('ant-table-row-selected');
+                const myElem = document.querySelectorAll(".ant-table-row-selected");
+                let name ='';
+                    myElem.forEach(function (elem, index) {
+                   // console.log(  elem.closest('tr'));
+                   name = elem.closest('tr').getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+                    //console.log(name);
+                    });
+                    
+                    const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
+                            if (modalCloseButton) {
+                               // 
+                               //console.log({id:selectedRowKey,name:name})
+                               that.$emit('cutomer-method',this.selectedPartyId)
+                               modalCloseButton.click();
+                               
+                                 return false;
+
+                            }
+
+                });
+            });
+                },2000);
+                  
+            }
+            
+        }
 
     },
 

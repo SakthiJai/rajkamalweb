@@ -32,8 +32,9 @@ class LedgerCustomerModel extends BaseModel
 
     public function getNameAttribute()
     {
-        $counrty = Country::find($this->stock_country);
-        return ""; 
+       //print_r($this['name']);
+        //$counrty = Country::find(id: $this->stock_country);
+        return $this->attributes['name']; 
     }
 
 

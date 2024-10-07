@@ -34,7 +34,7 @@
                 </span>
             </button>
         </template>
-        <LedgerModel v-if="isModalVisible" :visible="isModalVisible" :formData="formData" :url="url"
+        <LedgerModel v-if="isLegerModalVisible" :visible="isLegerModalVisible" :formData="formData" :url="url"
             :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
             @addEditSuccess="handleSuccess" @closed="handleClose" />
 
@@ -49,7 +49,7 @@
 
                         <a-input-search @keydown="test" ref="searchInput" style="width: 75%" placeholder="search here.."
                             v-model:value="table.searchString" show-search @change="onTableSearch"
-                            @search="onTableSearch" :loading="table.filterLoading" />
+                            @search="onTableSearch" :loading="table.filterLoading" @focus="checkSelectedCustomer"  class="inputssearch"/>
                     </a-input-group>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="6" :lg="6">
@@ -315,7 +315,7 @@
 <script>
 import { onMounted, watch, ref, computed } from "vue";
 import { defineComponent } from "vue";
-import { PlusOutlined, LoadingOutlined, SaveOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import { PlusOutlined, LoadingOutlined, SaveOutlined, EditOutlined, DeleteOutlined, ConsoleSqlOutlined } from "@ant-design/icons-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import StaffMemberAddButton from "../../../views/users/StaffAddButton.vue";
 import LedgerModel from './LedgerModel.vue';
@@ -353,6 +353,7 @@ export default defineComponent({
         const crudVariables = crud();
         const { permsArray, selectedWarehouse } = common();
         const selectedIndex = ref(-1);
+        let selectedKey = ref(0);
 
         onMounted(() => {
             crudVariables.table.filterableColumns = filterableColumns;
@@ -370,9 +371,17 @@ export default defineComponent({
             console.log('selectedRowKeys changed: ', changableRowKeys);
 
             selectedRowKeysValue = [changableRowKeys];
+            setTimeout(function(){
+                
+
+            },1000)
+           
+           /* this.selectedPartyId.id = selectedRowKey;
+            this.selectedPartyId.name = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');*/
+            
 
         };
-        let selectedRowKeysValue = [15];
+        let selectedRowKeysValue = [];
 
         const reFetchDatatable = () => {
             crudVariables.tableUrl.value = {
@@ -390,13 +399,13 @@ export default defineComponent({
             emit("closed");
         };
 
-        const handleKeyDown = (event) => {
+        /*const handleKeyDownCustomer = (event) => {
             if (event.key === 'ArrowDown') {
                 selectedIndex.value = (selectedIndex.value + 1) % (crudVariables.table?.data?.length || 0);
             } else if (event.key === 'ArrowUp') {
                 selectedIndex.value = (selectedIndex.value - 1 + (crudVariables.table?.data?.length || 0)) % (crudVariables.table?.data?.length || 0);
             }
-        };
+        };*/
         watch(selectedWarehouse, (newVal, oldVal) => {
             reFetchDatatable();
         });
@@ -412,6 +421,7 @@ export default defineComponent({
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
         };
     },
+    
 
 
     data() {
@@ -426,7 +436,7 @@ export default defineComponent({
             selectedPartyId: { id: 0, name: "" },
             selectedIndex: 0,
             isModalPopup: false,
-            isModalVisible: false,
+            isLegerModalVisible: false,
             isEnterModal: false,
             isPopupVisible: false,
             isLoading: false,
@@ -458,15 +468,23 @@ export default defineComponent({
         };
 
     },
+    watch: {
+        selectedRowKeysValue(newVal,oldVal){
+            console.log("updated")
+    }
+  },
 
     mounted() {
-        //document.addEventListener('keydown', this.handleKeyDown);
-        document.addEventListener('keyup', this.handleKeyDown);
+        //document.addEventListener('keydown', this.handleKeyDownCustomer);
+        document.addEventListener('keyup', this.handleKeyDownCustomer);
         this.autoFocusInput();
-        setTimeout(function () { this.selectedRowKeysValue = [15] }, 2000);
+        setTimeout(function () { this.selectedRowKeysValue = [] }, 2000);
+        
+        
+       
     },
     beforeDestroy() {
-        document.removeEventListener('keyup', this.handleKeyDown);
+        document.removeEventListener('keyup', this.handleKeyDownCustomer);
     },
 
     methods: {
@@ -482,21 +500,41 @@ export default defineComponent({
 
         test(event) {
             switch (event.keyCode) {
+                case 13: // Arrow up
+                    if(this.table.data.length>0)
+                    {
+                            console.log('====>',this.selectedPartyId)
+                            this.$emit('child-method', this.selectedPartyId);
+                            // Close modal by clicking the modal close button
+                            const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
+                            if (modalCloseButton) {
+                                modalCloseButton.click();
+                                this.$emit('close-method');
+                                event.preventDefault();
+                                 return false;
+
+                            }
+                    }            
+                    break;
                 case 38: // Arrow up
+                if(this.table.data.length>0){
                     if (this.focus === null) {
                         this.focus = 0;
                     } else if (this.focus > 0) {
                         this.focus--;
                     }
                     this.updateSelection();
+                } 
                     break;
                 case 40: // Arrow down
+                if(this.table.data.length>0){
                     if (this.focus === null) {
                         this.focus = 0;
                     } else if (this.focus < this.table.data.length - 1) {
                         this.focus++;
                     }
                     this.updateSelection();
+                }    
                     break;
                 case 46:
                     this.autoFocusInput();
@@ -513,6 +551,7 @@ export default defineComponent({
             const currentRow = currentRadioInput.closest('tr');
             const selectedRowKey = currentRow.getAttribute('data-row-key');
             console.log('Selected Row Key:', selectedRowKey); 
+            this.selectedKey =selectedRowKey;
             this.selectedPartyId.id = selectedRowKey;
             this.selectedPartyId.name = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
             if (Array.isArray(this.table.data) && this.table.data.length > 0) {
@@ -535,8 +574,8 @@ export default defineComponent({
             } else {
                 console.error('Table data is not an array or is empty.');
             }
-            this.$emit('child-method', this.selectedPartyId);
-            console.log(this.table.data);
+           // this.$emit('child-method', this.selectedPartyId);
+            //console.log(this.table.data);
         },
 
 
@@ -550,7 +589,7 @@ export default defineComponent({
             this.isModalPopup = false;
         },
         showModal() {
-            this.isModalVisible = true;
+            this.isLegerModalVisible = true;
         },
         updatePartyName(newName) {
             this.formDataLedger.party_name = newName;
@@ -561,7 +600,7 @@ export default defineComponent({
             });
         },
         hideModal() {
-            this.isModalVisible = false;
+            this.isLegerModalVisible = false;
         },
         EnterprisesModel() {
             this.isEnterModal = true;
@@ -569,7 +608,7 @@ export default defineComponent({
         },
         handleClose() {
 
-            this.isModalVisible = false;
+            this.isLegerModalVisible = false;
             this.isEnterModal = false;
             // Reset button color when closing
             this.buttonStyle = {
@@ -580,12 +619,12 @@ export default defineComponent({
         },
         handleSuccess(xid) {
             // Handle success logic
-            this.isModalVisible = false;
+            this.isLegerModalVisible = false;
             console.log('Success:', xid);
         },
 
 
-        handleKeyDown(event) {
+        handleKeyDownCustomer(event) {
             const activeElement = document.activeElement;
             const index = parseInt(activeElement.id.split('_').pop()); // Get the current input index
 
@@ -593,7 +632,7 @@ export default defineComponent({
                 this.isLoading = true;
                 setTimeout(() => {
                     this.isLoading = false;
-                    this.isModalVisible = true;
+                    this.isLegerModalVisible = true;
                 }, 500);
             } else if (event.key === 'F6') {
                 this.isLoading = true;
@@ -601,19 +640,59 @@ export default defineComponent({
                     this.isLoading = false;
                     this.isEnterModal = true;
                 }, 500);
-            } else if (event.key === 'Escape' || event.key === 'Esc') {
-                this.isModalVisible = false;
+            } else if (event.key === 'Escape' || event.keyCode === 27) {
+                this.isLegerModalVisible = false;
 
-            } else if (event.key === 'Enter') {
-                console.log(this.selectedPartyId)
-                // Close modal by clicking the modal close button
-                const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
-                if (modalCloseButton) {
-                    modalCloseButton.click();
-                    this.$emit('close-method');
+            } 
+        },
+        checkSelectedCustomer()
+        {
+          //  console.log('<>s',this.selectedRowKeysValue);
+            if(this.selectedRowKeysValue==undefined )
+            {
+                
+                var that = this;
+                
+                setTimeout(function(){
+                    const currentRadioInput = document.getElementsByClassName('ant-radio-input')[0];
+                currentRadioInput.click();
+                const currentRow = currentRadioInput.closest('tr');
+                const selectedRowKey = currentRow.getAttribute('data-row-key');
+                console.log('Selected Row Key1:', selectedRowKey); 
+                this.selectedRowKeysValue=[selectedRowKey]
+                that.selectedPartyId.id = selectedRowKey;
+                that.selectedPartyId.name = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+                document.querySelectorAll('.ant-radio-input').forEach((elem) => { 
+                elem.addEventListener("change", function(event) { console.log("type",event);
+                var item = event.target.value;
+                console.log('<>',item);
 
-                }
+                const currentRadioInput = document.getElementsByClassName('ant-table-row-selected');
+                const myElem = document.querySelectorAll(".ant-table-row-selected");
+                let name ='';
+                    myElem.forEach(function (elem, index) {
+                   // console.log(  elem.closest('tr'));
+                   name = elem.closest('tr').getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+                    //console.log(name);
+                    });
+                    
+                    const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
+                            if (modalCloseButton) {
+                               // 
+                               //console.log({id:selectedRowKey,name:name})
+                              // that.$emit('child-method', {id:selectedRowKey,name:name});
+                               //modalCloseButton.click();
+                               
+                                 return false;
+
+                            }
+
+                });
+            });
+                },2000);
+                  
             }
+            
         }
     },
 
@@ -802,4 +881,9 @@ body.is-loading {
 .loader {
     text-align: center;
 }
+.ant-input-search .ant-input-search-button {
+    height: 26px;
+}
+.ant-table-cell{padding:2px !important;}
+
 </style>

@@ -870,6 +870,8 @@ export default defineComponent({
         );
 
         const ledgerSubmit = (formDataLedger) => {
+            console.log("Store Led");
+            if(formDataLedger.xid!=undefined){
             addEditRequestAdmin({
                 url: `store-ledger/${formDataLedger.xid}`,
                 data: formDataLedger,
@@ -877,6 +879,7 @@ export default defineComponent({
                     emit("addEditSuccess", res.xid);
                 },
             });
+        }
         };
 
         const valueChanged = (value, option) => {

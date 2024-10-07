@@ -7,7 +7,7 @@
                     justify-content: space-between;
                     align-items: center;
                 ">
-                <span>Create Item</span>
+                <span>Modify Item</span>
                 <button @click="onClose" type="button" aria-label="Close" class="ant-modal-close" id="closeicon">
                     <span class="ant-modal-close-x"><span role="img" aria-label="close"
                             class="anticon anticon-close ant-modal-close-icon">
@@ -23,7 +23,7 @@
             </div>
         </template>
         <!-- <form  @submit.prevent="onSubmitLedger" layout="vertical" ref="myForm" id="myForm1"> -->
-        <form ref="myForm1" id="addproductform" layout="vertical" @submit.prevent="false;">
+        <form ref="myForm1" layout="vertical" @submit.prevent="onSubmitLedger">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="16" :lg="16" class="info">
                     <fieldset class="fieldheightsss">
@@ -41,11 +41,11 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                        <a-input autocomplete="off" ref="ProductInput" id="ProductInput" @blur="checkproductDuplicate($event)" name="name" v-model:value="formDataLedger.name" value="" @keyup.enter="focusNext">
+                                        <a-input  ref="ProductInput" name="name" v-model:value="formDataLedger.name" value="" @keyup.enter="focusNext">
                                         </a-input>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-select tabindex="-1" id="product_type" name="product_type" v-model:value="formDataLedger.product_type
+                                        <a-select name="product_type" v-model:value="formDataLedger.product_type
                                             " style="width: 100%" @keyup.enter="focusNext"  >
                                             <a-select-option key="Goods" value="Goods" aria-selected="true">
                                                 Goods
@@ -71,7 +71,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input autocomplete="off"name="packing" :id="packing" v-model:value="formDataLedger.packing
+                                        <a-input name="packing" v-model:value="formDataLedger.packing
                                             " value="" @keyup.enter="focusNext">
                                         </a-input>
                                     </a-col>
@@ -85,11 +85,11 @@
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <a-input-group compact>
-                                            <a-span type="primary" class="productnumber">
+                                            <a-button type="primary" class="productnumber">
                                                 INR
-                                            </a-span>
-                                            <a-input autocomplete="off"v-model:value="formDataLedger.mrp
-                                                " style="width: 79%" type="text" maxlength="10" @keyup.enter="focusNext"
+                                            </a-button>
+                                            <a-input v-model:value="formDataLedger.mrp
+                                                " style="width: 79%" type="number" maxlength="10" @keyup.enter="focusNext"
                                                 @input="onInputPhoneNumber" />
                                         </a-input-group>
                                     </a-col>
@@ -112,7 +112,7 @@
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <UnitSearchInput ref="unit_1st" name="unit_1st" @valueChanged="(productId) => (formDataLedger.unit_1st = productId)" v-model:value="formDataLedger.unit_1st" @valueSuccess="getStockValue" :productData="data" placeholder="PCS" @keyup.enter="focusNext"
+                                        <UnitSearchInput name="unit_1st" @valueChanged="(productId) => (formDataLedger.unit_1st = productId)" v-model:value="formDataLedger.unit_1st" @valueSuccess="getStockValue" :productData="data" placeholder="PCS" @keyup.enter="focusNext"
                                          />
                                     </a-col>
 
@@ -124,16 +124,16 @@
                                             " :validateStatus="rules.purchase_rate
                                                     ? 'error'
                                                     : null
-                                                ">
+                                                " class="required">
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <a-input-group compact>
-                                            <a-span type="primary" class="productnumber">
+                                            <a-button type="primary" class="productnumber">
                                                 INR
-                                            </a-span>
-                                            <a-input autocomplete="off"v-model:value="formDataLedger.purchase_rate
-                                                " style="width: 79%" type="text" maxlength="10"
+                                            </a-button>
+                                            <a-input v-model:value="formDataLedger.purchase_rate
+                                                " style="width: 79%" type="number" maxlength="10"
                                                 @input="onInputPhoneNumber"  @keyup.enter="focusNext"/>
                                         </a-input-group>
                                     </a-col>
@@ -155,7 +155,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-select id="unit_in_decimal" v-model:value="formDataLedger.unit_in_decimal 
+                                        <a-select v-model="formDataLedger.unit_in_decimal 
                                             " style="width: 100%" @keyup.enter="focusNext">
                                             <a-select-option key="No" value="No" aria-selected="true">
                                                 No
@@ -171,11 +171,11 @@
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <a-input-group compact>
-                                            <a-span type="primary" class="productnumber">
+                                            <a-button type="primary" class="productnumber">
                                                 INR
-                                            </a-span>
-                                            <a-input autocomplete="off"v-model:value="formDataLedger.cost
-                                                " style="width: 79%" type="text" maxlength="10"
+                                            </a-button>
+                                            <a-input v-model:value="formDataLedger.cost
+                                                " style="width: 79%" type="number" maxlength="10"
                                                 @input="onInputPhoneNumber" @keyup.enter="focusNext" />
                                         </a-input-group>
                                     </a-col>
@@ -196,7 +196,7 @@
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <HscSacSearchInput id="hsn_sac" name="hsn_sac" v-model:value="formDataLedger.hsn_sac
+                                        <HscSacSearchInput name="hsn_sac" v-model:value="formDataLedger.hsn_sac
                                             " placeholder="HSN/SAC" @keyup.enter="focusNext"  />
 
                                         <!-- <UnitSearchInput
@@ -216,11 +216,11 @@
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <a-input-group compact>
-                                            <a-span type="primary" class="productnumber">
+                                            <a-button type="primary" class="productnumber">
                                                 INR
-                                            </a-span>
-                                            <a-input autocomplete="off"name="sale_rate" v-model:value="formDataLedger.sale_rate
-                                                " style="width: 79%" value="" type="text" maxlength="10"
+                                            </a-button>
+                                            <a-input name="sale_rate" v-model:value="formDataLedger.sale_rate
+                                                " style="width: 79%" value="" type="number" maxlength="10"
                                                 @input="onInputPhoneNumber" @keyup.enter="focusNext" />
                                         </a-input-group>
                                     </a-col>
@@ -242,7 +242,7 @@
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <TaxCategorySearchInput id="tax_category"
+                                        <TaxCategorySearchInput
                                                 @valueChanged="
                                                     (productId) => (formData.product_id = productId)
                                                 "
@@ -262,11 +262,11 @@
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <a-input-group compact>
-                                            <a-span type="primary" class="productnumber">
+                                            <a-button type="primary" class="productnumber">
                                                 INR
-                                            </a-span>
-                                            <a-input autocomplete="off"v-model:value="formDataLedger.rate_b
-                                                " style="width: 79%" type="text" maxlength="10"
+                                            </a-button>
+                                            <a-input v-model:value="formDataLedger.rate_b
+                                                " style="width: 79%" type="number" maxlength="10"
                                                 @input="onInputPhoneNumber" @keyup.enter="focusNext" />
                                         </a-input-group>
                                     </a-col>
@@ -286,7 +286,7 @@
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <ProductCompanySearchInput id="company" name="company" v-model:value="formDataLedger.company
+                                        <ProductCompanySearchInput name="company" v-model:value="formDataLedger.company
                                             " placeholder="--Blank--" @keyup.enter="focusNext" />
                                     </a-col>
 
@@ -301,13 +301,13 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="3" :lg="3">
-                                        <a-input autocomplete="off"name="free_scheme_1" v-model:value="formDataLedger.free_scheme_1
+                                        <a-input name="free_scheme_1" v-model:value="formDataLedger.free_scheme_1
                                             " @keyup.enter="focusNext">
                                         </a-input>
                                     </a-col>
                                     +
                                     <a-col :xs="24" :sm="24" :md="3" :lg="3">
-                                        <a-input autocomplete="off"name="free_scheme_2" v-model:value="formDataLedger.free_scheme_2
+                                        <a-input name="free_scheme_2" v-model:value="formDataLedger.free_scheme_2
                                             " value="" style="width: 127%" @keyup.enter="focusNext">
                                         </a-input>
                                     </a-col>
@@ -324,7 +324,7 @@
                                         </a-form-item> -->
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <!-- <a-input autocomplete="off"name="party_name" v-model:value="formDataLedger.party_name"
+                                        <!-- <a-input name="party_name" v-model:value="formDataLedger.party_name"
                                             value="">
                                         </a-input> -->
                                     </a-col>
@@ -338,7 +338,7 @@
                                                 "></a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-select id="scheme_type" v-model:value="formDataLedger.scheme_type
+                                        <a-select v-model:value="formDataLedger.scheme_type
                                             " class="balance" @keyup.enter="focusNext">
                                             <a-select-option key="Full Scheme" value="Full Scheme" aria-selected="true">
                                                 Full Scheme
@@ -377,7 +377,7 @@
                                         </a-form-item> -->
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <!-- <a-input autocomplete="off"name="party_name" v-model:value="formDataLedger.party_name"
+                                        <!-- <a-input name="party_name" v-model:value="formDataLedger.party_name"
                                             value="">
                                         </a-input> -->
                                     </a-col>
@@ -390,7 +390,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-select id="stock_status" v-model:value="formDataLedger.status 
+                                        <a-select v-model:value="formDataLedger.status 
                                             " class="balance" @keyup.enter="focusNext">
                                             <a-select-option key="Continue" value="Continue" aria-selected="true">
                                                 Continue
@@ -413,7 +413,7 @@
                                         </a-form-item> -->
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <!-- <a-input autocomplete="off"name="party_name" v-model:value="formDataLedger.party_name"
+                                        <!-- <a-input name="party_name" v-model:value="formDataLedger.party_name"
                                             value="">
                                         </a-input> -->
                                     </a-col>
@@ -428,7 +428,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-select id="color_type" v-model:value="formDataLedger.color_type
+                                        <a-select v-model:value="formDataLedger.color_type
                                             " class="balance" @keyup.enter="focusNext">
                                             <a-select-option key="" value="" aria-selected="true" style="
                                                     background-color: skyblue;
@@ -482,11 +482,11 @@
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
                                                 <a-input-group compact>
-                                                    <a-span type="primary" class="productnumber">
+                                                    <a-button type="primary" class="productnumber">
                                                         INR
-                                                    </a-span>
-                                                    <a-input autocomplete="off"v-model:value="formDataLedger.rate_d
-                                                        " style="width: 78%" type="text" maxlength="10" @input="onInputPhoneNumber
+                                                    </a-button>
+                                                    <a-input v-model:value="formDataLedger.rate_d
+                                                        " style="width: 78%" type="number" maxlength="10" @input="onInputPhoneNumber
                                                             " @keyup.enter="focusNext" />
                                                 </a-input-group>
                                             </a-col>
@@ -505,11 +505,11 @@
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
                                                 <a-input-group compact>
-                                                    <a-span type="primary" class="productnumber">
+                                                    <a-button type="primary" class="productnumber">
                                                         INR
-                                                    </a-span>
-                                                    <a-input autocomplete="off"v-model:value="formDataLedger.rate_f
-                                                        " style="width: 78%" type="text" maxlength="10" @input="onInputPhoneNumber
+                                                    </a-button>
+                                                    <a-input v-model:value="formDataLedger.rate_f
+                                                        " style="width: 78%" type="number" maxlength="10" @input="onInputPhoneNumber
                                                             " @keyup.enter="focusNext" />
                                                 </a-input-group>
                                             </a-col>
@@ -546,7 +546,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-select id="discount" v-model:value="formDataLedger.discount
+                                                <a-select v-model:value="formDataLedger.discount
                                                     " style="width: 100%" @keyup.enter="focusNext">
                                                     <a-select-option key="Applicable" value="Applicable"
                                                         aria-selected="true">
@@ -566,7 +566,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="party_name" v-model:value="formDataLedger.item_disc
+                                                <a-input name="party_name" v-model:value="formDataLedger.item_disc
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -578,7 +578,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="volume_dis" v-model:value="formDataLedger.volume_dis
+                                                <a-input name="volume_dis" v-model:value="formDataLedger.volume_dis
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -590,7 +590,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="max_disc" v-model:value="formDataLedger.max_disc
+                                                <a-input name="max_disc" v-model:value="formDataLedger.max_disc
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -620,7 +620,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="min_quantity" v-model:value="formDataLedger.min_quantity
+                                                <a-input name="min_quantity" v-model:value="formDataLedger.min_quantity
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -632,7 +632,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="max_quantity" v-model:value="formDataLedger.max_quantity
+                                                <a-input name="max_quantity" v-model:value="formDataLedger.max_quantity
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -644,7 +644,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="reorder_days" v-model:value="formDataLedger.reorder_days
+                                                <a-input name="reorder_days" v-model:value="formDataLedger.reorder_days
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -656,7 +656,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="reorder_qty" v-model:value="formDataLedger.reorder_qty
+                                                <a-input name="reorder_qty" v-model:value="formDataLedger.reorder_qty
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -688,7 +688,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="min_margin_others" v-model:value="formDataLedger.min_margin_others
+                                                <a-input name="min_margin_others" v-model:value="formDataLedger.min_margin_others
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -727,7 +727,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-select id="visibility" v-model:value="formDataLedger.visibility
+                                                <a-select v-model:value="formDataLedger.visibility
                                                     " style="width: 100%" @keyup.enter="focusNext">
                                                     <a-select-option key="Registered" value="Registered"
                                                         aria-selected="true">
@@ -747,7 +747,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="mfr_name" v-model:value="formDataLedger.mfr_name
+                                                <a-input name="mfr_name" v-model:value="formDataLedger.mfr_name
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -759,7 +759,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="14" :lg="14">
-                                                <a-input autocomplete="off"name="image" v-model:value="formDataLedger.image
+                                                <a-input name="image" v-model:value="formDataLedger.image
                                                     " value="" @keyup.enter="focusNext">
                                                 </a-input>
                                             </a-col>
@@ -780,10 +780,10 @@
                     </fieldset>
                 </a-col>
             </a-row>
-            <div class="floats" >
+            <div class="floats" style="background-color:#E4E4E4;">
                 <a-row :gutter="16" style="margin-top:20px;">
                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                        <button type="button" id="switch_tab" @click="switchTab" title="Ledger" class="btn default-btn">
+                        <button type="button" id="btn-Ledger" @click="switchTab" title="Ledger" class="btn default-btn">
                             <span class="box">
                                 <span class="shortcut"><code>F5</code></span>
                                 <span>Switch Tab</span>
@@ -803,7 +803,7 @@
                     <a-col :xs="24" :sm="24" :md="7" :lg="7"> </a-col>
                     <a-col :xs="24" :sm="24" :md="10" :lg="10">
                         <div style="float:right">
-                            <button @click="saveProductItem" type="submit" id="save-item" title="Ledger"
+                            <button @click="onSubmit" type="submit" id="btn-Ledger" title="Ledger"
                                 class="btn default-btn ng-star-inserted gst">
                                 <span class="box">
                                     <span class="shortcut ng-star-inserted"><code>F10</code></span>
@@ -903,13 +903,9 @@ export default defineComponent({
                         placement:"bottomRight",
                         message  :"Product saved successfully",
                     });
-                    document.getElementById("addproductform").reset();
-                    setTimeout(function(){ emit("closed");
+                    emit("closed");
+                    this.$emit('child-method', 1)
                     document.getElementById('form_item_party_name_search').focus()    
-                    },2000)
-                   
-                    
-                    
                 },
                 
             });
@@ -958,27 +954,27 @@ export default defineComponent({
                 hsn_sac: "",
                 tax_category: "",
                 company: "",
-                mrp: "0.00",
-                purchase_rate: "0.00",
-                cost: "0.00",
-                sale_rate: "0.00",
-                rate_b: "0.00",
-                free_scheme_1: 0,
-                free_scheme_2: 0,
+                mrp: "",
+                purchase_rate: "",
+                cost: "",
+                sale_rate: "",
+                rate_b: "",
+                free_scheme_1: "",
+                free_scheme_2: "",
                 scheme_type: "Full Scheme",
                 status: "Continue",
                 color_type: "",
-                rate_d: "0.00",
-                rate_f: "0.00",
+                rate_d: "",
+                rate_f: "",
                 discount: "Applicable",
-                item_disc: "0.00",
-                volume_dis: "0.00",
-                max_disc: "0.00",
-                min_quantity:0,
-                max_quantity:0,
-                reorder_days: 0,
-                reorder_qty:0,
-                min_margin_others: "0.00",
+                item_disc: "",
+                volume_dis: "",
+                max_disc: "",
+                min_quantity: "",
+                max_quantity: "",
+                reorder_days: "",
+                reorder_qty: "",
+                min_margin_others: "",
                 prohibited: "Yes",
                 visibility: "Show",
                 mfr_name: "",
@@ -986,7 +982,6 @@ export default defineComponent({
                 packing: "",
                 sales_rate: "",
             },
-            duplicate:false,
             inputColor: "",
             partyNameColor: "",
             accountGroupColor: "",
@@ -1006,7 +1001,6 @@ export default defineComponent({
             pageTitle: "Modify Ledger",
             successMessage: "Operation successful!",
             activeKey: "taxdetails",
-            currentFocusElement:null,
 
             resetForm() {
                 this.formDataLedger = {
@@ -1033,83 +1027,14 @@ export default defineComponent({
                 this.$refs.myForm1.resetFields();
             }
         },
-         onSubmitLedger(eventKey) {
+        async onSubmitLedger() {
             try {
-                console.log(eventKey,'<>',this.formDataLedger);
-                if(eventKey=="F10" && this.validateInput())
-                 {this.ledgerSubmit(this.formDataLedger);}
-                
+                console.log(this.formDataLedger);
+                this.ledgerSubmit(this.formDataLedger);
             } catch (error) {
-                this.$message.error(this.$t("Issue while Product Save !"));
+                this.$message.error(this.$t("company.updateFailed"));
                 console.error(error);
             }
-        },
-        saveProductItem(eventKey) {
-            try {
-                console.log('saveProductItem');
-                if( this.validateInput())
-                 {this.ledgerSubmit(this.formDataLedger);}
-                
-            } catch (error) {
-                this.$message.error(this.$t("Issue while Product Save !"));
-                console.error(error);
-            }
-        },
-        validateInput()
-        {
-
-        //const currentIndex = formElements.indexOf(e.target); 
-            if(this.formDataLedger.name==undefined ||  this.formDataLedger.name=="" || this.formDataLedger.name.trim()=="" )
-        {
-            document.getElementById('ProductInput').focus();
-            return false;
-        }
-        else
-        {
-            let issue = false;
-            
-            if(this.formDataLedger.unit_1st==undefined || this.formDataLedger.unit_1st=="" )
-            {
-                issue =true;
-                const formElement = document.getElementById("unit_search");
-                formElement.focus();
-                return false;
-            }    
-           if(this.formDataLedger.hsn_sac==undefined || this.formDataLedger.hsn_sac=="")
-            {
-                issue =true;
-                const formElement = document.getElementById("hsn_sac");
-                formElement.focus();
-                 return false;
-            }
-            if(this.formDataLedger.tax_category==undefined || this.formDataLedger.tax_category=="" )
-            {
-                issue =true;
-                const formElement = document.getElementById("tax_category");
-                formElement.focus();
-                return false;
-            }
-            if(this.formDataLedger.company==undefined || this.formDataLedger.company=="")
-            {
-                issue =true;
-                const formElement = document.getElementById("company");
-                formElement.focus();
-                return false;
-            }
-            if(issue==true){ 
-                
-                return false;
-            }
-            else{
-                if(this.duplicate){  message.error("Product name already exist !"); return false;}
-               else{
-                console.log("Passsed");
-                return true;
-               }
-            }
-        }
-       
-           
         },
         autoFocusInput() {
             /*this.$nextTick(() => {
@@ -1182,7 +1107,7 @@ export default defineComponent({
         },
         handleKeydown(event) {
             if (event.key === "Escape") {
-                this.handleClose();
+                this.isAddProductModalVisible=false;
             } else if (event.key === "F9") {
                 event.preventDefault();
                 this.resetForm();
@@ -1191,7 +1116,8 @@ export default defineComponent({
                 this.switchTab();
             } else if (event.key === "F10") {
                 event.preventDefault();
-                this.onSubmitLedger(event.key);
+                this.onSubmitLedger();
+                this.autoFocusInput()
             }
         },
 
@@ -1215,116 +1141,12 @@ export default defineComponent({
         },
 
         
-        focusNext(e)
-         { console.log("Test")
-        this.currentFocusElement = e.target;
+        focusNext(e) {
       const formElements = Array.from(e.target.form.querySelectorAll('input, select'));
       const currentIndex = formElements.indexOf(e.target); 
-      //console.log(e.target.id)
       if (currentIndex < formElements.length - 1) {
-        
-        if(e.target.id=='product_type' && this.formDataLedger.product_type!=undefined && this.formDataLedger.product_type!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='unit_search' && this.formDataLedger.unit_1st!=undefined && this.formDataLedger.unit_1st!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='unit_in_decimal' && this.formDataLedger.unit_in_decimal!=undefined && this.formDataLedger.unit_in_decimal!="" && this.formDataLedger.unit_in_decimal.trim()!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='hsn_sac' && this.formDataLedger.hsn_sac!=undefined && this.formDataLedger.hsn_sac!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='tax_category' && this.formDataLedger.tax_category!=undefined && this.formDataLedger.tax_category!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='company' && this.formDataLedger.company!=undefined && this.formDataLedger.company!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='scheme_type' && this.formDataLedger.scheme_type!=undefined && this.formDataLedger.scheme_type!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='stock_status' && this.formDataLedger.status!=undefined && this.formDataLedger.status!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='color_type' && this.formDataLedger.color_type!=undefined && this.formDataLedger.color_type!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='discount' && this.formDataLedger.discount!=undefined && this.formDataLedger.discount!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        else if(e.target.id=='visibility' && this.formDataLedger.visibility!=undefined && this.formDataLedger.visibility!="" )
-        {
-            formElements[currentIndex + 1].focus();
-        }
-        
-        else if(formElements[currentIndex].value!=undefined && formElements[currentIndex].value!="" && formElements[currentIndex].value.trim()!=""){            
-            formElements[currentIndex + 1].focus();
-        }
-        else{
-            console.log(e.target.id,this.formDataLedger.tax_category)
-           // document.getElementById('save-item').focus();
-        }
+        formElements[currentIndex + 1].focus();
       }
-    },
-    checkproductDuplicate(event)
-    {
-        console.log("API call");
-        this.duplicate=false;   
-        if(this.formDataLedger.name!=undefined && this.formDataLedger.name!=null && this.formDataLedger.name!="" && this.formDataLedger.name.trim()!="" && event.key!='F10')
-            {
-                axiosAdmin
-            .get("productsDuplicate/"+this.formDataLedger.name)
-            .then(response => {  console.log(response)
-                // Toastr Notificaiton
-                if(response==500){
-                this.duplicate=true;    
-                message.error("Product name already exist !")
-                }
-            })
-            .catch(errorResponse => {
-                var err = errorResponse.data;
-                const errorCode = errorResponse.status;
-                var errorRules = {};
-
-                if (errorCode == 422) {
-                    if (err.error && typeof err.error.details != "undefined") {
-                        var keys = Object.keys(err.error.details);
-                        for (var i = 0; i < keys.length; i++) {
-                            // Escape dot that comes with error in array fields
-                            var key = keys[i].replace(".", "\\.");
-
-                            errorRules[key] = {
-                                required: true,
-                                message: err.error.details[keys[i]][0],
-                            };
-                        }
-                    }
-
-                    rules.value = errorRules;
-                    message.error(t("common.fix_errors"));
-                }
-
-                if (err && err.message) {
-                    message.error(err.message);
-                    err = {
-                        error: {
-                            ...err
-                        }
-                    }
-                }
-            }); 
-            }
     },
 
         autoFocusInput() {
@@ -1346,8 +1168,8 @@ export default defineComponent({
 </script>
 
 <style>
-.ant-form-item {
-    margin-bottom: 5px !important;
+:where(.css-dev-only-do-not-override-wosfq4).ant-form-item {
+    margin-bottom: 6px !important;
 }
 
 .popups {
@@ -1547,9 +1369,8 @@ button.btn {
     color: black;
     width: 21%;
     text-align: center;
-    height:25px;
-    font-size:12px;
-    border:1px solid #ccc;
+    height:26px;
+    font-size:13px;
    
 }
 
@@ -1607,7 +1428,4 @@ button.btn {
 .select-focused {
     background-color: #e0f7fa; /* Light blue */
   }
-  .ant-select-selection-search-input{padding:3% !important;}
-.ant-select-selection-search-input:focus {background-color: #ffd451 !important; }
-.ant-select-selection-search{margin-left:-10px !important;}
 </style>

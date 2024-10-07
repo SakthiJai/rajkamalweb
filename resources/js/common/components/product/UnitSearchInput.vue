@@ -3,13 +3,14 @@
         v-model:value="searchTerm"
         show-search
         :filter-option="false"
-       
+       ref="prodinput"
         style="width: 100%"
         :not-found-content="fetching ? undefined : null"
         @search="fetchProducts"
         option-label-prop="label"
         @change="valueChanged"
         :allowClear="true"
+        id="unit_search"
     >
         <template #suffixIcon><SearchOutlined /></template>
         <template v-if="fetching" #notFoundContent>
@@ -73,7 +74,7 @@ export default defineComponent({
         const fetchProducts = debounce((value) => {
             state.products = [];
 
-            if (value != "") {
+          
                 state.fetching = true;
                 const filterString = `name lk "%${value}%"`;
                 let url = `units?fields=id,xid,name&filters=${encodeURIComponent(
@@ -84,7 +85,7 @@ export default defineComponent({
                     state.products = response.data;
                     state.fetching = false;
                 });
-            }
+            
         }, 300);
 
         watch(props, (newVal, oldVal) => {

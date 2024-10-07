@@ -1,11 +1,31 @@
 <template>
     <a-row>
         <a-col :span="24">
-            <div class="table-responsive"> {{selectedKey}}-{{ selectedRowKeysValue }}
-                
+            <div class="table-responsive"> {{ selectedKey }}-{{ selectedRowKeysValue }}
+                <!-- <a-table
+                    :row-selection="
+                        selectable && orderType != 'online-orders'
+                            ? {
+                                  selectedRowKeys: table.selectedRowKeys,
+                                  onChange: (rowKeys, rowValues) => {
+                                      onRowSelectChange(rowKeys);
+                                      $emit('onRowSelection', rowKeys);
+                                  },
+                                  getCheckboxProps: getCheckboxProps,
+                              }
+                            : null
+                    "
+                    :columns="columns"
+                    :row-key="(record) => record.xid"
+                    :data-source="table.data"
+                    :pagination="table.pagination"
+                    :loading="table.loading"
+                    @change="handleTableChange"
+                    :bordered="bordered"
+                    :size="tableSize"
+                > -->
                 <a-table :columns="columns" :row-key="(record) => record.id" :data-source="table.data"
-                    :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
-                    :rowSelection="{
+                    :pagination="table.pagination" :loading="table.loading" @change="handleTableChange" :rowSelection="{
                         selectedRowKeys: selectedRowKeysValue,
                         onChange: onSelectChange,
                         hideDefaultSelections: true,
@@ -32,115 +52,89 @@
                             <OrderStatus :data="record" />
                         </template>
                         <template v-if="column.dataIndex === 'action'">
-                            <a-space
-                                v-if="
-                                    record.order_type == 'online-orders' &&
-                                    record.order_status != 'delivered' &&
-                                    !record.cancelled
-                                "
-                            >
- 
+                            <a-space v-if="
+                                record.order_type == 'online-orders' &&
+                                record.order_status != 'delivered' &&
+                                !record.cancelled
+                            ">
+
                             </a-space>
-                            <a-dropdown
-                                v-else-if="
-                                    record.order_type == 'stock-transfers'
-                                "
-                                placement="bottomRight"
-                            >
+                            <a-dropdown v-else-if="
+                                record.order_type == 'stock-transfers'
+                            " placement="bottomRight">
                                 <MoreOutlined />
                                 <template #overlay>
                                     <a-menu>
-                                        <a-menu-item
-                                            key="view"
-                                            v-if="
-                                                permsArray.includes(
-                                                    `${pageObject.permission}_view`
-                                                ) ||
-                                                permsArray.includes('admin')
-                                            "
-                                            @click="viewItem(record)"
-                                        >
+                                        <a-menu-item key="view" v-if="
+                                            permsArray.includes(
+                                                `${pageObject.permission}_view`
+                                            ) ||
+                                            permsArray.includes('admin')
+                                        " @click="viewItem(record)">
                                             <EyeOutlined />
                                             {{ $t("common.view") }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="edit"
-                                            v-if="
-                                                filters.transfer_type ==
-                                                    'transfered' &&
-                                                (permsArray.includes(
-                                                    `${pageObject.permission}_edit`
-                                                ) ||
-                                                    permsArray.includes(
-                                                        'admin'
-                                                    ))
-                                            "
-                                            @click="
-                                                () =>
+                                        <a-menu-item key="edit" v-if="
+                                            filters.transfer_type ==
+                                            'transfered' &&
+                                            (permsArray.includes(
+                                                `${pageObject.permission}_edit`
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                ))
+                                        " @click="() =>
                                                     $router.push({
                                                         name: `admin.stock.${pageObject.type}.edit`,
                                                         params: {
                                                             id: record.xid,
                                                         },
                                                     })
-                                            "
-                                        >
+                                                ">
                                             <EditOutlined />
                                             {{ $t("common.edit") }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="delete"
-                                            v-if="
-                                                filters.transfer_type ==
-                                                    'transfered' &&
-                                                (permsArray.includes(
-                                                    `${pageObject.permission}_delete`
-                                                ) ||
-                                                    permsArray.includes(
-                                                        'admin'
-                                                    )) &&
-                                                record.payment_status ==
-                                                    'unpaid'
-                                            "
-                                            @click="
+                                        <a-menu-item key="delete" v-if="
+                                            filters.transfer_type ==
+                                            'transfered' &&
+                                            (permsArray.includes(
+                                                `${pageObject.permission}_delete`
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                )) &&
+                                            record.payment_status ==
+                                            'unpaid'
+                                        " @click="
                                                 showDeleteConfirm(record.xid)
-                                            "
-                                        >
+                                                ">
                                             <DeleteOutlined />
                                             {{ $t("common.delete") }}
                                         </a-menu-item>
 
                                         <a-menu-divider />
 
-                                        <a-menu-item
-                                            key="view_payments"
-                                            v-if="
-                                              (  permsArray.includes(
-                                                    `${pageObject.permission}_view`
-                                                ) ||
+                                        <a-menu-item key="view_payments" v-if="
+                                            (permsArray.includes(
+                                                `${pageObject.permission}_view`
+                                            ) ||
                                                 permsArray.includes('admin')) ||
-                                                record.payment_status !=
-                                                    'unpaid'
-                                            "
-                                            @click="viewPaymentDetails(record)"
-                                        >
+                                            record.payment_status !=
+                                            'unpaid'
+                                        " @click="viewPaymentDetails(record)">
                                             <WalletOutlined />
                                             {{ $t("payments.view_payments") }}
                                         </a-menu-item>
 
-                                        <a-menu-item
-                                            key="payments"
-                                            v-if="
-                                                (permsArray.includes(
-                                                    'order_payments_view'
-                                                ) ||
+                                        <a-menu-item key="payments" v-if="
+                                            (permsArray.includes(
+                                                'order_payments_view'
+                                            ) ||
                                                 permsArray.includes('admin')
-                                                    ? 'payments'
-                                                    : 'order_items') &&
-                                                record.payment_status != 'paid'
-                                            "
-                                            @click="addItem(record)"
-                                        >
+                                                ? 'payments'
+                                                : 'order_items') &&
+                                            record.payment_status != 'paid'
+                                        " @click="addItem(record)">
                                             <DollarCircleOutlined />
                                             {{ $t("payments.add") }}
                                         </a-menu-item>
@@ -148,8 +142,7 @@
                                         <a-menu-item key="download_invoice">
                                             <a-typography-link
                                                 :href="`${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`"
-                                                target="_blank"
-                                            >
+                                                target="_blank">
                                                 <DownloadOutlined />
                                                 {{
                                                     $t(
@@ -161,14 +154,11 @@
 
                                         <a-menu-divider />
 
-                                        <a-menu-item
-                                            key="print_pdf_invoice"
-                                            @click="
-                                                printInvoicePDF(
-                                                    `${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`
-                                                )
-                                            "
-                                        >
+                                        <a-menu-item key="print_pdf_invoice" @click="
+                                            printInvoicePDF(
+                                                `${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`
+                                            )
+                                            ">
                                             <PrinterOutlined />
                                             {{ $t("common.print_invoice") }}
                                         </a-menu-item>
@@ -179,129 +169,100 @@
                                 <MoreOutlined />
                                 <template #overlay>
                                     <a-menu>
-                                        <a-menu-item
-                                            key="view"
-                                            v-if="
-                                                (permsArray.includes(
-                                                    `${pageObject.permission}_view`
-                                                ) ||
-                                                    permsArray.includes(
-                                                        'admin'
-                                                    )) &&
-                                                record.order_type ==
-                                                    'quotations'
-                                            "
-                                            @click="convertToSale(record)"
-                                        >
+                                        <a-menu-item key="view" v-if="
+                                            (permsArray.includes(
+                                                `${pageObject.permission}_view`
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                )) &&
+                                            record.order_type ==
+                                            'quotations'
+                                        " @click="convertToSale(record)">
                                             <SisternodeOutlined />
                                             {{
                                                 $t("quotation.convert_to_sale")
                                             }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="view"
-                                            v-if="
-                                                permsArray.includes(
-                                                    `${pageObject.permission}_view`
-                                                ) ||
-                                                permsArray.includes('admin')
-                                            "
-                                            @click="viewItem(record)"
-                                        >
+                                        <a-menu-item key="view" v-if="
+                                            permsArray.includes(
+                                                `${pageObject.permission}_view`
+                                            ) ||
+                                            permsArray.includes('admin')
+                                        " @click="viewItem(record)">
                                             <EyeOutlined />
                                             {{ $t("common.view") }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="edit"
-                                            v-if="
-                                                record.order_type !=
-                                                    'online-orders' &&
-                                                (permsArray.includes(
-                                                    `${pageObject.permission}_edit`
-                                                ) ||
-                                                    permsArray.includes(
-                                                        'admin'
-                                                    ))
-                                            "
-                                            @click="
-                                                () =>
+                                        <a-menu-item key="edit" v-if="
+                                            record.order_type !=
+                                            'online-orders' &&
+                                            (permsArray.includes(
+                                                `${pageObject.permission}_edit`
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                ))
+                                        " @click="() =>
                                                     $router.push({
                                                         name: `admin.stock.${pageObject.type}.edit`,
                                                         params: {
                                                             id: record.xid,
                                                         },
                                                     })
-                                            "
-                                        >
+                                                ">
                                             <EditOutlined />
                                             {{ $t("common.edit") }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="delete"
-                                            v-if="
-                                                record.order_type !=
-                                                    'online-orders' &&
-                                                (permsArray.includes(
-                                                    `${pageObject.permission}_delete`
-                                                ) ||
-                                                    permsArray.includes(
-                                                        'admin'
-                                                    )) &&
-                                                record.payment_status ==
-                                                    'unpaid'
-                                            "
-                                            @click="
+                                        <a-menu-item key="delete" v-if="
+                                            record.order_type !=
+                                            'online-orders' &&
+                                            (permsArray.includes(
+                                                `${pageObject.permission}_delete`
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                )) &&
+                                            record.payment_status ==
+                                            'unpaid'
+                                        " @click="
                                                 showDeleteConfirm(record.xid)
-                                            "
-                                        >
+                                                ">
                                             <DeleteOutlined />
                                             {{ $t("common.delete") }}
                                         </a-menu-item>
 
                                         <a-menu-divider />
 
-                                        <a-menu-item
-                                            key="view_payments"
-                                            v-if="
-                                                permsArray.includes(
-                                                    `${pageObject.permission}_view`
-                                                ) ||
-                                                permsArray.includes('admin')
-                                            "
-                                            @click="viewPaymentDetails(record)"
-                                        >
+                                        <a-menu-item key="view_payments" v-if="
+                                            permsArray.includes(
+                                                `${pageObject.permission}_view`
+                                            ) ||
+                                            permsArray.includes('admin')
+                                        " @click="viewPaymentDetails(record)">
                                             <WalletOutlined />
                                             {{ $t("payments.view_payments") }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="payments"
-                                            v-if="
-                                                (permsArray.includes(
-                                                    'order_payments_view'
-                                                ) ||
+                                        <a-menu-item key="payments" v-if="
+                                            (permsArray.includes(
+                                                'order_payments_view'
+                                            ) ||
                                                 permsArray.includes('admin')
-                                                    ? 'payments'
-                                                    : 'order_items') &&
-                                                record.payment_status != 'paid'
-                                            "
-                                            @click="addItem(record)"
-                                        >
+                                                ? 'payments'
+                                                : 'order_items') &&
+                                            record.payment_status != 'paid'
+                                        " @click="addItem(record)">
                                             <DollarCircleOutlined />
                                             {{ $t("payments.add") }}
                                         </a-menu-item>
-                                        <a-menu-item
-                                            key="pos_invoice"
-                                            v-if="
-                                                record.order_type == 'sales' &&
-                                                (permsArray.includes(
-                                                    `${pageObject.permission}_edit`
-                                                ) ||
-                                                    permsArray.includes(
-                                                        'admin'
-                                                    ))
-                                            "
-                                            @click="posView(record)"
-                                        >
+                                        <a-menu-item key="pos_invoice" v-if="
+                                            record.order_type == 'sales' &&
+                                            (permsArray.includes(
+                                                `${pageObject.permission}_edit`
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                ))
+                                        " @click="posView(record)">
                                             <ShoppingCartOutlined />
                                             {{ $t("common.pos_invoice") }}
                                         </a-menu-item>
@@ -309,8 +270,7 @@
                                         <a-menu-item key="download_invoice">
                                             <a-typography-link
                                                 :href="`${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`"
-                                                target="_blank"
-                                            >
+                                                target="_blank">
                                                 <DownloadOutlined />
                                                 {{
                                                     $t(
@@ -322,14 +282,11 @@
 
                                         <a-menu-divider />
 
-                                        <a-menu-item
-                                            key="print_pdf_invoice"
-                                            @click="
-                                                printInvoicePDF(
-                                                    `${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`
-                                                )
-                                            "
-                                        >
+                                        <a-menu-item key="print_pdf_invoice" @click="
+                                            printInvoicePDF(
+                                                `${invoiceBaseUrl}/${record.unique_id}/${selectedLang}`
+                                            )
+                                            ">
                                             <PrinterOutlined />
                                             {{ $t("common.print_invoice") }}
                                         </a-menu-item>
@@ -339,68 +296,46 @@
                         </template>
                     </template>
                     <template #expandedRowRender="orderItemData">
-                        <a-table
-                            v-if="
-                                orderItemData &&
-                                orderItemData.record &&
-                                orderItemData.record.items
-                            "
-                            :row-key="(record) => record.xid"
-                            :columns="orderItemDetailsColumns"
-                            :data-source="orderItemData.record.items"
-                            :pagination="false"
-                        >
+                        <a-table v-if="
+                            orderItemData &&
+                            orderItemData.record &&
+                            orderItemData.record.items
+                        " :row-key="(record) => record.xid" :columns="orderItemDetailsColumns"
+                            :data-source="orderItemData.record.items" :pagination="false">
                             <template #bodyCell="{ column, record }">
-                                <template
-                                    v-if="column.dataIndex === 'product_id'"
-                                >
+                                <template v-if="column.dataIndex === 'product_id'">
                                     <a-badge>
-                                        <a-avatar
-                                            shape="square"
-                                            :src="record.product.image_url"
-                                        />
+                                        <a-avatar shape="square" :src="record.product.image_url" />
                                         {{ record.product.name }}
                                     </a-badge>
                                 </template>
-                                <template
-                                    v-if="column.dataIndex === 'quantity'"
-                                >
+                                <template v-if="column.dataIndex === 'quantity'">
                                     {{
                                         `${record.quantity} ${record.product.unit.short_name}`
                                     }}
                                 </template>
-                                <template
-                                    v-if="
-                                        column.dataIndex === 'single_unit_price'
-                                    "
-                                >
+                                <template v-if="
+                                    column.dataIndex === 'single_unit_price'
+                                ">
                                     {{
                                         formatAmountCurrency(
                                             record.single_unit_price
                                         )
                                     }}
                                 </template>
-                                <template
-                                    v-if="column.dataIndex === 'total_discount'"
-                                >
+                                <template v-if="column.dataIndex === 'total_discount'">
                                     {{
                                         formatAmountCurrency(
                                             record.total_discount
                                         )
                                     }}
                                 </template>
-                                <template
-                                    v-if="column.dataIndex === 'total_tax'"
-                                >
-                                    <span
-                                        v-if="
-                                            record.order_item_taxes.length > 0
-                                        "
-                                    >
-                                        <span
-                                            v-for="order_item_tax in record.order_item_taxes"
-                                            :key="order_item_tax.xid"
-                                        >
+                                <template v-if="column.dataIndex === 'total_tax'">
+                                    <span v-if="
+                                        record.order_item_taxes.length > 0
+                                    ">
+                                        <span v-for="order_item_tax in record.order_item_taxes"
+                                            :key="order_item_tax.xid">
                                             <span>
                                                 {{ order_item_tax.tax_name }} :
                                                 {{
@@ -420,9 +355,7 @@
                                         }}
                                     </span>
                                 </template>
-                                <template
-                                    v-if="column.dataIndex === 'subtotal'"
-                                >
+                                <template v-if="column.dataIndex === 'subtotal'">
                                     {{ formatAmountCurrency(record.subtotal) }}
                                 </template>
                             </template>
@@ -430,13 +363,10 @@
                     </template>
                     <template #summary>
                         <a-table-summary-row>
-                            <a-table-summary-cell
-                                :col-span="
-                                    selectable && orderType != 'online-orders'
-                                        ? 5
-                                        : 4
-                                "
-                            >
+                            <a-table-summary-cell :col-span="selectable && orderType != 'online-orders'
+                                    ? 5
+                                    : 4
+                                ">
                             </a-table-summary-cell>
                             <a-table-summary-cell :col-span="1">
                                 <a-typography-text strong>
@@ -469,55 +399,33 @@
         </a-col>
     </a-row>
 
-    <OrderDetails
-        :visible="detailsDrawerVisible"
-        :order="selectedItem"
-        @close="onDetailDrawerClose"
-        @goBack="restSelectedItem"
-        @reloadOrder="paymentSuccess"
-    />
+    <!--- text area-->
+    <h3 style="margin-top:12px;">Narration</h3>
+    <a-row :gutter="16">
+        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+            <a-form-item>
+                <a-textarea class="disabling" disabled v-model:value="formData.narration" :rows="4" />
+            </a-form-item>
+        </a-col>
+    </a-row>
+    <!--- end text area-->
 
-    <Payments
-        :visible="paymentModalVisible"
-        :order="selectedItem"
-        @close="closePaymentDetails"
-    />
+    <OrderDetails :visible="detailsDrawerVisible" :order="selectedItem" @close="onDetailDrawerClose"
+        @goBack="restSelectedItem" @reloadOrder="paymentSuccess" />
 
-    <ConfirmOrder
-        :visible="confirmModalVisible"
-        :data="modalData"
-        @closed="confirmModalVisible = false"
-        @confirmSuccess="initialSetup"
-    />
+    <Payments :visible="paymentModalVisible" :order="selectedItem" @close="closePaymentDetails" />
 
-    <ViewOrder
-        :visible="viewModalVisible"
-        :order="modalData"
-        @closed="viewModalVisible = false"
-    />
+    <ConfirmOrder :visible="confirmModalVisible" :data="modalData" @closed="confirmModalVisible = false"
+        @confirmSuccess="initialSetup" />
 
-    <AddEdit
-        :addEditType="addEditType"
-        :visible="addEditVisible"
-        :url="addEditUrl"
-        @addEditSuccess="addEditSuccess"
-        @closed="onCloseAddEdit"
-        :formData="formData"
-        :data="selectedItem"
-        :editItemAmount="editItemAmount"
-        :pageTitle="pageTitle"
-        :successMessage="successMessage"
-    />
-    <InvoiceVue
-        :visible="printInvoiceModalVisible"
-        :order="printInvoiceOrder"
-        @closed="printInvoiceModalVisible = false"
-    />
-    <View
-        :visible="userVisible"
-        :user="modalData"
-        @closed="userVisible = false"
-    />
+    <ViewOrder :visible="viewModalVisible" :order="modalData" @closed="viewModalVisible = false" />
+
+    <AddEdit :addEditType="addEditType" :visible="addEditVisible" :url="addEditUrl" @addEditSuccess="addEditSuccess"
+        @closed="onCloseAddEdit" :formData="formData" :data="selectedItem" :editItemAmount="editItemAmount"
+        :pageTitle="pageTitle" :successMessage="successMessage" />
+    <InvoiceVue :visible="printInvoiceModalVisible" :order="printInvoiceOrder"
+        @closed="printInvoiceModalVisible = false" />
+    <View :visible="userVisible" :user="modalData" @closed="userVisible = false" />
 </template>
 
 <script>
@@ -545,14 +453,14 @@ import { useStore } from "vuex";
 import { find, forEach } from "lodash-es";
 import { useI18n } from "vue-i18n";
 import print from "print-js";
-import fields from "../../views/stock-management/purchases/fields";
+import fields from "../../views/accounting-transaction/receipt/fields";
 import common from "../../../common/composable/common";
 import datatable from "../../../common/composable/datatable";
 import PaymentStatus from "../../../common/components/order/PaymentStatus.vue";
 import OrderStatus from "../../../common/components/order/OrderStatus.vue";
 import Details from "../../views/stock-management/purchases/Details.vue";
 import UserInfo from "../../../common/components/user/UserInfo.vue";
-import OrderDetails from "./OrderDetails.vue";
+import OrderDetails from "../../components/order/OrderDetails.vue";
 import ConfirmOrder from "../../views/stock-management/online-orders/ConfirmOrder.vue";
 import ViewOrder from "../../views/stock-management/online-orders/ViewOrder.vue";
 import AddEdit from "../../views/stock-management/order-payments/AddEdit.vue";
@@ -621,7 +529,6 @@ export default {
             orderStatus,
             orderItemDetailsColumns,
             initPaymentData,
-            orderPageObject,
         } = fields();
         const datatableVariables = datatable();
         const {
@@ -679,12 +586,12 @@ export default {
 
         const onSelectChange = (changableRowKeys) => {
 
-console.log('selectedRowKeys changed: ', changableRowKeys);
+            console.log('selectedRowKeys changed: ', changableRowKeys);
 
-selectedRowKeysValue = [changableRowKeys];
+            selectedRowKeysValue = [changableRowKeys];
 
-};
-let selectedRowKeysValue = [];
+        };
+        let selectedRowKeysValue = [15];
 
         const getCheckboxProps = (record) => {
             var isDeleteable = false;
@@ -800,7 +707,7 @@ let selectedRowKeysValue = [];
                         });
                     });
                 },
-                onCancel() {},
+                onCancel() { },
             });
         };
 
@@ -844,7 +751,7 @@ let selectedRowKeysValue = [];
                         });
                     });
                 },
-                onCancel() {},
+                onCancel() { },
             });
         };
 
@@ -918,7 +825,7 @@ let selectedRowKeysValue = [];
                         description: t("online_orders.order_status_changed"),
                     });
                 },
-                error: (errorRules) => {},
+                error: (errorRules) => { },
             });
         };
 
@@ -947,7 +854,7 @@ let selectedRowKeysValue = [];
                             });
                         });
                 },
-                onCancel() {},
+                onCancel() { },
             });
         };
 
@@ -972,7 +879,7 @@ let selectedRowKeysValue = [];
                             });
                         });
                 },
-                onCancel() {},
+                onCancel() { },
             });
         };
 
@@ -997,7 +904,7 @@ let selectedRowKeysValue = [];
                             });
                         });
                 },
-                onCancel() {},
+                onCancel() { },
             });
         };
         // End For Online Orders
@@ -1116,7 +1023,7 @@ let selectedRowKeysValue = [];
             };
         });
 
-       
+
 
 
         return {
@@ -1128,7 +1035,7 @@ let selectedRowKeysValue = [];
             formatDate,
             orderStatus,
             orderStatusColors,
-            orderPageObject,
+
             setUrlData,
             formatAmountCurrency,
             invoiceBaseUrl,
@@ -1188,15 +1095,11 @@ let selectedRowKeysValue = [];
             onSelectChange,
         };
     },
-    data()
-    {
-        return {focus: null}
-    },
 
     mounted() {
-      
+
         document.addEventListener('keyup', this.handleKeyDown);
-        setTimeout(function () { this.selectedRowKeysValue = [] }, 2000);
+        setTimeout(function () { this.selectedRowKeysValue = [15] }, 2000);
     },
     beforeDestroy() {
         document.removeEventListener('keyup', this.handleKeyDown);
@@ -1213,69 +1116,51 @@ let selectedRowKeysValue = [];
             }
         },
 
-        test(event) { console.log(2333,event.keyCode)
+        test(event) {
+            console.log(2333)
             switch (event.keyCode) {
                 case 38: // Arrow up
-                    if(this.table.data.length>0){
-                        if (this.focus === null) {
-                            this.focus = 0;
-                        } else if (this.focus > 0) {
-                            this.focus--;
-                        }
-                        this.updateSelection();
+                    if (this.focus === null) {
+                        this.focus = 0;
+                    } else if (this.focus > 0) {
+                        this.focus--;
                     }
+                    this.updateSelection();
                     break;
                 case 40: // Arrow down
-                    if(this.table.data.length>0){
-                            if (this.focus === null) {
-                                this.focus = 0;
-                            } else if (this.focus < this.table.data.length - 1) {
-                                this.focus++;
-                            }
-                            this.updateSelection();
+                    if (this.focus === null) {
+                        this.focus = 0;
+                    } else if (this.focus < this.table.data.length - 1) {
+                        this.focus++;
                     }
+                    this.updateSelection();
                     break;
                 case 46:
                     this.autoFocusInput();
                     this.showPopupModal();
                     break;
-                case 13:
-                if(this.table.data.length>0){
-                    console.log("<>",selectedRowKeysValue);
-                    if(selectedRowKeysValue!=undefined && selectedRowKeysValue.length>0)
-                    {
-                        this.$emit('child-select');
-                    } 
-                    else
-                    {
-
-                        this.focus = 0;
-                        this.updateSelection();
-                        var that = this;
-                        setTimeout(function(){that.$emit('child-select');},1500)
-                    }   
-                }   
-                    break;    
             }
         },
 
-         updateSelection(event) { 
+        updateSelection() {
             const currentRadioInput = document.getElementsByClassName('ant-radio-input')[this.focus];
             currentRadioInput.click();
             const currentRow = currentRadioInput.closest('tr');
             const selectedRowKey = currentRow.getAttribute('data-row-key');
-            console.log('Selected Row Key:', selectedRowKey); 
-            selectedRowKeysValue=[selectedRowKey]
-            
-           
-            //this.$emit('child-select');*/
-            //console.log(this.table.data);
+            console.log('Selected Row Key:', selectedRowKey);
+            this.selectedKey = selectedRowKey;
+            this.selectedPartyId.id = selectedRowKey;
+            this.selectedPartyId.name = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+
+            this.$emit('child-select');
+            console.log(this.table.data);
         },
     },
 };
 </script>
+
 <style>
- .ant-table-tbody>tr.ant-table-row-selected>td {
-    background-color: #ffd451 !important;
+.disabling {
+    background-color: #e9ecef !important;
 }
 </style>

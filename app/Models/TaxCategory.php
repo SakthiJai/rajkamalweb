@@ -16,8 +16,17 @@ class TaxCategory extends BaseModel
 
     protected $filterable = ['sales_type','local'];
 
-    protected $hidden = ['id',];
-
     protected $appends = ['xid'];
+
+    protected $casts = [
+        'is_deletable' => 'integer',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new CompanyScope);
+    }
 
 }

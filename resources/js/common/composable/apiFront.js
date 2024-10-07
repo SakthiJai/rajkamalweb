@@ -63,7 +63,7 @@ const api = () => {
                     }
 
                     rules.value = errorRules;
-                    message.error(t("common.fix_errors"));
+                    //message.error(t("common.fix_errors"));
                 }
 
                 if (err && err.message) {
@@ -137,7 +137,7 @@ const api = () => {
                     }
 
                     rules.value = errorRules;
-                    message.error(t("common.fix_errors"));
+                    //message.error(t("common.fix_errors"));
                 }
 
                 if (err && err.message) {

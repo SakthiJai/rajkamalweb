@@ -11,13 +11,7 @@ class Settings extends BaseModel
 {
     protected $table = 'settings';
 
-    protected $default = ['xid'];
-
-    protected $guarded = ['id', 'is_global', 'created_at', 'updated_at'];
-
-    protected $hidden = ['id', 'created_at', 'updated_at'];
-
-    protected $appends = ['xid'];
+   
 
     protected $casts = [
         'credentials' => 'array',

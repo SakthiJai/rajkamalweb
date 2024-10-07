@@ -21,14 +21,14 @@
         
         <form ref="myForm1" layout="vertical" @submit.prevent="">
             <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="12" :lg="12" class="info">
+                <a-col :xs="24" :sm="24" :md="13" :lg="13" class="info">
                     <fieldset class="fieldheightsss">
                         <legend class="basicdetalis">
                             Customer Details
                         </legend>
                         <a-row :gutter="16">
                             <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                <a-form-item :label="$t('stock.mobile_number')" name="mobile_number"
+                                <a-form-item :label="$t('customers.mobile_number')" name="mobile_number"
                                     :help="rules.mobile_number ? rules.mobile_number.message : null"
                                     :validateStatus="rules.mobile_number ? 'error' : null">
                                 </a-form-item>
@@ -109,7 +109,7 @@
                         </a-row>
                     </fieldset>
                 </a-col>
-                <a-col :xs="24" :sm="24" :md="12" :lg="12" class="info">
+                <a-col :xs="24" :sm="24" :md="11" :lg="11" class="info">
                     <fieldset class="fieldheightsss">
                         <legend class="basicdetalis">
                             Contact Details
@@ -587,7 +587,7 @@ export default defineComponent({
                 this.switchTab();
             } else if (event.key === 'F10') {
                 event.preventDefault();
-                this.onSubmitLedger();
+               
             }
         },
         changeColorOnFocus(inputField) {

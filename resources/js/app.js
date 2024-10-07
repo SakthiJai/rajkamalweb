@@ -28,7 +28,13 @@ async function bootstrap() {
     store.commit("auth/updateActiveModules", window.config.modules);
     store.dispatch("auth/updateVisibleSubscriptionModules");
 
-    const app = createApp(App);
+    const app = createApp(App);  //&&    console.warn('[Vue warn]: '.concat(msg).concat(trace)
+    app.config.warnHandler = (msg, instance, trace) =>
+        ![
+          'built-in or reserved HTML elements as component id: component',
+          '"class" is a reserved attribute and cannot be used as component prop',
+          'Cannot find element: #__nuxt'
+        ].some((warning) => msg.includes(warning))
     const i18n = setupI18n({ legacy: false, globalInjection: true, locale: store.state.auth.lang, warnHtmlMessage: false });
     await loadLocaleMessages(i18n, store.state.auth.lang);
 

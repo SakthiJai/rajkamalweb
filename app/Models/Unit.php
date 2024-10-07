@@ -16,7 +16,7 @@ class Unit extends BaseModel
 
     protected $filterable = ['name'];
 
-    protected $hidden = ['id', 'parent_id'];
+    protected $hidden = ['parent_id'];
 
     protected $appends = ['xid'];
 

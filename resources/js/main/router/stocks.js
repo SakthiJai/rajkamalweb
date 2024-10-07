@@ -40,6 +40,7 @@ export default [
                     orderType: "purchases",
                 },
             },
+            
             {
                 path: "purchases/create",
                 component: () =>
@@ -53,6 +54,7 @@ export default [
                     orderType: "purchases",
                 },
             },
+
             {
                 path: "purchases",
                 component: () =>
@@ -127,6 +129,7 @@ export default [
                 component: () =>
                     import("../views/stock-management/purchases/Create.vue"),
                 name: "admin.stock.sales.create",
+                props: true,
                 meta: {
                     requireAuth: true,
                     menuParent: "sales",

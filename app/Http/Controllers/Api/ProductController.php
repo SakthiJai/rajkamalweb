@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends ApiBaseController
 {
@@ -33,6 +34,74 @@ class ProductController extends ApiBaseController
     protected $storeRequest = StoreRequest::class;
     protected $updateRequest = UpdateRequest::class;
     protected $deleteRequest = DeleteRequest::class;
+
+    public function productStore(StoreRequest $request)
+    {
+        try {
+            $product = new Product();
+            $product->company_id      = $request->company_id;
+            $product->warehouse_id    = $request->warehouse_id ?? 1; 
+            $product->product_type    = $request->product_type;
+            $product->name            = $request->name;
+            $product->unit_1st        = $request->unit_1st;
+            $product->unit_in_decimal = $request->unit_in_decimal;
+            $product->hsn_sac         = $request->hsn_sac;
+            $product->tax_category    = $request->tax_category;
+            $product->mrp             = $request->mrp;
+            $product->purchase_rate   = $request->purchase_rate;
+            $product->cost            = $request->cost;
+            $product->sale_rate       = $request->sale_rate;
+            $product->rate_b          = $request->rate_b;
+            $product->free_scheme_1   = $request->free_scheme_1;
+            $product->free_scheme_2   = $request->free_scheme_2;
+            $product->scheme_type     = $request->scheme_type;
+            $product->status          = $request->status;
+            $product->color_type      = $request->color_type;
+            $product->rate_d          = $request->rate_d;
+            $product->rate_f          = $request->rate_f;
+            $product->discount        = $request->discount;
+            $product->item_disc_1_percent = $request->item_disc;
+            $product->volume_disc_1   = $request->volume_dis;
+            $product->max_disc_percent= $request->max_disc;
+            $product->min_quantity    = $request->min_quantity;
+            $product->max_quantity    = $request->max_quantity;
+            $product->reorder_days    = $request->reorder_days;
+            $product->reorder_qty     = $request->reorder_qty;
+            $product->margin          = $request->min_margin_others;
+            $product->prohibited      = $request->prohibited;
+            $product->visibility      = $request->visibility;
+            $product->mfr_name        = $request->mfr_name;
+            $product->upload_image    = $request->upload_image;
+            $product->packing         = $request->packing;
+            $product->save();
+
+            if($product)
+            {
+                $productDetails = new ProductDetails();
+
+                $productDetails->product_id     = $product->id;
+                $productDetails->warehouse_id   = 1;
+                $productDetails->mrp            = $product->mrp;
+                $productDetails->purchase_price = $product->purchase_rate;
+                $productDetails->sales_price    = $product->sale_rate;
+
+                $productDetails->save();
+            }
+
+            return response()->json(['message' => 'Successfully stored product'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Error storing product: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json(['message' => 'Error storing product, please try again.'], 500);
+        }
+    }
 
     public function modifyIndex($query)
     {
@@ -514,5 +583,18 @@ class ProductController extends ApiBaseController
     public function checkProductVariant(CheckVariantRequest $request)
     {
         return ApiResponse::make('Added Successfully', []);
+    }
+    public function duplicateCheck(Request $request)
+    {
+        $duplicate = Product::where('name',trim($request->product))->first();
+
+        if($duplicate)
+        {
+            echo 500;
+        }
+        else
+        {
+            echo 200;
+        }
     }
 }

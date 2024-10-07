@@ -117,12 +117,20 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('country', 'CountryController', $options);
         ApiRoute::resource('state', 'StateController', $options);
         ApiRoute::resource('station', 'StationController', $options);
+        ApiRoute::resource('hsn-sac', 'HSNController', $options);
+        ApiRoute::resource('product-company', 'ProductCompanyController', $options);
+        ApiRoute::resource('tax-category', 'TaxCategoryController', $options);
+        ApiRoute::resource('units', 'UnitController', $options);
         //geolocation//
 
         //ledger//
         ApiRoute::resource('ledger', 'LedgerController', $options);
 
         ApiRoute::post('sales/store', ['as' => 'api.sales.store', 'uses' => 'SalesController@salesCreate']);
+        ApiRoute::get('sales/billNumber', ['as' => 'api.sales.store', 'uses' => 'SalesController@billNumber']);
+        ApiRoute::post('sales/savepayment', ['as' => 'api.sales.store', 'uses' => 'SalesController@savepayment']);
+        ApiRoute::post('sales/getInvoicePdf', ['as' => 'api.sales.store', 'uses' => 'SalesController@getInvoicePdf']);
+ 		ApiRoute::post('products-store', ['as' => 'api.product.store', 'uses' => 'ProductController@productStore']);
 
         ApiRoute::resource('users', 'UsersController', $options);
         ApiRoute::resource('customers', 'CustomersController', $options);

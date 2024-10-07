@@ -71,8 +71,8 @@ const fields = () => {
 
 	const filterableColumns = [
 		{
-			key: "name",
-			value: t("common.name") 
+			key: "cus_name",
+			value: t("common.cus_name") 
 		},
 	];
 	

@@ -3,7 +3,7 @@
         v-model:value="searchTerm"
         show-search
         :filter-option="false"
-       
+       class="prodinput"
         style="width: 100%"
         :not-found-content="fetching ? undefined : null"
         @search="fetchProducts"
@@ -19,10 +19,10 @@
             v-for="newProduct in products"
             :key="newProduct.id"
             :value="newProduct.id"
-            :label="newProduct.name"
+            :label="newProduct.code"
             :product="newProduct"
         >
-            {{ newProduct.name }}
+            {{ newProduct.code }}
         </a-select-option>
     </a-select>
 </template>
@@ -54,7 +54,7 @@ export default defineComponent({
                 state.products = [
                     {
                         id: propVal.productData.x_product_id,
-                        name: propVal.productData.product.name,
+                        code: propVal.productData.product.code,
                     },
                 ];
                 state.searchTerm = propVal.productData.x_product_id;
@@ -75,8 +75,8 @@ export default defineComponent({
 
             if (value != "") {
                 state.fetching = true;
-                const filterString = `name lk "%${value}%"`;
-                let url = `hsn-sac?fields=id,xid,name&filters=${encodeURIComponent(
+                const filterString = `code lk "%${value}%"`;
+                let url = `hsn-sac?fields=id,xid,code,&filters=${encodeURIComponent(
                     filterString
                 )}&limit=1000`;
 

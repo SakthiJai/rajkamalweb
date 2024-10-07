@@ -2,16 +2,18 @@ import { reactive } from 'vue';
 import { useI18n } from "vue-i18n";
 
 const fields = () => {
-	const addEditUrl = "stock-adjustments";
-	const url = "products?fields=xid,id,name,packing,stock,unit,sales_rate,mrp,purchase_rate,cost,margin,deal_free,w_o_free,hsn_sac,igst,company";
-	const hashableColumns = ['product_id'];
+	//const addEditUrl = "products";
+	const url = "products?fields=xid,id,name,packing,margin,hsn,free_scheme_1,free_scheme_2,mfr_name,w_o_free,deal_free,stock,cgst,lgst,sgst,hsn_sac,company_name,unit_name,sale_rate,unit_1st,unit,mrp,purchase_rate,cost,tax_category,company_id";
+	const hashableColumns = ['id'];
 	const { t } = useI18n();
 
 	const initData = {
-		product_id: undefined,
-		quantity: 1,
-		notes: "",
-		adjustment_type: "add",
+		xid: undefined,
+		packing:undefined,
+		// product_id: undefined,
+		// quantity: 1,
+		// notes: "",
+		// adjustment_type: "add",
 	};
 
 	const columns = [
@@ -29,11 +31,11 @@ const fields = () => {
 		},
 		{
 			title: "Unit",
-			dataIndex: "unit_first",
+			dataIndex: "unit_name",
 		},
 		{
 			title: "₹ Sale Rate",
-			dataIndex: "sales_rate",
+			dataIndex: "sale_rate",
 		},
 		{
 			title: t("common.action"),
@@ -51,19 +53,25 @@ const fields = () => {
 			value: t("stock_adjustment.adjustment_subtract"),
 		},
 	];
-
-	const filters = reactive({
-		product_id: undefined,
-	});
+	const editItem = (product) => {
+        console.log(product);
+    };
+	const filterableColumns = [
+		{
+			key: "name",
+			value: t("common.name") 
+		},
+	];
 
 	return {
 		url,
-		addEditUrl,
+		//addEditUrl,
 		hashableColumns,
 		initData,
 		columns,
 		adjustmentTypes,
-		filters,
+		editItem,
+		filterableColumns
 	}
 }
 

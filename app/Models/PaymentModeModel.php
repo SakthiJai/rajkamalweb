@@ -10,12 +10,12 @@ use App\Models\Order;
 class PaymentModeModel extends BaseModel
 {
     protected $table = 'payment_mode';
-    protected $guarded = ['id',  'created_at', 'updated_at'];
-    protected $default = ['xid','bill_amount', 'order_id','balance_adjusted','amount','settlement_mode','remarks','cash_tender','cash_return'];
+    protected $guarded = ['id', 'bill_amount', 'created_at', 'updated_at'];
+    protected $default = ['xid','bill_amount', 'order_id','balance_adjusted','amount','settlement_mode','remarks','cash_tender','cash_return','bill_number'];
 
     protected $appends = ['xid'];
     
-    protected $filterable = ['id','bill_amount'];
+    protected $filterable = ['id','bill_amount','bill_number'];
 
 
     // public function getStationNameAttribute()

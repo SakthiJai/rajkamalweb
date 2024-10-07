@@ -4,6 +4,9 @@ namespace App\Models;
 
 use App\Casts\Hash;
 use App\Classes\Common;
+use App\Models\TaxCategory;
+use App\Models\HSN;
+use App\Models\ProductCompany;
 use App\Models\BaseModel;
 use App\Scopes\CompanyScope;
 use Vinkla\Hashids\Facades\Hashids;
@@ -11,11 +14,6 @@ use Vinkla\Hashids\Facades\Hashids;
 class Product extends BaseModel
 {
     protected $table = 'products';
-
-    // protected $default = ['xid'];
-
-
-
     protected $default =[
                         'id',
                         'company_id',
@@ -66,38 +64,20 @@ class Product extends BaseModel
                         'upload_image',
                         'packing',
                         'sales_rate',
-
-];
-
-
-
-    protected $guarded = [
-                    'id',
-                    'packing',
-
-                    'unit_first',
-                    'sales_rate',
-                    'warehouse_id',
-                    'user_id',
-                    'created_at',
-                    'updated_at',
-                    'mrp',
-                    'purchase_rate',
-                    'cost',
-                    'margin',
-                    // 'deal_free',
-                    'w_o_free',
-                    'hsn_sac',
-                    'igst',
-                    'company'
-    ];
+                        'cgst',
+                        'lgst',
+                        'sgst',
+                        'company_name',
+                        'unit_name',
+                        'hsn'
+                    ];
 
 
     protected $hidden = ['category_id', 'brand_id', 'unit_id', 'user_id', 'warehouse_id', 'variant_id', 'variant_value_id', 'parent_id'];
 
-    protected $appends = ['xid', 'x_category_id', 'x_brand_id', 'x_unit_id', 'x_user_id', 'x_warehouse_id', 'x_variant_id', 'x_variant_value_id', 'x_parent_id', 'image_url'];
+    protected $appends = ['xid','cgst','hsn','lgst','sgst','company_name','unit_name','x_category_id', 'x_brand_id', 'x_unit_id', 'x_user_id', 'x_warehouse_id', 'x_variant_id', 'x_variant_value_id', 'x_parent_id', 'image_url'];
 
-    protected $filterable = ['id', 'products.id', 'products.name', 'name', 'item_code', 'category_id', 'brand_id'];
+    protected $filterable = ['id', 'products.id', 'name', 'item_code', 'category_id', 'brand_id'];
 
     protected $hashableGetterFunctions = [
         'getXCategoryIdAttribute' => 'category_id',
@@ -204,4 +184,40 @@ class Product extends BaseModel
     {
         return $this->belongsTo(Warehouse::class);
     }
+
+    public function getCgstAttribute()
+    {
+        $taxCategory  = TaxCategory::find($this->tax_category);
+        return $taxCategory ? $taxCategory->cgst : 'Unknown';
+    }
+
+    public function getLgstAttribute()
+    {
+        $taxCategory  = TaxCategory::find($this->tax_category);
+        return $taxCategory ? $taxCategory->lgst : 'Unknown';
+    }
+    public function getSgstAttribute()
+    {
+        $taxCategory  = TaxCategory::find($this->tax_category);
+        return $taxCategory ? $taxCategory->sgst : 'Unknown';
+    }
+
+    public function getCompanyNameAttribute()
+    {
+        $company  = ProductCompany::find($this->company_id);
+        return $company ? $company->name : 'Unknown';
+    }
+
+    public function getUnitNameAttribute()
+    {
+        $unit  = Unit::find($this->unit_1st);
+        return $unit ? $unit->name : 'Unknown';
+    }
+
+    public function getHsnAttribute()
+    {
+        $unit  = HSN::find($this->hsn_sac);
+        return $unit ? $unit->code : 'Unknown';
+    }
+
 }

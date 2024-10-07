@@ -3,11 +3,11 @@
         :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
         @addEditSuccess="handleSuccess" @closed="handleClose" />
 
-<!-- popup modal-->
-<PopupModal v-if="isModalPopup" :visible="isModalPopup" :formDataLedger="formDataLedger" :url="url"
-:addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
-@addEditSuccess="handleSuccess" @closed="handlePopup" />
-<!-- end popup modal-->
+    <!-- popup modal-->
+    <PopupModal v-if="isModalPopup" :visible="isModalPopup" :formDataLedger="formDataLedger" :url="url"
+        :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
+        @addEditSuccess="handleSuccess" @closed="handlePopup" />
+    <!-- end popup modal-->
 
     <a-modal :open="visible" :width="drawerWidth" :closable="false" :centered="true" class="popups">
         <template v-slot:title>
@@ -47,8 +47,10 @@
         <a-form layout="vertical">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                    <a-form-item name="party_name_search" @keydown="test" ref="dummykeyboard" class="required">
-                        <a-input-search ref="searchInput" autocomplete="off" style="width: 100%" placeholder="Search here.." />
+                    <a-form-item name="party_name_search" @keydown="test" ref="dummykeyboard">
+                        <a-input-search ref="searchInput" autocomplete="off" style="width: 100%"
+                            placeholder="search here.." v-model:value="table.searchString" show-search
+                            @change="onTableSearch" @search="onTableSearch" :loading="table.filterLoading" @focus="checkSelectedproduct"  />
                     </a-form-item>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="6" :lg="6">
@@ -71,11 +73,12 @@
         <admin-page-table-content>
             <a-row>
                 <a-col :span="24">
-                    <div class="table-responsive"><!-- selectedRowKeys: selectedRowKeysValue,onChange: onSelectChange,-->
+                    <div class="table-responsive">
                         <a-table :columns="columns" :row-key="(record) => record.id" :data-source="table.data"
-                            :pagination="table.pagination" :loading="table.loading" :rowSelection="{
-                                
-                                
+                            :pagination="table.pagination" :loading="table.loading" 
+                            :rowSelection="{
+                                selectedRowKeys: selectedRowKeysValue,
+                                onChange: onSelectChange,
                                 hideDefaultSelections: true,
                                 selections: true,
                                 type: 'radio'
@@ -89,7 +92,7 @@
                                 </template>
                                 <template v-if="column.dataIndex === 'name'">
                                     <a-typography-text type="success" strong @click.stop="selectProduct(record)">
-                                        +{{ record.name }}
+                                        {{ record.name }}
                                     </a-typography-text>
                                 </template>
 
@@ -132,7 +135,7 @@
         <!--- end-->
 
         <a-row :gutter="16">
-            <a-col :xs="24" :sm="24" :md="5" :lg="5">
+            <a-col :xs="24" :sm="24" :md="6" :lg="6">
                 <fieldset style="height: 167px;">
                     <legend class="font-style-in-prouct-model">
                         Purchase Info
@@ -141,69 +144,60 @@
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             M.R.P
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="mrp">0.00</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             Pur. Rate
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="purchase_rate">0.00</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             Cost
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="cost">0.00</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             Cost+Tax
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="cost_tax">0.00</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             Pur. Disc
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span></span>
-                            <span>0.18</span>
+                            <span id="purchase_discount">0.00</span>
                         </a-col>
                     </a-row>
                 </fieldset>
             </a-col>
-            <a-col :xs="24" :sm="24" :md="5" :lg="5">
+            <a-col :xs="24" :sm="24" :md="6" :lg="6">
                 <fieldset style="height: 167px;">
                     <legend class="font-style-in-prouct-model">
                         Sale Info
@@ -212,56 +206,49 @@
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             Rate
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="rate">0.00</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             Margin
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="margin">0.00</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             Deal Free
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="deal_free">0 + 0</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             W/o Deal
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="w_o_free"></span>
                         </a-col>
                     </a-row>
                 </fieldset>
             </a-col>
-            <a-col :xs="24" :sm="24" :md="5" :lg="5">
+            <a-col :xs="24" :sm="24" :md="6" :lg="6">
                 <fieldset style="height: 167px;">
                     <legend class="font-style-in-prouct-model">
                         Tax Info
@@ -270,80 +257,73 @@
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             HSN/SAC
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
                             <span>:</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="hsn">0</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             IGST %
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="igst">0.00</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             CGST %
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="cgst">0.00</span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
                             SGST %
                         </a-col>
-                        <a-col :xs="1" :sm="1" :md="1" :lg="1">
-
-                            <span>:</span>
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <span>: ₹</span>
                         </a-col>
                         <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>₹ </span>
-                            <span>0.18</span>
+                            <span id="sgst">0.00</span>
                         </a-col>
                     </a-row>
                 </fieldset>
             </a-col>
-            <a-col :xs="9" :sm="9" :md="9" :lg="9">
+            <a-col :xs="24" :sm="24" :md="6" :lg="6">
                 <fieldset style="height: 167px;">
                     <legend class="font-style-in-prouct-model">
                         Other Info
                     </legend>
                     <a-row :gutter="16">
-                        <a-col :xs="10" :sm="10" :md="10" :lg="10">
+                        <a-col :xs="8" :sm="8" :md="8" :lg="8">
                             Company
                         </a-col>
                         <a-col :xs="1" :sm="1" :md="1" :lg="1">
                             <span>:</span>
                         </a-col>
-                        <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span>Power Text Services</span>
+                        <a-col :xs="14" :sm="14" :md="14" :lg="14">
+                            <span id="company"></span>
                         </a-col>
                     </a-row>
                     <a-row :gutter="16">
-                        <a-col :xs="10" :sm="10" :md="10" :lg="10">
+                        <a-col :xs="8" :sm="8" :md="8" :lg="8">
                             Mfr.
                         </a-col>
                         <a-col :xs="1" :sm="1" :md="1" :lg="1">
                             <span>:</span>
                         </a-col>
-                        <a-col :xs="10" :sm="10" :md="10" :lg="10">
-                            <span></span>
+                        <a-col :xs="14" :sm="14" :md="14" :lg="14">
+                            <span id="mfr"></span>
                         </a-col>
                     </a-row>
                 </fieldset>
@@ -405,11 +385,12 @@ export default defineComponent({
 
 
     setup(props, { emit }) {
-        const { url, addEditUrl, hashableColumns, initData, columns, filters } = fields();
+        const { url, addEditUrl, hashableColumns, initData, columns, filterableColumns } = fields();
         const crudVariables = crud();
         const { permsArray, selectedWarehouse } = common();
 
         onMounted(() => {
+            crudVariables.table.filterableColumns = filterableColumns;
             crudVariables.crudUrl.value = addEditUrl;
             crudVariables.langKey.value = "expense_category";
             crudVariables.initData.value = { ...initData };
@@ -420,31 +401,63 @@ export default defineComponent({
         });
 
         const reFetchDatatable = () => {
+            document.getElementById('form_item_party_name_search').focus() 
+            focus=null;
             crudVariables.tableUrl.value = {
                 url,
-                filters,
+                filterableColumns,
             };
 
             crudVariables.fetch({
                 page: 1,
             });
+           
         };
 
-        const onClose = () => {
-            emit("closed");
+        const onClose = () => { console.log("Product Closed call");
+            emit("productclose-method");
+            //reFetchDatatable();
         };
         const onSelectChange = (changableRowKeys) => {
             // selectedRowKeysValue=[];
-            console.log('selectedRowKeys changed: ', changableRowKeys);
+            //consolelog('selectedRowKeys changed: ', changableRowKeys);
             //selectedRowKeys.value = changableRowKeys;
             selectedRowKeysValue = changableRowKeys;
-            console.log('selectedRowKeys changed: ', selectedRowKeysValue);
+            setTimeout(function(){
+                const currentRadioInput = document.getElementsByClassName('ant-table-row-selected');
+                const myElem = document.querySelectorAll(".ant-table-row-selected");
+                let name ='',packing='',quantity='',price='';
+
+                myElem.forEach(function (elem, index) {
+                    name = elem.closest('tr').getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+                    packing = elem.closest('tr').getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+                    quantity= elem.closest('tr').getElementsByTagName("td")[3].innerHTML.replace(/<[^>]*>?/gm, '')
+                    price= elem.closest('tr').getElementsByTagName("td")[5].innerHTML.replace(/<[^>]*>?/gm, '')
+                    //consolelog(name);
+                    });
+                    //consolelog('<>',this.selectedProductId.cgst)
+                    emit('child-method', {id:changableRowKeys.toString(),
+                                                        name:name,
+                                                        packing:packing,
+                                                        quantity:quantity,
+                                                        single_unit_price:price,
+                                                        cgst: this.selectedProductId.cgst || 0,
+                                                        sgst: this.selectedProductId.sgst || 0
+                                                    });
+                    document.getElementById('form_item_party_name_search').focus()                                   
+
+            },400)
+
+           
         };
         let selectedRowKeysValue = []; // Check here to configure the default column
         //selectedRowKeysValue[0]=0;
 
         watch(selectedWarehouse, (newVal, oldVal) => {
-            reFetchDatatable();
+            if(this.$emit == true){
+                reFetchDatatable();
+                
+            }
         });
 
         return {
@@ -452,9 +465,10 @@ export default defineComponent({
             permsArray,
             ...crudVariables,
             onClose,
-            filters,
+            filterableColumns,
             reFetchDatatable,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
+            onSelectChange,
         };
     },
 
@@ -492,8 +506,10 @@ export default defineComponent({
     },
 
     mounted() {
+        this.isLoading = false;
         // document.addEventListener('keydown', this.handleKeyDown);
         document.addEventListener('keyup', this.handleKeyDown);
+        
         this.autoFocusInput();
     },
     beforeDestroy() {
@@ -505,136 +521,134 @@ export default defineComponent({
             return {
                 onClick: (event) => {
                     this.rowSelection = event
-                    //console.log('record', record, 'event', record.party_name);
+                    ////consolelog('record', record, 'event', record.party_name);
                 }
             }
         },
-        // test: function (event) {
-        //     console.log("focus",event.keyCode);
-        //     switch (event.keyCode) {
-        //         case 38:
-        //             document.getElementsByClassName('ant-radio-input')[this.focus].click();
-        //             const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-        //             console.log('up=>', temp)
-        //             console.log('up=>', temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
-        //             this.selectedProductId.id = temp.getAttribute('data-row-key');
-        //             this.selectedProductId.name = temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-
-        //             if (this.focus === null) {
-        //                 this.focus = 0;
-        //             } else if (this.focus > 0) {
-        //                 this.focus--;
-        //             }
-        //             break;
-        //         case 40:
-
-        //             if (this.focus === null) {
-        //                 this.focus = 0;
-        //             } else if (this.focus < this.table.data.length - 1) {
-        //                 this.focus++;
-        //             }
-        //             document.getElementsByClassName('ant-radio-input')[this.focus].click();
-        //             const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-        //             console.log('down=>', temp1.getAttribute('data-row-key'))
-        //             this.selectedProductId.id = temp1.getAttribute('data-row-key');
-        //             this.selectedProductId.name = temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-        //             this.selectedProductId.packing = temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
-        //             this.selectedProductId.quantity = temp1.getElementsByTagName("td")[3].innerHTML.replace(/<[^>]*>?/gm, '')
-        //             this.selectedProductId.single_unit_price = temp1.getElementsByTagName("td")[5].innerHTML.replace(/<[^>]*>?/gm, '')
-
-        //             this.$emit('child-method', this.selectedProductId)
-        //             break;
-        //             case 46:
-        //             this.autoFocusInput();
-        //             this.showPopupModal();
-        //             break;
-        //             case 13:
-        //                 console.log("Enter Key")
-        //                 this.$emit('productclose-method')
-        //             break;
-        //     }
-        // },
-
-        test(event) {
+        test: function (event) {
+            //consolelog("focus",event.keyCode);
             switch (event.keyCode) {
-                case 38: // Arrow up
-                    if (this.focus === null) {
+                case 38:
+                     if (this.focus === null) {
                         this.focus = 0;
                     } else if (this.focus > 0) {
                         this.focus--;
                     }
-                    this.updateSelection();
+                    this.updateSelection()
                     break;
-                case 40: // Arrow down
+                case 40:
+
                     if (this.focus === null) {
                         this.focus = 0;
                     } else if (this.focus < this.table.data.length - 1) {
                         this.focus++;
                     }
-                    this.updateSelection();
+                    this.updateSelection()
                     break;
-                case 46:
+                    case 46:
                     this.autoFocusInput();
                     this.showPopupModal();
                     break;
                     case 13:
-                        console.log("Enter Key")
-                        this.$emit('productclose-method')
+                        if(this.table.data.length>0)
+                         {
+                            //consolelog("Enter Key")
+                            this.$emit('productclose-method');
+                            //consolelog(this.table.data);
+                        }
                     break;
+                    case 27:
+                        if(this.table.data.length>0)
+                         {
+                            //consolelog("Esc Key")
+                            this.$emit('productclose-method');
+                            //consolelog(this.table.data);
+                        }
+                    break;
+                    case 113:
+                       this.showAddProductModal();
+                    break;
+
+
+
             }
         },
+        updateSelection() 
+        {
+            this.removeClass();
+            const currentRadioInput = document.getElementsByClassName('ant-radio-input')[this.focus];
+            currentRadioInput.checked=true;
+            const temp = currentRadioInput.closest('tr');
+            temp.classList.add("ant-table-row-selected");
+            const selectedRowKey = temp.getAttribute('data-row-key');
+            console.log('Selected Row Key:', selectedRowKey); 
+            this.selectedProductId.id = temp.getAttribute('data-row-key');
+            this.selectedProductId.name = temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+            this.selectedProductId.packing = temp.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+            this.selectedProductId.quantity = temp.getElementsByTagName("td")[3].innerHTML.replace(/<[^>]*>?/gm, '')
+            this.selectedProductId.single_unit_price = temp.getElementsByTagName("td")[5].innerHTML.replace(/<[^>]*>?/gm, '')
+            if (Array.isArray(this.table.data) && this.table.data.length > 0)
+            {
+                        this.table.data.forEach(row =>
+                          {
+                            if(row.cgst==undefined){row.cgst=0;}
+                            if(row.sgst==undefined){row.sgst=0;}
+                            if (row.id === selectedRowKey || row.id == selectedRowKey) {
+                                this.selectedProductId.cgst = Number((row.cgst>=0?row.cgst:0));
+                                this.selectedProductId.sgst = Number((row.sgst>=0?row.sgst:0));
+                                let cgstAmount = 0, sgstAmount = 0;
 
-        updateSelection() {
-            const currentRadioInput =
-            document.getElementsByClassName('ant-radio-input')[this.focus].click();
-                    const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
-                   console.log('down=>', temp1.getAttribute('data-row-key'))
-                    this.selectedProductId.id = temp1.getAttribute('data-row-key');
-                    this.selectedProductId.name = temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-                    this.selectedProductId.packing = temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
-                    this.selectedProductId.quantity = temp1.getElementsByTagName("td")[3].innerHTML.replace(/<[^>]*>?/gm, '')
-                   this.selectedProductId.single_unit_price = temp1.getElementsByTagName("td")[5].innerHTML.replace(/<[^>]*>?/gm, '')
+                                if (row.cgst && row.sale_rate) {
+                                    let cgstPercentage = Number(row.cgst) / 100;
+                                    cgstAmount = Number(cgstPercentage) * Number(row.sale_rate);
+                                }
 
-                    this.$emit('child-method', this.selectedProductId)
-            if (Array.isArray(this.table.data) && this.table.data.length > 0) {
-                this.table.data.forEach((row) => {
-                    if (row.id === selectedRowKey || row.id == selectedRowKey) {
-                        // Purchase Info
-                        this.formData.mrp = row.mrp;
-                        this.formData.purchase_rate = row.purchase_rate;
-                        this.formData.cost = row.cost;
-                        this.formData.costPlusTax = row.cost_plus_tax;
-                        this.formData.discount = row.discount;
+                                if (row.sgst && row.sale_rate) {
+                                    let sgstPercentage = Number(row.sgst) / 100;
+                                    sgstAmount = Number(sgstPercentage) * Number(row.sale_rate);
+                                }
 
-                        // Sale Info
-                        this.formData.sale_rate = row.sale_rate;
-                        this.formData.margin = row.margin;
-                        this.formData.deal_free = row.deal_free;
-                        this.formData.w_o_free = row.w_o_free;
+                                let totalTax = Number(sgstAmount) + Number(cgstAmount) + Number(row.sale_rate);
 
-                        // Tax Info
-                        this.formData.hsnSac = row.hsn_sac;
-                        this.formData.igst = row.igst;
-                        this.formData.cgst = row.cgst;
-                        this.formData.sgst = row.sgst;
+                                document.getElementById("mrp").innerHTML = this.formatOfAmount(row.mrp);
+                                document.getElementById("purchase_rate").innerHTML = this.formatOfAmount(row.purchase_rate);
+                                document.getElementById("cost").innerHTML = this.formatOfAmount(row.cost);
+                                document.getElementById("cost_tax").innerHTML = this.formatOfAmount(totalTax);
+                                document.getElementById("purchase_discount").innerHTML = '0.00';
+                                document.getElementById("rate").innerHTML = this.formatOfAmount(row.sale_rate);
+                                document.getElementById("margin").innerHTML = this.formatOfAmount(row.margin);
+                                document.getElementById("deal_free").innerHTML = 
+                                (row.free_scheme_1 != null ? row.free_scheme_1 : 0) + 
+                                ' + ' + 
+                                (row.free_scheme_2 != null ? row.free_scheme_2 : 0);
 
-                        // Other Info
-                        this.formData.name = row.name;
-                        this.formData.mfr_name = row.mfr_name;
-
-                        console.log("Matched Row:", row);
-                        console.log("Product Info:", this.formData);
-                    }
-                });
-            } else {
-                console.error("Table data is not an array or is empty.");
+                                document.getElementById("w_o_free").innerHTML = row.w_o_free;
+                                document.getElementById("hsn").innerHTML = row.hsn;
+                                document.getElementById("igst").innerHTML = this.formatOfAmount(row.lgst);
+                                document.getElementById("cgst").innerHTML = this.formatOfAmount((row.cgst>=0?row.cgst:0));
+                                document.getElementById("sgst").innerHTML = this.formatOfAmount((row.sgst>=0?row.sgst:0));
+                                document.getElementById("company").innerHTML = row.company_name;
+                                document.getElementById("mfr").innerHTML = row.mfr_name;
+                            }
+                        });
+            } 
+                    else {
+                console.error('Table data is not an array or is empty.');
             }
-
-            // Emit selected product details to parent
-            this.$emit("child-method", this.formData);
-            console.log(this.table.data);
+            this.$emit('child-method', this.selectedProductId);
+           // this.$emit('child-method', this.selectedPartyId);
+            //console.log(this.table.data);
         },
-
+        formatCurrency(value) {
+            return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        },
+        formatOfAmount(value) {
+            var res = new Intl.NumberFormat('en-IN', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            }).format((value>=0)?value:0);
+            return res;
+        },
         showAddProductModal() {
             this.isAddProductModalVisible = true;
         },
@@ -645,7 +659,7 @@ export default defineComponent({
             this.isModalPopup = false;
         },
         autoFocusInput() {
-            this.$nextTick(() => {
+            this.$nextTick(() => { //consolelog("Search");
                 this.$refs.searchInput.focus();  // Automatically focus the input
             });
         },
@@ -660,7 +674,10 @@ export default defineComponent({
         },
         handleClose() {
             this.isAddProductModalVisible = false;
-            // Reset button color when closing
+            this.reFetchDatatable();
+            //consolelog("test1223");
+
+
             this.buttonStyle = {
                 backgroundColor: '',
                 borderColor: '',
@@ -668,11 +685,14 @@ export default defineComponent({
             };
         },
         handleSuccess(xid) {
-            // Handle success logic
+
             this.isAddProductModalVisible = false;
-            console.log('Success:', xid);
+            //consolelog('Success:', xid);
         },
-        
+        handleProductModal() {
+            this.reFetchDatatable();
+            this.isProuctsModalVisible = false;
+        },
 
         handleKeyDown(event) {
             const activeElement = document.activeElement;
@@ -682,7 +702,7 @@ export default defineComponent({
                 this.isLoading = true;
                 setTimeout(() => {
                     this.isLoading = false;
-                    this.isModalVisible = true;
+                    this.isAddProductModalVisible = true;
                 }, 500);
             } else if (event.key === 'F4') {
                 this.isLoading = true;
@@ -691,13 +711,13 @@ export default defineComponent({
                     this.isEnterModal = true;
                 }, 500);
             } else if (event.key === 'Escape' || event.key === 'Esc') {
-                this.isModalVisible = false;
+                this.isAddProductModalVisible = false;
                 this.isEnterModal = false;
                 this.isLoading = false;
             } else if (event.key === 'Enter') {
-                
+
                 /*this.$emit('productclose-method');
-                console.log("pppjjj");
+                //consolelog("pppjjj");
                 // Close modal by clicking the modal close button
                 const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
                  
@@ -705,13 +725,119 @@ export default defineComponent({
                     modalCloseButton.click();
                    
                 }*/
-                
+
 
 
             }
-        }
+        },
+        removeClass() {
+            const rows = Array.from(document.querySelectorAll('tr.ant-table-row-selected'));
+            rows.forEach(row => {
+                row.classList.remove('ant-table-row-selected');
+            });
+            },
+            checkSelectedproduct()
+             {
+            if(this.selectedRowKeysValue==undefined )
+                {
+                    this.focus=0;
+                    var that = this;                
+                    setTimeout(function(){
+                        const currentRadioInput = document.getElementsByClassName('ant-radio-input')[0];
+                   // currentRadioInput.click();
+                    const currentRow = currentRadioInput.closest('tr');
+                    currentRow.classList.add("ant-table-row-selected");
+                    const selectedRowKey = currentRow.getAttribute('data-row-key');
+                    that.selectedProductId.id = currentRow.getAttribute('data-row-key');
+                    that.selectedProductId.name = currentRow.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
+                    that.selectedProductId.packing = currentRow.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
+                    that.selectedProductId.quantity = currentRow.getElementsByTagName("td")[3].innerHTML.replace(/<[^>]*>?/gm, '')
+                    that.selectedProductId.single_unit_price = currentRow.getElementsByTagName("td")[5].innerHTML.replace(/<[^>]*>?/gm, '')
+                    console.log('Selected Row Key1:', selectedRowKey); 
+                    if (Array.isArray(that.table.data) && that.table.data.length > 0)
+                        {
+                            that.table.data.forEach(row =>
+                                    { 
+                                        if(row.cgst==undefined){row.cgst=0;}
+                                        if(row.sgst==undefined){row.sgst=0;}
+                                        if (row.id === selectedRowKey || row.id == selectedRowKey) {
+                                            that.selectedProductId.cgst = Number((row.cgst>=0?row.cgst:0));
+                                            that.selectedProductId.sgst = Number((row.sgst>=0?row.sgst:0));
+                                            let cgstAmount = 0, sgstAmount = 0;
+
+                                            if (row.cgst && row.sale_rate) {
+                                                let cgstPercentage = Number(row.cgst) / 100;
+                                                cgstAmount = Number(cgstPercentage) * Number(row.sale_rate);
+                                            }
+
+                                            if (row.sgst && row.sale_rate) {
+                                                let sgstPercentage = Number(row.sgst) / 100;
+                                                sgstAmount = Number(sgstPercentage) * Number(row.sale_rate);
+                                            }
+
+                                            let totalTax = Number(sgstAmount) + Number(cgstAmount) + Number(row.sale_rate);
+
+                                            document.getElementById("mrp").innerHTML = that.formatOfAmount(row.mrp);
+                                            document.getElementById("purchase_rate").innerHTML = that.formatOfAmount(row.purchase_rate);
+                                            document.getElementById("cost").innerHTML = that.formatOfAmount(row.cost);
+                                            document.getElementById("cost_tax").innerHTML = that.formatOfAmount(totalTax);
+                                            document.getElementById("purchase_discount").innerHTML = '0.00';
+                                            document.getElementById("rate").innerHTML = that.formatOfAmount(row.sale_rate);
+                                            document.getElementById("margin").innerHTML = that.formatOfAmount(row.margin);
+                                            document.getElementById("deal_free").innerHTML = 
+                                            (row.free_scheme_1 != null ? row.free_scheme_1 : 0) + 
+                                            ' + ' + 
+                                            (row.free_scheme_2 != null ? row.free_scheme_2 : 0);
+
+                                            document.getElementById("w_o_free").innerHTML = row.w_o_free;
+                                            document.getElementById("hsn").innerHTML = row.hsn;
+                                            document.getElementById("igst").innerHTML = that.formatOfAmount(row.lgst);
+                                            document.getElementById("cgst").innerHTML = that.formatOfAmount((row.cgst>=0?row.cgst:0));
+                                            document.getElementById("sgst").innerHTML = that.formatOfAmount((row.sgst>=0?row.sgst:0));
+                                            document.getElementById("company").innerHTML = row.company_name;
+                                            document.getElementById("mfr").innerHTML = row.mfr_name;
+                                        }
+                                    });
+                        } 
+                                else {
+                            console.error('Table data is not an array or is empty.');
+                        }
+                    
+                        document.querySelectorAll('.ant-radio-input').forEach((elem) =>
+                        { 
+                            elem.addEventListener("change", function(event) { 
+                            var item = event.target.value;
+                            console.log('<>',item);
+
+                            const currentRadioInput = document.getElementsByClassName('ant-table-row-selected');
+                            const myElem = document.querySelectorAll(".ant-table-row-selected");
+                            let name ='';
+                            myElem.forEach(function (elem, index) {
+                                    name = elem.closest('tr').getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+                            });
+                                
+                            const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
+                                        if (modalCloseButton) {
+                                        
+                                        that.$emit('child-method', that.selectedProductId);
+                                        modalCloseButton.click();
+                                        
+                                           
+
+                                        }
+
+                            });
+                        });
+                    },2000);
+                    
+                }
+            
+            }    
 
     },
+    mounted() {
+        this.reFetchDatatable(); // Fetch data on component mount
+    }
 
 });
 </script>

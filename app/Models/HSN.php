@@ -16,7 +16,7 @@ class HSN extends BaseModel
 
     protected $filterable = ['name','code'];
 
-    protected $hidden = ['id',];
+    protected $hidden = [];
 
     protected $appends = ['xid'];
 

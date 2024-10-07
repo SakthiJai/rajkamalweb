@@ -211,11 +211,7 @@ const fields = () => {
 
     const setupTableColumns = () => {
         var allColumns = [
-            {
-                title: t(`stock.bill_no`),
-                dataIndex: "invoice_number",
-                sorter:true
-            },
+          
             // {
             //     title: t(`stock.bill_no`),
             //     dataIndex: "invoice_number",
@@ -240,11 +236,11 @@ const fields = () => {
             });
         }
 
-        allColumns.push({
-            title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
-            dataIndex: "order_date",
-            sorter:true
-        });
+        // allColumns.push({
+        //     title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
+        //     dataIndex: "order_date",
+        //     sorter:true
+        // });
 
         /*if (pageObject.value.type != 'stock-transfers') {
             allColumns.push({
@@ -258,7 +254,7 @@ const fields = () => {
         columns.value = [
             ...allColumns,
             {
-                title: t(`${pageObject.value.langKey}.user`),
+                title: t("receipt.receipt_date"),
                 dataIndex: ['customer', 'cus_name'],
                 sorter:true,
                 //sorter_field:"orders.user_id"
@@ -266,25 +262,41 @@ const fields = () => {
             
            
             {
-                title: t("stock.party"),
+                title: t("receipt.voucher_number"),
                 dataIndex: ['party_name', 'party_name'],
                 sorter:true,
                
             },
             {
-                title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_status`),
+                title: t("receipt.party_name"),
+                dataIndex: "order_status",
+                sorter:true,
+            }, 
+
+            {
+                title: t("receipt.station"),
                 dataIndex: "order_status",
                 sorter:true,
             },
+
+            {
+                title: t("receipt.inst_type"),
+                dataIndex: "order_status",
+                sorter:true,
+            },
+
+            {
+                title: t("receipt.inst_number"),
+                dataIndex: "order_status",
+                sorter:true,
+            },
+
             {
                 title: t("stock.sales_amount"),
                 dataIndex: "payment_status",
                 sorter:true,
             },
-            {
-                title: t("common.action"),
-                dataIndex: "action",
-            },
+          
         ];
     };
 
