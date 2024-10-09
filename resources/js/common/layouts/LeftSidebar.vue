@@ -331,98 +331,72 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                    <!-- altered account treans  -->
-                    <a-sub-menu
-                        key="accounting_transfer"
-                        v-if="
-                            permsArray.includes('recipt_view') ||
-                            permsArray.includes('payment_view') ||
-                            permsArray.includes('contra_view') ||
-                            permsArray.includes('journal_view') ||
-                            permsArray.includes('admin')
-                        "
-                    >
+
+                    <a-sub-menu key="master_menu">
                         <template #title>
-                            <span>
-                                <CalculatorOutlined />
-                                <span>{{ $t("Accounting Trans.") }}</span>
-                            </span>
+                        <TeamOutlined />
+                        <span>Accounting Trans.</span>
                         </template>
-
                         <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
                                     $router.push({
-                                        name: 'admin.recipt.index',
+                                        name: 'admin.receipt.index',
                                     });
                                 }
                             "
-                            key="recipt"
-                            v-if="
-                                permsArray.includes('recipt_view') ||
-                                permsArray.includes('admin')
-                            "
+                            key="country"
                         >
-                            {{ $t("Recipt") }}
+                            {{ ("Receipt") }}
+                            
                         </a-menu-item>
 
-                        <a-menu-item
+                         <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
                                     $router.push({
-                                        name: 'admin.payment.index',
+                                        name: 'admin.print.index',
                                     });
                                 }
                             "
-                            key="payment"
-                            v-if="
-                                permsArray.includes('payment_view') ||
-                                permsArray.includes('admin')
-                            "
+                            key="state"
                         >
-                            {{ $t("Payment") }}
+                            {{ ("Payment") }}
                         </a-menu-item>
 
-                        <a-menu-item
+                            <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
                                     $router.push({
-                                        name: 'admin.contra.index',
+                                        name: 'admin.station.index',
                                     });
                                 }
                             "
-                            key="contra"
-                            v-if="
-                                permsArray.includes('contra_view') ||
-                                permsArray.includes('admin')
-                            "
+                            key="station"
                         >
-                            {{ $t("Contra") }}
+                            {{ ("Contra") }}
                         </a-menu-item>
 
                         <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.journal.index',
-                                    });
-                                }
-                            "
-                            key="journal"
-                            v-if="
-                                permsArray.includes('journal_view') ||
-                                permsArray.includes('admin')
-                            "
-                        >
-                            {{ $t("Journal") }}
-                        </a-menu-item>
+                        @click="
+                            () => {
+                                menuSelected();
+                                $router.push({
+                                    name: 'admin.station.index',
+                                });
+                            }
+                        "
+                        key="station"
+                    >
+                        {{ ("Journal") }}
+                    </a-menu-item>
+
+                        
+                        
                     </a-sub-menu>
-
-                    <!-- ends  -->
 
                     <a-sub-menu
                         key="purchases"
@@ -837,6 +811,8 @@
                         </a-menu-item>
                     </a-sub-menu>
 
+                    
+
                     <a-menu-item
                         @click="menuSelected"
                         key="online_orders"
@@ -1036,10 +1012,11 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                    <a-sub-menu key="master_menu">
+                     
+                      <a-sub-menu key="master_menu">
                         <template #title>
-                            <TeamOutlined />
-                            <span>Master Menu</span>
+                        <TeamOutlined />
+                        <span>Master Menu</span>
                         </template>
                         <a-menu-item
                             @click="
@@ -1052,10 +1029,11 @@
                             "
                             key="country"
                         >
-                            {{ "Country" }}
+                            {{ ("Country") }}
+                            
                         </a-menu-item>
 
-                        <a-menu-item
+                         <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -1066,10 +1044,10 @@
                             "
                             key="state"
                         >
-                            {{ "State" }}
+                            {{ ("State") }}
                         </a-menu-item>
 
-                        <a-menu-item
+                            <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -1080,9 +1058,14 @@
                             "
                             key="station"
                         >
-                            {{ "Station" }}
+                            {{ ("Station") }}
                         </a-menu-item>
+                        
                     </a-sub-menu>
+                                    
+                    
+                    
+
 
                     <a-menu-item
                         @click="
@@ -1211,7 +1194,6 @@ export default defineComponent({
             "cash_bank",
             "subscription",
             "hrm",
-            "accounting_transfer",
         ];
         const store = useStore();
         const route = useRoute();

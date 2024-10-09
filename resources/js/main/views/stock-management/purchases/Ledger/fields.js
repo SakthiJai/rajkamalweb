@@ -13,6 +13,7 @@ const fields = () => {
 		name:undefined,
 		state_name:undefined,
 		party_name: undefined,
+		party_type:undefined,
 		station: undefined,
 		station_name:undefined,
 		Address:undefined,

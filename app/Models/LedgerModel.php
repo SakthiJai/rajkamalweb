@@ -21,6 +21,7 @@ class LedgerModel extends BaseModel
         'xid',
         'id',
         'party_name',
+        'party_type',
         'station',
         'Address',
         'stock_country',
@@ -57,6 +58,7 @@ class LedgerModel extends BaseModel
         'gst_number',
         'debit',
         'credit',
+        'credit_limit',
     ];
 
 

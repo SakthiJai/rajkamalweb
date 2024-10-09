@@ -5,7 +5,7 @@ export default [
         children: [
             {
                 path: "/admin/receipt",
-                component: () => import("../views/accounting-transaction/receipt/index.vue"),
+                component: () => import("../views/accounting-transfer/receipt/index.vue"),
                 name: "admin.receipt.index",
                 meta: {
                     requireAuth: true,
@@ -17,8 +17,8 @@ export default [
             {
                 path: "receipt/create",
                 component: () =>
-                    import("../views/accounting-transaction/receipt/Create.vue"),
-                name: "admin.stock.receipt.create",
+                    import("../views/accounting-transfer/receipt/Create.vue"),
+                name: "admin.receipt.receipt.create",
                 meta: {
                     requireAuth: true,
                     menuParent: "receipt",

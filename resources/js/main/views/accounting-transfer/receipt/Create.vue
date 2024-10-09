@@ -1,28 +1,27 @@
 <template>
     <AdminPageHeader>
         <template #header>
-            <!--- @closed="handleClose"-->
+            <a-page-header :title="$t(`menu.${orderPageObject.menuKey}`)" @back="() => $router.go(-1)" class="p-0">
+                <template #extra>
+                    <!-- <a-button type="primary" :loading="loading" @click="onSubmit" block>
+                        <template #icon>
+                            <SaveOutlined />
+                        </template>
+                        {{ $t("common.save") }}
+                    </a-button> -->
+                    <!-- <a-button :style="buttonStyle" @click="showPaymentModal" class="closing">
+                        <PlusOutlined />
+                       Show Payment Modal
+                    </a-button> -->
+                </template>
+            </a-page-header><!--- @closed="handleClose"-->
             <ProductModal v-if="isProuctsModalVisible" :visible="isProuctsModalVisible" :formData="formData" :url="url"
                 :successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess"  @closed="handleProductModal"
                  v-on:productclose-method="handleClose"  v-on:child-method="updateProduct" />
            <!-- payments modal-->
-             <PaymentsModal v-if="isPaymentsModalVisible"  :visible="isPaymentsModalVisible" :formData="formData" :url="url":successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess" @closed="handleClosePayments"  v-on:child-method="updatePayment" :bill-value="formData.total" :bill-number="formData.bill_number"
+             <PaymentsModal v-if="isPaymentsModalVisible"  :visible="isPaymentsModalVisible" :formData="formData" :url="url":successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess" @closed="handleClosePayments"  v-on:child-method="updatePayment" :bill-value="formData.total"
                />
              <!-- end payments modal-->
-
-              <!-- Print modal-->
-            <PrintModel
-            v-if="isPrintModalVisible"
-            :visible="isPrintModalVisible"
-            :formData="formData"
-            :url="url"
-            :addEditType="addEditType"
-            :pageTitle="pageTitle"
-            :successMessage="successMessage"
-            @addEditSuccess="handleSuccess"
-            @closed="handleClosePrint"
-        />
-        <!-- print modal-->
 
         </template>
         <template #breadcrumb>
@@ -55,14 +54,14 @@
         </template>
     </AdminPageHeader>
     <admin-page-table-content>
-        <a-card class="page-content-container mt-5 mb-5">
+        <a-card class="page-content-container mt-20 mb-20">
             <a-form layout="vertical">
                 <a-row :gutter="16">
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t('stock.party_name')" name="party_name" ref="input"
                             :help="rules.party_name ? rules.party_name.message : null"
                             :validateStatus="rules.party_name ? 'error' : null" class="required">
-                            <a-input v-model:value="formData.party_name" autocomplete="off"
+                            <a-input v-model:value="formData.party_name"
                                 :placeholder="$t('common.placeholder_default_text', [$t('stock.party_name')])"
                                 @focus="handleFocus" @blur="handleBlur" @keydown="handleKeydown"/>
                                 <a-input hidden v-model="formData.party_id" id="party_id" :placeholder="$t('common.placeholder_default_text', [$t('stock.party_')])"@blur="" /> 
@@ -124,8 +123,8 @@
                         
                         <a-form-item :label="$t(`stock.mobile_number`)" name="mobile_number" :help="rules.mobile_number ? rules.mobile_number.message : null
                             " :validateStatus="rules.mobile_number ? 'error' : null" >
-                            <input autocomplete="off" id="form_item_mobile_number" v-model="formData.party_customer_mobile" placeholder="Press SpaceBar"
-                                @keydown="showNumberModal($event)" class="ant-input css-dev-only-do-not-override-wosfq4"   />
+                            <input id="form_item_mobile_number" v-model="formData.party_customer_mobile" placeholder="Press SpaceBar"
+                                @keydown.space.prevent="showNumberModal($event)" class="ant-input css-dev-only-do-not-override-wosfq4"   />
                         </a-form-item>
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
@@ -158,9 +157,7 @@
                                 <table class="responsive-table">
                                     <thead>
                                         <tr>
-                                            <th v-for="(header, index) in headers" :key="index" 
-                                            v-bind:style=" index>1 ? 'text-align:right' : 'text-align:left' "
-                                            class="tableheading">&nbsp;{{ header }}&nbsp;</th>
+                                            <th v-for="(header, index) in headers" :key="index" class="tableheading">{{ header }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -170,17 +167,14 @@
                                                 v-model="formData.items[index].item_name"
                                                 :ref="`input-${index}`"
                                                 :id="`item_product_name_${index}`"
-                                                @focus="updateTotalProd(index)"
                                                 name="party_name" class="ant-input css-dev-only-do-not-override-wosfq4"
                                                 @keydown="showProductModal($event,index)" style="color:black;font-weight:bolder;"
                                                 >
                                                 <a-input hidden :id="`item_product_id_${index}`" v-model="formData.items[index].item_id" />
-                                                <a-input hidden  :id="`igst_item_${index}`"/>
-                                                <input  hidden autocomplete="off" tabindex="-1" :id="`cgst_tax_${index}`" v-model="formData.items[index].cgst">
-                                                <input  hidden autocomplete="off" tabindex="-1" :id="`sgst_tax_${index}`" v-model="formData.items[index].sgst">
+                                                <a-input hidden :id="`igst_item_${index}`"/>
                                             </td>
 
-                                            <td style="width:15%">
+                                            <td style="width:15%">{{  }}
                                                 <input autocomplete="off" tabindex="-1"
                                                 :id="`item_product_packing_${index}`"
                                                 v-model="formData.items[index].packing"
@@ -190,23 +184,23 @@
                                             </td>
 
                                             <td style="width:15%">
-                                                <input autocomplete="off" 
+                                                <input autocomplete="off"
                                                 :id="`item_product_quantity_${index}`"
                                                 v-model="formData.items[index].quantity"
-                                                @input="getQuantity(index,$event)" @focus="getQuantity(index,$event),focusinputvalue($event)" 
-                                                name="quantity[]" @blur="updateAgg(),checkMaxQuantity(index,$event)" style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4"
+                                                @input="getQuantity(index,$event)" @focus="getQuantity(index,$event)" @keydown="checkMaxQuantity(index,$event)"
+                                                name="quantity[]" style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4"
                                                 @keypress="onlyForCurrency"
                                                 >
                                             </td>
 
                                             <td style="width:15%">
                                                 <input autocomplete="off"
-                                                v-model="formData.items[index].single_unit_price" @focus="focusinputvalue($event)"
+                                                v-model="formData.items[index].single_unit_price"
                                                 :ref="`input-${index}`" @input="getQuantity(index,$event)"
                                                 :id="`item_product_price_${index}`" @keydown="checkSingleItemPrice(index,$event)"
                                                 name="single_unit_price"class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                 style="color:black;font-weight:bolder;text-align-last:right;"
-                                                 
+                                                 style="color:black;font-weight:bolder;"
+                                                  @blur="checkSingleItemPrice(index,$event)"
                                                 >
                                                 
                                             </td>
@@ -223,64 +217,15 @@
                                             </td>
 
                                             <td style="width:15%">
-                                                <input
+                                                <a-input
                                                 disabled=true
-                                               
-                                               
+                                                v-model="formData.items[index].amount"
+                                                @input="formData.items[index].amount = $event.target.value"
                                                 :id="`item_product_amount_${index}`"
-                                                name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                ></input>
+                                                name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;"
+                                                ></a-input>
                                             </td>
                                         </tr>
-
-
-                                        <!--- new row-->
-                                        <tr v-for="(header, index) in formData.invoiceitems" :key="index" class="invoicevalues">
-                                            <td style="width:30%">  
-                                                <input id="total_prod_count"
-                                                disabled=true
-                                                name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:left;" class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                ></input>
-                                            </td>
-
-                                            <td style="width:15%">{{  }}
-                                                <input
-                                                disabled=true
-                                                name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                ></input>
-                                            </td>
-
-                                            <td style="width:15%">
-                                                <input  id="total_quantity_details"
-                                                value="0.00"
-                                                disabled=true
-                                                name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                ></input>
-                                            </td>
-
-                                            <td style="width:15%">
-                                                <input 
-                                                disabled=true  
-                                                name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                ></input>
-                                                
-                                            </td>
-
-                                            <td style="width:15%">
-                                                <input
-                                                disabled=true value="Goods Value"
-                                                name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                ></input>
-                                            </td>
-
-                                            <td style="width:15%">
-                                                <input id="total_goods_value"
-                                                disabled=true value="0.00"
-                                                name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                ></input>
-                                            </td>
-                                        </tr>
-                                        <!-- end of row-->
                                     </tbody>
                                 </table>
                             </div>
@@ -294,37 +239,37 @@
                                     <legend class="basicdetalis">
                                         Discount Info
                                     </legend>
-                                    <a-row :gutter="16" class="mt-3">
-                                        <a-col :xs="12" :sm="12" :md="12" :lg="12" style="color:black;font-weight:bolder;font-size: 13px">
+                                    <a-row :gutter="16" class="mt-10">
+                                        <a-col :xs="12" :sm="12" :md="12" :lg="12" style="color:black;font-weight:bolder;">
                                             {{ $t("stock.total_item") }}
 
                                         </a-col>
-                                        <a-col :xs="12" :sm="12" :md="3" :lg="3" style="color:black;font-weight:bolder;font-size: 13px">
+                                        <a-col :xs="12" :sm="12" :md="3" :lg="3" style="color:black;font-weight:bolder;">
 
                                             <span>:</span>
                                         </a-col>
                                         <a-col :xs="12" :sm="12" :md="4" :lg="4">
-                                            <span id="discount_info_amount" style="color:black;font-weight:bolder;text-align-last:right;font-size: 13px">0.00</span>
+                                            <span id="discount_info_amount" style="color:black;font-weight:bolder;text-align-last:right;">0.00</span>
                                         </a-col>
                                     </a-row>
-                                    <a-row :gutter="16" class="mt-3">
-                                        <a-col :xs="12" :sm="12" :md="12" :lg="12" style="color:black;font-weight:bolder;font-size: 13px">
+                                    <a-row :gutter="16" class="mt-10">
+                                        <a-col :xs="12" :sm="12" :md="12" :lg="12" style="color:black;font-weight:bolder;">
                                             {{ $t("stock.scheme") }}
                                         </a-col>
-                                        <a-col :xs="12" :sm="12" :md="3" :lg="3" style="color:black;font-weight:bolder;font-size: 13px">
+                                        <a-col :xs="12" :sm="12" :md="3" :lg="3" style="color:black;font-weight:bolder;">
 
                                             <span>:</span>
                                         </a-col>
-                                        <a-col :xs="12" :sm="12" :md="4" :lg="4" style="color:black;font-weight:bolder;font-size: 13px;text-align-last:right;">
+                                        <a-col :xs="12" :sm="12" :md="4" :lg="4" style="color:black;font-weight:bolder;text-align-last:right;">
 
                                             <span>0.00</span>
                                         </a-col>
                                     </a-row>
-                                    <a-row :gutter="16" class="mt-3">
-                                        <a-col :xs="12" :sm="12" :md="12" :lg="12" style="color:black;font-weight:bolder;font-size: 13px">
+                                    <a-row :gutter="16" class="mt-10">
+                                        <a-col :xs="12" :sm="12" :md="12" :lg="12" style="color:black;font-weight:bolder;">
                                             Volume Disc.
                                         </a-col>
-                                        <a-col :xs="12" :sm="12" :md="2" :lg="2" style="color:black;font-weight:bolder;font-size: 13px">
+                                        <a-col :xs="12" :sm="12" :md="2" :lg="2" style="color:black;font-weight:bolder;">
                                             <span>:</span>
                                         </a-col>
                                         <a-col :xs="12" :sm="12" :md="5" :lg="5" style="color:black;font-weight:bolder;text-align-last:right;">
@@ -338,20 +283,26 @@
                                     <legend class="basicdetalis">
                                         Tax Info
                                     </legend>
-                                    <a-row :gutter="16" class="mt-5">
-                                        <a-col :xs="12" :sm="12" :md="12" :lg="6" style="color:black;font-weight:bolder;">
-                                            CGST &nbsp;:
+                                    <a-row :gutter="16" class="mt-10">
+                                        <a-col :xs="12" :sm="12" :md="12" :lg="12" style="color:black;font-weight:bolder;">
+                                            CGST (2%)
                                         </a-col>
-                                        
+                                        <a-col :xs="12" :sm="12" :md="3" :lg="3" style="color:black;font-weight:bolder;">
+
+                                            <span>:</span>
+                                        </a-col>
                                         <a-col :xs="12" :sm="12" :md="4" :lg="4">
                                             <span id="cgst_total_text" style="color:black;font-weight:bolder;text-align-last:right;">0.00</span>
                                         </a-col>
                                     </a-row>
-                                    <a-row :gutter="16" class="mt-5">
-                                        <a-col :xs="12" :sm="12" :md="12" :lg="6" style="color:black;font-weight:bolder;">
-                                            SGST &nbsp;:
+                                    <a-row :gutter="16" class="mt-10">
+                                        <a-col :xs="12" :sm="12" :md="12" :lg="12" style="color:black;font-weight:bolder;">
+                                            SGST (2%)
                                         </a-col>
-                                        
+                                        <a-col :xs="12" :sm="12" :md="3" :lg="3" style="color:black;font-weight:bolder;">
+
+                                            <span>:</span>
+                                        </a-col>
                                         <a-col :xs="12" :sm="12" :md="4" :lg="4">
                                             <span id="sgst_total_text" style="color:black;font-weight:bolder;text-align-last:right;">0.00</span>
                                         </a-col>
@@ -380,14 +331,14 @@
                                     <thead>
                                         <tr>
                                             <th v-for="(header, index) in addtionaldetalisheader" :key="index"class="tableheading">
-                                                &nbsp;{{ header }}
+                                                {{ header }}
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item, index) in additems" :key="index" :class="{ highlight: index === selectedIndex }">
-                                            <td style="font-weight:bolder;font-size: 13px;width:40%">&nbsp;{{ item.name }}</td>
-                                            <td style="text-align:right;font-weight:bolder;width:10%">{{ item.location }}</td>
+                                            <td style="font-weight:bolder;">{{ item.name }}</td>
+                                            <td style="text-align:center;font-weight:bolder;">{{ item.location }}</td>
                                             <td>
                                                 <a-input disabled=true v-model="formData.igst_amount" :id="`igst_amount_${index}`"  style="text-align:right;color:black;font-weight:bolder;" name="table_total_amount[]"></a-input>
                                             </td>
@@ -400,10 +351,10 @@
                             <a-col :xs="24" :sm="24" :md="7" :lg="7"/>
                             <a-col :xs="24" :sm="24" :md="17" :lg="17">
                                 <a-row :gutter="16" class="mt-10">
-                                    <a-col :xs="12" :sm="12" :md="12" :lg="12" style="font-size:16px;font-weight:bolder;">
+                                    <a-col :xs="12" :sm="12" :md="12" :lg="12" style="font-size: 20px;font-weight:bolder;">
                                         Invoice Value &nbsp;&nbsp;&nbsp; :
                                     </a-col>
-                                    <a-col :xs="12" :sm="12" :md="12" :lg="12" style="text-align-last:right;font-size:16px;font-weight:bolder;">
+                                    <a-col :xs="12" :sm="12" :md="12" :lg="12" style="text-align-last:right;font-size: 20px;font-weight:bolder;">
                                         <span > ₹</span>&nbsp; <span id="grand_total">0.00</span>
                                     </a-col>
                                 </a-row>
@@ -414,7 +365,7 @@
                 <a-row :gutter="16" class="mt-20 mb-20">
                     <a-col :xs="24" :sm="24" :md="9" :lg="9"></a-col>
                     <a-col :xs="24" :sm="24" :md="4" :lg="4">
-                            <a-button type="button" class="backgrounds" :loading="loading" @click="saveSalesEntry" block>
+                            <a-button  class="backgrounds" :loading="loading" @click="saveSalesEntry" block>
                                 <span class="shortcut">
                                     <code>F10 / End</code>
                                   </span> 
@@ -578,30 +529,27 @@ import {
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import apiAdmin from "../../../../common/composable/apiAdmin";
-import stockManagement from "./stockManagement";
+import stockManagement from "../../../../main/views/stock-management/purchases/stockManagement";
 import common from "../../../../common/composable/common";
 import fields from "./fields";
-import ProductModal from './Product/ProductModal.vue';
+import ProductModal from '../../stock-management/purchases/Product/ProductModal.vue';
 import TaxAddButton from "../../settings/taxes/AddButton.vue";
 import WarehouseAddButton from "../../settings/warehouses/AddButton.vue";
 import ProductAddButton from "../../product-manager/products/AddButton.vue";
 import DateTimePicker from "../../../../common/components/common/calendar/DateTimePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
-import UserSearch from "./UserSearch.vue";
+import UserSearch from "../../../views/stock-management/purchases/UserSearch.vue";
 import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
 import { some, forEach, find } from "lodash-es";
-import PaymentModeAddButton from "../payments/AddButton.vue";
-import SalesModel from "./SalesModel.vue";
-import SalesNumberModel from "./SalesNumberModel.vue";
-import SalesCustomerModel from "./SalesCustomerModel.vue";
-import PaymentsModal from "./PaymentsModal.vue";
+import PaymentModeAddButton from "../../stock-management/payments/AddButton.vue";
+import SalesModel from "../../stock-management/purchases/SalesModel.vue";
+import SalesNumberModel from "../../stock-management/purchases/SalesNumberModel.vue";
+import SalesCustomerModel from "../../stock-management/purchases/SalesCustomerModel.vue";
+import PaymentsModal from "../../stock-management/purchases/PaymentsModal.vue";
 import { message, notification } from "ant-design-vue";
-//import {useToast} from 'vue-toast-notification';
-//import 'vue-toast-notification/dist/theme-sugar.css';
-import PrintModel from "./PrintModel.vue";
+
 
 export default {
-    props:['data'],
     components: {
         EyeOutlined,
         PlusOutlined,
@@ -625,10 +573,9 @@ export default {
         SalesNumberModel,
         PaymentsModal,
         SalesCustomerModel,
-        PrintModel,
     },
     setup(props, { emit }) {
-        const { loading,handlePaymentSubmit, rules } = apiAdmin();
+        const { addEditRequestAdmin, loading,handlePaymentSubmit, rules } = apiAdmin();
         const {
             appSetting,
             formatAmount,
@@ -676,10 +623,6 @@ export default {
                     {index:8,item_id:null,item_name:null,unit_id:null,quantity:'',mrp:null,single_unit_price:null,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null},
                     {index:9,item_id:null,item_name:null,unit_id:null,quantity:'',mrp:null,single_unit_price:null,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null},
                     {index:10,item_id:null,item_name:null,unit_id:null,quantity:'',mrp:null,single_unit_price:null,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null},
-                ],
-
-                invoiceitems:[
-                    {index:1,item_id:null,item_name:null,unit_id:null,quantity:'',mrp:null,single_unit_price:null,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null},
                 ],
 
                 additems: [
@@ -753,7 +696,32 @@ export default {
         onMounted(() => {});
 
 
-        const onSubmit = () => {};
+        const onSubmit = () => {
+            //console.log('formData=>', formData)
+            allPayments.value = [];
+            allPayments.value.push(payment.value);
+
+            const newFormDataObject = {
+                ...formData.value,
+                order_type: orderPageObject.value.type,
+                total: formData.subtotal,
+                total_items: selectedProducts.value.length,
+                product_items: selectedProducts.value,
+                pay_object: formFields.value,
+                all_payments: allPayments.value,
+            };
+
+            addEditRequestAdmin({
+                url: 'sales/store',
+                data: formData,
+                successMessage: t(`${orderPageObject.value.langKey}.created`),
+                success: (res) => { 
+                    router.push({
+                        name: `admin.stock.${orderType.value}.index`,
+                    });
+                },
+            });
+        };
 
         const unitAdded = () => {
             axiosAdmin.get(unitUrl).then((response) => {
@@ -907,7 +875,6 @@ export default {
             isProuctsModalVisible: false,
             stockDateColor: '',
 			isNumberVisible:false,
-            isPrintModalVisible: false,
             items: [
                 { amount: 0 },
                 { amount: 0 },
@@ -915,9 +882,6 @@ export default {
                 { amount: 0 },
                 { amount: 0 },
                 { amount: 0 },
-            ],
-            invoiceitems:[
-                { quantity: "0.00",  }
             ],
 
             isOpensave: false,
@@ -938,7 +902,7 @@ export default {
             addEditType: 'add',
             pageTitle: 'Select Party',
             successMessage: 'Operation successful!',
-            headers: ['Product', 'Packing', 'Qty', 'Rate', 'Disc %', '₹ Amount'],
+            headers: ['Product', 'Packing', 'Qty', 'Rate', 'Disc', '₹ Amount'],
             addtionaldetalisheader:['Additional Details', '%', '₹ Amount'],
         };
     },
@@ -947,8 +911,6 @@ export default {
        
         document.addEventListener('keyup', this.handleKeyDown);
         this.autoFocusInput();
-        let data = this.$route.params.data;
-        console.log("data is =>", data );
         
     },
     beforeDestroy() {
@@ -963,16 +925,7 @@ export default {
       toggleDropdowns() {
       this.isOpensave = !this.isOpensave;
     },
-
-    showPrintModal() {
-            console.log("Print called");
-            this.isPrintModalVisible = true;
-        },
-
-        handleClosePrint() {
-            
-            this.isPrintModalVisible = false;
-        },
+  
 
     handleEnterKey(event) {
       // Check if Enter or Space key is pressed
@@ -1009,8 +962,6 @@ export default {
     },
 
     autoFocusInput() {
-        let datas = this.$route.params.data;
-        console.log("data is", datas,this.data);
             this.$nextTick(() => {
                 this.$refs.DateInput.focus();  
             });
@@ -1022,10 +973,15 @@ export default {
     },
     handleKeyDown(event) {
       if (event.key === 'Escape' || event.keyCode === 27) {
-    this.isModalVisible = false;
-    this.autoFocusInput();
+    //    this.isProuctsModalVisible = false;
+    //     this.isModalVisible = false;
+    //     this.isNumberVisible =false;
+    //    this. isCustomerVisible=false;
+    //this.$router.push({ name: 'admin.stock.sales.index' });
+     
       }
       else if (event.key === 'F10') {
+        //this.onSubmit();
         this.saveSalesEntry();
       }
     },
@@ -1050,13 +1006,9 @@ export default {
     showPaymentModal(){
         //console.log("Payment called");
         this.isPaymentsModalVisible = true;
-        document.getElementById('amount_0').focus();
-        $event.preventDefault();
     },
     handleClosePayments(){
         this.isPaymentsModalVisible = false;
-        this.isPrintModalVisible= true;
-        document.getElementById('billing_print').focus();
     },
  
         inputData($event) {
@@ -1064,14 +1016,16 @@ export default {
             $event.target.value;
         },
         showNumberModal(event) {
-            console.log("Open Model",event.keyCode);
-            if((event.keyCode==13 || event.keyCode==32 || event.keyCode==9 ))
+            //console.log("Open Model",event.target.value);
+            if((event.key=="Enter" || event.key=="Tab" ) && (this.formData.party_customer_mobile==undefined || this.formData.party_customer_mobile=="" || this.formData.party_customer_mobile.trim()==""))
+            {
+                document.getElementById("form_item_mobile_number").focus();
+                return false;
+            }
+            else
             {
                 this.isNumberVisible = true;
             }
-            event.preventDefault();
-                        return false;
-            
             
         },
         handleSalesNumber() {
@@ -1121,7 +1075,7 @@ export default {
             //console.log('Success:', xid);
         },
         updateParent(selectedParty) {
-            this.formData.party_id = selectedParty.id.toString();
+            this.formData.party_id = selectedParty.id;
             this.formData.party_name = selectedParty.name;
             //console.log("hello child" + this.formData.party_id)
             document.getElementById("party_id").value = this.formData.party_id;
@@ -1162,7 +1116,7 @@ export default {
 
 
         updateCustomer(selectedParty) {
-            console.log('selectedParty',selectedParty)
+            //console.log(selectedParty)
             this.formData.party_customer_id = selectedParty.id;
             this.formData.party_customer_name = selectedParty.name;
             this.formData.party_customer_mobile = selectedParty.mobile_number;
@@ -1172,16 +1126,14 @@ export default {
             document.getElementById("form_item_mobile_number").value = this.formData.party_customer_mobile;
         },
         updateProduct(selectedParty) {
-            console.log('Cgst Tax',selectedParty);
+            //console.log(selectedParty);
             this.formData.items[this.selectedItermIndex].item_id= selectedParty.id
                  this.formData.items[this.selectedItermIndex].item_name= selectedParty.name
                  this.formData.items[this.selectedItermIndex].single_unit_price= selectedParty.single_unit_price;
                  this.formData.items[this.selectedItermIndex].max_single_unit_price= selectedParty.single_unit_price;
-                 this.formData.items[this.selectedItermIndex].quantity= 0;
+                 this.formData.items[this.selectedItermIndex].quantity= selectedParty.quantity;
                  this.formData.items[this.selectedItermIndex].maxquantity= selectedParty.quantity;
                  this.formData.items[this.selectedItermIndex].packing= selectedParty.packing;
-                 this.formData.items[this.selectedItermIndex].cgst= selectedParty.cgst;
-                 this.formData.items[this.selectedItermIndex].sgst= selectedParty.sgst;
                  //console.log(this.formData.items[this.selectedItermIndex].packing);
                  document.getElementById("item_product_name_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].item_name;
                  document.getElementById("item_product_packing_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].packing;
@@ -1190,13 +1142,12 @@ export default {
 
                  document.getElementById("item_product_quantity_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].quantity;
                  document.getElementById("item_product_amount_"+this.selectedItermIndex).value =0.0
-                 document.getElementById("cgst_tax_"+this.selectedItermIndex).value =this.formData.items[this.selectedItermIndex].cgst;
-                 document.getElementById("sgst_tax_"+this.selectedItermIndex).value =this.formData.items[this.selectedItermIndex].sgst;
-                // document.getElementById("item_product_quantity_"+this.selectedItermIndex).focus();
+                 document.getElementById("item_product_quantity_"+this.selectedItermIndex).focus();
+                 
         },
 
         showProductModal(event,index) {
-            console.log('=>', index,event.key,event.keyCode )
+            //console.log('=>', index,event.key,event.keyCode )
                  if(this.formData.party_name!="" && index>0 &&  event.key == 'Tab')
                 {
                     //console.log("Tab Key Press",this.formData.party_customer_mobile);
@@ -1221,34 +1172,19 @@ export default {
                     
                     
                 }
-                else if(this.formData.party_name!="" && index==0 && event.key!="F10")
+                else if(this.formData.party_name!="" && index==0)
                 { //console.log("POP Pay 1");
                 this.selectedItermIndex =  index;
                 this.isProuctsModalVisible = true;
                     
                 }
-                else if(this.formData.party_name!="" && index>0 && (event.keyCode !== 9 && event.keyCode!=121 && event.key!="F10")  )
+                else if(this.formData.party_name!="" && index>0 && (event.keyCode !== 9))
                 { //console.log("POP Pay 2");
                     this.selectedItermIndex =  index;
                     this.isProuctsModalVisible = true;
-                    
-                    document.getElementById("form_item_party_name_search").focus();
-                    //event.preventDefault();
+                    event.preventDefault();
                     return false;
                     
-                }
-                else if(this.formData.party_name!="" && index>0 && (event.keyCode !== 9 && event.keyCode!=121) )
-                {
-                    console.log("F10 Clicked");
-                    if(this.formData.party_customer_mobile==undefined || this.formData.party_customer_mobile=="" || this.formData.party_customer_mobile.trim()==""){ //console.log('+>',this.formData.bill_number)
-                        document.getElementById("form_item_mobile_number").focus();
-                        event.preventDefault();
-                        return false;
-                    }
-                    else
-                    {
-                    this.saveSalesEntry(); 
-                    }
                 }
                 
         },
@@ -1285,20 +1221,7 @@ export default {
             this.isModalVisible = false;
             this.isProuctsModalVisible = false;
             if(this.selectedItermIndex!=undefined){
-                const prodName = document.getElementById("item_product_name_"+this.selectedItermIndex).value;
-                if(prodName==undefined || prodName=="" || prodName.trim()=="")
-                {
-                    document.getElementById("item_product_name_"+this.selectedItermIndex).focus();
-                    return false;
-                }
-                else{
-                 document.getElementById("item_product_quantity_"+this.selectedItermIndex).focus();
-                }
-                this.updateTotalProd();
-            }
-            else
-            {
-                document.getElementById("item_product_name_0").focus(); 
+            document.getElementById("item_product_quantity_"+this.selectedItermIndex).focus();
             }
         },
         focusSearchInput() {
@@ -1320,50 +1243,18 @@ export default {
                 this.stockDateColor = '';
             }
         },
-        handleProductModal(){ console.log("Product closed");
+        handleProductModal(){
         this.isProuctsModalVisible  =false;
-        //this.focusProductList();
-        },
-        focusProductList()
-        {
-            let cf =0;
-
-            for (let i = 0; i < this.formData.items.length; i++) {
-
-                if(cf== 0 && (this.formData.items[i].item_id==undefined || this.formData.items[i].item_id==null || this.formData.items[i].item_id==""))
-                {    cf=i;
-                    console.log("Find Post","item_product_name_"+i);
-                    
-                break; 
-                }
-            }
-        
-         
-            if(cf==0)
-            {   setTimeout(function(){document.getElementById("item_product_name_"+cf).focus();},500)
-                
-            }
         },
 
         handlenumberModel(){
-        this.isNumberVisible=false;
-        this.focusProductList();
-        },
-        focusinputvalue(event)
-        {
-            event.target.select()
+this.isNumberVisible=false;
         },
         getQuantity(index,event) {
             //formData.items[index].quantity = $event.target.value
-            //event.target.select()
             const quantity = document.getElementById("item_product_quantity_"+index).value;
-            let price    = document.getElementById("item_product_price_"+index).value;
+            const price    = document.getElementById("item_product_price_"+index).value;
             const discount = document.getElementById("item_product_disc_"+index).value;
-            const taxPercentage = Number(document.getElementById("cgst_tax_"+index).value)+ Number(document.getElementById("sgst_tax_"+index).value);
-            if(price==undefined || price=="" || price.trim()=="")
-            {
-                price =0;
-            }
 
             if(discount != "")
             {
@@ -1392,8 +1283,8 @@ export default {
 
             document.getElementById("sgst_total_text").innerHTML = this.formatCurrency(Number(this.totalIgstAmount));
             document.getElementById("cgst_total_text").innerHTML = this.formatCurrency(Number(this.totalIgstAmount));
-            document.getElementById("igst_item_"+index).value       = this.formatCurrency(Number(this.totalIgstAmount));
-            //document.getElementById("igst_amount_1").value       = this.formatCurrency(Number(this.totalIgstAmount));
+            document.getElementById("igst_amount_0").value       = this.formatCurrency(Number(this.totalIgstAmount));
+            document.getElementById("igst_amount_1").value       = this.formatCurrency(Number(this.totalIgstAmount));
 
             this.formData.total      = Number(this.totalAmount);
             this.formData.subtotal   = Number(this.totalAmount);
@@ -1401,21 +1292,20 @@ export default {
 
             if(quantity == "")
             {
-                document.getElementById("item_product_amount_"+index).value = "0";
+                document.getElementById("item_product_amount_"+index).value = "";
                 document.getElementById("igst_item_"+index).value = "";
-                document.getElementById("item_discount_total_"+index).value = "0";
+                document.getElementById("item_discount_total_"+index).value = "";
             }
             else{
                 //Calculate the total amount
 
                 document.getElementById("item_product_amount_"+index).value = this.formatNumber(Number(Number(quantity) * Number(this.revertFormattedNumber(price))));
-                this.formData.items[index].amount=this.formatNumber(Number(Number(quantity) * Number(this.revertFormattedNumber(price))));
                 this.totalAmount = Number(Number(this.totalAmount) + Number(document.getElementById("item_product_amount_"+index).value));
                 document.getElementById("grand_total").innerHTML = this.formatCurrency(this.totalAmount);
 
                 //Calculate the sgst and cgst amount
 
-                let percentage     = (Number(taxPercentage) / 100);
+                let percentage     = (2 / 100);
                 let gstAmount      = Number(percentage) * Number(price);
                 let totalGstAmount = Number(gstAmount) * Number(quantity);
 
@@ -1456,7 +1346,6 @@ export default {
                 }
             }
             this.formData.items[index].quantity = event.target.value
-            this.updateGoodsValue()
         },
         getDiscount(index,event)
         {
@@ -1512,7 +1401,7 @@ export default {
         },
         checkMaxQuantity(index,event)
         {
-            console.log(this.formData.items[index].maxquantity,event.target.value,event.key)
+            //console.log(this.formData.items[index].maxquantity,event.target.value,event.key)
             if(Number(this.formData.items[index].quantity)>Number(this.formData.items[index].maxquantity))
             {
                 //console.log("Show Stock Going to Negative Toaster");
@@ -1523,7 +1412,6 @@ export default {
                         message: "Stock Going to be Negative!",
                         //description: configObject.successMessage
                     });
-                   // this.updateAgg()
             }
             if((event.key=="Tab" || event.key=="Enter") && (Number(event.target.value)<=0))
             {
@@ -1531,11 +1419,10 @@ export default {
                 document.getElementById("item_product_quantity_"+this.selectedItermIndex).focus();
                 return false;
             }
-            else if((event.key=="Tab" || event.key=="Enter"))
+            else if((event.key=="Tab" || event.key=="Enter") && (Number(event.target.value)>0))
             {
                
                 document.getElementById("item_product_price_"+this.selectedItermIndex).focus();
-                event.preventDefault()
                 return false;
             }
             
@@ -1544,15 +1431,15 @@ export default {
         checkSingleItemPrice(index,event)
         {
             //console.log('checkSingleItemPrice',this.formData.items[index].single_unit_price,this.formData.items[index].max_single_unit_price)
-            console.log(event.keyCode, 'price ',document.getElementById("item_product_price_"+this.selectedItermIndex).value,event.target.value)
+            //console.log( document.getElementById("item_product_price_"+this.selectedItermIndex).value)
            if(Number(this.formData.items[index].single_unit_price)>Number(this.formData.items[index].max_single_unit_price))
             {
                 //console.log("As Per M.R.P Allowed Upto : "+this.formData.items[index].max_single_unit_price);
-                /*notification.warning({
+                notification.warning({
                         placement:  "bottomRight",
                         message: "All sale rates should not be more than from M.R.P. and should not be less than from cost Per unit",
                         //description: configObject.successMessage
-                    });*/
+                    });
 
 
                 notification.warning({
@@ -1565,20 +1452,15 @@ export default {
             }
             if((event.key=="Tab" || event.key=="Enter") && (Number(event.target.value)<=0))
             {
-                console.log("Quantity is Zero");
+                //console.log("Quantity is Zero");
                 document.getElementById("item_product_quantity_"+this.selectedItermIndex).focus();
                 return false;
             }
             else if(( event.key=="Enter") && (Number(event.target.value)>0))
             {
-               console.log("222");
+               
                document.getElementById("item_product_disc_"+this.selectedItermIndex).focus();
-               event.preventDefault();
                 return false;
-            }
-            else if(event.key==undefined)
-            {
-                document.getElementById("item_product_price_"+this.selectedItermIndex).focus();
             }
             
             
@@ -1590,64 +1472,26 @@ export default {
             {
                
                document.getElementById("item_product_name_"+(this.selectedItermIndex+1)).focus();
-               event.preventDefault();
                 return false;
             }
         },
         success(response)
         { 
             
-            console.log('rely=>>',response.message);
-            this.loading= false;
-            notification.success({
+            console.log('rely=>>',response);
+            this.isPaymentsModalVisible= true;
+                notification.success({
                         placement:  "bottomRight",
-                        message: response.message,
+                        message: t("common.success"),
                         description: response.message
                     });
-            this.isPaymentsModalVisible= true;
-               
-        },
-        validateSales()
-        {
-            if(this.formData.party_id==undefined || this.formData.party_id=="" || this.formData.party_id.trim()==""){ //console.log('+>',this.formData.bill_number)
-                        document.getElementById("form_item_party_name").focus();
-                        
-                        return false;
-            }
-            else if(this.formData.party_customer_mobile==undefined || this.formData.party_customer_mobile=="" || this.formData.party_customer_mobile.trim()==""){ //console.log('+>',this.formData.bill_number)
-                document.getElementById("form_item_mobile_number").focus();
-                
-                        return false;
-            }
-            else
-            {
-                let itemAvailable =false;
-                this.formData.items.forEach((element)=>{
-                    if(itemAvailable == false && element.item_id!=undefined && element.item_id!="" && element.item_id.trim()!=""){
-                        itemAvailable = true;
-                    }
-                })
-                console.log('itemAvailable',itemAvailable)
-                if(itemAvailable==false){
-                    notification.warning({
-                        placement:  "bottomRight",
-                        message: "Please add one item !",
-                        //description: configObject.successMessage
-                    });
-                    document.getElementById("item_product_name_0").focus();
-                    return false;
-                }
-                return true;
-            }
-           
         },
         saveSalesEntry()
         {
-            if(this.validateSales()){
             this.loading= true;
             axiosAdmin
             .post("sales/store", this.formData)
-            .then(response => {  console.log(response)
+            .then(response => {  
                 // Toastr Notificaiton
                 this.success(response);
             })
@@ -1688,83 +1532,6 @@ export default {
                 //loading.value = false;
             });
         }
-        },
-        checkQuantity(index,event)
-        {
-            console.log(index,'price focus',this.formData.items[index].quantity);
-            const quantity = this.formData.items[this.selectedItermIndex].quantity;
-            if(quantity==undefined || quantity=="" || quantity.trim()=="")
-            {
-                document.getElementById("item_product_quantity_"+index).focus();
-                return false;
-            }
-        },
-        updateAgg()
-        {
-            let count =0;
-            let quantity =0;
-            this.formData.items.forEach((elem)=>{ 
-                if(elem.quantity!=undefined && elem.quantity!=null && Number(elem.quantity)>0)
-                {console.log("quantity",elem)
-                    //count =count+1;
-                    quantity = quantity+Number(elem.quantity);
-                }
-            })
-           // document.getElementById("total_prod_count").value="Total : "+count+" Product"; 
-            document.getElementById("total_quantity_details").value=quantity.toFixed(2); 
-        },
-        updateTotalProd(index){
-            let count =0;
-            this.formData.items.forEach((elem)=>{
-                if(elem.item_id!=undefined && elem.item_id!=null && elem.item_id>0)
-                {   
-                    count =count+1;
-                }
-                console.log('count=>',count);
-            })
-            document.getElementById("total_prod_count").value="Total : "+count+" Product"; 
-            this.showGstDetails(index);
-        },
-        showGstDetails(index)
-        { console.log('this.selectedItermIndex=>',this.selectedItermIndex);
-            if(index!=undefined &&  index!=null )
-            {
-                console.log('<>',this.formData.items[index]);
-                const amount =   Number(this.formData.items[index].amount) ;
-                if(amount>0){
-                const cgst = Number(this.formData.items[index].cgst) ;
-                const sgst = Number(this.formData.items[index].sgst) ;
-                document.getElementById('cgst_total_text').innerHTML= ((cgst/100)*amount).toFixed(2);
-                document.getElementById('sgst_total_text').innerHTML= ((sgst/100)*amount).toFixed(2);
-                }
-                else
-                {
-                    document.getElementById('cgst_total_text').innerHTML= document.getElementById('igst_amount_0').value;
-                    document.getElementById('sgst_total_text').innerHTML= document.getElementById('igst_amount_1').value;
-                }
-
-            }
-            else
-            {
-                document.getElementById('cgst_total_text').innerHTML= document.getElementById('igst_amount_0').value;
-                document.getElementById('sgst_total_text').innerHTML= document.getElementById('igst_amount_1').value;
-            }
-           
-        },
-        updateGoodsValue()
-        {
-            let count =0;
-            let quantity =0;
-            this.formData.items.forEach((elem)=>{ console.log('amount=>',Number(elem.amount))
-                if(elem.amount!=undefined && elem.amount!=null && Number(elem.amount)>0)
-                {
-                    //count =count+1;
-                    quantity = quantity+Number(elem.amount);
-                }
-            })
-           // document.getElementById("total_prod_count").value="Total : "+count+" Product"; 
-            document.getElementById("total_goods_value").value=this.formatCurrency(quantity.toFixed(2)); 
-        }
     },
     computed: {
         grandTotal() {
@@ -1797,7 +1564,7 @@ legend {
     border-bottom: none !important;
     color: black !important;
     margin-bottom: 0px !important;
-    padding: 2px !important;
+    padding: 5px !important;
 }
 
 .disc {
@@ -1922,21 +1689,5 @@ legend {
   
   .item-icon {
     margin-right: 10px;
-  }
-  .ant-notification-notice{background-color: rgb(233, 236, 141) !important;}
-  .ant-notification-notice-message > span{ color:#fff !important}
-  .page-content-sub-header{padding: 0px !important;}
-  .ant-card-body{padding-top:10px !important}
-  .ant-form-item .ant-form-item-label >label{font-size:12px !important}
-  .ant-form-vertical .ant-form-item-label{padding: 0px !important;}
-  .ant-input{font-size:13px !important; line-height: 1.2 !important;}
-  td > .ant-input{border: none !important;
-  border-radius: 0px !important;
-  }
-  .responsive-table th, .responsive-table td {
-    padding: 0px !important;
-  }
-  .invoicevalues{
-    background-color: #92b4b5 !important;
   }
 </style>

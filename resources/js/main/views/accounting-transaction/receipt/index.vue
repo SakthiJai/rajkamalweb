@@ -20,18 +20,20 @@
                         <span class="effset"></span>
                     </a>
 
-                   <template v-if="
-                        permsArray.includes(`${orderPageObject.permission}_create`) ||
-                        permsArray.includes('admin')
-                    ">
+                    <template v-if="
+                    permsArray.includes(`${orderPageObject.permission}_create`) ||
+                    permsArray.includes('admin')
+                ">
 
-                       
-                            <a-button type="primary" class="creating">
-                                <PlusOutlined />
-                                Create F2
-                            </a-button>
-                        
-                    </template>
+                    <router-link :to="{
+                        name: `admin.receipt.${orderPageObject.type}.create`,
+                    }">
+                        <a-button type="primary" class="creating">
+                            <PlusOutlined />
+                            Create F2
+                        </a-button>
+                    </router-link>
+                </template>
                 </a-col>
             </a-row>
 

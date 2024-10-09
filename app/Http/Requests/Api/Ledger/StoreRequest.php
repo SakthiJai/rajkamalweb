@@ -23,7 +23,7 @@ class StoreRequest extends FormRequest
     {
         $rules = [
 			'party_name'    => 'required|string',
-			'station'       => 'required|integer',
+			//'station'       => 'required|integer',
             'stock_country' => 'required|integer',
             'stock_state'   => 'required|integer',
             'stock_city'    => 'required|string',
@@ -42,7 +42,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'party_name.required' => 'party name is required.',
-            'station.required' => 'station is required.',
+            //'station.required' => 'station is required.',
             'stock_country.required' => 'country is required.',
             'stock_state.required' => 'state is required.',
             'stock_city.required' => 'city is required.',

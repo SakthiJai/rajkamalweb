@@ -17,6 +17,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     // Public Routes For Front
     ApiRoute::get('products/{product}', ['as' => 'api.products.show', 'uses' => 'ProductController@show']);
     ApiRoute::get('products', ['as' => 'api.products.index', 'uses' => 'ProductController@index']);
+    ApiRoute::get('productsDuplicate/{product}', ['as' => 'api.products.index', 'uses' => 'ProductController@duplicateCheck']);
     ApiRoute::get('categories/{category}', ['as' => 'api.categories.show', 'uses' => 'CategoryController@show']);
     ApiRoute::get('categories', ['as' => 'api.categories.index', 'uses' => 'CategoryController@index']);
     ApiRoute::get('variations', ['as' => 'api.variations.index', 'uses' => 'VariationController@index']);

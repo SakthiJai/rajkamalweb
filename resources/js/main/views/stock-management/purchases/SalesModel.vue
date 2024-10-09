@@ -542,13 +542,21 @@ export default defineComponent({
                     break;
             }
         },
+        removeClass() {
+  const rows = Array.from(document.querySelectorAll('tr.ant-table-row-selected'));
+  rows.forEach(row => {
+    row.classList.remove('ant-table-row-selected');
+  });
+},
 
        
 
         updateSelection() {
+            this.removeClass();
             const currentRadioInput = document.getElementsByClassName('ant-radio-input')[this.focus];
-            currentRadioInput.click();
+            currentRadioInput.checked=true;
             const currentRow = currentRadioInput.closest('tr');
+            currentRow.classList.add("ant-table-row-selected");
             const selectedRowKey = currentRow.getAttribute('data-row-key');
             console.log('Selected Row Key:', selectedRowKey); 
             this.selectedKey =selectedRowKey;
@@ -647,7 +655,7 @@ export default defineComponent({
         },
         checkSelectedCustomer()
         {
-          //  console.log('<>s',this.selectedRowKeysValue);
+          
             if(this.selectedRowKeysValue==undefined )
             {
                 
@@ -655,15 +663,16 @@ export default defineComponent({
                 
                 setTimeout(function(){
                     const currentRadioInput = document.getElementsByClassName('ant-radio-input')[0];
-                currentRadioInput.click();
+                //currentRadioInput.click();
                 const currentRow = currentRadioInput.closest('tr');
+                currentRow.classList.add("ant-table-row-selected");
                 const selectedRowKey = currentRow.getAttribute('data-row-key');
                 console.log('Selected Row Key1:', selectedRowKey); 
                 this.selectedRowKeysValue=[selectedRowKey]
                 that.selectedPartyId.id = selectedRowKey;
                 that.selectedPartyId.name = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
                 document.querySelectorAll('.ant-radio-input').forEach((elem) => { 
-                elem.addEventListener("change", function(event) { console.log("type",event);
+                elem.addEventListener("change", function(event) { 
                 var item = event.target.value;
                 console.log('<>',item);
 
@@ -680,8 +689,8 @@ export default defineComponent({
                             if (modalCloseButton) {
                                // 
                                //console.log({id:selectedRowKey,name:name})
-                              // that.$emit('child-method', {id:selectedRowKey,name:name});
-                               //modalCloseButton.click();
+                               that.$emit('child-method', {id:selectedRowKey,name:name});
+                               modalCloseButton.click();
                                
                                  return false;
 
@@ -689,7 +698,7 @@ export default defineComponent({
 
                 });
             });
-                },2000);
+                },1000);
                   
             }
             
