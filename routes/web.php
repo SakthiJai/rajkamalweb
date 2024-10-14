@@ -23,7 +23,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     ApiRoute::get('variations', ['as' => 'api.variations.index', 'uses' => 'VariationController@index']);
     ApiRoute::get('warehouses', ['as' => 'api.warehouses.index', 'uses' => 'WarehouseController@index']);
     ApiRoute::get('payment-modes', ['as' => 'api.payment-modes.index', 'uses' => 'PaymentModeController@index']);
-    
+
 
     ApiRoute::get('countries', ['as' => 'api.country.index', 'uses' => 'CountryController@index']);
     ApiRoute::get('states', ['as' => 'api.state.index', 'uses' => 'StateController@index']);
@@ -127,6 +127,10 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         //ledger//
         ApiRoute::resource('ledger', 'LedgerController', $options);
 
+        // cashbank
+        ApiRoute::resource('cashbank', 'CashBankController', $options);
+
+
         ApiRoute::post('sales/store', ['as' => 'api.sales.store', 'uses' => 'SalesController@salesCreate']);
         ApiRoute::get('sales/billNumber', ['as' => 'api.sales.store', 'uses' => 'SalesController@billNumber']);
         ApiRoute::post('sales/savepayment', ['as' => 'api.sales.store', 'uses' => 'SalesController@savepayment']);
@@ -154,7 +158,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
        #ApiRoute::post('/store-ledger/customer', [LedgerController::class, 'customer']);
        ApiRoute::post('store-ledger/customer', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@customer']);
 
-        ApiRoute::resource('sales-number', 'SalesNumberController', $options); 
+        ApiRoute::resource('sales-number', 'SalesNumberController', $options);
     });
 });
 

@@ -331,11 +331,30 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-
-                    <a-sub-menu key="master_menu">
+                    <a-sub-menu key="cash_and_bank">
                         <template #title>
-                        <TeamOutlined />
-                        <span>Accounting Trans.</span>
+                            <BankOutlined />
+                            <span>Add Cash and Bank</span>
+                        </template>
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.cashbank.index',
+                                    });
+                                }
+                            "
+                            key="cashbank"
+                        >
+                            {{ "cashbank" }}
+                        </a-menu-item>
+                    </a-sub-menu>
+
+                    <a-sub-menu key="Accounting_Trans">
+                        <template #title>
+                            <TeamOutlined />
+                            <span>Accounting Trans.</span>
                         </template>
                         <a-menu-item
                             @click="
@@ -347,12 +366,69 @@
                                 }
                             "
                             key="country"
+                            v-if="
+                                permsArray.includes('recipt_view') ||
+                                permsArray.includes('admin')
+                            "
                         >
-                            {{ ("Receipt") }}
-                            
+                            {{ "Receipt" }}
                         </a-menu-item>
 
-                         <a-menu-item
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.payment.index',
+                                    });
+                                }
+                            "
+                            key="payment"
+                            v-if="
+                                permsArray.includes('payment_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            {{ $t("Payment") }}
+                        </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.contra.index',
+                                    });
+                                }
+                            "
+                            key="contra"
+                            v-if="
+                                permsArray.includes('contra_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            {{ $t("Contra") }}
+                        </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.journal.index',
+                                    });
+                                }
+                            "
+                            key="journal"
+                            v-if="
+                                permsArray.includes('journal_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            {{ $t("Journal") }}
+                        </a-menu-item>
+
+                        <!-- <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -363,10 +439,10 @@
                             "
                             key="state"
                         >
-                            {{ ("Payment") }}
+                            {{ "Payment" }}
                         </a-menu-item>
 
-                            <a-menu-item
+                        <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -377,25 +453,22 @@
                             "
                             key="station"
                         >
-                            {{ ("Contra") }}
+                            {{ "Contra" }}
                         </a-menu-item>
 
                         <a-menu-item
-                        @click="
-                            () => {
-                                menuSelected();
-                                $router.push({
-                                    name: 'admin.station.index',
-                                });
-                            }
-                        "
-                        key="station"
-                    >
-                        {{ ("Journal") }}
-                    </a-menu-item>
-
-                        
-                        
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.station.index',
+                                    });
+                                }
+                            "
+                            key="station"
+                        >
+                            {{ "Journal" }}
+                        </a-menu-item> -->
                     </a-sub-menu>
 
                     <a-sub-menu
@@ -811,8 +884,6 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                    
-
                     <a-menu-item
                         @click="menuSelected"
                         key="online_orders"
@@ -1012,11 +1083,10 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                     
-                      <a-sub-menu key="master_menu">
+                    <a-sub-menu key="master_menu">
                         <template #title>
-                        <TeamOutlined />
-                        <span>Master Menu</span>
+                            <TeamOutlined />
+                            <span>Master Menu</span>
                         </template>
                         <a-menu-item
                             @click="
@@ -1029,11 +1099,10 @@
                             "
                             key="country"
                         >
-                            {{ ("Country") }}
-                            
+                            {{ "Country" }}
                         </a-menu-item>
 
-                         <a-menu-item
+                        <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -1044,10 +1113,10 @@
                             "
                             key="state"
                         >
-                            {{ ("State") }}
+                            {{ "State" }}
                         </a-menu-item>
 
-                            <a-menu-item
+                        <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -1058,14 +1127,9 @@
                             "
                             key="station"
                         >
-                            {{ ("Station") }}
+                            {{ "Station" }}
                         </a-menu-item>
-                        
                     </a-sub-menu>
-                                    
-                    
-                    
-
 
                     <a-menu-item
                         @click="

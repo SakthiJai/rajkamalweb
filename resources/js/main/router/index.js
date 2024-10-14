@@ -14,9 +14,11 @@ import CountryRoutes from "./country";
 import StateRoutes from "./state";
 import StationRoutes from "./station";
 import ReceiptRoutes from "./receipt";
-import  PrintRoutes from "./print";
+// import PrintRoutes from "./print";
 import PaymentRoutes from "./payment";
 import JournalRoutes from "./journal";
+import CashBankRoutes from "./cashbank";
+
 import ContraRoutes from "./contra";
 import UserRoutes from "./users";
 import SettingRoutes from "./settings";
@@ -91,10 +93,11 @@ const router = createRouter({
         ...StateRoutes,
         ...StationRoutes,
         ...ReceiptRoutes,
-        ...PrintRoutes,
+        // ...PrintRoutes,
         ...PaymentRoutes,
         ...ContraRoutes,
         ...JournalRoutes,
+        ...CashBankRoutes,
     ],
     scrollBehavior: () => ({ left: 0, top: 0 }),
 });
