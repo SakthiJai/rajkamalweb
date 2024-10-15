@@ -28,18 +28,16 @@
                         permsArray.includes(`${orderPageObject.permission}_create`) ||
                         permsArray.includes('admin')
                     ">
-                                        <a-button type="primary" @click="showAddBankModal">
+                                        <a-button type="primary" @click="showAddBankModal" class="creating">
                                             <PlusOutlined />
                                             Create F2
                                         </a-button>
-                                        <AddBankAccount
-      :visible="isBankAccountModalVisible"
-      @update:visible="isBankAccountModalVisible = $event"
-    /></template>
-                                    <!-- <AddBankAccount v-if="isModalVisible" :visible="isModalVisible" :formData="formData"
+
+</template>
+                                    <AddBankAccount v-if="isBankAccountModalVisible" :visible="isBankAccountModalVisible" :formData="formData"
                                 :url="url" :addEditType="addEditType" :pageTitle="pageTitle"
                                 :successMessage="successMessage" @addEditSuccess="handleSuccess"
-                                @closed="handleClose" /> -->
+                                @closed="handlecashclose" />
 
                         </a-col>
 
@@ -167,7 +165,7 @@
                             <ExpenseCategoryModal v-if="isModalVisible" :visible="isModalVisible" :formData="formData"
                                 :url="url" :addEditType="addEditType" :pageTitle="pageTitle"
                                 :successMessage="successMessage" @addEditSuccess="handleSuccess"
-                                @closed="handleCash" />
+                                @closed="handleFilter" />
                         </div>
                     </a-col>
                 </a-row>
@@ -195,6 +193,8 @@ import { PlusOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import { useRoute } from "vue-router";
 import common from "../../../../common/composable/common";
 import cashbank from "./cashbank.vue";
+
+import CashBankTable from "./CashBankTable.vue";
 import DateRangePicker from "../../../../common/components/common/calendar/DateRangePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import ExpenseCategoryModal from '../../stock-management/purchases/ExpenseCategoryModal.vue';
@@ -212,6 +212,7 @@ export default {
         DateTimePicker,
         AddBankAccount,
         showBankDetails,
+        CashBankTable,
     },
     data() {
         return {
@@ -283,8 +284,13 @@ export default {
         toggleDropdown() {
             this.isDropdownOpen = !this.isDropdownOpen;
         },
-        handleCash() {
-            this.isModalVisible = false;
+        handlecashclose() {
+            this.isBankAccountModalVisible = false;
+        },
+
+
+        handleFilter(){
+            this.isModalVisible =false;
         },
         handleshowBankDetails(){ console.log("BankDetails closed");
         this.isProuctsModalVisible  =false;

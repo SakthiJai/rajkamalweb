@@ -1186,6 +1186,7 @@ import apiAdmin from "../../../../common/composable/apiAdmin";
 import stockManagement from "../../stock-management/purchases/stockManagement";
 import common from "../../../../common/composable/common";
 import fields from "./fields";
+import CashBankTable from "./CashBankTable.vue";
 import ProductModal from "../../stock-management/purchases/Product/ProductModal.vue";
 import TaxAddButton from "../../settings/taxes/AddButton.vue";
 import WarehouseAddButton from "../../settings/warehouses/AddButton.vue";
@@ -1226,6 +1227,7 @@ export default {
         SalesNumberModel,
         PaymentsModal,
         SalesCustomerModel,
+        CashBankTable,
     },
     setup(props, { emit }) {
         const { addEditRequestAdmin, loading, handlePaymentSubmit, rules } =

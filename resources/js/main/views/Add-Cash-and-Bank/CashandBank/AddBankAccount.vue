@@ -415,6 +415,9 @@ export default defineComponent({
         handleClosing() {
             this.isModalVisibleing = false;
         },
+        handlecashclose() {
+            this.isBankAccountModalVisible = false;
+        },
         onInputAccountNumber(event) {
             let value = event.target.value;
             value = value.replace(/[^0-9]/g, "");
