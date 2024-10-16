@@ -75,7 +75,7 @@
         <admin-page-table-content>
             <a-row>
                 <a-col :span="24">
-                    <div class="table-responsive">
+                    <div class="customer table-responsive">
                         <a-table :columns="columns" :row-key="(record) => record.id" :data-source="table.data"
                             :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
                             :customRow="customRow" :rowSelection="{
@@ -201,7 +201,7 @@ export default defineComponent({
         });
         const onSelectChange = (changableRowKeys) => {
 
-            console.log('selectedRowKeys changed: ', changableRowKeys);
+            //console.log('selectedRowKeys changed: ', changableRowKeys);
 
             selectedRowKeysValue = changableRowKeys;
 
@@ -259,7 +259,7 @@ export default defineComponent({
             });
         };
 
-        const onClose = () => { console.log("cloed cll ");
+        const onClose = () => { //console.log("cloed cll ");
             emit("closed");
         };
 
@@ -348,7 +348,7 @@ export default defineComponent({
 
         customRow(record) {
             return {
-                onClick: (event) => { console.log('record', record, 'event', event); 
+                onClick: (event) => { //console.log('record', record, 'event', event); 
                 //this.onCloseing()
              }
             }
@@ -389,10 +389,10 @@ export default defineComponent({
         handleSuccess(xid) {
             // Handle success logic
             this.isModalVisible = false;
-            console.log('Success:', xid);
+            //console.log('Success:', xid);
         },
         handleKeyDown(event) {
-            console.log('handleKeyDowns',event.key)
+            //console.log('handleKeyDowns',event.key)
             if (event.key === 'F2') {
                 // Show loader
                 this.isLoading = true;
@@ -417,7 +417,7 @@ export default defineComponent({
                 } else {
                     this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
                 }
-                console.log(this.selectedIndex)
+                //console.log(this.selectedIndex)
             } else if (event.key === 'Escape' || event.key === 'Esc') {
                 // Hide the popup
                 this.isModalVisible = false;
@@ -425,7 +425,7 @@ export default defineComponent({
                 this.isLoading = false;
             }
             /*else if (event.key === 'Enter') {
-                console.log("Test");
+                //console.log("Test");
                
                 //document.documentElement.querySelector(".ant-modal-close-x").click()
 
@@ -441,19 +441,19 @@ export default defineComponent({
             switch (event.keyCode) {
                 case 38:
                     this.removeClass()
-                    if(this.items.length>0){
+                    if(this.table.data.length>0){
                     document.getElementsByClassName('ant-radio-input')[this.focus];
-                    //console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
+                    ////console.log('<>',document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr').attr(''))
                     const temp = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
                     temp.classList.add("ant-table-row-selected");    
-                    console.log('up=>', temp)
+                    //console.log('up=>', temp)
 
-                    console.log('up=>', temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
+                    //console.log('up=>', temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, ''))
                     this.selectedPartyId.id = temp.getAttribute('data-row-key');
                     this.selectedPartyId.name = temp.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
                     this.selectedPartyId.mobile_number = temp.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
 
-                    console.log('up=>', this.selectedPartyId)
+                    //console.log('up=>', this.selectedPartyId)
                     this.$emit('cutomer-method', this.selectedPartyId)
                     if (this.focus === null) {
                         this.focus = 0;
@@ -463,27 +463,27 @@ export default defineComponent({
                 }
                     break;
                 case 40:
-                if(this.items.length>0){
+                if(this.table.data.length>0){
                     this.removeClass()
                     if (this.focus === null) {
                         this.focus = 0;
-                    } else if (this.focus < this.items.length - 1) {
+                    } else if (this.focus < this.table.data.length - 1) {
                         this.focus++;
                     }
                     document.getElementsByClassName('ant-radio-input')[this.focus];
                     const temp1 = document.getElementsByClassName('ant-radio-input')[this.focus].closest('tr');
                     temp1.classList.add("ant-table-row-selected");   
-                    console.log('down=>', temp1.getAttribute('data-row-key'))
+                    //console.log('down=>', temp1.getAttribute('data-row-key'))
                     this.selectedPartyId.id = temp1.getAttribute('data-row-key');
                     this.selectedPartyId.name = temp1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
                     this.selectedPartyId.mobile_number = temp1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-                    console.log('up=>', this.selectedPartyId)
+                    //console.log('up=>', this.selectedPartyId)
                     this.$emit('cutomer-method', this.selectedPartyId)
                 }
                     break;
                     case 13:
                     if(this.items.length>0){
-                        console.log("Test");
+                        //console.log("Test");
                         this.$emit('mobile-method')
                     }
                     break;
@@ -496,7 +496,7 @@ export default defineComponent({
         },
         checkSelectedCustomer()
         {
-          console.log('this.selectedRowKeysValue',this.selectedRowKeysValue)
+          //console.log('this.selectedRowKeysValue',this.selectedRowKeysValue)
             if(this.selectedRowKeysValue==undefined )
             {
                 
@@ -508,20 +508,20 @@ export default defineComponent({
                 const currentRow = currentRadioInput.closest('tr');
                 currentRow.classList.add("ant-table-row-selected");   
                 const selectedRowKey = currentRow.getAttribute('data-row-key');
-                console.log('Selected Row Key1:', selectedRowKey); 
+                //console.log('Selected Row Key1:', selectedRowKey); 
                 that.selectedPartyId.id =selectedRowKey;
                 that.selectedPartyId.name= currentRow.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
                 that.selectedPartyId.mobile_number= currentRow.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
-                console.log('up=>',that.selectedPartyId)
+                //console.log('up=>',that.selectedPartyId)
                 
                 document.querySelectorAll('.ant-radio-input').forEach((elem) => { 
                 elem.addEventListener("change", function(event) { 
                 var item = event.target.value;
-                console.log('<>',item);
+                //console.log('<>',item);
                 const currentRadioInput1 = document.getElementsByClassName('ant-radio-input')[that.focus];
                 const currentRow1 = event.target.closest('tr');
                 const selectedRowKey1 = currentRow1.getAttribute('data-row-key');
-                console.log('Selected Row Key11:', selectedRowKey1); 
+                //console.log('Selected Row Key11:', selectedRowKey1); 
                 that.selectedPartyId.id =selectedRowKey1;
                 that.selectedPartyId.name= currentRow1.getElementsByTagName("td")[2].innerHTML.replace(/<[^>]*>?/gm, '')
                 that.selectedPartyId.mobile_number= currentRow1.getElementsByTagName("td")[1].innerHTML.replace(/<[^>]*>?/gm, '')
@@ -530,15 +530,15 @@ export default defineComponent({
                 const myElem = document.querySelectorAll(".ant-table-row-selected");
                 let name ='';
                     myElem.forEach(function (elem, index) {
-                   // console.log(  elem.closest('tr'));
+                   // //console.log(  elem.closest('tr'));
                    name = elem.closest('tr').getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
-                    //console.log(name);
+                    ////console.log(name);
                     });
                     
                     const modalCloseButton = document.documentElement.querySelector(".ant-modal-close-x");
                             if (modalCloseButton) {
                                // 
-                               console.log(that.selectedPartyId)
+                               //console.log(that.selectedPartyId)
                                that.$emit('cutomer-method',that.selectedPartyId)
                                modalCloseButton.click();
                                
@@ -741,4 +741,5 @@ body.is-loading {
 .loader {
     text-align: center;
 }
+.customer .ant-table-cell{padding:2px !important;}
 </style>

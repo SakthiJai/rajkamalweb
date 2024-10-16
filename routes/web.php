@@ -23,7 +23,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     ApiRoute::get('variations', ['as' => 'api.variations.index', 'uses' => 'VariationController@index']);
     ApiRoute::get('warehouses', ['as' => 'api.warehouses.index', 'uses' => 'WarehouseController@index']);
     ApiRoute::get('payment-modes', ['as' => 'api.payment-modes.index', 'uses' => 'PaymentModeController@index']);
-
+    
 
     ApiRoute::get('countries', ['as' => 'api.country.index', 'uses' => 'CountryController@index']);
     ApiRoute::get('states', ['as' => 'api.state.index', 'uses' => 'StateController@index']);
@@ -129,14 +129,13 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // cashbank
         ApiRoute::resource('cashbank', 'CashBankController', $options);
-
-
+        
         ApiRoute::post('sales/store', ['as' => 'api.sales.store', 'uses' => 'SalesController@salesCreate']);
         ApiRoute::get('sales/billNumber', ['as' => 'api.sales.store', 'uses' => 'SalesController@billNumber']);
         ApiRoute::post('sales/savepayment', ['as' => 'api.sales.store', 'uses' => 'SalesController@savepayment']);
         ApiRoute::post('sales/getInvoicePdf', ['as' => 'api.sales.store', 'uses' => 'SalesController@getInvoicePdf']);
  		ApiRoute::post('products-store', ['as' => 'api.product.store', 'uses' => 'ProductController@productStore']);
-
+        ApiRoute::post('ledger/ledgeritem', ['as' => 'api.ledger.store', 'uses' => 'LedgerController@saveCustomInformation']);
         ApiRoute::resource('users', 'UsersController', $options);
         ApiRoute::resource('customers', 'CustomersController', $options);
         ApiRoute::resource('suppliers', 'SuppliersController', $options);
@@ -144,6 +143,8 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('permissions', 'PermissionController', ['as' => 'api', 'only' => ['index']]);
         ApiRoute::resource('stock-history', 'StockHistoryController', ['as' => 'api', 'only' => ['index']]);
         ApiRoute::resource('order-items', 'OrderItemController', ['as' => 'api', 'only' => ['index']]);
+        ApiRoute::resource('ledger-items', 'LedgerController', ['as' => 'api', 'only' => ['index']]);
+
         ApiRoute::resource('roles', 'RolesController', $options);
         ApiRoute::resource('warehouses', 'WarehouseController',  ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('custom-fields', 'CustomFieldController', $options);
@@ -158,7 +159,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
        #ApiRoute::post('/store-ledger/customer', [LedgerController::class, 'customer']);
        ApiRoute::post('store-ledger/customer', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@customer']);
 
-        ApiRoute::resource('sales-number', 'SalesNumberController', $options);
+        ApiRoute::resource('sales-number', 'SalesNumberController', $options); 
     });
 });
 

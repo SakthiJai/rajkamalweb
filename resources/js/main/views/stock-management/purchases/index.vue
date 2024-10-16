@@ -50,59 +50,73 @@
                     <a-col :xs="24" :sm="24" :md="12" :lg="3" :xl="3">
                         <div class="dropdown">
                             <button type="primary" id="dropdowning" class="dropdown-toggleing px-4"
-                                @click="toggleDropdown">
+                                @click="toggleDropdown" @keydown.enter="handleEnterKeyDrop" >
                                 {{ buttonLabel }}
                             </button>
                             <ul v-if="isDropdownOpen" class="dropdown-menusing">
                                 <div class="dropdown-menusing cust-date-filter shadow p-4 show" :style="dropdownStyle">
                                     <a-row :gutter="16">
                                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                            <a class="dropdown-item border mb-2" href="javascript:;"
+                                            <input type="text" @click="DeleteRow('Today', event)"  @keydown="nextFocus($event)" id="today"  class="dropdown-item border mb-2 dropdown-item-list" value="Today"/>
+                                            <!-- <button id="today" @focus=nextFocus($event) class="dropdown-item border mb-2 dropdown-item-list" href="javascript:;"
                                                 @click="selectDateRange('Today')">
                                                 Today <span class="float-right"
                                                     v-if="selectedRange === 'Today'">✔</span>
-                                            </a>
+                                            </button> -->
                                         </a-col>
                                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                            <a class="dropdown-item border mb-2" href="javascript:;"
+                                            <input type="text" @click="DeleteRow('Yesterday', event)"  @keydown="nextFocus($event)" id="Yesterday"  class="dropdown-item border mb-2 dropdown-item-list" value="Yesterday"/>
+                                            <!-- <button class="dropdown-item border mb-2 dropdown-item-list" id="Yesterday" href="javascript:;"
                                                 @click="selectDateRange('Yesterday')">
                                                 Yesterday <span class="float-right"
                                                     v-if="selectedRange === 'Yesterday'">✔</span>
-                                            </a>
+                                            </button> -->
                                         </a-col>
                                     </a-row>
 
                                     <a-row :gutter="16">
                                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                            <a class="dropdown-item border mb-2" href="javascript:;"
+                                            <input type="text" @click="DeleteRow('This Week', event)" @keydown="nextFocus($event)" id="this-week"  class="dropdown-item border mb-2 dropdown-item-list" value="This Week"/>
+                                            <!-- <button class="dropdown-item border mb-2 dropdown-item-list" id="this-week" href="javascript:;"
                                                 @click="selectDateRange('This Week')">
                                                 This Week <span class="float-right"
                                                     v-if="selectedRange === 'This Week'">✔</span>
-                                            </a>
+                                            </button> -->
                                         </a-col>
                                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                            <a class="dropdown-item border mb-2" href="javascript:;"
+                                            <input type="text"  @click="DeleteRow('Last 7 days', event)" id="last_7_days"  @keydown="nextFocus($event)"  class="dropdown-item border mb-2 dropdown-item-list" value="Last 7 days"/>
+                                            <!-- <button class="dropdown-item border mb-2 dropdown-item-list" id="last_7_days" href="javascript:;"
                                                 @click="selectDateRange('Last 7 days')">
                                                 Last 7 days <span class="float-right"
                                                     v-if="selectedRange === 'Last 7 days'">✔</span>
-                                            </a>
+                                            </button> -->
                                         </a-col>
                                     </a-row>
 
                                     <a-row :gutter="16">
                                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                            <a class="dropdown-item border mb-2" href="javascript:;"
+                                            <input type="text" @click="DeleteRow('This Month', event)" id="this_month"   @keydown="nextFocus($event)" class="dropdown-item border mb-2 dropdown-item-list" value="This Month"/>
+                                            <!-- <button class="dropdown-item border mb-2 dropdown-item-list" id="this_month"  href="javascript:;"
                                                 @click="selectDateRange('This Month')">
                                                 This Month <span class="float-right"
                                                     v-if="selectedRange === 'This Month'">✔</span>
-                                            </a>
+                                            </button> -->
                                         </a-col>
                                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                                            <a class="dropdown-item border mb-2" href="javascript:;"
+                                            <input type="text" @click="DeleteRow('Previous Month', event)" id="previous_month"  @keydown="nextFocus($event)"  class="dropdown-item border mb-2 dropdown-item-list" value="Previous Month"/>
+                                            <!-- <button class="dropdown-item border mb-2 dropdown-item-list" id="previous_month" href="javascript:;"
                                                 @click="selectDateRange('Previous Month')">
                                                 Previous Month <span class="float-right"
                                                     v-if="selectedRange === 'Previous Month'">✔</span>
-                                            </a>
+                                            </button> -->
+                                        </a-col>
+                                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                                            <input type="text" @click="DeleteRow('Last 365 days', event)" id="previous_month"  @keydown="nextFocus($event)"  class="dropdown-item border mb-2 dropdown-item-list" value="Last 365 days"/>
+                                            <!-- <button class="dropdown-item border mb-2 dropdown-item-list" id="previous_month" href="javascript:;"
+                                                @click="selectDateRange('Previous Month')">
+                                                Previous Month <span class="float-right"
+                                                    v-if="selectedRange === 'Previous Month'">✔</span>
+                                            </button> -->
                                         </a-col>
                                     </a-row>
 
@@ -216,6 +230,7 @@ export default {
     mounted() {
     document.addEventListener('keydown', this.handleKeydown);
     this.autoFocusInput();
+
   },
   beforeDestroy() {
   
@@ -224,9 +239,11 @@ export default {
     methods: 
     {
         selectDateRange(range) {
-            this.selectedRange = range.trim(); 
-            this.buttonLabel = range.trim(); 
+           // this.selectedRange = range.trim(); 
+            this.buttonLabel = this.selectedRange.trim(); 
             this.isDropdownOpen = false;  
+            this.orderTableRef.setUrlData(this.selectedRange);
+           // this.fetchUsers(this.selectedRange);
         },
 
         handleKeydown(event) {
@@ -237,11 +254,98 @@ export default {
         });
       }
         },
-        handleEnterKey() {
+        handleEnterKey() { 
+           this.isDropdownOpen= false;
       // Perform route navigation when Enter is pressed
       /*this.$router.push({
         name: `admin.stock.${this.orderPageObject.type}.create`,
       });*/
+        },
+        handleEnterKeyDrop() { 
+        var that= this;
+        setTimeout(() => {
+            document.getElementById("today").focus({focusVisible: true});
+            
+        }, 500);
+        
+        },
+        DeleteRow(that,event)
+        {
+            console.log('<>',that)
+            this.selectedRange = that;
+            this.buttonLabel = this.selectedRange.trim(); 
+            this.isDropdownOpen = false;  
+           // this.fetchUsers(this.selectedRange);
+            this.orderTableRef.setUrlData(this.selectedRange);
+        },
+
+        nextFocus(event)
+        {
+            console.log("event=>",event.keyCode);
+            if(event.keyCode==40)
+            {
+                if(this.selectedRange=="Today")
+                {
+                    this.selectedRange ="This Week";
+                    document.getElementById("this-week").focus({focusVisible: true});
+                }
+               else if(this.selectedRange=="This Week")
+                {
+                    this.selectedRange ="This Month";
+                    document.getElementById("this_month").focus({focusVisible: true});
+                }
+                
+                else if(this.selectedRange=="This Month")
+                {
+                    this.selectedRange ="Yesterday";
+                    document.getElementById("Yesterday").focus({focusVisible: true});
+                }
+                else if(this.selectedRange=="Yesterday")
+                {
+                    this.selectedRange ="Last 7 days";
+                    document.getElementById("last_7_days").focus({focusVisible: true});
+                }
+                else if(this.selectedRange=="Last 7 days")
+                {
+                    this.selectedRange ="Previous month";
+                    document.getElementById("previous_month").focus({focusVisible: true});
+                }
+            }
+            else if(event.keyCode==38)
+            {
+                if(this.selectedRange=="This Week")
+                {
+                    this.selectedRange ="Today";
+                    document.getElementById("today").focus({focusVisible: true});
+                }
+               else if(this.selectedRange=="This Month")
+                {
+                    this.selectedRange ="This Week";
+                    document.getElementById("this-week").focus({focusVisible: true});
+                }
+                
+                else if(this.selectedRange=="Yesterday")
+                {
+                    this.selectedRange ="This Month";
+                    document.getElementById("this_month").focus({focusVisible: true});
+                }
+                else if(this.selectedRange=="Last 7 days")
+                {
+                    
+                    this.selectedRange ="Yesterday";
+                    document.getElementById("Yesterday").focus({focusVisible: true});
+                }
+                else if(this.selectedRange=="Previous month")
+                {
+                    this.selectedRange ="Last 7 days";
+                    document.getElementById("last_7_days").focus({focusVisible: true});
+                }
+            }
+            else if(event.keyCode==13)
+            {
+                this.selectDateRange();
+            }
+            
         },
         autoFocusInput() {
             this.$nextTick(() => {
@@ -253,6 +357,55 @@ export default {
         },
         toggleDropdown() {
             this.isDropdownOpen = !this.isDropdownOpen;
+            if(!this.isDropdownOpen ){ this.$refs.searchInput.focus(); }
+            if(this.selectedRange=="Today")
+                {
+                    this.selectedRange ="This Week";
+                    setTimeout(function(){
+                        document.getElementById("this-week").focus({focusVisible: true});
+                    },500)
+                    
+                }
+               else if(this.selectedRange=="This Week")
+                {
+                    this.selectedRange ="This Month";
+                    setTimeout(function(){
+                        document.getElementById("this_month").focus({focusVisible: true});
+                    },500)
+                    
+                }
+                
+                else if(this.selectedRange=="This Month")
+                {
+                    this.selectedRange ="Yesterday";
+                    setTimeout(function(){
+                        document.getElementById("Yesterday").focus({focusVisible: true});
+                    },500)
+                    
+                }
+                else if(this.selectedRange=="Yesterday")
+                {
+                    this.selectedRange ="Last 7 days";
+                    
+                    setTimeout(function(){
+                        document.getElementById("last_7_days").focus({focusVisible: true});
+                    },500)
+                }
+                else if(this.selectedRange=="Last 7 days")
+                {
+                    this.selectedRange ="Previous month";
+                   
+                    setTimeout(function(){
+                        document.getElementById("previous_month").focus({focusVisible: true});
+                    },500)
+                }
+                else
+                {
+                    setTimeout(function(){
+                        document.getElementById("today").focus({focusVisible: true}); 
+                    },500)
+                   
+                }
         },
         handleClose() {
             this.isModalVisible = false;
@@ -338,9 +491,9 @@ export default {
             fetchUsers();
         });
 
-        const fetchUsers = () => {
+        const fetchUsers = (data) => {
             const usersPromise = axiosAdmin.get(
-                `${orderPageObject.value.userType}?limit=10000`
+                `${orderPageObject.value.userType}?limit=10000&range=`+data
             );
 
             Promise.all([usersPromise]).then(([usersResponse]) => {
@@ -387,7 +540,7 @@ export default {
             filters,
             orderType,
             serachDateRangePicker,
-
+            fetchUsers,
             selectedRowIds,
             orderTableRef,
         };
@@ -516,4 +669,16 @@ export default {
 .hrtages{
     margin-top:22px;
 }
+.dropdown-item:focus {
+  background-color: yellow;
+  
+}
+input[readonly] {
+  pointer-events: none;
+}
+.cust-date-filter{transform: translate3d(0, 0px, 0px) !important;}   
+.dropdown-item-list {
+  caret-color: yellow;
+  cursor: pointer;
+}  
 </style>

@@ -131,7 +131,7 @@
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item :label="$t(`stock.customer_name`)" name="customer_name" :help="rules.customer_name ? rules.customer_name.message : null
                             " :validateStatus="rules.customer_name ? 'error' : null">
-                            <a-input readonly v-model:value="formData.customer_name" placeholder="Press SpaceBar"
+                            <a-input disabled v-model:value="formData.customer_name" placeholder="Press SpaceBar"
                                 @keydown.space.prevent="showCustomerModal" @blur="" />
 
                             <a-input hidden v-model:value="formData.party_customer_id" id="party_customer_id"
@@ -192,7 +192,7 @@
                                             <td style="width:15%">
                                                 <input autocomplete="off" 
                                                 :id="`item_product_quantity_${index}`"
-                                                v-model="formData.items[index].quantity"
+                                                v-model="formData.items[index].quantity"  @keyup="gotoNext(index,$event)"
                                                 @input="getQuantity(index,$event)" @focus="getQuantity(index,$event),focusinputvalue($event)" 
                                                 name="quantity[]" @blur="updateAgg(),checkMaxQuantity(index,$event)" style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4"
                                                 @keypress="onlyForCurrency"
@@ -414,7 +414,7 @@
                 <a-row :gutter="16" class="mt-20 mb-20">
                     <a-col :xs="24" :sm="24" :md="9" :lg="9"></a-col>
                     <a-col :xs="24" :sm="24" :md="4" :lg="4">
-                            <a-button type="button" class="backgrounds" :loading="loading" @click="saveSalesEntry" block>
+                            <a-button type="button" id="saveF10" class="backgrounds" :loading="loading" @click="saveSalesEntry" block>
                                 <span class="shortcut">
                                     <code>F10 / End</code>
                                   </span> 
@@ -1078,10 +1078,29 @@ export default {
             //console.log("close Model",this.selectedItermIndex);
             this.isNumberVisible = false;
             if(this.selectedItermIndex==undefined){
-                document.getElementById("item_product_name_1").focus();
+                document.getElementById("item_product_name_0").focus();
             }
             else{
-            document.getElementById("item_product_name_"+(this.selectedItermIndex)).focus();
+                let cf =0;
+                //this.focusProductList();
+                for (let i = 0; i < this.formData.items.length; i++) {
+                    console.log("Find Post",this.formData.items[i]);
+                    if(cf== 0 && (this.formData.items[i].item_id!=undefined && this.formData.items[i].item_id>0 &&  this.formData.items[i].quantity>0))
+                    {    cf=i;
+                        
+                        
+                    break; 
+                    }
+                }
+                console.log("cf=>",cf);
+                if(cf>0)
+                {
+                    document.getElementById("item_product_name_"+(this.selectedItermIndex)).focus();
+                }
+                else{
+                    document.getElementById("saveF10").focus();
+                }
+            
             }
             return false;
 
@@ -1338,20 +1357,30 @@ export default {
                 }
             }
         
-         
+            console.log("cf="+cf);
             if(cf==0)
-            {   setTimeout(function(){document.getElementById("item_product_name_"+cf).focus();},500)
+            {  
+                setTimeout(function(){
+                    document.getElementById("saveF10").focus();
+                },500)
                 
+            }
+            else
+            {
+                setTimeout(function(){
+                    document.getElementById("item_product_name_"+cf).focus();
+                },500)
             }
         },
 
         handlenumberModel(){
         this.isNumberVisible=false;
-        this.focusProductList();
+        //this.focusProductList();
         },
         focusinputvalue(event)
         {
             event.target.select()
+            
         },
         getQuantity(index,event) {
             //formData.items[index].quantity = $event.target.value
@@ -1764,6 +1793,14 @@ export default {
             })
            // document.getElementById("total_prod_count").value="Total : "+count+" Product"; 
             document.getElementById("total_goods_value").value=this.formatCurrency(quantity.toFixed(2)); 
+        },
+        gotoNext(index,event)
+        {
+            console.log(event.keyCode,Number(this.formData.items[index].quantity))
+            if(event.keyCode==13 && Number(this.formData.items[index].quantity)>0)
+            {
+                document.getElementById('item_product_price_'+index).focus();
+            }
         }
     },
     computed: {

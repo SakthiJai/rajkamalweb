@@ -73,7 +73,7 @@
         <admin-page-table-content>
             <a-row>
                 <a-col :span="24">
-                    <div class="table-responsive">
+                    <div class="productlist table-responsive">
                         <a-table :columns="columns" :row-key="(record) => record.id" :data-source="table.data"
                             :pagination="table.pagination" :loading="table.loading" 
                             :rowSelection="{
@@ -1025,4 +1025,5 @@ body.is-loading {
 .loader {
     text-align: center;
 }
+.productlist .ant-table-cell{padding:2px !important;}
 </style>

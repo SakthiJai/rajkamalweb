@@ -1,8 +1,8 @@
 <template>
     <a-space v-if="willSubscriptionModuleVisible('reports_download')">
-        <PdfTable :tableName="tableName" :title="title" />
+        <!-- <PdfTable :tableName="tableName" :title="title" /> -->
         <PrintTable :tableName="tableName" />
-        <ExportExcel :exportType="exportType" />
+        <!-- <ExportExcel :exportType="exportType" /> -->
     </a-space>
 </template>
 

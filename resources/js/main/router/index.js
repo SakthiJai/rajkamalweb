@@ -14,11 +14,9 @@ import CountryRoutes from "./country";
 import StateRoutes from "./state";
 import StationRoutes from "./station";
 import ReceiptRoutes from "./receipt";
-// import PrintRoutes from "./print";
+import  PrintRoutes from "./print";
 import PaymentRoutes from "./payment";
 import JournalRoutes from "./journal";
-import CashBankRoutes from "./cashbank";
-
 import ContraRoutes from "./contra";
 import UserRoutes from "./users";
 import SettingRoutes from "./settings";
@@ -33,6 +31,7 @@ import AppreciationRoutes from "./hrm/appreciations";
 import HrmDashboardRoutes from "./hrm/hrmDashboard";
 import HrmSettingsRoutes from "./hrm/hrmSettings";
 import { checkUserPermission } from "../../common/scripts/functions";
+import CashBankRoutes from "./cashbank";
 
 import FrontRoutes from "./front";
 import WebsiteSetupRoutes from "./websiteSetup";
@@ -93,7 +92,7 @@ const router = createRouter({
         ...StateRoutes,
         ...StationRoutes,
         ...ReceiptRoutes,
-        // ...PrintRoutes,
+        ...PrintRoutes,
         ...PaymentRoutes,
         ...ContraRoutes,
         ...JournalRoutes,

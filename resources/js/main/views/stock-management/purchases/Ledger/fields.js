@@ -50,7 +50,7 @@ const fields = () => {
 		credit:undefined,
 		
 	};
-	
+	//const sortDirections= "ascend";
 
 	const columns = [
 	
@@ -105,6 +105,7 @@ const fields = () => {
 		hashableColumns,
 		initData,
 		columns,
+		//sortDirections,
 		adjustmentTypes,
 		filterableColumns,
 		editItem,

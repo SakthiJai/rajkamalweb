@@ -59,8 +59,15 @@ class LedgerModel extends BaseModel
         'debit',
         'credit',
         'credit_limit',
+        'with_gst_number',
+        'with_pan_number'
     ];
-
+    protected $casts = [
+        'ledger_id' => 'integer',
+        // Make sure these attributes exist in your database schema
+        'keyword' => 'string',
+        'value' => 'string',
+    ];
 
     public function getNameAttribute()
     {
@@ -89,6 +96,10 @@ class LedgerModel extends BaseModel
     public function bills()
     {
         return $this->hasMany(Order::class);
+    }
+    public function items()
+    {
+        return $this->hasMany(LedgerItem::class, 'ledger_id', localKey: 'id');
     }
 
 

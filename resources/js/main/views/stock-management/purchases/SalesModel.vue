@@ -92,7 +92,7 @@
         <admin-page-table-content>
             <a-row>
                 <a-col :span="24">
-                    <div class="table-responsive">
+                    <div class="partytable table-responsive">
                         <a-table :columns="columns" :row-key="(record) => record.id" :data-source="table.data"
                             :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
                             :rowSelection="{
@@ -388,7 +388,7 @@ export default defineComponent({
                 url,
                 filterableColumns,
             };
-
+            crudVariables.table.sorter = { field: "id", order: "asc" };
             crudVariables.fetch({
                 page: 1,
             });
@@ -893,6 +893,6 @@ body.is-loading {
 .ant-input-search .ant-input-search-button {
     height: 26px;
 }
-.ant-table-cell{padding:2px !important;}
+.partytable .ant-table-cell{padding:2px !important;}
 
 </style>

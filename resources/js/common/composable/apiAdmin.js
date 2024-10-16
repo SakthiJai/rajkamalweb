@@ -10,7 +10,7 @@ const api = () => {
     const { t } = useI18n();
     const { appSetting } = common();
 
-    const addEditRequestAdmin = (configObject) => {
+    const addEditRequestAdmin = (configObject) => { 
         loading.value = true;
         const { url, data, success } = configObject;
         var formData = {};
@@ -26,15 +26,13 @@ const api = () => {
 
         axiosAdmin
             .post(url, formData)
-            .then((response) => {
+            .then(response => {
                 // Toastr Notificaiton
                 if (configObject.successMessage) {
                     notification.success({
-                        placement: appSetting.value.rtl
-                            ? "bottomLeft"
-                            : "bottomRight",
+                        placement: appSetting.value.rtl ? "bottomLeft" : "bottomRight",
                         message: t("common.success"),
-                        description: configObject.successMessage,
+                        description: configObject.successMessage
                     });
                 }
 
@@ -42,7 +40,7 @@ const api = () => {
                 loading.value = false;
                 rules.value = {};
             })
-            .catch((errorResponse) => {
+            .catch(errorResponse => {
                 var err = errorResponse.data;
                 const errorCode = errorResponse.status;
                 var errorRules = {};
@@ -69,9 +67,9 @@ const api = () => {
                     message.error(err.message);
                     err = {
                         error: {
-                            ...err,
-                        },
-                    };
+                            ...err
+                        }
+                    }
                 }
 
                 if (configObject.error) {
@@ -80,7 +78,7 @@ const api = () => {
 
                 loading.value = false;
             });
-    };
+    }
 
     const addEditFileRequestAdmin = (configObject) => {
         loading.value = true;
@@ -102,15 +100,13 @@ const api = () => {
                     "Content-Type": "multipart/form-data",
                 },
             })
-            .then((response) => {
+            .then(response => {
                 // Toastr Notificaiton
                 if (configObject.successMessage) {
                     notification.success({
-                        placement: appSetting.value.rtl
-                            ? "bottomLeft"
-                            : "bottomRight",
+                        placement: appSetting.value.rtl ? "bottomLeft" : "bottomRight",
                         message: t("common.success"),
-                        description: configObject.successMessage,
+                        description: configObject.successMessage
                     });
                 }
 
@@ -118,7 +114,7 @@ const api = () => {
                 loading.value = false;
                 rules.value = {};
             })
-            .catch((errorResponse) => {
+            .catch(errorResponse => {
                 var err = errorResponse.data;
                 const errorCode = errorResponse.status;
                 var errorRules = {};
@@ -145,9 +141,9 @@ const api = () => {
                     message.error(err.message);
                     err = {
                         error: {
-                            ...err,
-                        },
-                    };
+                            ...err
+                        }
+                    }
                 }
 
                 if (configObject.error) {
@@ -156,14 +152,14 @@ const api = () => {
 
                 loading.value = false;
             });
-    };
+    }
 
     return {
         loading,
         rules,
         addEditRequestAdmin,
-        addEditFileRequestAdmin,
+        addEditFileRequestAdmin
     };
-};
+}
 
 export default api;

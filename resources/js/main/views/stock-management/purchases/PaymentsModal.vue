@@ -46,7 +46,7 @@
                                     ₹
                                 </a-span>
                                 <a-input readonly @keydown="test" ref="searchInput" :value=formatCurrency(billValue)
-                                    class="amount" style="width:79%" autocomplete="off"  @keyup.enter="focusNext" />
+                                    class="amount" style="width:79%" autocomplete="off"  />
                             </a-input-group>
                         </a-col>
                         <a-col :xs="24" :sm="24" :md="7" :lg="7">
@@ -59,7 +59,7 @@
                                     ₹
                                 </a-span>
                                 <a-input readonly id="adjust_balance" :value=formatCurrency(billValue) class="amount"
-                                    style="width:79%" autocomplete="off"  @keyup.enter="focusNext" />
+                                    style="width:79%" autocomplete="off"  />
                             </a-input-group>
                         </a-col>
                     </a-row>
@@ -88,7 +88,7 @@
                                       </td>
 
                                     <td style="width:15%">
-                                        <input autocomplete="off" @keypress="onlyForCurrency" :value="data.amount"
+                                        <input autocomplete="off"  @keypress="onlyForCurrency" :value="data.amount"
                                             :v-model="data.amount" :id="`amount_${index}`"
                                             @keydown.space.prevent="showCustomerModal"
                                             class="ant-input css-dev-only-do-not-override-wosfq4 amount"
@@ -237,6 +237,7 @@ export default defineComponent({
             crudVariables.fetch({
                 page: 1,
             });
+            setTimeout(function(){console.log("Payment focus3");document.getElementById('amount_0').focus()},3000)
 
         };
 

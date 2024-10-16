@@ -22,13 +22,15 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-			'party_name'    => 'required|string',
+			//'party_name'    => 'required|string',
 			//'station'       => 'required|integer',
-            'stock_country' => 'required|integer',
-            'stock_state'   => 'required|integer',
-            'stock_city'    => 'required|string',
-            'account_group' => 'required|string',
-            'mobile_number' => 'required',
+            //'stock_country' => 'required|integer',
+            //'stock_state'   => 'required|integer',
+            //'stock_city'    => 'required|string',
+            //'account_group' => 'required|string',
+            //'mobile_number' => 'required',
+           // 'with_gst_number' => 'required',
+            //'with_pan_number' => 'required',
 		];
 
         if ($this->filled('mail_to')) {
@@ -41,13 +43,16 @@ class StoreRequest extends FormRequest
     public function messages()
     {
         return [
-            'party_name.required' => 'party name is required.',
+            //'party_name.required' => 'Party name is required.',
             //'station.required' => 'station is required.',
-            'stock_country.required' => 'country is required.',
-            'stock_state.required' => 'state is required.',
-            'stock_city.required' => 'city is required.',
-            'account_group.required' => ' group is required.',
-            'mobile_number.required' => 'number is required.',
+            //'stock_country.required' => 'country is required.',
+            //'stock_state.required' => 'state is required.',
+            //'stock_city.required' => 'city is required.',
+            //'account_group.required' => ' group is required.',
+            //'mobile_number.required' => 'number is required.',
+            //'with_gst_number.required' => 'Gst number is required.',
+            //'with_pan_number.required' => 'Pan number is required.',
+
         ];
     }
 }
