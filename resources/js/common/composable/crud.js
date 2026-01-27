@@ -65,7 +65,8 @@ const crud = () => {
          console.log('selectedRowKeys Crud Js: ', selectedRowKeysValue);
      };
     const editItem = (item) => {
-        console.log(item);
+ console.log("rrr:",multiDimension);
+
         const itemDetails = {};
         var multiDimension = multiDimensalObjectColumns.value;
 
@@ -73,10 +74,13 @@ const crud = () => {
             if (has(multiDimension, key)) {
                 const multiDimensalObjectColumnValue = multiDimension[key];
                 itemDetails[key] = get(item, multiDimensalObjectColumnValue);
+                console.log("iiiiiii:", itemDetails[key]);
             } else if (includes(hashableColumns.value, key)) {
                 itemDetails[key] = item[`x_${key}`];
+                console.log("rrrrrrrr:",  itemDetails[key]);
             } else {
                 itemDetails[key] = item[key];
+                console.log("sssssss:",  itemDetails[key]);
             }
         });
 

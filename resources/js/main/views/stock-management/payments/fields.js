@@ -12,7 +12,7 @@ const fields = () => {
     const menuParent = ref(route.meta.menuParent);
     const addEditUrl = ref(`payment-${paymentType.value}`);
 
-    const initData = ref({
+    const initData = ref({ 
         payment_type: paymentType.value,
         date: dayjs().format('YYYY-MM-DD'),
         amount: "",

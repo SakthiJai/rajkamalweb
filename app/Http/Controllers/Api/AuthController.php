@@ -15,8 +15,10 @@ use App\Models\Company;
 use App\Models\Currency;
 use App\Models\Customer;
 use App\Models\Expense;
+use App\Models\Expenses1;
 use App\Models\Lang;
 use App\Models\Order;
+use App\Models\PurchaseBillDetail;
 use App\Models\OrderItem;
 use App\Models\OrderPayment;
 use App\Models\Payment;
@@ -40,7 +42,7 @@ use Illuminate\Support\Facades\Notification;
 use Milon\Barcode\DNS1D;
 use Illuminate\Support\Str;
 use PDF;
-
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends ApiBaseController
 {
@@ -440,8 +442,26 @@ class AuthController extends ApiBaseController
         ]);
     }
 
+    // public function dashboard(Request $request)
+    // {
+    //     $data = [
+    //         'topSellingProducts' => $this->getTopProducts(),
+    //         'purchaseSales' => $this->getPurchaseSales(),
+    //         'stockAlerts' => $this->getStockAlerts(5),
+
+    //         'topCustomers' => $this->getSalesTopCustomers(),
+
+    //         'stockHistoryStatsData' => $this->getStockHistoryStatsData(),
+    //         'stateData' => $this->getStatsData(),
+    //         'paymentChartData' => $this->getPaymentChartData(),
+    //     ];
+
+    //     return ApiResponse::make('Data fetched', $data);
+    // }
+
     public function dashboard(Request $request)
-    {
+{
+    try {
         $data = [
             'topSellingProducts' => $this->getTopProducts(),
             'purchaseSales' => $this->getPurchaseSales(),
@@ -453,7 +473,20 @@ class AuthController extends ApiBaseController
         ];
 
         return ApiResponse::make('Data fetched', $data);
+    } catch (\Exception $e) {
+        // Log the real error to Laravel log
+        Log::error('Dashboard API error: ' . $e->getMessage());
+
+        // Return the actual error message for debugging
+        return response()->json([
+            'error' => [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ]
+        ], 500);
     }
+}
+
 
     public function stockAlerts()
     {
@@ -464,38 +497,60 @@ class AuthController extends ApiBaseController
         return ApiResponse::make('Data fetched', $data);
     }
 
-    public function getStockAlerts($limit = null)
+     public function getStockAlerts($limit = null)
     {
         $request = request();
         $warehouseId = $this->getWarehouseId();
+        Log::info("Warehouse ID: $warehouseId");
 
-        $warehouseStocks = Product::select('products.id as product_id', 'products.name as product_name', 'product_details.current_stock', 'product_details.stock_quantitiy_alert', 'units.short_name')
-            ->join('product_details', 'product_details.product_id', '=', 'products.id')
-            ->join('units', 'units.id', '=', 'products.unit_id')
-            ->whereNotNull('product_details.stock_quantitiy_alert')
-            ->whereRaw('product_details.current_stock <= product_details.stock_quantitiy_alert');
+    $warehouseStocks = Product::select(
+            'products.id as product_id',
+            'products.name as product_name',
+            'product_details.current_stock',
+            'product_details.stock_quantitiy_alert',
+            'products.low_stock',
+            DB::raw('MAX(order_items.created_at) as last_order_date') // Latest order date
+        )
+        ->leftJoin('product_details', 'product_details.product_id', '=', 'products.id')
+        ->leftJoin('units', 'units.id', '=', 'products.unit_id')
+        ->leftJoin('order_items', 'order_items.product_id', '=', 'products.id') // Join with order_items
+        ->whereNotNull('products.low_stock')
+        ->whereRaw('product_details.current_stock <= products.low_stock');
 
-        $warehouse = warehouse();
-        if ($warehouse && $warehouse->products_visibility == 'warehouse') {
-            $warehouseStocks = $warehouseStocks->where('products.warehouse_id', '=', $warehouse->id);
-        }
+    $warehouse = warehouse();
+    Log::info("Warehouse ID1: $warehouse");
 
-        // If user not have admin role
-        // then he can only view reords
-        // of warehouse assigned to him
-        $warehouseStocks = $warehouseStocks->where('product_details.warehouse_id', '=', $warehouseId);
-
-        if ($request->has('product_id') && $request->product_id != null) {
-            $productId = $this->getIdFromHash($request->product_id);
-            $warehouseStocks = $warehouseStocks->where('product_details.product_id', '=', $productId);
-        }
-        if ($limit != null) {
-            $warehouseStocks = $warehouseStocks->take($limit);
-        }
-        $warehouseStocks = $warehouseStocks->get();
-
-        return $warehouseStocks;
+    if ($warehouse && $warehouse->products_visibility == 'warehouse') {
+        $warehouseStocks = $warehouseStocks->where('products.warehouse_id', '=', $warehouse->id);
+        Log::info("query1244: " . $warehouseStocks->toSql());
     }
+
+    $warehouseStocks = $warehouseStocks->where('product_details.warehouse_id', '=', $warehouseId);
+
+    Log::info("query12344: " . $warehouseStocks->toSql());
+
+
+
+    if ($limit != null) {
+        $warehouseStocks = $warehouseStocks->take($limit);
+    }
+
+    // Group by necessary fields due to aggregate
+    $warehouseStocks = $warehouseStocks
+        ->groupBy(
+            'products.id',
+            'products.name',
+            'product_details.current_stock',
+            'product_details.stock_quantitiy_alert',
+            'products.low_stock'
+        )
+        ->get();
+
+    Log::info("eeeeeee: " . $warehouseStocks);
+
+    return $warehouseStocks;
+}
+
 
     public function getStatsData()
     {
@@ -505,7 +560,7 @@ class AuthController extends ApiBaseController
         // Total Sales
         $totalSalesAmount = Order::where('order_type', 'sales');
         // Total Expenses
-        $totalExpenses = Expense::select('amount');
+        $totalExpenses = Expenses1::select('bill_amount');
         // Payment Sent
         $paymentSent = Payment::where('payments.payment_type', 'out');
         // Payment Received
@@ -514,7 +569,7 @@ class AuthController extends ApiBaseController
         // Warehouse Filter
         if ($warehouseId && $warehouseId != null) {
             $totalSalesAmount = $totalSalesAmount->where('orders.warehouse_id', $warehouseId);
-            $totalExpenses = $totalExpenses->where('warehouse_id', $warehouseId);
+          //  $totalExpenses = $totalExpenses->where('warehouse_id', $warehouseId);
         }
 
         // Dates Filters
@@ -524,18 +579,19 @@ class AuthController extends ApiBaseController
             $endDate = $dates[1];
 
             $totalSalesAmount = $totalSalesAmount->whereBetween('orders.order_date', [$startDate, $endDate]);
-            $totalExpenses = $totalExpenses->whereBetween('expenses.date', [$startDate, $endDate]);
+            $totalExpenses = $totalExpenses->whereBetween('expenses1.expense_date', [$startDate, $endDate]);
             $paymentSent = $paymentSent->whereBetween('payments.date', [$startDate, $endDate]);
             $paymentReceived = $paymentReceived->whereBetween('payments.date', [$startDate, $endDate]);
         }
 
         $totalSalesAmount = $totalSalesAmount->sum('total');
-        $totalExpenses = $totalExpenses->sum('amount');
+        $totalExpenses = $totalExpenses->sum('bill_amount');
         $paymentSent = $paymentSent->sum('payments.amount');
         $paymentReceived = $paymentReceived->sum('payments.amount');
 
         return [
             'totalSales' => $totalSalesAmount,
+
             'totalExpenses' => $totalExpenses,
             'paymentSent' => $paymentSent,
             'paymentReceived' => $paymentReceived,
@@ -665,9 +721,12 @@ class AuthController extends ApiBaseController
 
     public function getTopProducts()
     {
+
         $request = request();
         $waehouse = warehouse();
-        $warehouseId = $waehouse->id;
+    $warehouseId = optional($waehouse)->id; // ✅ Safe null check
+
+
 
         $colors = ["#20C997", "#5F63F2", "#ffa040", "#FFCD56", "#ff6385"];
 
@@ -717,7 +776,7 @@ class AuthController extends ApiBaseController
     public function getWarehouseId()
     {
         $waehouse = warehouse();
-        $warehouseId = $waehouse->id;
+    $warehouseId = optional($waehouse)->id; // ✅ Safe null check
 
         return $warehouseId;
     }
@@ -727,28 +786,23 @@ class AuthController extends ApiBaseController
         $request = request();
         $warehouseId = $this->getWarehouseId();
 
-        $topCustomers = Order::select(DB::raw('sum(orders.total) as total_amount, user_id, count(user_id) as total_sales'))
-            ->join('users', 'users.id', '=', 'orders.user_id')
-            ->where('orders.order_type', '=', 'sales');
+        $topCustomers = Order::select(DB::raw('SUM(orders.total) AS total_amount, user_id, COUNT(user_id) AS total_sales'))
+                    ->join('users', 'users.id', '=', 'orders.user_id')
+                    ->where('orders.order_type', 'sales')
+                    ->when($warehouseId, fn($q) => $q->where('orders.warehouse_id', $warehouseId))
+                    ->when(
+                        $request->has('dates') && is_array($request->dates) && count($request->dates) === 2,
+                        fn($q) => $q->whereBetween('orders.order_date', [$request->dates[0], $request->dates[1]])
+                    )
+                    ->groupBy('user_id')
+                    ->orderByDesc(DB::raw('total_amount'))
+                    ->take(5)
+                    ->get();
 
-        if ($warehouseId && $warehouseId != null) {
-            $topCustomers = $topCustomers->where('orders.warehouse_id', $warehouseId);
-        }
-
-        if ($request->has('dates') && $request->dates != null && count($request->dates) > 0) {
-            $dates = $request->dates;
-            $startDate = $dates[0];
-            $endDate = $dates[1];
-
-            $topCustomers = $topCustomers->whereBetween('orders.order_date', [$startDate, $endDate]);
-        }
-
-        $topCustomers = $topCustomers->groupByRaw('user_id')
-            ->orderByRaw('sum(orders.total) desc')
-            ->take(5)
-            ->get();
 
         $results = [];
+
+        Log::info('topCustomers', $topCustomers->toArray());
 
         foreach ($topCustomers as $topCustomer) {
             $customer = Customer::select('id', 'name', 'profile_image')->find($topCustomer->user_id);

@@ -14,11 +14,11 @@ class Warehouse extends BaseModel
 
     protected $table = 'warehouses';
 
-    protected $default = ['xid', 'name', 'company_id', 'slug', 'logo', 'logo_url', 'dark_logo', 'dark_logo_url', 'online_store_enabled', 'barcode_type'];
+    protected $default = ['xid', 'name','id','company_id', 'slug', 'logo', 'logo_url', 'dark_logo', 'dark_logo_url', 'online_store_enabled', 'barcode_type'];
 
     protected $guarded = ['id', 'users', 'company_id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['id'];
+    //protected $hidden = ['id'];
 
     protected $appends = ['xid', 'x_company_id', 'logo_url', 'dark_logo_url', 'signature_url'];
 

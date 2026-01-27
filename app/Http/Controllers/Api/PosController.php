@@ -14,6 +14,7 @@ use App\Models\Tax;
 use App\Models\Unit;
 use Carbon\Carbon;
 use Examyou\RestAPI\ApiResponse;
+use App\Models\Warehouse;
 
 class PosController extends ApiBaseController
 {
@@ -22,7 +23,9 @@ class PosController extends ApiBaseController
         $request = request();
         $allProducs = [];
         $warehouse = warehouse();
+
         $warehouseId = $warehouse->id;
+
 
         $products = Product::select(
             'products.id',
@@ -124,6 +127,125 @@ class PosController extends ApiBaseController
         return ApiResponse::make('Data fetched', $data);
     }
 
+// public function posProducts()
+// {
+//     $request = request();
+//     $allProducs = [];
+
+//     // 🔹 Try to get warehouse via helper
+//     $warehouse = warehouse();
+
+//     // 🔹 Fallback to first warehouse if helper returned null
+//    if (!$warehouse) {
+//     $warehouse = Warehouse::first();
+//     if (!$warehouse) {
+//         return ApiResponse::make('No warehouse exists', [], 404);
+//     }
+// }
+
+// // ✅ use getKey() instead of ->id
+// $warehouseId = $warehouse->getKey();
+
+//     $products = Product::select(
+//         'products.id',
+//         'products.name',
+//         'products.image',
+//         'products.product_type',
+//         'product_details.sales_price',
+//         'products.unit_id',
+//         'product_details.sales_tax_type',
+//         'product_details.tax_id',
+//         'product_details.current_stock',
+//         'taxes.rate'
+//     )
+//         ->join('product_details', 'product_details.product_id', '=', 'products.id')
+//         ->leftJoin('taxes', 'taxes.id', '=', 'product_details.tax_id')
+//         ->join('units', 'units.id', '=', 'products.unit_id')
+//         ->where('product_details.warehouse_id', '=', $warehouseId);
+
+//     $products = $products->where(function ($query) {
+//         $query->where(function ($qry) {
+//             $qry->where('products.product_type', '!=', 'service')
+//                 ->where('product_details.current_stock', '>', 0);
+//         })->orWhere('products.product_type', '=', 'service');
+//     });
+
+//     // 🔹 Safe check for visibility
+//     if (isset($warehouse->products_visibility) && $warehouse->products_visibility == 'warehouse') {
+//         $products->where('products.warehouse_id', '=',  $warehouse->getKey());
+//     }
+
+//     // Category Filters
+//     if ($request->has('category_id') && $request->category_id != "") {
+//         $categoryId = $this->getIdFromHash($request->category_id);
+//         $products = $products->where('category_id', '=', $categoryId);
+//     }
+
+//     // Brand Filters
+//     if ($request->has('brand_id') && $request->brand_id != "") {
+//         $brandId = $this->getIdFromHash($request->brand_id);
+//         $products = $products->where('brand_id', '=', $brandId);
+//     }
+
+//     $products = $products->get();
+
+//     foreach ($products as $product) {
+//         $stockQuantity = $product->current_stock;
+//         $unit = $product->unit_id != null ? Unit::find($product->unit_id) : null;
+//         $tax = $product->tax_id != null ? Tax::find($product->tax_id) : null;
+//         $taxType = $product->sales_tax_type;
+
+//         $unitPrice = $product->sales_price;
+//         $singleUnitPrice = $unitPrice;
+
+//         if ($product->rate != '') {
+//             $taxRate = $product->rate;
+
+//             if ($product->sales_tax_type == 'inclusive') {
+//                 $subTotal = $singleUnitPrice;
+//                 $singleUnitPrice = ($singleUnitPrice * 100) / (100 + $taxRate);
+//                 $taxAmount = ($singleUnitPrice) * ($taxRate / 100);
+//             } else {
+//                 $taxAmount = ($singleUnitPrice * ($taxRate / 100));
+//                 $subTotal = $singleUnitPrice + $taxAmount;
+//             }
+//         } else {
+//             $taxAmount = 0;
+//             $taxRate = 0;
+//             $subTotal = $singleUnitPrice;
+//         }
+
+//         $allProducs[] = [
+//             'item_id'           => '',
+//             'xid'               => $product->xid,
+//             'name'              => $product->name,
+//             'image'             => $product->image,
+//             'image_url'         => $product->image_url,
+//             'discount_rate'     => 0,
+//             'total_discount'    => 0,
+//             'x_tax_id'          => $tax ? $tax->xid : null,
+//             'tax_type'          => $taxType,
+//             'tax_rate'          => $taxRate,
+//             'total_tax'         => $taxAmount,
+//             'x_unit_id'         => $unit ? $unit->xid : null,
+//             'unit'              => $unit,
+//             'unit_price'        => $unitPrice,
+//             'single_unit_price' => $singleUnitPrice,
+//             'subtotal'          => $subTotal,
+//             'quantity'          => 1,
+//             'stock_quantity'    => $stockQuantity,
+//             'unit_short_name'   => $unit ? $unit->short_name : '',
+//             'product_type'      => $product->product_type
+//         ];
+//     }
+
+//     $data = [
+//         'products' => $allProducs,
+//     ];
+
+//     return ApiResponse::make('Data fetched', $data);
+// }
+
     public function addPosPayment(PosRequest $request)
     {
         return ApiResponse::make('Success');
@@ -143,17 +265,17 @@ class PosController extends ApiBaseController
         $order->order_type = "sales";
         $order->invoice_type = "pos";
         $order->unique_id = Common::generateOrderUniqueId();
-        $order->invoice_number = "";
+        //$order->invoice_number = "";
         $order->order_date = Carbon::now();
-        $order->warehouse_id = $warehouse->id;
+        $order->warehouse_id =  $warehouse->getKey();
         $order->user_id = isset($orderDetails['user_id']) ? $orderDetails['user_id'] : null;
         $order->tax_id = isset($orderDetails['tax_id']) ? $orderDetails['tax_id'] : null;
-        $order->tax_rate = $orderDetails['tax_rate'];
-        $order->tax_amount = $orderDetails['tax_amount'];
+        $order->tax_rate = $orderDetails['tax_rate'] ?? 0;
+        $order->tax_amount = $orderDetails['tax_amount'] ?? 0;
         $order->discount = $orderDetails['discount'];
         $order->shipping = $orderDetails['shipping'];
         $order->subtotal = 0;
-        $order->total = $orderDetails['subtotal'];
+        $order->total = $orderDetails['subtotal']?? 0;
         $order->paid_amount = 0;
         $order->due_amount = $order->total;
         $order->order_status = $posDefaultStatus;

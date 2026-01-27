@@ -99,7 +99,7 @@
                         size="middle"
                     >
                         <template #bodyCell="{ column, record }">
-                            <template v-if="column.dataIndex === 'product_id'">
+                            <template v-if="column.dataIndex === 'product_id'&& record.product">
                                 <a-badge>
                                     <a-avatar
                                         shape="square"
@@ -121,17 +121,17 @@
                                 </a-typography-text>
                             </template>
                             <template v-if="column.dataIndex === 'action'">
-                                <a-button
-                                    v-if="
-                                        permsArray.includes('stock_adjustments_edit') ||
-                                        permsArray.includes('admin')
-                                    "
-                                    type="primary"
-                                    @click="editItem(record)"
-                                    style="margin-left: 4px"
-                                >
-                                    <template #icon><EditOutlined /></template>
-                                </a-button>
+                                    <a-button
+                                        v-if="
+                                            permsArray.includes('stock_adjustments_edit') ||
+                                            permsArray.includes('admin')
+                                        "
+                                        type="primary"
+                                        @click="editItem(record)"
+                                        style="margin-left: 4px"
+                                    >
+                                        <template #icon><EditOutlined /></template>
+                                    </a-button>
                                 <a-button
                                     v-if="
                                         permsArray.includes('stock_adjustments_delete') ||

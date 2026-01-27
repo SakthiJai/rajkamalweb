@@ -114,7 +114,7 @@
                                 {{ record.expense_category?.name }}
                             </template>
                             <template v-if="column.dataIndex === 'amount'">
-                                {{ formatAmountCurrency(record.amount) }}
+                                {{ formatAmountCurrency(record.bill_amount) }}
                             </template>
                             <template v-if="column.dataIndex === 'date'">
                                 {{ formatDate(record.date) }}
@@ -233,7 +233,7 @@ export default {
         const totals = computed(() => {
             let totalAmount = 0;
             datatableVariables.table.data.forEach((tableRowData) => {
-                totalAmount += tableRowData.amount;
+                totalAmount += tableRowData.bill_amount;
             });
             return {
                 totalAmount,

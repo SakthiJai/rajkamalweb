@@ -3,7 +3,16 @@
 use Examyou\RestAPI\Facades\ApiRoute;
 
 // Admin Routes
+<<<<<<< Updated upstream
 ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
+=======
+    ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
+
+
+
+
+    ApiRoute::post('generateEWayBill', ['as' => 'api.extra.all-langs', 'uses' => 'EwayBillController@generateEWayBill']);
+>>>>>>> Stashed changes
     ApiRoute::get('all-langs', ['as' => 'api.extra.all-langs', 'uses' => 'AuthController@allEnabledLangs']);
     ApiRoute::get('pdf/{uniqueId}/{lang?}', ['as' => 'api.extra.pdf', 'uses' => 'AuthController@pdf']);
     ApiRoute::get('lang-trans', ['as' => 'api.extra.lang-trans', 'uses' => 'AuthController@langTrans']);
@@ -30,8 +39,23 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     ApiRoute::get('stations', ['as' => 'api.station.index', 'uses' => 'StationController@index']);
     ApiRoute::get('parent-ledger', ['as' => 'api.parent.index', 'uses' => 'LedgerController@index']);
 
+<<<<<<< Updated upstream
     ApiRoute::group(['middleware' => ['api.auth.check']], function () {
         ApiRoute::post('dashboard', ['as' => 'api.extra.dashboard', 'uses' => 'AuthController@dashboard']);
+=======
+    ApiRoute::get('product-category', ['as' => 'api.product-category.index', 'uses' => 'ProductCategoryController@index']);
+    ApiRoute::get('god-owns', ['as' => 'api.godown.index', 'uses' => 'GodownsController@index']);
+    ApiRoute::get('receiptbank', ['as' => 'api.receiptbank.index', 'uses' => 'ReceiptBankController@index']);
+
+
+    ApiRoute::get('parties-category', ['as' => 'api.godown.index', 'uses' => 'CategorysController@index']);
+
+
+       // ApiRoute::get('product-company', ['as' => 'api.parent.index', 'uses' => 'ProductCategoryController@index']);
+
+        //ApiRoute::group(['middleware' => ['api.auth.check']], function () {
+         ApiRoute::post('dashboard', ['as' => 'api.extra.dashboard', 'uses' => 'AuthController@dashboard']);
+>>>>>>> Stashed changes
         ApiRoute::post('upload-file', ['as' => 'api.extra.upload-file', 'uses' => 'AuthController@uploadFile']);
         ApiRoute::post('profile', ['as' => 'api.extra.profile', 'uses' => 'AuthController@profile']);
         ApiRoute::post('user', ['as' => 'api.extra.user', 'uses' => 'AuthController@user']);
@@ -44,10 +68,10 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Warehouse History
         ApiRoute::resource('warehouse-history', 'WarehouseHistoryController', ['as' => 'api', 'only' => ['index']]);
-    });
+
 
     // Routes Accessable to thouse user who have permissions realted to route
-    ApiRoute::group(['middleware' => ['api.permission.check', 'api.auth.check', 'license-expire']], function () {
+    //ApiRoute::group(['middleware' => ['api.permission.check', 'api.auth.check', 'license-expire']], function () {
         $options = [
             'as' => 'api'
         ];
@@ -131,7 +155,48 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('cashbank', 'CashBankController', $options);
         
         ApiRoute::post('sales/store', ['as' => 'api.sales.store', 'uses' => 'SalesController@salesCreate']);
+<<<<<<< Updated upstream
         ApiRoute::get('sales/billNumber', ['as' => 'api.sales.store', 'uses' => 'SalesController@billNumber']);
+=======
+        ApiRoute::post('sales/salesReturn', ['as' => 'api.sales.store', 'uses' => 'SalesController@salesReturn']);
+        ApiRoute::post('sales/salesPurchase', ['as' => 'api.sales.store', 'uses' => 'PurchaseReturnController@salesPurchase']);
+        ApiRoute::post('sales/quotationCreate', ['as' => 'api.sales.store', 'uses' => 'SalesController@quotationCreate']);
+        ApiRoute::post('sales-return/getPurchaseReturnPdf', ['as' => 'api.sales.store', 'uses' => 'PurchaseReturnController@getPurchaseReturnPdf']);
+
+        ApiRoute::post('sales-bill/getPurchaseBillPdf', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@geBillInvoicePdf']);
+
+        ApiRoute::resource('purchase-returns', 'PurchaseReturnController', $options);
+
+        ApiRoute::get('sales/getInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'SalesController@getInvoiceDetails']);
+
+        ApiRoute::get('paymemt/getInvoicepayment/{invoice}', ['as' => 'api.sales.store', 'uses' => 'ReceiptPaymentController@getInvoicePaymentDetails']);
+
+
+        ApiRoute::get('receipt/getInvoicereceipt/{invoice}', ['as' => 'api.sales.store', 'uses' => 'ReceiptController@getInvoiceReceiptDetails']);
+
+        ApiRoute::get('sales/getReturnInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'SalesController@getReturnInvoiceDetails']);
+        //sales return edit
+        ApiRoute::get('sales/getReturnInvoiceDetailss/{invoice}', ['as' => 'api.sales.store', 'uses' => 'SalesController@getReturnInvoiceDetailss']);
+
+        ApiRoute::get('sales/getpurchaseInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'PurchaseReturnController@getPurchaseInvoiceDetails']);
+
+        ApiRoute::get('sales/getbillInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@getBillInvoiceDetails']);
+
+
+        ApiRoute::get('expense/getexpenseInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'ExpensesItemController@getExpensenvoiceDetails']);
+
+        ApiRoute::get('sales/billNumber/{party_id}', ['as' => 'api.sales.store', 'uses' => 'SalesController@billNumber']);
+        ApiRoute::get('sales/billNumber', ['as' => 'api.sales.store', 'uses' => 'SalesController@billNumber']);
+
+
+        ApiRoute::get('sales/quotationNumber', ['as' => 'api.sales.store', 'uses' => 'SalesController@quotationNumber']);
+
+        // ApiRoute::get('quotations/quotationNumber/{party_id}', ['as' => 'api.quotations.store', 'uses' => 'QuotationController@quotationNumber']);
+
+       ApiRoute::get('quotations/quotationNumber', ['as' => 'api.quotations.store', 'uses' => 'QuotationController@quotationNumber']);
+
+        ApiRoute::get('sales/crNumber/{party_id}', ['as' => 'api.sales.store', 'uses' => 'SalesController@crNumber']);
+>>>>>>> Stashed changes
         ApiRoute::post('sales/savepayment', ['as' => 'api.sales.store', 'uses' => 'SalesController@savepayment']);
         ApiRoute::post('sales/getInvoicePdf', ['as' => 'api.sales.store', 'uses' => 'SalesController@getInvoicePdf']);
  		ApiRoute::post('products-store', ['as' => 'api.product.store', 'uses' => 'ProductController@productStore']);
@@ -161,7 +226,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         ApiRoute::resource('sales-number', 'SalesNumberController', $options); 
     });
-});
+
 
 //for hrm
 ApiRoute::group(['namespace' => 'App\Http\Controllers\Api\Hrm'], function () {

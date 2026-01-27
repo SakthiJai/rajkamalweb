@@ -23,15 +23,17 @@ class StockAdjustmentController extends ApiBaseController
 	protected $updateRequest = UpdateRequest::class;
 	protected $deleteRequest = DeleteRequest::class;
 
-	public function modifyIndex($query)
-	{
-		$warehouse = warehouse();
+        public function modifyIndex($query)
+        {
+            $warehouse = warehouse();
+            $query = $query->with('product');
 
-		// Get only current warehouse stocks
-		$query = $query->where('stock_adjustments.warehouse_id', $warehouse->id);
 
-		return $query;
-	}
+            // Get only current warehouse stocks
+            // $query = $query->where('stock_adjustments.warehouse_id', $warehouse->id);
+
+            return $query;
+        }
 
 	public function storing(StockAdjustment $stockAdjustment)
 	{
@@ -110,7 +112,7 @@ class StockAdjustmentController extends ApiBaseController
 		$loggedUser = auth('api')->user();
 
 		// If logged in user is not admin
-		// then cannot delete order who are 
+		// then cannot delete order who are
 		// of other warehouse
 		if (!$loggedUser->hasRole('admin') && $stockAdjustment->warehouse_id != $loggedUser->warehouse_id) {
 			throw new ApiException("Don't have valid permission");

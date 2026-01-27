@@ -75,22 +75,17 @@
                                     {{ record.name }}
                                 </a-badge>
                             </template>
-                            <template
-                                v-if="column.dataIndex === 'current_stock'"
-                            >
-                                {{
-                                    `${record.details.current_stock} ${record.unit.short_name}`
-                                }}
+                           <template v-if="column.dataIndex === 'current_stock'">
+                                   {{
+                                     `${record.details.current_stock} ${record.unit?.short_name || ''}`
+                                    }}
                             </template>
-                            <template
-                                v-if="
-                                    column.dataIndex === 'stock_quantitiy_alert'
-                                "
-                            >
-                                {{
-                                    `${record.details.stock_quantitiy_alert} ${record.unit.short_name}`
-                                }}
+                            <template v-if="column.dataIndex === 'stock_quantitiy_alert'">
+                                   {{
+                                    `${record.details.stock_quantitiy_alert} ${record.unit?.short_name || ''}`
+                                    }}
                             </template>
+
                         </template>
                         <template #summary>
                             <a-table-summary-row>
@@ -213,4 +208,5 @@ export default {
         };
     },
 };
+
 </script>

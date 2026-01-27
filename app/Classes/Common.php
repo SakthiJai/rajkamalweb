@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Nwidart\Modules\Facades\Module;
 use Vinkla\Hashids\Facades\Hashids;
-
+use Illuminate\Support\Facades\Log;
 class Common
 {
     public static function getFolderPath($type = null)
@@ -173,12 +173,21 @@ class Common
                 ->where('order_type', '=', 'sales-returns')
                 ->where('warehouse_id', '=', $warehouseId)
                 ->count();
+<<<<<<< Updated upstream
 
             $userDetails->purchase_order_count = $purchaseOrderCount;
             $userDetails->purchase_return_count = $purchaseReturnOrderCount;
             $userDetails->sales_order_count = $salesOrderCount;
             $userDetails->sales_return_count = $salesReturnOrderCount;
 
+=======
+         if($userDetails)
+         {
+            $userDetails->purchase_order_count = $purchaseOrderCount<0?$purchaseOrderCount:0;
+            $userDetails->purchase_return_count = $purchaseReturnOrderCount<0?$purchaseReturnOrderCount:0;
+            $userDetails->sales_order_count = $salesOrderCount<0?$salesOrderCount:0;
+            $userDetails->sales_return_count = $salesReturnOrderCount<0?$salesReturnOrderCount:0;
+>>>>>>> Stashed changes
             $userDetails->total_amount = $userTotalOrderAmount;
 
 
@@ -189,7 +198,13 @@ class Common
             }
 
             $userDetails->due_amount = $userDetails->total_amount - $userDetails->paid_amount;
+<<<<<<< Updated upstream
             $userDetails->save();
+=======
+
+            $userDetails->save();
+        }
+>>>>>>> Stashed changes
         }
     }
 
@@ -470,7 +485,8 @@ class Common
     public static function createProductDetailsForWarehouseIfNotExists($warehouseId, $productId)
     {
         $company = company();
-        $companyWarehouse = $company->warehouse;
+
+        $companyWarehouse = $company->warehouse ?? "";
 
         // Getting product details for company default warehouse
         $defaultWarehouseProductDetails = ProductDetails::withoutGlobalScope('current_warehouse')
@@ -481,15 +497,15 @@ class Common
         $productDetails = new ProductDetails();
         $productDetails->warehouse_id = $warehouseId;
         $productDetails->product_id = $productId;
-        $productDetails->tax_id = $defaultWarehouseProductDetails->tax_id;
-        $productDetails->mrp = $defaultWarehouseProductDetails->mrp;
-        $productDetails->purchase_price = $defaultWarehouseProductDetails->purchase_price;
-        $productDetails->sales_price = $defaultWarehouseProductDetails->sales_price;
-        $productDetails->purchase_tax_type = $defaultWarehouseProductDetails->purchase_tax_type;
-        $productDetails->sales_tax_type = $defaultWarehouseProductDetails->sales_tax_type;
-        $productDetails->stock_quantitiy_alert = $defaultWarehouseProductDetails->stock_quantitiy_alert;
-        $productDetails->wholesale_price = $defaultWarehouseProductDetails->wholesale_price;
-        $productDetails->wholesale_quantity = $defaultWarehouseProductDetails->wholesale_quantity;
+        $productDetails->tax_id = $defaultWarehouseProductDetails->tax_id ?? 0;
+        $productDetails->mrp = $defaultWarehouseProductDetails->mrp ?? 0;
+        $productDetails->purchase_price = $defaultWarehouseProductDetails->purchase_price ?? 0;
+        $productDetails->sales_price = $defaultWarehouseProductDetails->sales_price ?? 0;
+        $productDetails->purchase_tax_type = $defaultWarehouseProductDetails->purchase_tax_type ?? "exclusive";
+        $productDetails->sales_tax_type = $defaultWarehouseProductDetails->sales_tax_type ?? "exclusive	";
+        $productDetails->stock_quantitiy_alert = $defaultWarehouseProductDetails->stock_quantitiy_alert ?? 0;
+        $productDetails->wholesale_price = $defaultWarehouseProductDetails->wholesale_price ?? 0;
+        $productDetails->wholesale_quantity = $defaultWarehouseProductDetails->wholesale_quantity ?? 0;
         $productDetails->save();
 
         return $productDetails;

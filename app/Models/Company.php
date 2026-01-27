@@ -20,9 +20,9 @@ class Company extends BaseModel
 
     protected $default = ['xid'];
 
-    protected $guarded = ['id', 'is_global', 'subscription_plan_id', 'payment_transcation_id', 'licence_expire_on', 'package_type', 'stripe_id', 'trial_ends_at',  'created_at', 'updated_at'];
+    protected $guarded = ['id', 'is_global', 'warehouse_id', 'subscription_plan_id', 'payment_transcation_id', 'licence_expire_on', 'package_type', 'stripe_id', 'trial_ends_at',  'created_at', 'updated_at'];
 
-    protected $hidden = ['id', 'currency_id', 'warehouse_id', 'lang_id', 'admin_id', 'subscription_plan_id', 'payment_transcation_id', 'updated_at'];
+    protected $hidden = ['id', 'currency_id', 'lang_id', 'admin_id', 'subscription_plan_id', 'payment_transcation_id', 'updated_at'];
 
     protected $appends = ['xid', 'x_currency_id', 'x_warehouse_id', 'x_lang_id', 'x_admin_id', 'x_subscription_plan_id', 'x_payment_transcation_id', 'login_image_url', 'light_logo_url', 'dark_logo_url', 'small_light_logo_url', 'small_dark_logo_url', 'beep_audio_url'];
 

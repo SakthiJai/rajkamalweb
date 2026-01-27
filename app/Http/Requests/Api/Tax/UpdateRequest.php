@@ -26,9 +26,18 @@ class UpdateRequest extends FormRequest
     {
 
         $rules = [
+<<<<<<< Updated upstream
             'name'    => 'required',
             'tax_type'    => 'required',
             'rate'    => 'required|numeric|between:0,100',
+=======
+            'sales_type'    => 'required',
+            'lgst'    => 'required',
+            'cgst'    => 'required',
+            'sgst'    => 'required',
+            'igst'   => 'required',
+
+>>>>>>> Stashed changes
         ];
 
         if($this->tax_type == 'multiple') {

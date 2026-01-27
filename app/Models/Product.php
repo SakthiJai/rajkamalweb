@@ -69,7 +69,28 @@ class Product extends BaseModel
                         'sgst',
                         'company_name',
                         'unit_name',
+<<<<<<< Updated upstream
                         'hsn'
+=======
+
+                        'god_owns',
+                        'opening_stock',
+                        'as_on_date',
+                        'category_field',
+                        'low_stock',
+                        'god_owns_name',
+                        'product_category_name',
+                        'code',
+                        'sales_type',
+                        'brand_name',
+                        'product_id',
+                        'short_code',
+                        'image_url',
+                        'barcode_value',
+
+
+
+>>>>>>> Stashed changes
                     ];
 
 

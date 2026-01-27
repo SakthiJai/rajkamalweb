@@ -287,6 +287,272 @@ const fields = () => {
             },
         ];
     };
+<<<<<<< Updated upstream
+=======
+    salesReturnColumns.value = [
+        {
+            title: t(`CR.Number`),
+            dataIndex: "cr_number",
+            sorter: true,
+        },
+        {
+            title: t("Date"),
+            dataIndex: "order_date",
+        },
+        {
+            title: t("stock.party"),
+            dataIndex: ["party_name", "party_name"],
+            sorter: true,
+        },
+        {
+            title: t(`${pageObject.value.langKey}.user`),
+            dataIndex: ["customer", "cus_name"],
+            sorter: true,
+            //sorter_field:"orders.user_id"
+        },
+        {
+            title: t("stock.sales_amount"),
+            dataIndex: "total",
+            sorter: true,
+        },
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    //bill return//
+
+    BillReturnColumns.value = [
+        {
+            title: t(`stock.invoices_number`),
+            dataIndex: "invoice_number",
+            sorter: true,
+        },
+        {
+            title: t("stock.order_date"),
+            dataIndex: "order_date",
+        },
+
+        {
+            title: t("stock.party"),
+            dataIndex: ["party_name", "party_full_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("stock.sales_amount"),
+            dataIndex: "total",
+            sorter: true,
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+     // purchase return //
+     purchaseReturnColumns.value = [
+        {
+            title: t(`stock.dr_numbers`),
+            dataIndex: "dr_number",
+            sorter: true,
+        },
+        {
+            title: t("stock.order_date"),
+            dataIndex: "order_date",
+        },
+        {
+            title: t("stock.party"),
+            dataIndex: ["party_name", "party_full_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("stock.sales_amount"),
+            dataIndex: "total",
+            sorter: true,
+        },
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+    //end purchase //
+
+
+    ReceiptColumns.value = [
+        {
+            title: t(`Order Date`),
+            dataIndex: "order_date",
+            sorter: true,
+        },
+        {
+            title: t("Vocher Number"),
+            dataIndex: "voucher_number",
+            //dataIndex: "party_full_name",
+            sorter: true,
+        },
+
+        {
+            title: t("Party Name"),
+            dataIndex: ["party_name", "party_full_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("Station"),
+            dataIndex: "station",
+        },
+
+        {
+            title: t("Ins.Type"),
+            dataIndex: "inst_type",
+        },
+        {
+            title: t("Ins.No"),
+            dataIndex: "inst_no",
+        },
+
+        {
+            title: t("Amount"),
+            dataIndex: "amount",
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+    /// end of bill retutn//
+
+    ReceiptPaymentColumns.value = [
+        {
+            title: t(`Order Date`),
+            dataIndex: "order_date",
+            sorter: true,
+        },
+        {
+            title: t("Voucher Number"),
+            dataIndex: "payment_voucher",
+             sorter: true,
+        },
+
+        {
+            title: t("Party Name"),
+            dataIndex: ["party_name", "party_full_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("Station"),
+            dataIndex: "station",
+        },
+
+        {
+            title: t("Ins.Type"),
+            dataIndex: "inst_type",
+        },
+        {
+            title: t("Ins.No"),
+            dataIndex: "inst_no",
+        },
+
+        {
+            title: t("Amount"),
+            dataIndex: "amount",
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    /// payment recepit//
+
+    //end payment recepit//
+
+    // Payment table data
+
+    PaymentColumn.value = [
+        {
+            title: t("Date"),
+            dataIndex: "order_date",
+        },
+        {
+            title: t("Voucher No"),
+            dataIndex: "invoice_number",
+            // dataIndex: ["partyName", "party_name"],
+        },
+        {
+            title: t("Party Name"),
+            dataIndex: ["customer", "cus_name"],
+        },
+        {
+            title: t("Station"),
+            dataIndex: "total",
+        },
+        {
+            title: t("Ins Type"),
+            dataIndex: "order_date",
+        },
+
+        {
+            title: t("Ins No"),
+            dataIndex: "total",
+        },
+        {
+            title: t("₹ Amount"),
+            dataIndex: "total",
+        },
+        {
+            title: t("Action"),
+            dataIndex: "action",
+        },
+    ];
+    //end payment table data
+
+    /// expense column//
+    ExpenseColumns.value = [
+        {
+            title: t(`stock.expense_number`),
+            dataIndex: "expense_number",
+            sorter: true,
+        },
+
+        {
+            title: t("stock.order_date"),
+            dataIndex: "order_date",
+        },
+        {
+            title: t("stock.party"),
+            dataIndex: ["party_name", "party_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("stock.category"),
+            dataIndex: "category_id",
+            sorter: true,
+        },
+
+        {
+            title: t("stock.sales_amount"),
+            dataIndex: "total",
+            sorter: true,
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+    // end expense colunm//
+
+
+>>>>>>> Stashed changes
 
     const orderPaymentsColumns = [
         {
