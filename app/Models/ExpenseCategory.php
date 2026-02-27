@@ -3,26 +3,24 @@
 namespace App\Models;
 
 use App\Models\BaseModel;
-use App\Scopes\CompanyScope;
+ use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
 
 class ExpenseCategory extends BaseModel
 {
     protected $table = 'expense_categories';
 
-    protected $default = ['xid', 'name'];
+    protected $default = ['xid', 'name', 'description'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['id'];
+    //protected $hidden = ['id'];
 
     protected $appends = ['xid'];
 
-    protected $filterable = ['name'];
+    protected $filterable = ['name','description'];
 
-    protected static function boot()
-    {
-        parent::boot();
 
-        static::addGlobalScope(new CompanyScope);
-    }
 }
+

@@ -21,10 +21,26 @@ class ExpenseController extends ApiBaseController
     protected $updateRequest = UpdateRequest::class;
     protected $deleteRequest = DeleteRequest::class;
 
-    public function modifyIndex($query)
+    public function expenseStore($query)
     {
         $request = request();
         $warehouse = warehouse();
+
+        $expense->company_id = $request->company_id;
+        $expense->warehouse_id = $request->warehouse_id;
+        $expense->image = $request->image;
+        $expense->created_at = $request->created_at;
+        $expense->updated_at = $request->updated_at;
+        $expense->tax_type = $request->tax_type;
+        $expense->party_type = $request->party_type;
+        $expense->expense_category = $request->expense_category;
+        $expense->entry_date = $request->entry_date;
+        $expense->expense_date = $request->expense_date;
+        $expense->original_bill_number = $request->original_bill_number;
+        $expense->bill_amount = $request->bill_amount;
+        $expense->tax_amount = $request->tax_amount;
+        $expense->payment_mode = $request->payment_mode;
+        $expense->note = $request->note;
 
         // If user not have admin role
         // then he can only view reords

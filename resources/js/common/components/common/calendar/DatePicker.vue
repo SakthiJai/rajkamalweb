@@ -1,11 +1,11 @@
 <template>
     <a-date-picker
         v-model:value="dateValue"
-        :format="formatDates"
+        :format="dateFormat"
         :disabled-date="disabledDate"
-        :placeholder="$t('common.date')"
         style="width: 100%"
         @change="dateChanged"
+        @keydown="kewydownCall"
         :disabled="disabled"
     />
 </template>
@@ -25,8 +25,9 @@ export default defineComponent({
     },
     emits: ["dateChanged"],
     setup(props, { emit }) {
-        const dateValue = ref(undefined);
-        const { disabledDate, formatDates, dayjs } = common(); // Assuming you have formatDate defined
+        const { disabledDate, dayjs } = common(); // Ensure dayjs is available
+        const dateValue = ref(props.dateTime ? dayjs(props.dateTime).startOf('day') : dayjs().startOf('day')); // Set default to current date
+        const dateFormat = "DD-MM-YYYY";
 
         onMounted(() => {
             setDate(props.dateTime);
@@ -34,24 +35,24 @@ export default defineComponent({
 
         const setDate = (setValue) => {
             if (setValue) {
-                dateValue.value = dayjs(setValue).startOf('day'); // Ensure only date without time
+                dateValue.value = dayjs(setValue).startOf("day");
             } else {
-                dateValue.value = undefined;
+                dateValue.value = dayjs().startOf("day"); // Default to today if no date is provided
             }
         };
 
-        const formatDate = (newValue) => {
-            return newValue ? newValue.format("YYYY-MM-DD") : undefined;
+        const dateChanged = (newValue) => {
+            const emitValue = newValue ? newValue.format("DD/MM/YYYY") : undefined;
+            emit("dateChanged", emitValue);
         };
 
-        const dateChanged = (newValue) => {
-            const emitValue = newValue ? newValue.format("YYYY-MM-DD") : undefined;
-            emit("dateChanged", emitValue);
+        const kewydownCall = (event) => {
+            console.log("event", event);
         };
 
         watch(
             () => props.dateTime,
-            (newVal, oldVal) => {
+            (newVal) => {
                 setDate(newVal);
             }
         );
@@ -59,8 +60,8 @@ export default defineComponent({
         return {
             dateValue,
             disabledDate,
-            formatDate,
             dateChanged,
+            dateFormat,
         };
     },
 });

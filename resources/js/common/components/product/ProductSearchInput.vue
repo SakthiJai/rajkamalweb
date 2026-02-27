@@ -1,5 +1,7 @@
 <template>
     <a-select
+    
+    id="product_id"
         v-model:value="searchTerm"
         show-search
         :filter-option="false"
@@ -49,22 +51,27 @@ export default defineComponent({
             resetSearchInput(props);
         });
 
-        const resetSearchInput = (propVal) => {
-            if (propVal.productData && propVal.productData.product) {
-                state.products = [
-                    {
-                        xid: propVal.productData.x_product_id,
-                        name: propVal.productData.product.name,
-                    },
-                ];
-                state.searchTerm = propVal.productData.x_product_id;
-            } else {
-                state.searchTerm = [];
-                state.products = [];
-            }
+const resetSearchInput = (propVal) => {
+    if (propVal.productData && propVal.productData.xid) {
 
-            emit("valueSuccess");
+        const productOption = {
+            xid: propVal.productData.xid,
+            name: propVal.productData.name,
         };
+
+        state.products = [productOption];
+
+        // value must match option value
+        state.searchTerm = productOption.xid;
+
+    } else {
+        state.searchTerm = undefined;
+        state.products = [];
+    }
+
+    emit("valueSuccess");
+};
+
 
         const valueChanged = (value, option) => {
             emit("valueChanged", value);
@@ -88,9 +95,14 @@ export default defineComponent({
             }
         }, 300);
 
-        watch(props, (newVal, oldVal) => {
-            resetSearchInput(newVal);
-        });
+        watch(
+  () => props.productData,
+  (newVal) => {
+      resetSearchInput({ productData: newVal });
+  },
+  { immediate: true }
+);
+
 
         return {
             ...toRefs(state),

@@ -30,12 +30,12 @@
                             permsArray.includes('admin')
                         "
                     >
-                        <a-button type="primary" @click="addItem">
+                        <a-button type="primary" @click="addItem" style="background-color: #1f6d70;">
                             <PlusOutlined />
-                            {{ $t("variation.add") }}
+                            {{ $t("variation.add") }} / F2
                         </a-button>
                     </template>
-                    <a-button
+                    <!-- <a-button
                         v-if="
                             table.selectedRowKeys.length > 0 &&
                             (permsArray.includes('variations_delete') ||
@@ -47,7 +47,7 @@
                     >
                         <template #icon><DeleteOutlined /></template>
                         {{ $t("common.delete") }}
-                    </a-button>
+                    </a-button> -->
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
@@ -66,10 +66,12 @@
                                     {{ filterableColumn.value }}
                                 </a-select-option>
                             </a-select>
-                            <a-input-search
+                           <a-input-search
+                                ref="searchInputRef"
                                 style="width: 75%"
                                 v-model:value="table.searchString"
-                                show-search
+                                @focus="isSearchFocused = true"
+                                @blur="isSearchFocused = false"
                                 @change="onTableSearch"
                                 @search="onTableSearch"
                                 :loading="table.filterLoading"
@@ -85,7 +87,7 @@
         <AddEdit
             :addEditType="addEditType"
             :visible="addEditVisible"
-            :url="addEditUrl"
+             :url="addEditUrl"
             @addEditSuccess="addEditSuccess"
             @closed="onCloseAddEdit"
             :formData="formData"
@@ -171,7 +173,7 @@
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted } from "vue";
+import { onMounted, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import fields from "./fields";
 import crud from "../../../../common/composable/crud";
@@ -198,33 +200,138 @@ export default {
             filterableColumns,
             hashableColumns,
         } = fields();
+        const selectedRowIndex = ref(-1);
+        const searchInputRef = ref(null);
+        const isSearchFocused = ref(false);
         const crudVariables = crud();
         const { permsArray } = common();
+        const onCloseAddEdit = () => {
+            crudVariables.onCloseAddEdit();
+        };
 
-        onMounted(() => {
+        const setUrlData = () => {
             const filterValue = encodeURIComponent("parent_id eq null");
 
             crudVariables.tableUrl.value = {
                 url: `variations?fields=id,xid,name,parent_id,x_parent_id,subVariations{id,xid,parent_id,x_parent_id,name}&filters=${filterValue}`,
             };
+
             crudVariables.table.filterableColumns = filterableColumns;
+
+            // IMPORTANT
+            crudVariables.crudUrl.value = "variations";
+
+            crudVariables.langKey.value = "variation";
+            crudVariables.initData.value = { ...initData };
+            crudVariables.formData.value = { ...initData };
+            crudVariables.hashableColumns.value = [...hashableColumns];
+        };
+
+        onMounted(async () => {
+            setUrlData();
 
             crudVariables.fetch({
                 page: 1,
             });
 
-            crudVariables.crudUrl.value = addEditUrl;
-            crudVariables.langKey.value = "variation";
-            crudVariables.initData.value = { ...initData };
-            crudVariables.formData.value = { ...initData };
-            crudVariables.hashableColumns.value = [...hashableColumns];
+            window.addEventListener("keydown", handleKeyDown);
+
+            await nextTick();
+
+        if (searchInputRef.value) {
+            searchInputRef.value.focus();
+        }
         });
+        onBeforeUnmount(() => {
+            window.removeEventListener("keydown", handleKeyDown);
+        });
+        const handleKeyDown = (event) => {
+            if (crudVariables.addEditVisible.value) return;
+
+            // F2 → Add
+            if (event.code === "F2") {
+                event.preventDefault();
+
+                crudVariables.addEditType.value = "add";
+                crudVariables.formData.value = { ...crudVariables.initData.value };
+                crudVariables.addEditVisible.value = true;
+
+                return;
+            }
+
+                if (
+    isSearchFocused.value &&
+    !["ArrowUp", "ArrowDown", "Enter"].includes(event.key)
+) {
+    return;
+}
+
+            const data = crudVariables.table.data;
+
+            // Arrow Down
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                if (data.length === 0) return;
+
+                if (selectedRowIndex.value < data.length - 1) {
+                    selectedRowIndex.value++;
+                }
+
+                const row = data[selectedRowIndex.value];
+                crudVariables.table.selectedRowKeys = [row.xid];
+            }
+
+            // Arrow Up
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+                if (data.length === 0) return;
+
+                if (selectedRowIndex.value > 0) {
+                    selectedRowIndex.value--;
+                }
+
+                const row = data[selectedRowIndex.value];
+                crudVariables.table.selectedRowKeys = [row.xid];
+            }
+
+            // Enter → Edit
+            if (event.key === "Enter") {
+                event.preventDefault();
+
+                if (selectedRowIndex.value >= 0) {
+                    const row = data[selectedRowIndex.value];
+                    crudVariables.editItem(row);
+                }
+            }
+        };
+        watch(
+            () => crudVariables.addEditVisible.value,
+            async (visible) => {
+                if (!visible) {
+                    await nextTick();
+                    searchInputRef.value?.focus();
+                }
+            }
+        );
+        const onRowSelectChange = (selectedKeys) => {
+            crudVariables.table.selectedRowKeys = selectedKeys;
+
+            if (selectedKeys.length > 0) {
+                selectedRowIndex.value = crudVariables.table.data.findIndex(
+                    (row) => row.xid === selectedKeys[0]
+                );
+            }
+        };
 
         return {
             columns,
             ...crudVariables,
             filterableColumns,
             permsArray,
+            searchInputRef,
+            isSearchFocused,
+            onRowSelectChange,
+            onCloseAddEdit
         };
     },
 };

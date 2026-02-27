@@ -920,7 +920,7 @@
                             block
                         >
                             <span class="shortcut">
-                                <code>F10 / End</code>
+                                <code>F8 / End</code>
                             </span>
                             <span class="savebutton"
                                 >{{ $t("common.save") }} <SaveOutlined />
@@ -1143,7 +1143,7 @@
                 :loading="addEditFormSubmitting"
                 @click="onAddEditSubmit"
             >
-                <span class="shortcut ng-star-inserted"><code>F10</code></span>
+                <span class="shortcut ng-star-inserted"><code>F8</code></span>
                 <template #icon>
                     <SaveOutlined />
                 </template>
@@ -1770,7 +1770,7 @@ export default {
                 //     this.isNumberVisible =false;
                 //    this. isCustomerVisible=false;
                 //this.$router.push({ name: 'admin.stock.sales.index' });
-            } else if (event.key === "F10") {
+            } else if (event.key === "F8") {
                 //this.onSubmit();
                 this.saveSalesEntry();
             }

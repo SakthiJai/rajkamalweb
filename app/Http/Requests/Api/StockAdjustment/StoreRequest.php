@@ -28,6 +28,10 @@ class StoreRequest extends FormRequest
 			'product_id'    => 'required',
 			'quantity'    => 'required|numeric',
 			'adjustment_type'    => 'required|in:add,subtract',
+			'packaging' => 'nullable|string|max:255',
+			'reason' => 'nullable|string|max:255',
+			'value' => 'nullable|numeric',
+
 		];
 
 		return $rules;

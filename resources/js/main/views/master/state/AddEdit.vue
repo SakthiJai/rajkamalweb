@@ -27,27 +27,6 @@
                     </a-form-item>
                 </a-col>
             </a-row>
-
-        <!--    <a-row :gutter="16">
-                <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                    <a-form-item
-                        :label="$t('expense_category.description')"
-                        name="description"
-                        :help="rules.description ? rules.description.message : null"
-                        :validateStatus="rules.description ? 'error' : null"
-                    >
-                        <a-textarea
-                            v-model:value="formData.description"
-                            :placeholder="
-                                $t('common.placeholder_default_text', [
-                                    $t('expense_category.description'),
-                                ])
-                            "
-                            :rows="4"
-                        />
-                    </a-form-item>
-                </a-col>
-            </a-row> -->
         </a-form>
         <template #footer>
             <a-button key="submit" type="primary" :loading="loading" @click="onSubmit">

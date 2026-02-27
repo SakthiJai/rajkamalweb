@@ -1,6 +1,6 @@
 <template>
     <a-col :span="24">
-        <a-button type="primary" @click="exportExcel">
+        <a-button type="primary" @click="exportExcel" class="excelcolor" >
             <FileExcelOutlined />
             {{ $t("common.excel") }}
         </a-button>
@@ -120,3 +120,6 @@ export default {
     },
 };
 </script>
+<style>
+
+</style>

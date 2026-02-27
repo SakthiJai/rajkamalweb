@@ -17,11 +17,7 @@ class CashBankController extends ApiBaseController
     protected $indexRequest = IndexRequest::class;
     protected $storeRequest = StoreRequest::class;
     protected $updateRequest = UpdateRequest::class;
-    protected $deleteRequest = DeleteRequest::class;
-
-
-
-
+    
 }
 
 

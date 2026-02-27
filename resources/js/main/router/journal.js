@@ -10,7 +10,7 @@ export default [
                 name: "admin.journal.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "journal",
+                    menuParent: "accountingtrans",
                     menuKey: (route) => "journal",
                 },
             },

@@ -116,7 +116,7 @@
                                                 record.children.length == 0)
                                                 ? false
                                                 : true,
-                                        name: record.xid,
+                                                sales_type: record.xid,
                                     }),
                                 }"
                                 :columns="columns"
@@ -161,7 +161,7 @@
                                                     :lg="24"
                                                     style="margin-top: 5px"
                                                 >
-                                                    {{ `${tax.name}:  ${tax.rate}%` }}
+                                                    {{ `${tax.sales_type}:  ${tax.rate}%` }}
                                                 </a-col>
                                             </a-row>
                                         </span>

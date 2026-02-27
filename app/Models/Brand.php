@@ -11,15 +11,15 @@ class Brand extends BaseModel
 {
     protected $table = 'brands';
 
-    protected $default = ['id', 'xid', 'name'];
+    protected $default = ['id', 'xid', 'brands_name'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $appends = ['xid', 'image_url'];
 
-    protected $hidden = ['id'];
+    protected $hidden = [''];
 
-    protected $filterable = ['id', 'name'];
+    protected $filterable = ['id', 'brands_name'];
 
     protected static function boot()
     {

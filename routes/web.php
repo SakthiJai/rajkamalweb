@@ -3,12 +3,18 @@
 use Examyou\RestAPI\Facades\ApiRoute;
 
 // Admin Routes
-ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
+    ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
+
+    ApiRoute::get('getGstDetails/{gst}', ['as' => 'api.extra.all-langs', 'uses' => 'GstController@getGstDetails']);
+    ApiRoute::post('generateEWayBill', ['as' => 'api.extra.all-langs', 'uses' => 'EwayBillController@generateEWayBill']);
     ApiRoute::get('all-langs', ['as' => 'api.extra.all-langs', 'uses' => 'AuthController@allEnabledLangs']);
     ApiRoute::get('pdf/{uniqueId}/{lang?}', ['as' => 'api.extra.pdf', 'uses' => 'AuthController@pdf']);
     ApiRoute::get('lang-trans', ['as' => 'api.extra.lang-trans', 'uses' => 'AuthController@langTrans']);
     ApiRoute::post('change-theme-mode', ['as' => 'api.extra.change-theme-mode', 'uses' => 'AuthController@changeThemeMode']);
     ApiRoute::get('default-walkin-customer', ['as' => 'api.extra.walkin-custome', 'uses' => 'AuthController@getDefaultWalkinCustomer']);
+
+
+    ApiRoute::post('eway-bill', ['as' => 'api.extra.change-theme-mode', 'uses' => 'EwayBillController@getEwaybillDetails']);
 
     // Check visibility of module according to subscription plan
     ApiRoute::post('check-subscription-module-visibility', ['as' => 'api.extra.check-subscription-module-visibility', 'uses' => 'AuthController@checkSubscriptionModuleVisibility']);
@@ -17,20 +23,39 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     // Public Routes For Front
     ApiRoute::get('products/{product}', ['as' => 'api.products.show', 'uses' => 'ProductController@show']);
     ApiRoute::get('products', ['as' => 'api.products.index', 'uses' => 'ProductController@index']);
-    ApiRoute::get('productsDuplicate/{product}', ['as' => 'api.products.index', 'uses' => 'ProductController@duplicateCheck']);
+    ApiRoute::get('productsDuplicate/{productd}', ['as' => 'api.products.index', 'uses' => 'ProductController@duplicateCheck']);
+    ApiRoute::get('parentDuplicate/{party_name}/{id}', ['as' => 'api.parent.index', 'uses' => 'LedgerController@duplicateCheckname']);
+
+    // ApiRoute::get('customerDuplicate/{cus_name}/{id}', ['as' => 'api.parent.index', 'uses' => 'LedgerController@duplicateCheckcustomername']);
+
     ApiRoute::get('categories/{category}', ['as' => 'api.categories.show', 'uses' => 'CategoryController@show']);
     ApiRoute::get('categories', ['as' => 'api.categories.index', 'uses' => 'CategoryController@index']);
     ApiRoute::get('variations', ['as' => 'api.variations.index', 'uses' => 'VariationController@index']);
     ApiRoute::get('warehouses', ['as' => 'api.warehouses.index', 'uses' => 'WarehouseController@index']);
     ApiRoute::get('payment-modes', ['as' => 'api.payment-modes.index', 'uses' => 'PaymentModeController@index']);
-    
+    ApiRoute::get('receipt-modes', ['as' => 'api.receipt-modes.index', 'uses' => 'ReceiptModeController@index']);
+
+    ApiRoute::get('payment-search', ['as' => 'api.country.index', 'uses' => 'PaymentItemController@index']);
 
     ApiRoute::get('countries', ['as' => 'api.country.index', 'uses' => 'CountryController@index']);
+    ApiRoute::get('discounttype', ['as' => 'api.discount.index', 'uses' => 'DiscountController@index']);
     ApiRoute::get('states', ['as' => 'api.state.index', 'uses' => 'StateController@index']);
     ApiRoute::get('stations', ['as' => 'api.station.index', 'uses' => 'StationController@index']);
     ApiRoute::get('parent-ledger', ['as' => 'api.parent.index', 'uses' => 'LedgerController@index']);
+    ApiRoute::get('categories', ['as' => 'api.country.index', 'uses' => 'CategorysController@index']);
+    ApiRoute::get('categories', ['as' => 'api.categories.index', 'uses' => 'CategoryController@index']);
 
-    ApiRoute::group(['middleware' => ['api.auth.check']], function () {
+    ApiRoute::get('product-category', ['as' => 'api.product-category.index', 'uses' => 'ProductCategoryController@index']);
+    ApiRoute::get('god-owns', ['as' => 'api.godown.index', 'uses' => 'GodownsController@index']);
+    ApiRoute::get('receiptbank', ['as' => 'api.receiptbank.index', 'uses' => 'ReceiptBankController@index']);
+
+
+    ApiRoute::get('parties-category', ['as' => 'api.godown.index', 'uses' => 'CategorysController@index']);
+
+
+       // ApiRoute::get('product-company', ['as' => 'api.parent.index', 'uses' => 'ProductCategoryController@index']);
+
+        ApiRoute::group(['middleware' => ['api.auth.check']], function () {
         ApiRoute::post('dashboard', ['as' => 'api.extra.dashboard', 'uses' => 'AuthController@dashboard']);
         ApiRoute::post('upload-file', ['as' => 'api.extra.upload-file', 'uses' => 'AuthController@uploadFile']);
         ApiRoute::post('profile', ['as' => 'api.extra.profile', 'uses' => 'AuthController@profile']);
@@ -62,10 +87,12 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::post('online-orders/confirm/{id}', ['as' => 'api.online-orders.confirm', 'uses' => 'OnlineOrdersController@confirmOrder']);
         ApiRoute::post('online-orders/cancel/{id}', ['as' => 'api.online-orders.cancel', 'uses' => 'OnlineOrdersController@cancelOrder']);
         ApiRoute::resource('online-orders', 'OnlineOrdersController', ['as' => 'api', 'only' => ['index']]);
+        ApiRoute::resource('quotations', 'QuotationController', $options);
 
         // Quotations
-        ApiRoute::post('quotations/convert-to-sale/{id}', ['as' => 'api.quotations.convert-to-sale', 'uses' => 'QuotationController@convertToSale']);
-        ApiRoute::resource('quotations', 'QuotationController', $options);
+
+        ApiRoute::resource('receipt-payment', 'ReceiptPaymentController', $options);
+        ApiRoute::post('quotations/convert-to-sale/{id}',  ['as' => 'api.quotations.convert-to-sale', 'uses' => 'QuotationController@convertToSale']);
 
         //POS
         ApiRoute::post('pos/products', ['as' => 'api.pos.products', 'uses' => 'PosController@posProducts']);
@@ -78,6 +105,25 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::post('user-invoices', ['as' => 'api.payments.user-invoices', 'uses' => 'PaymentController@userInvoices']);
         ApiRoute::post('customer-suppliers', ['as' => 'api.payments.customer-suppliers', 'uses' => 'PaymentController@customerSuppliers']);
         ApiRoute::resource('payments', 'PaymentInController', ['as' => 'api', 'only' => ['index']]);
+        ApiRoute::post('receiptdetalis', ['as' => 'api.sales.store', 'uses' => 'ReceiptController@receiptDetails']);
+
+        ApiRoute::post('receipteditdetails', ['as' => 'api.sales.store', 'uses' => 'ReceiptController@receiptDetails']);
+        ApiRoute::get('receipteditdetails/{id}', ['as' => 'api.leaves.update-status', 'uses' => 'ReceiptController@showpaymentlist']);
+
+
+        ApiRoute::post('paymentdetalis', ['as' => 'api.sales.store', 'uses' => 'ReceiptController@paymentDetails']);
+
+        ApiRoute::post('receiptpaymentdetails', ['as' => 'api.sales.store', 'uses' => 'ReceiptPaymentController@receiptPaymentDetails']);
+        ApiRoute::get('receiptpaymentdetails/{id}', ['as' => 'api.leaves.update-status', 'uses' => 'ReceiptPaymentController@showpaymentlist']);
+
+           //for list
+        //iRoute::get('receipt/billNumber', ['as' => 'api.sales.store', 'uses' => 'ReceiptController@billNumber']);
+        ApiRoute::get('receiptpayment/billNumber', ['as' => 'api.sales.store', 'uses' => 'ReceiptPaymentController@billNumber']);
+        // ApiRoute::get('receipt/billNumber/{party_id}', ['as' => 'api.sales.store', 'uses' => 'ReceiptController@billNumber']);
+         // ApiRoute::resource('receiptpayment/billNumber', ['as' => 'api.sales.store', 'uses' => 'ReceiptPaymentController@receiptPaymentDetails']);
+
+
+
 
         // Imports
         ApiRoute::post('brands/import', ['as' => 'api.brands.import', 'uses' => 'BrandController@import']);
@@ -97,10 +143,13 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('payment-out', 'PaymentOutController', $options);
         ApiRoute::resource('payment-in', 'PaymentInController', $options);
 
+        //Purchases
+        ApiRoute::resource('purchase-bills', 'PurchaseBillController', $options);
+        ApiRoute::resource('purchase-orders', 'PurchaseOrderController', $options);
+
         // Products
         ApiRoute::post('products/check-variants', ['as' => 'api.products.check-variants', 'uses' => 'ProductController@checkProductVariant']);
         ApiRoute::resource('products', 'ProductController', ['as' => 'api', 'except' => ['index']]);
-
         ApiRoute::resource('brands', 'BrandController', $options);
         ApiRoute::resource('categories', 'CategoryController', ['as' => 'api', 'except' => ['index', 'show']]);
         ApiRoute::resource('variations', 'VariationController', ['as' => 'api', 'except' => ['index']]);
@@ -109,18 +158,42 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('store-geo-localtion', 'GeolocationController', $options);
         ApiRoute::resource('payment-mode', 'PaymentmodesController', $options);
 
+        ApiRoute::resource('create-hsc', 'HSNController', $options);
         ApiRoute::resource('store-birthday', 'BirthdayController', $options);
+
+        ApiRoute::resource('create-productcompany', 'ProductCompanyController', $options);
 
         ApiRoute::resource('units', 'UnitController', $options);
         ApiRoute::resource('taxes', 'TaxController', $options);
+
         ApiRoute::resource('expenses', 'ExpenseController', $options);
         ApiRoute::resource('expense-categories', 'ExpenseCategoryController', $options);
         ApiRoute::resource('country', 'CountryController', $options);
+
+        ApiRoute::resource('receiptbank', 'ReceiptBankController', $options);
+
+        ApiRoute::resource('god-owns', 'GodownsController', $options);
+        ApiRoute::resource('category_list', 'CategorysController', $options);
+
+        ApiRoute::resource('product-category', 'ProductCategoryController', $options);
+
+        ApiRoute::resource('brand-search', 'BrandController', $options);
+
+        ApiRoute::resource('products', 'ProductController', $options);
+
+        ApiRoute::resource('quotations', 'QuotationController', $options);
+
+
+
+        ApiRoute::resource('Discount', 'DiscountController', $options);
         ApiRoute::resource('state', 'StateController', $options);
+        ApiRoute::resource('categorys', 'CategorysController', $options);
         ApiRoute::resource('station', 'StationController', $options);
         ApiRoute::resource('hsn-sac', 'HSNController', $options);
         ApiRoute::resource('product-company', 'ProductCompanyController', $options);
+
         ApiRoute::resource('tax-category', 'TaxCategoryController', $options);
+
         ApiRoute::resource('units', 'UnitController', $options);
         //geolocation//
 
@@ -129,13 +202,112 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // cashbank
         ApiRoute::resource('cashbank', 'CashBankController', $options);
-        
+
+        // Purchases
+        ApiRoute::post('purchase/purchaseBillDetail', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@purchaseBillDetails']);
+
+        // ApiRoute::post('taxes', ['as' => 'api.sales.store', 'uses' => 'TaxController@stored']);
+        ApiRoute::resource('bill-returns', 'PurchaseBillController', $options);
+
+        ApiRoute::resource('recepit-bill', 'ReceiptController', $options);
+        ApiRoute::resource('purchases-return', 'PurchaseReturnController', $options);
+        ApiRoute::resource('purchases', 'PurchaseController', $options);
+        ApiRoute::resource('purchase-returns', 'PurchaseReturnsController', $options);
+
+        ApiRoute::post('expense/expenseDetail', ['as' => 'api.sales.store', 'uses' => 'ExpensesItemController@purchaseExpenseDetails']);
+
+         // Expense Catrgories
+        ApiRoute::resource('expenses', 'ExpenseController', $options);
+        ApiRoute::resource('expense-create', 'ExpenseCategoryController', $options);
+
+        ApiRoute::post('expense/expenseCategory', ['as' => 'api.sales.store', 'uses' => 'ExpenseCategoryController@expenseCategory']);
+
+
+
+        //expense  category//
+
+        ApiRoute::post('expenses1/expenseSave', ['as' => 'api.expenses1.store', 'uses' => 'Expenses1Controller@saveExpenses']);
+        ApiRoute::post('expenses1/deleteExpenses/{id}',  ['as' => 'api.expenses1.delete', 'uses' => 'Expenses1Controller@deleteExpenses']);
+        ApiRoute::get('expenses1/getExpensesDetails/{id}', ['as' => 'api.expenses1.data', 'uses' => 'Expenses1Controller@getExpensesDetails']);
+        ApiRoute::resource('expenses1', 'Expenses1Controller', $options);
+
+        ApiRoute::post('AccountingTrans/receiptSave', ['as' => 'api.expenses1.store', 'uses' => 'AccountingTransReceiptController@receiptSave']);
+        ApiRoute::resource('AccountingTransReceipt', 'AccountingTransReceiptController', $options);
+        ApiRoute::post('accounting_trans_receipt/deleteReceipt/{id}',  ['as' => 'api.expenses1.delete', 'uses' => 'AccountingTransReceiptController@deleteReceipt']);
+
+        // end expense category//
+
+        // check in dublicate//
+
+        ApiRoute::post('payment/deletepayment/{id}',  ['as' => 'api.expenses1.delete', 'uses' => 'ReceiptPaymentController@deletePayment']);
+
+        ApiRoute::post('receipt/deletereceipt/{id}',  ['as' => 'api.expenses1.delete', 'uses' => 'ReceiptController@deleteReceipt']);
+
+
+        ApiRoute::get('customerDuplicate/{customers}', ['as' => 'api.ledger.index', 'uses' => 'LedgerController@duplicateCheckMobile']);
+        // end check in dublicate//
+
+        // Sales
+
+        ApiRoute::get('sales/partyDetails/{partyId}', ['as' => 'api.sales.store', 'uses' => 'SalesController@partyDetails']);
         ApiRoute::post('sales/store', ['as' => 'api.sales.store', 'uses' => 'SalesController@salesCreate']);
+        ApiRoute::post('sales/salesReturn', ['as' => 'api.sales.store', 'uses' => 'SalesController@salesReturn']);
+        ApiRoute::post('sales/salesPurchase', ['as' => 'api.sales.store', 'uses' => 'PurchaseReturnController@salesPurchase']);
+        ApiRoute::post('sales/quotationCreate', ['as' => 'api.sales.store', 'uses' => 'SalesController@quotationCreate']);
+        ApiRoute::post('sales-return/getPurchaseReturnPdf', ['as' => 'api.sales.store', 'uses' => 'PurchaseReturnController@getPurchaseReturnPdf']);
+
+        ApiRoute::post('sales-bill/getPurchaseBillPdf', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@geBillInvoicePdf']);
+
+        ApiRoute::resource('purchase-returns', 'PurchaseReturnController', $options);
+
+        ApiRoute::get('sales/getInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'SalesController@getInvoiceDetails']);
+
+        ApiRoute::get('paymemt/getInvoicepayment/{invoice}', ['as' => 'api.sales.store', 'uses' => 'ReceiptPaymentController@getInvoicePaymentDetails']);
+
+        
+        ApiRoute::get('receipt/getInvoicereceipt/{invoice}', ['as' => 'api.sales.store', 'uses' => 'ReceiptController@getInvoiceReceiptDetails']);
+
+        ApiRoute::get('sales/getReturnInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'SalesController@getReturnInvoiceDetails']);
+
+        ApiRoute::get('sales/getpurchaseInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'PurchaseReturnController@getPurchaseInvoiceDetails']);
+
+        ApiRoute::get('sales/getbillInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@getBillInvoiceDetails']);
+
+
+        ApiRoute::get('expense/getexpenseInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'ExpensesItemController@getExpensenvoiceDetails']);
+
+        ApiRoute::get('sales/billNumber/{party_id}', ['as' => 'api.sales.store', 'uses' => 'SalesController@billNumber']);
         ApiRoute::get('sales/billNumber', ['as' => 'api.sales.store', 'uses' => 'SalesController@billNumber']);
+
+
+        ApiRoute::get('sales/quotationNumber', ['as' => 'api.sales.store', 'uses' => 'SalesController@quotationNumber']);
+
+        // ApiRoute::get('quotations/quotationNumber/{party_id}', ['as' => 'api.quotations.store', 'uses' => 'QuotationController@quotationNumber']);
+
+       ApiRoute::get('quotations/quotationNumber', ['as' => 'api.quotations.store', 'uses' => 'QuotationController@quotationNumber']);
+        
+        ApiRoute::get('sales/crNumber/{party_id}', ['as' => 'api.sales.store', 'uses' => 'SalesController@crNumber']);
         ApiRoute::post('sales/savepayment', ['as' => 'api.sales.store', 'uses' => 'SalesController@savepayment']);
         ApiRoute::post('sales/getInvoicePdf', ['as' => 'api.sales.store', 'uses' => 'SalesController@getInvoicePdf']);
+
  		ApiRoute::post('products-store', ['as' => 'api.product.store', 'uses' => 'ProductController@productStore']);
+
+         ApiRoute::post('expense-store', ['as' => 'api.expense.store', 'uses' => 'ExpenseController@expenseStore']);
+
         ApiRoute::post('ledger/ledgeritem', ['as' => 'api.ledger.store', 'uses' => 'LedgerController@saveCustomInformation']);
+        ApiRoute::get('sales/getInvoiceItems/{id}', ['as' => 'api.sales.store', 'uses' => 'SalesController@getInvoiceItems']);
+        ApiRoute::post('contact/contactitem', ['as' => 'api.ledger.store', 'uses' => 'LedgerController@saveContactInformation']);
+
+        ApiRoute::post('bank/bankDetails', ['as' => 'api.ledger.store', 'uses' => 'LedgerController@saveBankDetails']);
+        ApiRoute::post('ship/shipDetails', ['as' => 'api.ledger.store', 'uses' => 'LedgerController@saveShippingDetails']);
+
+        ApiRoute::resource('shipping-list', 'ShippingController', $options);
+
+        ApiRoute::put('product-update/{id}', [
+            'as' => 'api.product.update',
+            'uses' => 'ProductController@productUpdate'
+        ]);
+
         ApiRoute::resource('users', 'UsersController', $options);
         ApiRoute::resource('customers', 'CustomersController', $options);
         ApiRoute::resource('suppliers', 'SuppliersController', $options);
@@ -144,7 +316,6 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('stock-history', 'StockHistoryController', ['as' => 'api', 'only' => ['index']]);
         ApiRoute::resource('order-items', 'OrderItemController', ['as' => 'api', 'only' => ['index']]);
         ApiRoute::resource('ledger-items', 'LedgerController', ['as' => 'api', 'only' => ['index']]);
-
         ApiRoute::resource('roles', 'RolesController', $options);
         ApiRoute::resource('warehouses', 'WarehouseController',  ['as' => 'api', 'except' => ['index']]);
         ApiRoute::resource('custom-fields', 'CustomFieldController', $options);
@@ -153,13 +324,74 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('purchase-returns', 'PurchaseReturnsController', $options);
         ApiRoute::resource('stock-transfers', 'StockTransferController', $options);
         ApiRoute::resource('sales',  'SalesController', $options);
-        ApiRoute::resource('sales-returns', 'SalesReturnsController', $options);
-        ApiRoute::resource('store-ledger', 'LedgerController', $options);
-       # ApiRoute::resource('store-ledger/customer', 'LedgerController@customer', $options);
-       #ApiRoute::post('/store-ledger/customer', [LedgerController::class, 'customer']);
-       ApiRoute::post('store-ledger/customer', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@customer']);
 
-        ApiRoute::resource('sales-number', 'SalesNumberController', $options); 
+        ApiRoute::resource('currency',  'CurrencyController', $options);
+
+
+        ApiRoute::resource('sales-returns', 'SalesReturnsController', $options);
+
+        ApiRoute::resource('bill-returns', 'PurchaseBillController', $options);
+       // ApiRoute::get('sales/invoiceNumber/{party_id}', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@invoiceNumber']);
+        ApiRoute::get('bill/invoiceNumber/{party_id}', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@invoiceNumber']);
+
+
+        ApiRoute::resource('purchases-return', 'PurchaseReturnController', $options);
+
+        ApiRoute::resource('expenses-list', 'ExpensesItemController', $options);
+
+        ApiRoute::resource('store-ledger', 'LedgerController', $options);
+        ApiRoute::post('update-ledger', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@updateLedger']);
+        ApiRoute::post('sales-return/getSalesReturnPdf', ['as' => 'api.sales.store', 'uses' => 'SalesReturnsController@getInvoicePdf']);
+
+        ApiRoute::post('quotation/getQuotationPdf', ['as' => 'api.sales.store', 'uses' => 'QuotationController@getInvoicePdf']);
+
+        ApiRoute::post('expenses/getExpensePdf', ['as' => 'api.expense.store', 'uses' => 'Expenses1Controller@getInvoicePdf']);
+
+
+        ApiRoute::post('update-product', ['as' => 'api.products-store.customer', 'uses' => 'ProductController@updateProduct']);
+
+        # ApiRoute::resource('store-ledger/customer', 'LedgerController@customer', $options);
+        #ApiRoute::post('/store-ledger/customer', [LedgerController::class, 'customer']);
+
+        ApiRoute::post('store-ledger/customer', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@customer']);
+
+        ApiRoute::post('shipping-save', ['as' => 'api.store-ledger.customer', 'uses' => 'ShippingController@shipping']);
+
+        ApiRoute::resource('sales-number', 'SalesNumberController', $options);
+
+        ApiRoute::get('sales-number/{id}', ['as' => 'api.leaves.update-status', 'uses' => 'SalesNumberController@show']);
+
+        ApiRoute::get('fetchParty/{id}', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@ledgershow']);
+
+        ApiRoute::get('getcustomer/{id}', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@saleseditshow']);
+
+        ApiRoute::get('getaddress/{id}', ['as' => 'api.store-ledger.customer', 'uses' => 'ShippingController@addresseditshow']);
+
+
+
+        ApiRoute::resource('tax_catagories', 'TaxController', $options);
+
+        ApiRoute::get('fetchTax/{id}', ['as' => 'api.store-ledger.customer', 'uses' => 'TaxController@taxshow']);
+
+
+        ApiRoute::resource('customerslist', 'LedgerController', $options);
+        ApiRoute::resource('supplierslist', 'LedgerController', $options);
+
+        ApiRoute::get('sales-number{id}', ['as' => 'api.leaves.update-status', 'uses' => 'SalesNumberController@show']);
+
+        ApiRoute::resource('product-list', 'ProductController', $options);
+        ApiRoute::get('products/{id}', ['as' => 'api.leaves.update-status', 'uses' => 'ProductController@showproductlist']);
+
+        // ApiRoute::get(url: 'product-list/{id}', action: ['as' => 'api.leaves.update-status', 'uses' => 'ProductController@showlist']);
+        // ApiRoute::get('fetchParty/{id}', ['as' => 'api.store-ledger.customer', 'uses' => 'LedgerController@ledgershow']);
+        ApiRoute::get('fetch-ledger/{id}', ['as' => 'api.leaves.update-status', 'uses' => 'LedgerController@showledgerlist']);
+
+        ApiRoute::get('ledger/ledgeritem/{id}', ['as' => 'api.leaves.update-status', 'uses' => 'LedgerController@showledgerproductlist']);
+
+        ApiRoute::put('update-ledger/customer/{id}', 'LedgerController@customer');
+
+
+
     });
 });
 
@@ -194,6 +426,11 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api\Hrm'], function () {
         ApiRoute::get('leaves/remaining-leaves', ['as' => 'api.leaves.remaining-leaves', 'uses' => 'LeaveController@remainingLeaves']);
         ApiRoute::get('leaves/unpaid-leaves', ['as' => 'api.leaves.unpaid-leaves', 'uses' => 'LeaveController@unpaidLeaves']);
         ApiRoute::resource('leaves', 'LeaveController', ['as' => 'api']);
+
+
+        // receipt api//
+
+        //  end receipt api//
     });
 
     ApiRoute::group(['middleware' => ['api.permission.check', 'api.auth.check', 'license-expire']], function () {

@@ -1,101 +1,175 @@
 <template>
-    <a-select
-        v-model:value="searchTerm"
-        show-search
-        :filter-option="false"
-       
-        style="width: 100%"
-        :not-found-content="fetching ? undefined : null"
-        @search="fetchProducts"
-        option-label-prop="label"
-        @change="valueChanged"
-        :allowClear="true"
+  <b hidden>{{ searchTerm }}</b>
+  <a-select
+    id="country_search"
+    v-model:value="searchTerm"
+    show-search
+    :filter-option="false"
+    style="width: 100%"
+    :not-found-content="fetching ? undefined : null"
+    @search="fetchProducts"
+    option-label-prop="label"
+    @change="valueChanged"
+    :allowClear="true"
+    @keydown="handleKeyDown"
+  >
+    <template #suffixIcon><SearchOutlined /></template>
+    <template v-if="fetching" #notFoundContent>
+      <a-spin size="small" />
+    </template>
+    <a-select-option :value="null">
+      -- Select --
+    </a-select-option>
+    <a-select-option
+      v-for="newProduct in products"
+      :key="newProduct.id"
+      :value="newProduct.id"
+      :label="newProduct.country_name"
+      :product="newProduct"
+      @click="handleOptionClick(newProduct)"
     >
-        <template #suffixIcon><SearchOutlined /></template>
-        <template v-if="fetching" #notFoundContent>
-            <a-spin size="small" />
-        </template>
-        <a-select-option
-            v-for="newProduct in products"
-            :key="newProduct.id"
-            :value="newProduct.id"
-            :label="newProduct.name"
-            :product="newProduct"
-        >
-            {{ newProduct.name }}
-        </a-select-option>
-    </a-select>
+      {{ newProduct.country_name }}
+    </a-select-option>
+  </a-select>
 </template>
 
 <script>
 import { defineComponent, toRefs, reactive, watch, onMounted } from "vue";
 import { SearchOutlined } from "@ant-design/icons-vue";
 import { debounce } from "lodash-es";
+import { Modal, Input } from "ant-design-vue";
 
 export default defineComponent({
-    props: ["productData"],
-    emits: ["valueSuccess", "valueChanged"],
-    components: {
-        SearchOutlined,
-    },
-    setup(props, { emit }) {
-        const state = reactive({
-            searchTerm: [],
-            fetching: false,
-            products: [],
-        });
+  props: ["productData"],
+  emits: ["valueSuccess", "valueChanged"],
+  created() {
+    console.log("created:", this.productData);
+  },
+  components: {
+    SearchOutlined,
+    "a-modal": Modal,
+    "a-input": Input,
+  },
 
-        onMounted(() => {
-            resetSearchInput(props);
-        });
+  setup(props, { emit }) {
+    const state = reactive({
+      searchTerm: null, // Default searchTerm set to null
+      fetching: false,
+      products: [],
+      isModalVisible: false,
+      newProductName: "",
+    });
 
-        const resetSearchInput = (propVal) => {
-            if (propVal.productData && propVal.productData.product) {
-                state.products = [
-                    {
-                        id: propVal.productData.x_product_id,
-                        name: propVal.productData.product.name,
-                    },
-                ];
-                state.searchTerm = propVal.productData.x_product_id;
-            } else {
-                state.searchTerm = [];
-                state.products = [];
-            }
+    onMounted(() => {
+      fetchProducts();
+      resetSearchInput(props);
+    });
 
-            emit("valueSuccess");
-        };
+    const resetSearchInput = (propVal) => {
+      if (propVal.productData && propVal.productData.product) {
+        state.products = [
+          {
+            id: propVal.productData.x_product_id,
+            country_name: propVal.productData.product.country_name,
+          },
+        ];
+        state.searchTerm = propVal.productData.x_product_id;
+      } else {
+        // Set default searchTerm to India if no productData is available
+        state.searchTerm = 8; // Assuming India has ID 2, adjust as necessary
+        state.products = [
+          {
+            id: 8, // Assuming India has ID 2, adjust as necessary
+            country_name: "India", // Set country name to India
+          },
+        ];
+      }
 
-        const valueChanged = (value, option) => {
-            emit("valueChanged", value);
-            emit("valueSuccess");
-        };
-        const fetchProducts = debounce((value) => {
-            state.products = [];
+      emit("valueSuccess");
+    };
 
-            if (value != "") {
-                state.fetching = true;
-                const filterString = `name lk "%${value}%"`;
-                let url = `countries?fields=id,xid,name&filters=${encodeURIComponent(
-                    filterString
-                )}&limit=10`;
+    const valueChanged = (value, option) => {
+      emit("valueChanged", value);
+      emit("valueSuccess");
+    };
 
-                axiosAdmin.get(url).then((response) => {
-                    state.products = response.data;
-                    state.fetching = false;
-                });
-            }
-        }, 300);
+    const updateSearchterm = () => {
+      state.searchTerm = 2; // Assuming India has ID 2, adjust as necessary
+    };
 
-        watch(props, (newVal, oldVal) => {
-            resetSearchInput(newVal);
-        });
+    const fetchProducts = debounce((value) => {
+      state.products = [];
+      console.log("value", value);
+      let filterString = `country_name lk "%${value}%"`;
+      if (value == undefined) {
+        filterString = "";
+      } else if (typeof value === "object" || (value != "" && value.trim() == "")) {
+        filterString = "";
+      }
+      state.fetching = true;
 
-        return {
-            ...toRefs(state),
-            fetchProducts,
-            valueChanged,
-        };
-    },
+      let url = `countries?fields=id,xid,country_name&filters=${encodeURIComponent(
+        filterString
+      )}&limit=1000`;
+
+      axiosAdmin.get(url).then((response) => {
+        state.products = response.data;
+        state.fetching = false;
+      });
+    }, 300);
+
+    watch(props, (newVal, oldVal) => {
+      resetSearchInput(newVal);
+    });
+
+    const handleOptionClick = (newProduct) => {
+      if (newProduct.country_name === "F2 - Add new") {
+        state.isModalVisible = true;
+      }
+    };
+    const handleAddNewProduct = () => {
+      console.log("Adding new product: ", state.newProductName);
+      state.isModalVisible = false;
+    };
+    const handleModalCancel = () => {
+      state.isModalVisible = false;
+    };
+    const handleKeyDown = (event) => {
+      if (event.key === "Tab") {
+        if (!state.searchTerm || state.searchTerm.length === 0) {
+          event.preventDefault();
+        }
+        console.log("jhgfdcvbnm", state.searchTerm);
+      }
+
+      if (event.key === "Delete" || event.key === "Backspace") {
+        state.searchTerm = [];
+        state.products = [];
+        emit("valueChanged", null);
+
+        fetchProducts("");
+      } else {
+        if (props.productData && props.productData.product) {
+          state.searchTerm = props.productData.x_product_id;
+          state.products = [
+            {
+              id: props.productData.x_product_id,
+              country_name: props.productData.product.country_name,
+            },
+          ];
+        }
+      }
+    };
+
+    return {
+      ...toRefs(state),
+      fetchProducts,
+      valueChanged,
+      handleOptionClick,
+      handleAddNewProduct,
+      handleModalCancel,
+      handleKeyDown,
+    };
+  },
 });
 </script>

@@ -40,12 +40,13 @@ class ProductController extends ApiBaseController
         try {
             $product = new Product();
             $product->company_id      = $request->company_id;
-            $product->warehouse_id    = $request->warehouse_id ?? 1; 
+            $product->warehouse_id    = $request->warehouse_id ?? 1;
             $product->product_type    = $request->product_type;
             $product->name            = $request->name;
             $product->unit_1st        = $request->unit_1st;
             $product->unit_in_decimal = $request->unit_in_decimal;
             $product->hsn_sac         = $request->hsn_sac;
+            $product->gst    = $request->gst;
             $product->tax_category    = $request->tax_category;
             $product->mrp             = $request->mrp;
             $product->purchase_rate   = $request->purchase_rate;
@@ -60,19 +61,31 @@ class ProductController extends ApiBaseController
             $product->rate_d          = $request->rate_d;
             $product->rate_f          = $request->rate_f;
             $product->discount        = $request->discount;
-            $product->item_disc_1_percent = $request->item_disc;
-            $product->volume_disc_1   = $request->volume_dis;
-            $product->max_disc_percent= $request->max_disc;
+            $product->item_disc_1_percent = $request->item_disc_1_percent;
+            $product->volume_disc_1   = $request->volume_disc_1;
+            $product->max_disc_percent= $request->max_disc_percent;
             $product->min_quantity    = $request->min_quantity;
             $product->max_quantity    = $request->max_quantity;
             $product->reorder_days    = $request->reorder_days;
             $product->reorder_qty     = $request->reorder_qty;
-            $product->margin          = $request->min_margin_others;
+            $product->margin          = $request->margin;
             $product->prohibited      = $request->prohibited;
             $product->visibility      = $request->visibility;
             $product->mfr_name        = $request->mfr_name;
             $product->upload_image    = $request->upload_image;
             $product->packing         = $request->packing;
+            $product->god_owns         = $request->god_owns;
+            $product->opening_stock         = $request->opening_stock;
+            $product->as_on_date         = $request->as_on_date;
+            $product->category_field         = $request->category_field;
+            $product->low_stock         = $request->low_stock;
+            $product->company         = $request->company;
+            $product->product_id         = $request->product_id;
+            $product->short_code         = $request->short_code;
+            $product->image_url         = $request->image_url;
+            $product->brand_name         = $request->brand_name;
+            $product->manufacturer       = $request->manufacturer;
+
             $product->save();
 
             if($product)
@@ -189,6 +202,7 @@ class ProductController extends ApiBaseController
                 $newVariantProduct->category_id = $product->category_id;
                 $newVariantProduct->brand_id = $product->brand_id;
                 $newVariantProduct->unit_id = $product->unit_id;
+                $newVariantProduct->manufacturer = $product->manufacturer;
                 $newVariantProduct->user_id = user()->id;
                 // $newVariantProduct->variant_id = $allVariation['variant_id'];
                 // $newVariantProduct->variant_value_id = $allVariation['variant_value_id'];
@@ -388,6 +402,7 @@ class ProductController extends ApiBaseController
                     $variantProduct->category_id = $product->category_id;
                     $variantProduct->brand_id = $product->brand_id;
                     $variantProduct->unit_id = $product->unit_id;
+                    $variantProduct->manufacturer = $product->manufacturer;
                     $variantProduct->save();
 
                     $currentProductDetails = $variantProduct->details;
@@ -586,7 +601,7 @@ class ProductController extends ApiBaseController
     }
     public function duplicateCheck(Request $request)
     {
-        $duplicate = Product::where('name',trim($request->product))->first();
+        $duplicate = Product::where('name',trim($request->productd))->first();
 
         if($duplicate)
         {
@@ -597,4 +612,55 @@ class ProductController extends ApiBaseController
             echo 200;
         }
     }
+
+
+    // public function showlist(Request $request)
+    // {
+
+    //     $id = $request->id;
+    //     $list = Product::where("id", $id)->first();
+
+    //     if (!$list) {
+    //         return response()->json(['error' => 'product list not found'], 404);
+    //     }
+    //     return response()->json([
+    //         'list' => $list,
+    //     ]);
+    // }
+
+
+
+
+    public function showproductlist(Request $request, $id)
+    {
+        $duplicate = Product::where('name',trim($request->parent));
+        if($request->id>0){ $duplicate->where("id","!=",$request->id);}
+
+        if($duplicate->count()>0)
+        {
+            echo 500;
+        }
+        else
+        {
+            echo 200;
+        }
+    }
+
+    public function updateProduct(Request $request)
+    {
+       try{
+         
+       $data = Product::where('id',trim($request->id))->first();
+       $input = $request->all();
+       $data->fill($input)->save();
+       return response()->json(['message' => ' Product updated successfully'], 200);
+
+       }
+   catch(\Illuminate\Database\QueryException $ex){
+           //dd($ex->getMessage());
+           DB::rollback();
+           return response()->json(['message' => $ex->getMessage()], 500);
+          }
+    }
 }
+

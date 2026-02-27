@@ -16,7 +16,7 @@ class Company extends BaseModel
 
     protected $table = 'companies';
 
-    protected $dates = ['licence_expire_on','pincode','branch_code','business_type','financial_year_from_date','financial_year_to_date','tax_type','company_reg_type','gstin','reg_date','pan_number','drug_lic_no','exp_date','juris_dicition','working_style','country','state'];
+    protected $dates = ['licence_expire_on','pincode','branch_code','business_type','financial_year_from_date','financial_year_to_date','tax_type','company_reg_type','gstin','reg_date','pan_number','drug_lic_no','exp_date','juris_dicition','working_style','country','state','contact_number','logo','logo_url','dark_url','light_url','tcs','tds','einvoicing','trade_name','address_two'];
 
     protected $default = ['xid'];
 

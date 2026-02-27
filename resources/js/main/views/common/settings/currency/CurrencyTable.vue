@@ -38,25 +38,21 @@
                 </a-input-group>
             </a-col>
         </a-row>
-
-        <a-row class="mt-20">
+        <a-row>
             <a-col :span="24">
                 <div class="table-responsive">
-                    <a-table
-                        :columns="columns"
-                        :row-key="(record) => record.xid"
-                        :data-source="table.data"
-                        :pagination="table.pagination"
-                        :loading="table.loading"
-                        @change="handleTableChange"
-                    >
+                    <a-table bordered size="middle" id="payment-reports-table">
                         <template #bodyCell="{ column, record }">
                             <template v-if="column.dataIndex === 'action'">
                                 <a-button
                                     v-if="
                                         (panelType == 'admin' &&
-                                            (permsArray.includes('currencies_edit') ||
-                                                permsArray.includes('admin'))) ||
+                                            (permsArray.includes(
+                                                'currencies_edit'
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                ))) ||
                                         panelType == 'superadmin'
                                     "
                                     type="primary"
@@ -68,8 +64,12 @@
                                 <a-button
                                     v-if="
                                         ((panelType == 'admin' &&
-                                            (permsArray.includes('currencies_delete') ||
-                                                permsArray.includes('admin'))) ||
+                                            (permsArray.includes(
+                                                'currencies_delete'
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                ))) ||
                                             panelType == 'superadmin') &&
                                         appSetting.x_currency_id != record.xid
                                     "
@@ -77,7 +77,9 @@
                                     @click="showDeleteConfirm(record.xid)"
                                     style="margin-left: 4px"
                                 >
-                                    <template #icon><DeleteOutlined /></template>
+                                    <template #icon
+                                        ><DeleteOutlined
+                                    /></template>
                                 </a-button>
                             </template>
                         </template>
@@ -89,7 +91,11 @@
 </template>
 <script>
 import { onMounted } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+} from "@ant-design/icons-vue";
 import crud from "../../../../../common/composable/crud";
 import common from "../../../../../common/composable/common";
 import fields from "./fields";
@@ -114,9 +120,8 @@ export default {
     },
     setup(props, { emit }) {
         const { permsArray, appSetting } = common();
-        const { url, addEditUrl, initData, columns, filterableColumns } = fields(
-            props.panelType
-        );
+        const { url, addEditUrl, initData, columns, filterableColumns } =
+            fields(props.panelType);
         const crudVariables = crud();
 
         onMounted(() => {

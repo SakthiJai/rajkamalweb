@@ -16,4 +16,23 @@ class SalesNumberController extends ApiBaseController
     protected $updateRequest = UpdateRequest::class;
     protected $deleteRequest = DeleteRequest::class;
 
+    public function show(...$args)
+    {
+        // Get the $id from the first argument
+        $id = $args[0];
+    
+        // Retrieve the sales number using the provided $id
+        $sale = SalesNumber::find($id);
+    
+        if (!$sale) {
+            return response()->json(['error' => 'Sale not found'], 404);
+        }
+    
+        return response()->json($sale);
+    }
+    
+    
+  
+
+
 }

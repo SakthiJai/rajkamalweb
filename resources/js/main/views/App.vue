@@ -64,7 +64,7 @@ export default {
                     ? newVal.meta.menuKey(newVal)
                     : newVal.meta.menuKey;
 
-            updatePageTitle(menuKey.replace("-", "_"));
+            updatePageTitle(menuKey ? menuKey.replace("-", "_") : "");
 
             // Redirecting if plan is expired
             if (

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class State extends BaseModel
 {
     protected $table = 'states';
-    protected $default = ['xid','country_id','state_name', 'status',];
+    protected $default = ['xid','country_id','state_name', 'status','code'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 

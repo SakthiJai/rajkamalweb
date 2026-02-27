@@ -95,6 +95,7 @@ export default [
                     permission: "payment_modes_view",
                 },
             },
+
             {
                 path: "units",
                 component: () => import("../views/settings/units/index.vue"),
@@ -106,6 +107,97 @@ export default [
                     permission: "units_view",
                 },
             },
+
+            {
+                path: "country",
+                component: () => import("../views/settings/country/index.vue"),
+                name: "admin.settings.country.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "country",
+                    permission: "country_view",
+                },
+            },
+            {
+                path: "state",
+                component: () => import("../views/settings/state/index.vue"),
+                name: "admin.settings.state.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "state",
+                    permission: "state_view",
+                },
+            },
+
+            {
+                path: "station",
+                component: () => import("../views/settings/station/index.vue"),
+                name: "admin.settings.station.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "station",
+                    permission: "station_view",
+                },
+            },
+
+            {
+                path: "godown",
+                component: () => import("../views/settings/godown/index.vue"),
+                name: "admin.settings.godown.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "god-owns",
+                },
+            },
+
+            {
+                path: "category",
+                component: () => import("../views/settings/category/index.vue"),
+                name: "admin.settings.category.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "category",
+                },
+            },
+
+            //  {
+            //     path: "expensecategory",
+            //     component: () => import("../views/settings/expensecategory/index.vue"),
+            //     name: "admin.settings.expensecategory.index",
+            //     meta: {
+            //         requireAuth: true,
+            //         menuParent: "settings",
+            //         menuKey: (route) => "expensecategory",
+            //     },
+            // },
+
+            {
+                path: "discount",
+                component: () => import("../views/settings/discount/index.vue"),
+                name: "admin.settings.discount.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "discount",
+                },
+            },
+
+            // {
+            //     path: "account",
+            //     component: () => import("../views/settings/account/index.vue"),
+            //     name: "admin.settings.account.index",
+            //     meta: {
+            //         requireAuth: true,
+            //         menuParent: "settings",
+            //         menuKey: (route) => "discount",
+            //     },
+            // },
+
             {
                 path: "custom-fields",
                 component: () =>

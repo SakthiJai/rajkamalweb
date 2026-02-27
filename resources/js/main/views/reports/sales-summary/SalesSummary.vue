@@ -34,7 +34,7 @@
                             <PaymentStatus :paymentStatus="record.payment_status" />
                         </template>
                         <template v-if="column.dataIndex === 'staff_user_id'">
-                            {{ record.staff_member.name }}
+                            {{ record.staff_member?.name || '' }}
                         </template>
                     </template>
                     <template #summary>

@@ -97,53 +97,7 @@ export default defineComponent({
         ];
 
         onMounted(() => {
-            axiosAdmin(getUrlByAppType("update-app")).then((response) => {
-                const appVersion = response.data.app_version;
-                appDetails.value = response.data.app_details;
-
-                axios
-                    .post("https://envato.codeifly.com/product", {
-                        verified_name: window.config.product_name,
-                        domain: window.location.host,
-                    })
-                    .then((res) => {
-                        product.value = res.data;
-
-                        if (product.value.product.other_domain_verified) {
-                            Modal.confirm({
-                                title: t("update_app.verify_failed"),
-                                icon: createVNode(ExclamationCircleOutlined),
-                                content: t("update_app.verified_with_other_domain"),
-                                okText: t("update_app.verify_again"),
-                                okType: "danger",
-                                cancelButtonProps: {
-                                    disabled: true,
-                                },
-                                onOk() {
-                                    store.dispatch("auth/logoutToRootUrl");
-                                },
-                            });
-                        } else if (!product.value.product.verified) {
-                            Modal.confirm({
-                                title: t("update_app.verify_failed"),
-                                icon: createVNode(ExclamationCircleOutlined),
-                                content: t("update_app.verify_failed_message"),
-                                okText: t("update_app.verify_again"),
-                                okType: "danger",
-                                cancelButtonProps: {
-                                    disabled: true,
-                                },
-                                onOk() {
-                                    store.dispatch("auth/logoutToRootUrl");
-                                },
-                            });
-                        } else if (product.value.product.version != appVersion) {
-                            productStatus.value = "update_available";
-                        } else {
-                            productStatus.value = "success";
-                        }
-                    });
-            });
+            
         });
 
         const updateApp = () => {
@@ -151,6 +105,7 @@ export default defineComponent({
                 title: t("common.install"),
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t("messages.are_you_sure_install_message"),
+                autoFocusButton:'ok',
                 okText: t("common.yes"),
                 okType: "danger",
                 cancelText: t("common.no"),

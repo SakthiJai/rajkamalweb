@@ -10,7 +10,7 @@ export default [
                 name: "admin.contra.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "contra",
+                    menuParent: "accountingtrans",
                     menuKey: (route) => "contra",
                 },
             },

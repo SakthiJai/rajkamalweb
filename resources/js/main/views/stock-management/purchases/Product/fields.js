@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
 	//const addEditUrl = "products";
-	const url = "products?fields=xid,id,name,packing,margin,hsn,free_scheme_1,free_scheme_2,mfr_name,w_o_free,deal_free,stock,cgst,lgst,sgst,hsn_sac,company_name,unit_name,sale_rate,unit_1st,unit,mrp,purchase_rate,cost,tax_category,company_id";
+	const url = "products?fields=xid,id,name,packing,margin,hsn,free_scheme_1,free_scheme_2,mfr_name,w_o_free,deal_free,stock,cgst,lgst,sgst,hsn,company_name,unit_name,sale_rate,unit_1st,unit,mrp,purchase_rate,cost,company_id";
 	const hashableColumns = ['id'];
 	const { t } = useI18n();
 
@@ -17,30 +17,94 @@ const fields = () => {
 	};
 
 	const columns = [
-		{
-			title: "Description",
-			dataIndex: "name",
+		// {
+		// 	title: "Description",
+		// 	dataIndex: "name",
+		// },
+		// {
+		// 	title: "Packing",
+		// 	dataIndex: "packing",
+		// },
+		// {
+		// 	title: "Stock",
+		// 	dataIndex: "stock",
+		// },
+		// {
+		// 	title: "Unit",
+		// 	dataIndex: "unit_name",
+		// },
+		// {
+		// 	title: "₹ Sale Rate",
+		// 	dataIndex: "sale_rate",
+		// },
+
+        {
+                title: t("Description"),
+                dataIndex: ['name'],
+                sorter: (a, b) => {
+                    const aMobileNumber = a.party_name?.name || ''; 
+                    const bMobileNumber = b.party_name?.name || '';
+                    
+                    return aMobileNumber.localeCompare(bMobileNumber); 
+                },
+                sortDirections: ['ascend', 'descend'],
+            },
+
+
+            {
+                title: t("Packing"),
+                dataIndex: ['packing'],
+                sorter: (a, b) => {
+                    const aMobileNumber = a.customer?.packing || ''; 
+                    const bMobileNumber = b.customer?.packing || '';
+                    
+                    return aMobileNumber.localeCompare(bMobileNumber); 
+                },
+                sortDirections: ['ascend', 'descend'],
+            },
+            
+            
+			
+        {
+                title: t("Stock"),
+                dataIndex: "stock",
+                sorter: (a, b) => {
+                    const aMobileNumber = a.customer?.Stock || ''; 
+                    const bMobileNumber = b.customer?.Stock || '';
+                    
+                    return aMobileNumber.localeCompare(bMobileNumber); 
+                },
+                sortDirections: ['ascend', 'descend'],
 		},
+		
 		{
-			title: "Packing",
-			dataIndex: "packing",
+                title: t("Unit"),
+                dataIndex: "unit_name",
+                sorter: (a, b) => {
+                    const aMobileNumber = a.customer?.unit_name || ''; 
+                    const bMobileNumber = b.customer?.unit_name || '';
+                    
+                    return aMobileNumber.localeCompare(bMobileNumber); 
+                },
+                sortDirections: ['ascend', 'descend'],
 		},
+		
 		{
-			title: "Stock",
-			dataIndex: "stock",
-		},
-		{
-			title: "Unit",
-			dataIndex: "unit_name",
-		},
-		{
-			title: "₹ Sale Rate",
-			dataIndex: "sale_rate",
-		},
-		{
-			title: t("common.action"),
-			dataIndex: "action",
-		},
+                title:"₹ "+ t("Sales Rate"),
+                dataIndex: "sale_rate",align:"right",
+                sorter: (a, b) => {
+                    const aMobileNumber = a.customer?.sale_rate || ''; 
+                    const bMobileNumber = b.customer?.sale_rate || '';
+                    
+                    return aMobileNumber.localeCompare(bMobileNumber); 
+                },
+                sortDirections: ['ascend', 'descend'],
+            },
+
+		// {
+		// 	title: t("common.action"),
+		// 	dataIndex: "action",
+		// },
 	];
 
 	const adjustmentTypes = [

@@ -29,6 +29,7 @@ export default defineComponent({
 				title: t("database_backup.generate_backup"),
 				icon: createVNode(ExclamationCircleOutlined),
 				content: t("database_backup.are_you_sure_generate_backup"),
+				autoFocusButton:'ok',
 				okText: t("common.yes"),
 				okType: "danger",
 				cancelText: t("common.no"),

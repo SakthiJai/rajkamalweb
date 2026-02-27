@@ -10,11 +10,12 @@ class LedgerItem extends BaseModel
 {
     protected $table = 'ledger_item';
   
-    protected $guarded = ['id','ledger_id', 'created_at', 'updated_at'];
+    protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['ledger_id'];
+    //protected $hidden = ['ledger_id'];
     protected $default = [
         'xid',
+        'ledger_id',
         'keyword',
         'value',
       ];

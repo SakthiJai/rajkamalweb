@@ -20,7 +20,7 @@ const stockManagement = () => {
     const selectedProductIds = ref([]);
     const removedOrderItemsIds = ref([]);
     const state = reactive({
-        orderSearchTerm: undefined,
+        ordersearchTerm: [],
         productFetching: false,
         products: [],
     });

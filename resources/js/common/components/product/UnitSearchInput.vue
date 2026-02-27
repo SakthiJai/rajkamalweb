@@ -1,102 +1,173 @@
 <template>
-    <a-select
-        v-model:value="searchTerm"
-        show-search
-        :filter-option="false"
-       ref="prodinput"
-        style="width: 100%"
-        :not-found-content="fetching ? undefined : null"
-        @search="fetchProducts"
-        option-label-prop="label"
-        @change="valueChanged"
-        :allowClear="true"
-        id="unit_search"
+  <b hidden>{{ searchTerm }}</b>
+  <a-select
+     id="unit_1st"
+    v-model:value="searchTerm"
+    show-search
+    :filter-option="false"
+    style="width: 100%"
+    :not-found-content="fetching ? undefined : null"
+    @search="fetchProducts"
+    option-label-prop="label"
+    @change="valueChanged"
+    :allowClear="true"
+     @keydown="handleKeyDown"
+  >
+    <template #suffixIcon><SearchOutlined /></template>
+    <template v-if="fetching" #notFoundContent>
+      <a-spin size="small" />
+    </template>
+    <a-select-option
+      v-for="newProduct in products"
+      :key="newProduct.id"
+      :value="newProduct.id"
+      :label="newProduct.name"
+      :product="newProduct"
+      @click="handleOptionClick(newProduct)"
     >
-        <template #suffixIcon><SearchOutlined /></template>
-        <template v-if="fetching" #notFoundContent>
-            <a-spin size="small" />
-        </template>
-        <a-select-option
-            v-for="newProduct in products"
-            :key="newProduct.id"
-            :value="newProduct.id"
-            :label="newProduct.name"
-            :product="newProduct"
-        >
-            {{ newProduct.name }}
-        </a-select-option>
-    </a-select>
+      {{ newProduct.name }}
+    </a-select-option>
+  </a-select>
 </template>
 
 <script>
 import { defineComponent, toRefs, reactive, watch, onMounted } from "vue";
 import { SearchOutlined } from "@ant-design/icons-vue";
 import { debounce } from "lodash-es";
+import { Modal, Input } from "ant-design-vue";
 
 export default defineComponent({
-    props: ["productData"],
-    emits: ["valueSuccess", "valueChanged"],
-    components: {
-        SearchOutlined,
-    },
-    setup(props, { emit }) {
-        const state = reactive({
-            searchTerm: [],
-            fetching: false,
-            products: [],
-        });
+  props: ["productData"],
+  emits: ["valueSuccess", "valueChanged"],
+  created() {
+    console.log("created:", this.productData);
+  },
+  components: {
+    SearchOutlined,
+    "a-modal": Modal,
+    "a-input": Input,
+  },
 
-        onMounted(() => {
-            resetSearchInput(props);
-        });
+  setup(props, { emit }) {
+    const state = reactive({
+      searchTerm: [],
+      fetching: false,
+      products: [],
+      isModalVisible: false,
+      newProductName: "",
+    });
 
-        const resetSearchInput = (propVal) => {
-            if (propVal.productData && propVal.productData.product) {
-                state.products = [
-                    {
-                        id: propVal.productData.x_product_id,
-                        name: propVal.productData.product.name,
-                    },
-                ];
-                state.searchTerm = propVal.productData.x_product_id;
-            } else {
-                state.searchTerm = [];
-                state.products = [];
-            }
+    onMounted(() => {
+      fetchProducts();
+      resetSearchInput(props);
+    });
 
-            emit("valueSuccess");
-        };
+    const resetSearchInput = (propVal) => {
+      if (propVal.productData && propVal.productData.product) {
+        state.products = [
+          {
+            id: propVal.productData.x_product_id,
+            name: propVal.productData.product.name,
+          },
+        ];
+        state.searchTerm = propVal.productData.x_product_id;
+      } else {
+        state.searchTerm = [];
+        state.products = [];
+      }
 
-        const valueChanged = (value, option) => {
-            emit("valueChanged", value);
-            emit("valueSuccess");
-        };
-        const fetchProducts = debounce((value) => {
-            state.products = [];
+      emit("valueSuccess");
+    };
 
-          
-                state.fetching = true;
-                const filterString = `name lk "%${value}%"`;
-                let url = `units?fields=id,xid,name&filters=${encodeURIComponent(
-                    filterString
-                )}&limit=1000`;
+    const valueChanged = (value, option) => {
+      emit("valueChanged", value);
+      emit("valueSuccess");
+    };
+    const updateSearchterm = () => {
+      state.searchTerm = 2;
+    };
+    const fetchProducts = debounce((value) => {
+      state.products = [];
+      console.log("value", value);
+      let filterString = `name lk "%${value}%"`;
+      if (value == undefined) {
+        filterString = "";
+      } else if (typeof value === "object" || (value != "" && value.trim() == "")) {
+        filterString = "";
+      }
+      state.fetching = true;
 
-                axiosAdmin.get(url).then((response) => {
-                    state.products = response.data;
-                    state.fetching = false;
-                });
-            
-        }, 300);
+      let url = `units?fields=id,xid,name&filters=${encodeURIComponent(
+        filterString
+      )}&limit=1000`;
 
-        watch(props, (newVal, oldVal) => {
-            resetSearchInput(newVal);
-        });
+      axiosAdmin.get(url).then((response) => {
+        response.data.push({ id: null, sales_type: "" });
+        response.data.splice(0, 0, { id: null, name: "--Select Unit --" })
+        state.products = response.data;
+        state.fetching = false;
+      });
+    }, 300);
 
-        return {
-            ...toRefs(state),
-            fetchProducts,
-            valueChanged,
-        };
-    },
+    watch(props, (newVal, oldVal) => {
+      resetSearchInput(newVal);
+    });
+
+    const handleKeyDown = (event) => {
+      if(event.key === "Tab"){
+        if (!state.searchTerm || state.searchTerm.length === 0) {
+      event.preventDefault(); 
+    }
+         console.log("jhgfdcvbnm",state.searchTerm)
+      }
+      if (event.key === "Delete" || event.key === "Backspace") {
+        state.searchTerm = [];
+        state.products = [];
+        emit("valueChanged", null);
+
+        fetchProducts("");
+      } else {
+        if (props.productData && props.productData.product) {
+          state.searchTerm = props.productData.x_product_id;
+          state.products = [
+            {
+              id: props.productData.x_product_id,
+              name: props.productData.product.name,
+            },
+          ];
+        }
+      }
+    };
+
+
+    const handleOptionClick = (newProduct) => {
+      // If "F2 - Add new" is clicked, show the modal
+      if (newProduct.name === "F2 - Add new") {
+        state.isModalVisible = true;
+      }
+    };
+
+    const handleAddNewProduct = () => {
+      // Handle adding new product logic here
+      console.log("Adding new product: ", state.newProductName);
+      // Close the modal after adding the new product
+      state.isModalVisible = false;
+    };
+
+    const handleModalCancel = () => {
+      // Close the modal without saving
+      state.isModalVisible = false;
+    };
+
+    return {
+      ...toRefs(state),
+      fetchProducts,
+      valueChanged,
+      handleOptionClick,
+      handleAddNewProduct,
+      handleModalCancel,
+      handleKeyDown,
+    };
+  },
 });
 </script>

@@ -77,42 +77,7 @@
                                     >
                                         {{ record.payment.payment_mode.name }}
                                     </template>
-                                    <!-- <template
-                                        v-if="column.dataIndex === 'action'"
-                                    >
-                                        <a-button
-                                            type="primary"
-                                            @click="editItem(record)"
-                                            style="margin-left: 4px"
-                                            v-if="
-                                                permsArray.includes(
-                                                    'order_payments_edit'
-                                                ) ||
-                                                permsArray.includes('admin')
-                                            "
-                                        >
-                                            <template #icon
-                                                ><EditOutlined
-                                            /></template>
-                                        </a-button>
-                                        <a-button
-                                            type="primary"
-                                            @click="
-                                                showDeleteConfirm(record.xid)
-                                            "
-                                            style="margin-left: 4px"
-                                            v-if="
-                                                permsArray.includes(
-                                                    'order_payments_delete'
-                                                ) ||
-                                                permsArray.includes('admin')
-                                            "
-                                        >
-                                            <template #icon
-                                                ><DeleteOutlined
-                                            /></template>
-                                        </a-button>
-                                    </template> -->
+                             
                                 </template>
                             </a-table>
                         </div>

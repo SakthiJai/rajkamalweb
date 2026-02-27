@@ -14,23 +14,24 @@ class Order extends BaseModel
         'xid',
         'bill_number',
         'address',
-         'party_name',
-        
-    ]; 
+         'party_name','party_id'
+
+    ];
     //protected $fillable = ['party_name','party_name'];
     protected $guarded = ['id', 'warehouse_id', 'staff_user_id', 'order_type', 'party_customer_id', 'created_at', 'updated_at'];
 
     protected $hidden = ['warehouse_id', 'product_id','payment_id','from_warehouse_id', 'user_id', 'tax_id', 'staff_user_id', 'cancelled_by'];
 
-    protected $appends = ['xid', 'x_warehouse_id','party_id','product_id','payment_id', 'x_from_warehouse_id', 'x_user_id', 'x_tax_id', 'x_staff_user_id', 'x_cancelled_by', 'document_url','party_name'];
+    protected $appends = ['xid', 'x_warehouse_id','party_id','product_id','payment_id', 'x_from_warehouse_id', 'x_user_id', 'x_tax_id', 'x_staff_user_id', 'x_cancelled_by', 'document_url','party_name','party_address_id','due_amount'];
 
     protected $dates = ['order_date'];
 
-    protected $filterable = ['id', 'bill_number','address','payment_status','invoice_number', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id','product_id','payment_id',];
+    protected $filterable = ['id', 'bill_number','address','payment_status','invoice_number','mobile_number', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id','product_id','payment_id','cus_name
+','party_address_id','due_amount'];
 
 
-    protected $fillable  = ['id', 'bill_number','address','payment_status','invoice_number', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id','product_id','payment_id',];
-  
+    protected $fillable  = ['id', 'bill_number','address','payment_status','invoice_number', 'order_status', 'cancelled', 'order_date', 'user_id', 'warehouse_id', 'staff_user_id','party_id','product_id','payment_id','cus_name','party_address_id'];
+
     protected $hashableGetterFunctions = [
         'getXWarehouseIdAttribute' => 'warehouse_id',
         'getXFromWarehouseIdAttribute' => 'from_warehouse_id',
@@ -62,19 +63,21 @@ class Order extends BaseModel
     ];
 
 
-    // public function getPartyNameAttribute()
-    // {
+ public function getPartyNameAttribute()
+     {
 
-    //     $partyname = LedgerModel::find(id: $this->party_name);
-    //     return $partyname ? $partyname->party_name : 'Unknown'; 
-    // }
-    
+         $partyname = LedgerModel::find(id: $this->customer_id);
+         //print_r($partyname);
+         return $partyname;
+     }
+
+
 
     protected static function boot()
     {
         parent::boot();
 
-        static::addGlobalScope(new CompanyScope);
+        //static::addGlobalScope(new CompanyScope);
     }
 
     public function getDocumentUrlAttribute()
@@ -88,9 +91,9 @@ class Order extends BaseModel
     {
         return $this->hasMany(OrderItem::class, 'order_id', localKey: 'id');
     }
-    public function partyName()
+    public function party()
     {
-       return $this->belongsTo(LedgerModel::class, 'party_id', 'id');
+       return $this->belongsTo(LedgerModel::class, 'ledger_id', 'id');
     }
 
     public function productName()
@@ -147,10 +150,19 @@ class Order extends BaseModel
     {
         return $this->belongsTo(OrderShippingAddress::class, 'id', 'order_id');
     }
-    
+
     public function getPartyIdAttribute()
     {
-       return  15;
+       return  $this->customer_id;
     }
-    
+    public function getPartyAddressIdAttribute()
+    {
+        return "";
+
+    }
+    public function getDueAmountAttribute()
+    {
+        return  isset($this->attributes['due_amount'])?$this->attributes['due_amount']:'';
+    }
+
 }

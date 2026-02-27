@@ -143,8 +143,8 @@ const common = () => {
     };
 
     const formatAmountCurrency = (amount) => {
-        const newAmount = parseFloat(Math.abs(amount)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
+        const newAmount = Math.trunc(Math.abs(amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        
         if (appSetting.value.currency.position == "front") {
             var newAmountString = `${appSetting.value.currency.symbol}${newAmount}`;
         } else {
@@ -152,6 +152,7 @@ const common = () => {
         }
 
         return amount < 0 ? `- ${newAmountString}` : newAmountString;
+        
     };
 
     const formatAmountUsingCurrencyObject = (amount, currency) => {

@@ -10,7 +10,7 @@
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('unit.name')"
+                        :label="$t('unit.measuring_unit')"
                         name="name"
                         :help="rules.name ? rules.name.message : null"
                         :validateStatus="rules.name ? 'error' : null"
@@ -19,7 +19,9 @@
                         <a-input
                             v-model:value="formData.name"
                             :placeholder="
-                                $t('common.placeholder_default_text', [$t('unit.name')])
+                                $t('common.placeholder_default_text', [
+                                    $t('unit.name'),
+                                ])
                             "
                         />
                     </a-form-item>
@@ -30,7 +32,9 @@
                     <a-form-item
                         :label="$t('unit.short_name')"
                         name="short_name"
-                        :help="rules.short_name ? rules.short_name.message : null"
+                        :help="
+                            rules.short_name ? rules.short_name.message : null
+                        "
                         :validateStatus="rules.short_name ? 'error' : null"
                         class="required"
                     >
@@ -47,11 +51,20 @@
             </a-row>
         </a-form>
         <template #footer>
-            <a-button key="submit" type="primary" :loading="loading" @click="onSubmit">
+            <a-button
+                key="submit"
+                type="primary"
+                :loading="loading"
+                @click="onSubmit"
+            >
                 <template #icon>
                     <SaveOutlined />
                 </template>
-                {{ addEditType == "add" ? $t("common.create") : $t("common.update") }}
+                {{
+                    addEditType == "add"
+                        ? $t("common.create")
+                        : $t("common.update")
+                }}
             </a-button>
             <a-button key="back" @click="onClose">
                 {{ $t("common.cancel") }}
@@ -61,7 +74,11 @@
 </template>
 <script>
 import { defineComponent } from "vue";
-import { PlusOutlined, LoadingOutlined, SaveOutlined } from "@ant-design/icons-vue";
+import {
+    PlusOutlined,
+    LoadingOutlined,
+    SaveOutlined,
+} from "@ant-design/icons-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 
 export default defineComponent({

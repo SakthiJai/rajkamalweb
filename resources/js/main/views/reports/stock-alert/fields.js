@@ -25,7 +25,7 @@ const fields = () => {
             dataIndex: "current_stock",
             dbKey: "details.current_stock",
             dataFormat: (row) => {
-                return `${row.details.current_stock} ${row.unit.short_name}`;
+                return `${row.details?.current_stock ?? 0} ${row.unit?.short_name ?? ""}`;
             },
             sorter: true,
         },
@@ -34,7 +34,7 @@ const fields = () => {
             dataIndex: "stock_quantitiy_alert",
             dbKey: "details.current_stock",
             dataFormat: (row) => {
-                return `${row.details.stock_quantitiy_alert} ${row.unit.short_name}`;
+                return `${row.details?.stock_quantitiy_alert ?? 0} ${row.unit?.short_name ?? ""}`;
             },
             sorter: true,
         },

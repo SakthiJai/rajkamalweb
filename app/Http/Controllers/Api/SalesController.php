@@ -12,11 +12,18 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PaymentModeModel;
 use App\Models\PaymentMode;
+use App\Models\Receipt;
+use App\Models\ReceiptBank;
 use App\Models\LedgerModel;
+use App\Models\ShippingDetail;
+ use App\Models\DiscountModel;
+use App\Models\SalesReturn;
+use App\Models\SalesReturnItems;
 use App\Models\LedgerCustomerModel;
+use App\Models\ReturnReasonModel;
 use Illuminate\Support\Str;
 use App\Traits\OrderTraits;
-use \Mpdf\Mpdf as PDF; 
+use \Mpdf\Mpdf as PDF;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
@@ -42,80 +49,341 @@ class SalesController extends ApiBaseController
 
 	public function salesCreate(SalesCreateRequest $request)
 	{
+		//DB::beginTransaction();
 		try {
 
 			// Create new Order instance
+			if($request->selectedInvoice==null || $request->selectedInvoice=="null")
+			{
+				if($this->createOrder($request,"sales"))
+				{
+					return response()->json(['message' => 'Order and items stored successfully.'], 201);
+				}
+			}
+			else{
+				if($this->updateOrder($request,"sales"))
+				{
+					return response()->json(['message' => 'Order and items updated successfully.'], 201);
+				}
+			}
+			//DB::commit();
+		}
+		catch(\Illuminate\Database\QueryException $ex){
+			//dd($ex->getMessage());
+			//DB::rollback();
+			return response()->json(['message' => $ex->getMessage()], 500);
+			// Note any method of class PDOException can be called on $ex.
+		  }
+		catch (\Exception $e) {
+			//DB::rollBack();
+
+			Log::error('Error storing order: ' . $e->getMessage(), [
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+				'trace' => $e->getTraceAsString(),
+			]);
+
+			return response()->json(['message' => 'Error storing order, please try again.'], 500);
+		}
+	}
+	public function createOrder($request,$type)
+	{
+			//DB::beginTransaction();
+			$issue = false;
 			$order = new Order();
 			$order->unique_id         = $this->generateUniqueId();
-			$order->invoice_number    = $request->bill_number;
+			$order['invoice_number']    = ($type=="sales"?$request->bill_number:"QT-".$request->invoice_number);
 			$order->warehouse_id      = 1;
 			$order->order_date        = date('Y-m-d');
 			$order->user_id           = auth('api')->user()->id;
-			$order->tax_rate          = 2; // Static tax rate; you might want to make this dynamic
-			$order->tax_amount        = $request->tax_amount ?? 0.00;
-			$order->discount          = $request->discount ?? 0.00;
+			$order->tax_rate          = 2;
+			$order->order_type          = $type;
+
+			$order->discount    = $request->discount ?? 0.00;
 			$order->subtotal          = $request->subtotal ?? 0.00;
 			$order->total             = $request->total ?? 0.00;
-			$order->due_amount        = $request->due_amount ?? 0.00;
+			$order->due_amount        = $order->total;
 			$order->order_status      = $request->order_status;
 			$order->party_id          = $request->party_id;
+			$order->ledger_id          = $request->party_id;
 			$order->party_customer_id = $request->party_customer_id;
-			$order->address           = $request->address;
+            $order->party_shippingaddress_id = $request->party_shippingaddress_id;
+            $order->address           = $request->address;
+			$order->total      	= ($request->subtotal+$request->tax_amount)-($request->discount);
+			$order->tax_amount      	= ($request->tax_amount);
 
+			$order->total_items      	= ($request->total_items);
+			
+			 
 			if($order->save())
 			{
 
+
+			}
+			else{
 				
-			}	
+				$issue= true;
+			}
+			if($type=="sales"){
 			$sql = "update settings set recent_bill_number = '".($request->bill_number+1)."'  where setting_type = 'bill_number'";
-				DB::update($sql);
+
+			}
+			else
+			{
+				$sql = "update settings set recent_bill_number = '".($request->invoice_number+1)."'  where setting_type = 'quotation_number'";
+
+
+			}
+			DB::update($sql);
 
 			// Get the items from the request
 			$orderItems = $request->input('items');
 
 			if ($order && !empty($orderItems)) {
-				foreach ($orderItems as $item) { 
+				foreach ($orderItems as $item) {
 					// Check if item_id and item_name are present and valid
 					if (!is_null($item['item_id']) && !is_null($item['single_unit_price']) && !is_null($item['quantity'])) {
 						$quantity = !empty($item['quantity']) ? $item['quantity'] : 1;
 
 						// Calculate the amount: single unit price * quantity
 						$amount = $item['single_unit_price'] * $quantity;
-							
+
 						// Insert order items
 						OrderItem::create([
 							'user_id'            => auth('api')->user()->id,
 							'order_id'           => $order->id,
 							'product_id'        => (int)$item['item_id'],
 							'quantity'           => $quantity,
+							'freeQty'           =>  $item['freeQty']>0?$item['freeQty']:0,
 							'unit_price'         => $item['single_unit_price'],
 							'single_unit_price'  => $item['single_unit_price'],
 							'tax_rate'           => 2,
 							'discount_rate'      => $item['discount_rate'] ?? 0,
+							'discount_type_id'      => $item['discount_type_id'] ?? 0,
+							'subtotal'           => $amount
+						]);
+					}
+				}
+			}
+			if($type=="sales"){
+			$listofpayment = ReceiptBank::where('is_delete',0)->get();
+			foreach($listofpayment as $list):
+				/*$payment = new PaymentModeModel();
+				$payment->settlement_mode = $list->name;
+				$payment->bill_number = $request->bill_number;
+				$payment->order_id = $order->id;*/
+				$insert = DB::table('payment_mode')->insert([
+						"settlement_mode" =>$list->bank_name,
+						"settlement_id" =>$list->id,
+						"bill_number" => $request->bill_number,
+						"order_id" => $order->id
+					]);
+					
+			endforeach;
+		}	
+			return $issue;
+	}
+	public function updateOrder($request,$type)
+	{
+			$issue = false;
+			$order = Order::where("invoice_number",$request->selectedInvoice)->first();
+
+			$order->warehouse_id      = 1;
+			$order->order_date        = $request->order_date;
+			$order->user_id           = auth('api')->user()->id;
+			$order->tax_rate          = 2; // Static tax rate; you might want to make this dynamic
+			$order->tax_amount        = $request->tax_amount ?? 0.00;
+			$order->discount          = $request->discount ?? 0.00;
+			$order->subtotal          = $request->subtotal ?? 0.00;
+			$order->total             = $request->total ?? 0.00;
+			$order->due_amount        = $order->total;
+			$order->order_status      = $request->order_status;
+			$order->party_id          = $request->party_id;
+			$order->ledger_id          = $request->party_id;
+			$order->party_customer_id = $request->party_customer_id;
+            $order->party_shippingaddress_id = $request->party_shippingaddress_id;
+			$order->address           = $request->address;
+			$order->order_type          = $type;
+
+			if($order->save())
+			{
+			}
+			else{
+				$issue= true;
+			}
+
+			// Get the items from the request
+			OrderItem::where("order_id",$order->id)->delete();
+			//PaymentModeModel::where("order_id",$order->id)->delete();
+			$orderItems = $request->input('items');
+
+
+			if ($order && !empty($orderItems)) {
+				foreach ($orderItems as $item) {
+					// Check if item_id and item_name are present and valid
+					if (!is_null($item['item_id']) && !is_null($item['single_unit_price']) && !is_null($item['quantity'])) {
+						$quantity = !empty($item['quantity']) ? $item['quantity'] : 1;
+						// Calculate the amount: single unit price * quantity
+						$amount = $item['single_unit_price'] * $quantity;
+						// Insert order items
+						OrderItem::create([
+							'user_id'            => auth('api')->user()->id,
+							'order_id'           => $order->id,
+							'product_id'        => (int)$item['item_id'],
+							'quantity'           => $quantity,
+							'freeQty'           =>  $item['freeQty']>0?$item['freeQty']:0,
+							'unit_price'         => $item['single_unit_price'],
+							'single_unit_price'  => $item['single_unit_price'],
+							'tax_rate'           => 2,
+							'discount_rate'      => $item['discount_rate'] ?? 0,
+							'discount_type_id'   => $item['discount_type_id'] ,
 							'subtotal'           => $amount
 						]);
 					}
 				}
 			}
 
-			/*OrderItem::create([
-				'company_id' => "1",
-				'payment_id' => "1",
-				'order_id '  => $order->id ?? 0,
-				'amount'     => $request->subtotal ?? 0.00
-			]);*/
-			$listofpayment = PaymentMode::where('status','1')->get();
-			foreach($listofpayment as $list):
-				$payment = new PaymentModeModel();
-				$payment->settlement_mode = $list->name;
-				$payment->bill_number = $request->bill_number;
-				$payment->order_id = $order->id;
-				$payment->save();
-			endforeach;
+			return $issue;
+	}
+	public function billNumber(Request $request)
+	{
+
+		$bill = DB::select("select recent_bill_number from settings where setting_type='bill_number'");
+		$discountItems = DiscountModel::where("status",'1')->get();
+		$returnTypes = ReturnReasonModel::where("status",'1')->get();
+		if(isset($request->party_id))
+		$customerDetails 	= LedgerModel::select('opening_balance')->where('id',$request->party_id)->first();
+		//print_r($bill);
+		//echo str_pad(($bill[0]->recent_bill_number+1),8,"0",STR_PAD_LEFT); ;
+		return response()->json([
+			'message' => 'Data retrived successfully',
+			'data'=>["ref"=> str_pad(($bill[0]->recent_bill_number+1),8,"0",STR_PAD_LEFT),
+			"discountItems"=>$discountItems,
+			"returnTypes"=>$returnTypes,
+			"balance"=>$request->party_id?$customerDetails->opening_balance:""]
+		], 200);
+	}
+	public function crNumber(Request $request)
+	{
+		$customer =[];
+		$invoiceItems=[];
+		$cr = DB::select("select recent_bill_number from settings where setting_type='cr_number'");
+		$cr = str_pad(($cr[0]->recent_bill_number+1),8,"0",STR_PAD_LEFT);
+		$recentBill	= Order::select(['due_amount',"orders.id","party_customer_id",'invoice_number','total','tax_amount',DB::raw('DATE_FORMAT(order_date, "%d-%m-%Y") as invoiceDate'),DB::raw('count(order_items.product_id) as totalProducts')])->where('party_id',$request->party_id)->where('order_type','sales')->where('total','>',0)->join('order_items', 'order_items.order_id', '=', 'orders.id')->groupBy('order_items.order_id')->orderBy('orders.id','DESC')->get()->take(10);
+		if(count($recentBill)>0){
+		$customer = LedgerCustomerModel::select(['id','cus_name','mobile_number','address'])->where("id",$recentBill[0]->party_customer_id)->first();
+		$invoiceItems	=	OrderItem::where('order_id',$recentBill[0]->id)->get();
+		}
+
+		return response()->json([
+			'message' => 'Data retrived successfully',
+			'data'=>["cr"=>$cr,"recentBill"=>$recentBill,"customer"=>$customer,"invoiceItems"=>$invoiceItems]
+		], 200);
+	}
+
+	public function getInvoiceItems(Request $request)
+	{
+			$invoiceItems	=	OrderItem::join('orders',   'orders.id','=', 'order_items.order_id',)->whereIn('order_id',explode(",",$request->id))->get();
+			return response()->json([
+				'message' => 'Data retrived successfully',
+				'data'=>["invoiceItems"=>$invoiceItems]
+			], 200);
+	}
+
+	public function savepayment(Request $request)
+{
+    $totalAmount = 0;
+   // $totalBillAmount = $request->data[0]['bill_amount'];  // Assuming bill_amount is the same for all items
+    $totalBillAmount = (float) round($request->data[0]['bill_amount'], 2); // Ensure consistent rounding
 
 
-			return response()->json(['message' => 'Order and items stored successfully.'], 201);
-		} catch (\Exception $e) {
+    foreach ($request->data as $key => $value) {
+        if ($value['bill_amount'] != null && $value['bill_amount'] != "" && $value['amount'] > 0) {
+             $balanceAdjusted = $value['bill_amount'] - $value['amount'];  // Assuming this is the logic for balance adjustment
+            $newPay = PaymentModeModel::where('bill_number', $value['bill_number'])
+                ->where('settlement_mode', $value['settlement_mode'])
+                ->update([
+                    'bill_amount' => $value['bill_amount'],
+                    'amount' => $value['amount'],
+                    'remarks' => $value['remarks'],
+                    'cash_tender' => $value['cash_tender'],
+                    'cash_return' => $value['cash_return'],
+					'payment_type' =>"sales",
+                    'balance_adjusted' => $balanceAdjusted // Store the calculated balance adjusted
+                ]);
+            $totalAmount += $value['amount'];
+			$this->createReciept($value);
+        }
+    }
+    $totalAmount = round($totalAmount, 2);
+    $invoice_number = isset($request->data[0]['invoice_number'])?$request->data[0]['invoice_number']:$request->data[0]['bill_number'];
+
+    //\Log::info("Total Paid: $totalAmount, Total Bill: $totalBillAmount, Invoice: $invoice_number");
+    if ($totalAmount >= $totalBillAmount)
+    {
+        Order::where('invoice_number', $invoice_number)
+            ->update(['payment_status' => 'Paid','due_amount'=>0]);
+    }
+    elseif ($totalAmount > 0)
+     {
+        Order::where('invoice_number', $invoice_number)
+            ->update(['payment_status' => 'Partially paid','due_amount'=>( $totalBillAmount-$totalAmount)]);
+    }
+    // Return a success response
+    return response()->json(['message' => 'Sales Entry Saved successfully.'], 201);
+}
+public function createReciept($payment)
+{
+		$order = DB::select("select party_id, order_date from orders where invoice_number='".$payment['bill_number']."'");
+		//Order::where("invoice_number",$payment['bill_number'])->get();
+		//dd($order[0]->party_id);
+		$cr = DB::select("select recent_bill_number from settings where setting_type='voucher_number'");
+            $subtotal = 0;
+            $short_subtotal = 0;
+            $create= Receipt::create([
+                "voucher_number"=>str_pad(((int)$cr[0]->recent_bill_number)+1,8,"0",STR_PAD_LEFT),
+                "receipt_mode" =>$payment['settlement_id'],               
+                "order_date" =>$order[0]->order_date,
+                "party_id" => $order[0]->party_id,                
+                "receipt_date" => date('Y-m-d h:i:s') ,               
+                "short_amount" => 0,
+                "amount" =>$payment['amount'],
+                "subtotal" => $subtotal,
+                "short_subtotal" => $short_subtotal
+                ]);
+				$sql = "update settings set recent_bill_number = '".($cr[0]->recent_bill_number+1)."'  where setting_type = 'voucher_number'";
+            	DB::update($sql);
+
+}
+
+	public function quotationCreate(Request $request)
+	{
+		DB::beginTransaction();
+		try {
+
+			// Create new Order instance
+			if($request->selectedInvoice==null || $request->selectedInvoice=="null")
+			{
+				if($this->createOrder($request,"quotation"))
+				{
+					return response()->json(['message' => 'Order and items stored successfully.'], 201);
+				}
+			}
+			else{
+				if(!$this->updateOrder($request,"quotation"))
+				{
+					return response()->json(['message' => 'Order and items updated successfully.'], 201);
+				}
+			}
+			DB::commit();
+		}
+		catch(\Illuminate\Database\QueryException $ex){
+			//dd($ex->getMessage());
+			DB::rollback();
+			return response()->json(['message' => $ex->getMessage()], 500);
+			// Note any method of class PDOException can be called on $ex.
+		  }
+		catch (\Exception $e) {
 			DB::rollBack();
 
 			Log::error('Error storing order: ' . $e->getMessage(), [
@@ -127,38 +395,9 @@ class SalesController extends ApiBaseController
 			return response()->json(['message' => 'Error storing order, please try again.'], 500);
 		}
 	}
-	public function billNumber()
-	{
-		
-		$bill = DB::select("select recent_bill_number from settings where setting_type='bill_number'");
-		//print_r($bill);
-		echo str_pad(($bill[0]->recent_bill_number+1),8,"0",STR_PAD_LEFT); ;
-		
-		
-	}
-	public function savepayment(Request $request)
-	{
-		//print_r($request->data);
-		foreach($request->data as  $key => $value):
-			if($value['bill_amount']!=null || $value['bill_amount']!="" || $value['bill_amount']>0){
-			$newPay = PaymentModeModel::where('bill_number',$value['bill_number'])
-			->where('settlement_mode',$value['settlement_mode'])
-			->update([
-				'bill_amount'=>$value['bill_amount'],
-				'amount'=>$value['amount'],
-				'remarks'=>$value['remarks'],
-				'cash_tender'=>$value['cash_tender'],
-				'cash_return'=>$value['cash_return']
-			]);
-			
-			}
-		endforeach;	
-		return response()->json(['message' => 'Payment Saved successfully.'], 201);
-
-	}
 
 
-	function generateUniqueId($length = 20) 
+	function generateUniqueId($length = 20)
 	{
 		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 		$charactersLength = strlen($characters);
@@ -174,12 +413,14 @@ class SalesController extends ApiBaseController
 	{
 		 $documentFileName = $request->invoice.".pdf";
 
-		 $invoice_details 	= Order::where('invoice_number',$request->invoice)->get();
-		 $customerDetails 	= LedgerModel::where('id',$invoice_details[0]->party_id)->get();
-		 $partyDetails 		= LedgerCustomerModel::where('id',$invoice_details[0]->party_customer_id)->get();
-		 
-		 $products 			= DB::select("SELECT A.quantity,A.mrp,A.unit_price,A.discount_rate,A.subtotal,B.hsn_sac,B.name,(2.0) as sgst,(2.0) as igst FROM `order_items` A left join products B on B.id=A.product_id WHERE order_id=".$invoice_details[0]->id);
- 
+		 $invoice_details 	= Order::where('invoice_number',$request->invoice)->first();
+
+		 $partyDetails 		= LedgerCustomerModel::where('id', $invoice_details->party_customer_id)->get();
+		 $customerDetails 	= LedgerModel::where('id',$invoice_details->ledger_id)->get();
+
+
+		 $products 			= DB::select("SELECT A.quantity,B.mrp,B.sale_rate,A.discount_rate,A.subtotal,B.hsn_sac,B.name,C.cgst as cgst_amount,C.sgst as sgst_amount FROM `order_items` A left join products B on B.id=A.product_id left join tax_catagories C on C.id=B.tax_category WHERE order_id=".$invoice_details->id);
+
         // Create the mPDF document
         $document = new PDF( [
             'mode' => 'utf-8',
@@ -188,8 +429,8 @@ class SalesController extends ApiBaseController
             'margin_top' => '10',
             'margin_bottom' => '20',
             'margin_footer' => '2',
-        ]);     
- 
+        ]);
+
         // Set some header informations for output
         $header = [
             'Content-Type' => 'application/pdf',
@@ -204,15 +445,327 @@ class SalesController extends ApiBaseController
 			"products"=> $products
 		]));
        // $document->WriteHTML('<p>Write something, just for fun!</p>');
-         
-        // Save PDF on your public storage 
+
+        // Save PDF on your public storage
         Storage::disk('file')->put($documentFileName, $document->Output($documentFileName, "S"));
-         
+
         // Get file back from storage with the give header informations
          Storage::disk('file')->download($documentFileName, 'Request', $header);
-
+		 $invoice_details->invoice_path = config('app.url') .'/'.$documentFileName;
+		 $invoice_details->save();
 		 echo config('app.url') .'/'.$documentFileName;
-		
-		 
+
+
+	}
+	public function getInvoiceDetails(Request $request)
+	{
+
+		try{
+		$invoiceData 	=	Order::where("invoice_number",$request->invoice)->first();
+
+		$customerData 	=	LedgerCustomerModel::where("id",$invoiceData->party_customer_id)->first();
+        $shipppingaddressData 	=	ShippingDetail::where("id",$invoiceData->party_shippingaddress_id)->first();
+
+		$partyDetails	=	LedgerModel::where('id',$invoiceData->ledger_id)->first();
+		$invoiceItems	=	OrderItem::where('order_id',$invoiceData->id)->get();
+		$shippingDetails	=	ShippingDetail::where('id',$invoiceData->ledger_id)->first();
+		return response()->json([
+			'message' => 'Data retrived successfully',
+			'data'=>["invoiceData"=>$invoiceData,"customerData"=>$customerData,
+			"invoiceItems"=>$invoiceItems,
+            "shipppingaddressData"=>$shipppingaddressData,
+			"partyDetails"=>$partyDetails,
+			"shippingDetails"=>$shippingDetails,
+
+			]
+		], 200);
+		}
+		catch(\Exception $ex)
+		{
+			return response()->json(['message' => $ex->getMessage()], 500);
+		}
+		catch(\Illuminate\Database\QueryException $ex){
+			//dd($ex->getMessage());
+			return response()->json(['message' => $ex->getMessage()], 500);
+			// Note any method of class PDOException can be called on $ex.
+		  }
+	}
+	public function getReturnInvoiceDetails(Request $request)
+	{
+
+		try{
+		$discountItems = DiscountModel::where("status",'1')->get();
+		$returnTypes 	= ReturnReasonModel::where("status",'1')->get();
+		$invoiceData 	=	SalesReturn::where("cr_number",$request->invoice)->first();
+
+		$customerData 	=	LedgerCustomerModel::where("id",$invoiceData->party_customer_id)->first();
+		$partyDetails	=	LedgerModel::where('id',$customerData->ledger_id)->first();
+		$invoiceItems	=	SalesReturnItems::where('order_id',$invoiceData->id)->get();
+		return response()->json([
+			'message' => 'Data retrived successfully',
+			'data'=>["invoiceData"=>$invoiceData,"customerData"=>$customerData,
+			"invoiceItems"=>$invoiceItems,
+			"partyDetails"=>$partyDetails,
+			"discountItems"=>$discountItems,
+			"returnTypes"=>$returnTypes
+			]
+		], 200);
+		}
+		catch(\Exception $ex)
+		{
+			return response()->json(['message' => $ex->getMessage()], 500);
+		}
+		catch(\Illuminate\Database\QueryException $ex){
+			//dd($ex->getMessage());
+			return response()->json(['message' => $ex->getMessage()], 500);
+			// Note any method of class PDOException can be called on $ex.
+		  }
+	}
+	public function salesReturn(SalesCreateRequest $request)
+	{
+
+
+			// Create new Order instance
+			if($request->selectedInvoice=="null" || $request->selectedInvoice==null)
+			{
+				if(!$this->createSalesReturn($request))
+				{
+					return response()->json(['message' => 'Order and items stored successfully.'], 201);
+				}
+			}
+			else{
+				if(!$this->updateSalesReturn($request))
+				{
+					return response()->json(['message' => 'Order and items updated successfully.'], 201);
+				}
+			}
+
+
+
+	}
+	public function createSalesReturn($request)
+	{
+		DB::beginTransaction();
+		try{
+		$issue = false;
+		$invoiceData 	=	Order::where("invoice_number",$request['invoice_number']!=""?$request['invoice_number']:$request['bill_number'])->first();
+			$order = new SalesReturn();
+
+			$order->cr_number    		= $request->bill_number;
+			$order->order_id     		=	$invoiceData->id;
+			//$order->warehouse_id      = 1;
+			$order->order_date        	= $request->order_date;
+			$order->return_by        	 = auth('api')->user()->id;
+
+			$order->party_id          	= $request->party_id;
+			$order->party_customer_id 	= $request->party_customer_id;
+			$order->total_amount      	= ($request->total);
+			$order->tax_amount      	= ($request->tax_amount);
+			$order->total_discount      = ($request->discount);
+			$order->total_items      	= ($request->total_items);
+
+
+			if($order->save())
+			{
+
+
+			}
+			else{
+				echo $issue= true;
+			}
+			$sql = "update settings set recent_bill_number = '".($request->bill_number+1)."'  where setting_type = 'cr_number'";
+				DB::update($sql);
+
+			// Get the items from the request
+			$orderItems = $request->input('items');
+
+			if ($order && !empty($orderItems)) {
+				$total = 0;
+				foreach ($orderItems as $item) {
+					// Check if item_id and item_name are present and valid
+					if ( $item['return_qty']>0 && !is_null($item['item_id']) && !is_null($item['single_unit_price']) && !is_null($item['quantity'])) {
+						$quantity = !empty($item['return_qty']) ? $item['return_qty'] : 0;
+
+						// Calculate the amount: single unit price * quantity
+						$amount = $item['single_unit_price'] * $quantity;
+
+						// Insert order items
+						if(SalesReturnItems::create([
+							'user_id'            => auth('api')->user()->id,
+							'order_id'           => $order->id,
+							'product_id'        => (int)$item['item_id'],
+							'quantity'           => $item['quantity'],
+							'return_qty'           => $item['return_qty'],
+							'unit_price'         => $item['single_unit_price'],
+							'single_unit_price'  => $item['single_unit_price'],
+							'tax_rate'           => 2,
+							'disc_value'      	=> $item['discount_rate'] ?? 0,
+							'subtotal'           => $amount,
+							'return_invoice'           => $item['invoice'],
+							'disc_type'			=> $item['discount_type_id'],
+							'return_reason_code'=> $item['return_reason_code'],
+							'invoice_date'=>date('d-m-Y',strtotime($item['invoice_date']))
+						]))
+						{
+							$total = $total+$amount;
+
+						}
+						else{
+							echo 'issue2';
+						}
+					}
+				}
+
+
+			}
+			DB::commit();
+			return $issue;
+		}
+		catch(\Illuminate\Database\QueryException $ex){  echo '333';
+
+			//dd($ex->getMessage());
+
+			DB::rollback();
+			echo  response()->json(['message' => $ex->getMessage()], 500);
+			// Note any method of class PDOException can be called on $ex.
+		  }
+		catch (\Exception $e) { echo '444'.$e->getMessage();
+			DB::rollBack();
+
+			Log::error('Error storing order: ' . $e->getMessage(), [
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+				'trace' => $e->getTraceAsString(),
+			]);
+
+			return response()->json(['message' => 'Error storing order, please try again.'], 500);
+		}
+
+	}public function updateSalesReturn($request)
+	{
+		DB::beginTransaction();
+		try{
+		$issue = false;
+		$invoiceData 	=	SalesReturn::where("cr_number",$request['bill_number'])->first();
+
+			$order = new SalesReturn();
+
+			$invoiceData->cr_number    		= $request->bill_number;
+			//$invoiceData->order_id     		=	$invoiceData->id;
+			//$order->warehouse_id      = 1;
+			$invoiceData->order_date        	= $request->order_date;
+			$invoiceData->return_by        	 = auth('api')->user()->id;
+
+			$invoiceData->party_id          	= $request->party_id;
+			$invoiceData->party_customer_id 	= $request->party_customer_id;
+			$invoiceData->total_amount      	= ($request->total);
+			$invoiceData->tax_amount      	= ($request->tax_amount);
+			$invoiceData->total_discount      = ($request->discount);
+			$invoiceData->total_items      	= ($request->total_items);
+
+
+			if($invoiceData->save())
+			{
+
+
+			}
+			else{
+				echo $issue= true;
+			}
+			/*$sql = "update settings set recent_bill_number = '".($request->bill_number+1)."'  where setting_type = 'cr_number'";
+				DB::update($sql);*/
+
+			// Get the items from the request
+			$orderItems = $request->input('items');
+
+			if ($order && !empty($orderItems)) {
+				SalesReturnItems::where('order_id',$invoiceData->id )->delete();
+				$total = 0;
+				foreach ($orderItems as $item) {
+					// Check if item_id and item_name are present and valid
+					if ( $item['return_qty']>0 && !is_null($item['item_id']) && !is_null($item['single_unit_price']) && !is_null($item['quantity'])) {
+						$quantity = !empty($item['return_qty']) ? $item['return_qty'] : 0;
+
+						// Calculate the amount: single unit price * quantity
+						$amount = $item['single_unit_price'] * $quantity;
+
+						// Insert order items
+						if(SalesReturnItems::create([
+							'user_id'            => auth('api')->user()->id,
+							'order_id'           => $invoiceData->id,
+							'product_id'        => (int)$item['item_id'],
+							'quantity'           => $item['quantity'],
+							'return_qty'           => $item['return_qty'],
+							'unit_price'         => $item['single_unit_price'],
+							'single_unit_price'  => $item['single_unit_price'],
+							'tax_rate'           => 2,
+							'disc_value'      	=> $item['discount_rate'] ?? 0,
+							'subtotal'           => $amount,
+							'disc_type'			=> $item['discount_type_id'],
+							'return_reason_code'=> $item['return_reason_code'],
+							'return_invoice'           => $item['invoice'],
+							'invoice_date'=>date('d-m-Y',strtotime($item['invoice_date']))
+						]))
+						{
+							$total = $total+$amount;
+						}
+						else{
+							echo 'issue2';
+						}
+					}
+				}
+
+
+			}
+			DB::commit();
+			return $issue;
+		}
+		catch(\Illuminate\Database\QueryException $ex){  echo '333';
+
+			//dd($ex->getMessage());
+
+			DB::rollback();
+			echo  response()->json(['message' => $ex->getMessage()], 500);
+			// Note any method of class PDOException can be called on $ex.
+		  }
+		catch (\Exception $e) { echo '444'.$e->getMessage();
+			DB::rollBack();
+
+			Log::error('Error storing order: ' . $e->getMessage(), [
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+				'trace' => $e->getTraceAsString(),
+			]);
+
+			return response()->json(['message' => 'Error storing order, please try again.'], 500);
+		}
+
+	}
+	public function quotationNumber(Request $request)
+	{
+
+		$bill = DB::select("select recent_bill_number from settings where setting_type='quotation_number'");
+		$discountItems = DiscountModel::where("status",'1')->get();
+		$returnTypes = ReturnReasonModel::where("status",'1')->get();
+		if(isset($request->party_id))
+		$customerDetails 	= LedgerModel::select('opening_balance')->where('id',$request->party_id)->first();
+		//print_r($bill);
+		//echo str_pad(($bill[0]->recent_bill_number+1),8,"0",STR_PAD_LEFT); ;
+		return response()->json([
+			'message' => 'Data retrived successfully',
+			'data'=>["ref"=> str_pad(($bill[0]->recent_bill_number+1),8,"0",STR_PAD_LEFT),
+			"discountItems"=>$discountItems,
+			"returnTypes"=>$returnTypes,
+			"balance"=>$request->party_id?$customerDetails->opening_balance:""]
+		], 200);
+	}
+	public function partyDetails(Request $request)
+	{
+		$partyDetails	=	LedgerModel::where('id',$request->partyId)->first();
+
+		return response()->json([
+			'message' => 'Data retrived successfully',
+			'data'=>$partyDetails
+		], 200);
 	}
 }

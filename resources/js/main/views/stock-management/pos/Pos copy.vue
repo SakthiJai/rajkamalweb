@@ -1026,7 +1026,7 @@ export default {
         const postLayout = ref(1);
 
         const state = reactive({
-            orderSearchTerm: undefined,
+            ordersearchTerm: [],
             productFetching: false,
             products: [],
         });

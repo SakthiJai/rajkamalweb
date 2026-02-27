@@ -15,13 +15,13 @@ class PaymentMode extends BaseModel
 
     protected $filterable = ['name'];
 
-    protected $hidden = ['id'];
+   // protected $hidden = ['id'];
 
     protected $appends = ['xid'];
 
-    protected $casts = [
-        'credentials' => 'array',
-    ];
+    // protected $casts = [
+    //     'credentials' => 'array',
+    // ];
 
     protected static function boot()
     {

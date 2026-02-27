@@ -128,95 +128,105 @@ th {
         </tr>
         <tr class="invoicenumbers"  >
             <td colspan="6" ><b>GSTIN: {{ $customer[0]->gst_number }}</b></td>
-            <td colspan="2" style="text-align:right"><b>Invoice No.: {{ $invoice_details[0]->invoice_number }}</b></td>
-            <td colspan="2"  style="text-align:right"><b>Invoice Date : {{ date('d/m/Y') }}</b></td>
+            <td colspan="2" style="text-align:right"><b>Invoice No.: {{ $invoice_details->invoice_number }}</b></td>
+            <td colspan="2"  style="text-align:right"><b>Invoice Date : {{ date("d-m-Y", strtotime($invoice_details->order_date)) }}</b></td>
         </tr>
     </table>
     <table  class="maintabing">
         
-        <tr class="tableheading">
+    <tr class="tableheading">
             <th style="width:5%">#</th>
-            <th style="width:5%">Qty</th>
-            <th style="width:27%">Product</th>
+            <th style="width:7%">Qty</th>
+            <th style="width:25%">Product</th>
             <th style="width:8%">HSN</th>
             <th style="width:8%">MRP</th>
             <th style="width:8%">Rate</th>
-            <th style="width:6%">Disc</th>
-            <th style="width:6%">SGST</th>
-            <th style="width:6%">CGST</th>
+            <th style="width:8%">Disc(%)</th>
+            <th style="width:8%">SGST</th>
+            <th style="width:8%">CGST</th>
             <th style="text-align:right"> Amount</th>
           </tr>
-          <?php $subTotal = 0; ?>
+          <?php $subTotal = 0;$sumsgst=0;$sumcgst=0; ?>
           @foreach($products as $key =>$product)
+          @php
+            $cgstAmount     = isset($product->cgst_amount) ? intval($product->cgst_amount) : 0;
+            $saleRate       = isset($product->sale_rate) ? intval($product->sale_rate) : 0;
+            $percentage     = $cgstAmount / 100;
+            $gstAmount      = $percentage * $saleRate;
+            $totalGstAmount = $gstAmount * intval($product->quantity);
+            $subTotal       = $subTotal+$product->subtotal;
+            $sumsgst        = $sumsgst + $product->sgst_amount;
+            $sumcgst        = $sumcgst + $product->cgst_amount;
+        @endphp
+          @endphp
           <tr>
-            <td>{{$key+1}}</td>
-            <td>{{$product->quantity}}</td>
-            <td> {{$product->name}}</td>
-            <td>{{$product->hsn_sac}}</td>
-            <td>{{$product->mrp}}</td>
-            <td>{{$product->unit_price}}</td>
-            <td>{{$product->discount_rate}}</td>
-            <td>{{$product->sgst}}</td>
-            <td>{{$product->igst}}</td>
-            <td style="text-align:right">{{number_format($product->subtotal, 2, '.', ',')}}</td>
-          </tr>
-          <?php $subTotal = $subTotal+$product->subtotal; ?>
+                <td>{{$key+1}}</td>
+                <td>{{$product->quantity}}</td>
+                <td>{{$product->name}}</td>
+                <td>{{$product->hsn_sac}}</td>
+                <td>{{$product->single_unit_price ?? 0.00}}</td>
+                <td>{{$product->sale_rate ?? 0.00}}</td>
+                <td>{{number_format($product->discount_rate, 2, '.', ',') ?? 0.00}}</td>
+                <td>{{number_format(($product->subtotal*($product->sgst_amount/100)), 2, '.', ',') ?? 0.00 }}</td>
+                <td>{{number_format(($product->subtotal*($product->cgst_amount/100)), 2, '.', ',') ?? 0.00 }}</td>
+                <td style="text-align:right">{{number_format($product->subtotal , 2, '.', ',')}}</td>
+            </tr>
+            
+          
           @endforeach
-        
-        <tr style="height:4px !important;" >
-            <td colspan="9" style="padding:23px 12px;"><b>Party Previous Balance : 4 Dr</b></td>
+       <tr style="height:4px !important;" >
+            <td colspan="8" style="padding:23px 12px;"><b></b></td>
+            <td style="text-align:left;border:none; color:#1250b7;"><b>Sub Total</b></td>
             <td>
-            <table style="border:none;">
-                    <tr><td style="text-align:left;border:none; color:#1250b7;"><b>Sub Total</b></td>
+                <table style="border:none;">
+                    <tr>
                     <td style="text-align:right;border:none;color:#1250b7; ">{{number_format($subTotal, 2, '.', ',')}}</td>
                     </tr>
-                    
                 </table>
             </td>
-            
-            
         </tr>
-       
+        <?php
+            $taxAmount = 0.00;
+            if (isset($invoice_details->tax_amount) && !is_null($invoice_details->tax_amount) && $invoice_details->tax_amount > 0) {
+                $taxAmount = $invoice_details->tax_amount / 2;
+            }
+            $singleTaxAmount = number_format($taxAmount, 2, '.', ',');
+        ?>
         <tr>
-            <td colspan="9" >
-                
+            <td colspan="8" >
                 <b style="text-decoration: underline;  font-weight:bold;">Terms & Conditions:</b><br>
                 1) Goods once sold will not be taken back or exchanged.<br>
                 2) Bills not paid due date will attract 24% interest.<br>
                 3) All disputes subject to Jurisdiction only.<br>
                 4) Prescribed Sales Tax declaration will be given.<br><br><br>
-                <b>Rs.&nbsp;{{ucfirst(numToWordsRec($subTotal))}}&nbsp;only</b>
+                <b>Rs.&nbsp;{{ucfirst(numToWordsRec($invoice_details->total))}}&nbsp;only</b>
             </td>
-            <td style="padding:0px;">
+            <td style="padding:0px;" colspan="2">
                 <table style="border:none;">
                     <tr><td style="text-align:left;border:none;"><b>Bill Disc</b></td>
-                    <td style="text-align:right;border:none;">1%</td>
+                    <td style="text-align:right;border:none;">{{ $invoice_details->discount? number_format($invoice_details->discount,2):"0.00"}}</td>
                     </tr>
                     <tr><td style="text-align:left;border:none;"><b>SGST</b></td>
-                    <td style="text-align:right;border:none;">5.64</td>
+                    <td style="text-align:right;border:none;">{{number_format((($invoice_details->total-$invoice_details->tax_amount) *($sumsgst/100)),2) }}</td>
                     </tr>
                     <tr><td style="text-align:left;border:none;"><b>CGST</b></td>
-                    <td style="text-align:right;border:none;">5.64</td>
+                    <td style="text-align:right;border:none;">{{number_format((($invoice_details->total-$invoice_details->tax_amount) *($sumcgst/100)),2) }}</td>
                     </tr>
                     <tr><td style="text-align:left;border:none;"><b>Round Off</b></td>
-                    <td style="text-align:right;border:none;">0.88</td>
+                    <td style="text-align:right;border:none;">0.00</td>
                     </tr>
                     <tr style="background-color:#1250b7;"><td style="text-align:left;border:none; color:white;"><b>Grand Total</b></td>
-                    <td style="text-align:right;border:none;color:white; font-weight:bold;">{{number_format($subTotal, 2, '.', ',')}}</td>
+                    <td style="text-align:right;border:none;color:white; font-weight:bold;">{{number_format(($invoice_details->total), 2, '.', ',')}}</td>
                     </tr>
                 </table>
-               
-                
             </td>
         </tr>
-        
    </table>
 </div>
 </div>
 </body>
-
 </html>
-<?php 
+<?php
 function numToWordsRec($number) {
     $words = array(
         0 => 'zero', 1 => 'one', 2 => 'two',

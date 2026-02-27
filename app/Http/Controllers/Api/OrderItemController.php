@@ -23,7 +23,7 @@ class OrderItemController extends ApiBaseController
                 $query->where('orders.warehouse_id', $warehouse->id)
                     ->orWhere('orders.from_warehouse_id', $warehouse->id);
             });
-
+        $query->leftJoin('products', 'products.id', '=', 'order_items.product_id');
 
         // Dates Filters
         if ($request->has('dates') && $request->dates != "") {
@@ -38,9 +38,11 @@ class OrderItemController extends ApiBaseController
         if ($request->has('product_sales_summary') && $request->product_sales_summary) {
             $this->modifySelect = true;
 
-            $query = $query->join('products', 'products.id', '=', 'order_items.product_id')
-                ->where('orders.order_type', 'sales')
-                ->groupBy('order_items.product_id')
+            $query = $query->when(
+    !str_contains($request->order ?? '', 'products.'),
+    fn ($q) => $q->join('products', 'products.id', '=', 'order_items.product_id')
+)
+                ->groupBy('order_items.product_id', 'products.name', 'products.item_code')
                 ->selectRaw("order_items.product_id, products.name, products.item_code, sum(order_items.quantity) as unit_sold, sum(order_items.subtotal) as total_sales_price")
                 ->with('product:id,name,image,unit_id', 'product.unit:id,name,short_name', 'product.details:id,product_id,purchase_price,sales_price');
 

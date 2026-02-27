@@ -79,7 +79,7 @@
                                 v-if="column.dataIndex === 'current_stock'"
                             >
                                 {{
-                                    `${record.details.current_stock} ${record.unit.short_name}`
+                                    `${record.details?.current_stock ?? 0} ${record.unit?.short_name ?? ""}`
                                 }}
                             </template>
                             <template
@@ -88,7 +88,7 @@
                                 "
                             >
                                 {{
-                                    `${record.details.stock_quantitiy_alert} ${record.unit.short_name}`
+                                    `${record.details?.stock_quantitiy_alert ?? 0} ${record.unit?.short_name ?? ""}`
                                 }}
                             </template>
                         </template>

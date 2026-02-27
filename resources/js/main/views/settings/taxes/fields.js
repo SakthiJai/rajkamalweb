@@ -1,34 +1,42 @@
 import { useI18n } from "vue-i18n";
 
 const fields = () => {
-    const url = "taxes?fields=id,xid,name,rate,tax_type,x_parent_id,parent_id,multipleTax{id,xid,name,rate,tax_type,x_parent_id,parent_id}&filters=parent_id eq null";
+    //const url ="taxes?fields=id,name,rate,tax_type,parent_id&filters=parent_id eq null";
+    const url =
+        "taxes?fields=id,xid,sales_type,lgst,cgst,sgst,cess";
     const addEditUrl = "taxes";
     const { t } = useI18n();
-    const hashableColumns = ['parent_id'];
+    const hashableColumns = ["id"];
 
     const initData = {
-        name: "",
-        rate: "",
-        tax_type: "single"
+        sales_type: "",
+        lgst:"",
+        cgst:"",
+        sgst:"",
     };
 
     const columns = [
         {
             title: t("tax.name"),
-            dataIndex: "name",
-            sorter:true
+            dataIndex: "sales_type",
+            sorter: true,
         },
         {
-            title: t("tax.tax_type"),
-            dataIndex: "tax_type",
-            sorter:true
+            title: t("IGST"),
+            dataIndex: "lgst",
+            sorter: true,
         },
         {
-            title: t("tax.rate"),
-            dataIndex: "rate",
-            sorter:true
+            title: t("CGST"),
+            dataIndex: "cgst",
+            sorter: true,
         },
-     
+        {
+            title: t("SGST"),
+            dataIndex: "sgst",
+            sorter: true,
+        },
+
         {
             title: t("common.action"),
             dataIndex: "action",
@@ -38,8 +46,10 @@ const fields = () => {
     const filterableColumns = [
         {
             key: "name",
-            value: t("tax.name")
+            value: t("tax.name"),
         },
+
+
     ];
 
     return {
@@ -48,8 +58,8 @@ const fields = () => {
         initData,
         columns,
         filterableColumns,
-        hashableColumns
-    }
-}
+        hashableColumns,
+    };
+};
 
 export default fields;

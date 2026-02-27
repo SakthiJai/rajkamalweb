@@ -19,7 +19,7 @@
             </div>
         </template>
         <!-- <form  @submit.prevent="onSubmitLedger" layout="vertical" ref="myForm" id="myForm1"> -->
-        <form ref="myForm1" layout="vertical" @submit.prevent="onSubmitLedger">
+        <form ref="myForm1" id="ledgerform" layout="vertical" @submit.prevent="onSubmitLedger">
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="16" :lg="16" class="info">
                     <fieldset class="fieldheightsss">
@@ -36,9 +36,9 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input name="party_name" v-model:value="formDataLedger.party_name"
+                                        <a-input name="party_name" ref="partyInput" id="ledgerName"  v-on:keyup.enter="moveToNextField($event.target)"  v-model:value="formDataLedger.party_name"
                                             :placeholder="$t('common.placeholder_default_text', [$t('stock.party_name')])"
-                                            value="qfqw"></a-input>
+                                            value="qfqw" autocomplete="off"></a-input>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
                                         <a-form-item :label="$t('stock.account_group')" name="account_group"
@@ -47,7 +47,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input v-model:value="formDataLedger.account_group"
+                                        <a-input v-model:value="formDataLedger.account_group"   v-on:keyup.enter="moveToNextField($event.target)"
                                             :style="{ backgroundColor: accountGroupColor }"
                                             @focus="changeColorOnFocus('accountGroup')"
                                             @blur="resetColorOnBlur('accountGroup')" />
@@ -78,17 +78,23 @@
                                                     "
                                                     @valueSuccess="getStockValue"
                                                     :productData="data"
-                                                    v-model:value="formDataLedger.station_name"
+                                                    v-model:value="formDataLedger.station_name"  v-on:keyup.enter="moveToNextField($event.target)"
                                                 />
                                             </span>
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
-                                        <a-form-item :label="$t('stock.mail_to')" name="mail_to">
-                                        </a-form-item>
+                                        <a-form-item
+                                        :label="$t('stock.mail_to')"
+                                        name="mail_to"
+                                        :help="rules.mail_to ? rules.mail_to.message : null"
+                                        :validateStatus="rules.mail_to ? 'error' : null"
+                                        class="required"
+                                      >
+                                      </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input v-model:value="formDataLedger.mail_to" type="email" />
+                                        <a-input v-model:value="formDataLedger.mail_to" type="text"  v-on:keyup.enter="moveToNextField($event.target)" />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -102,7 +108,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="19" :lg="19">
-                                        <a-input v-model:value="formDataLedger.Address" />
+                                        <a-input v-model:value="formDataLedger.Address" v-on:keyup.enter="moveToNextField($event.target)" />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -126,7 +132,7 @@
                                                 "
                                                 @valueSuccess="getStockValue"
                                                 :productData="data"
-                                                v-model:value="formDataLedger.name"
+                                                v-model:value="formDataLedger.name" v-on:keyup.enter="moveToNextField($event.target)"
                                             />
                                         </span>
                                     </a-col> 
@@ -144,7 +150,7 @@
                                         "
                                         @valueSuccess="getStockValue"
                                         :productData="data"
-                                        v-model:value="formDataLedger.state_name"
+                                        v-model:value="formDataLedger.state_name" v-on:keyup.enter="moveToNextField($event.target)"
                                     />
                                     </a-col>
                                 </a-row>
@@ -158,7 +164,7 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
-                                        <a-input v-model:value="formDataLedger.stock_city" />
+                                        <a-input v-model:value="formDataLedger.stock_city"  v-on:keyup.enter="moveToNextField($event.target)"/>
                                     </a-col>
 
                                     <a-col :xs="24" :sm="24" :md="5" :lg="5">
@@ -167,7 +173,7 @@
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="7" :lg="7">
                                         <a-input v-model:value="formDataLedger.stock_pincode" type="number"
-                                            maxlength="6" />
+                                            maxlength="6" v-on:keyup.enter="moveToNextField($event.target)" />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -183,14 +189,14 @@
                                     <a-col :xs="24" :sm="24" :md="19" :lg="19">
                                         <!-- <a-input v-model:value="formDataLedger.parent_ledger"
                                             placeholder="Search here.." /> -->
-                                            <ParentSearchInput
-                                                @valueChanged="
-                                                    (productId) => (formData.product_id = productId)
-                                                "
-                                                @valueSuccess="getStockValue"
-                                                :productData="data"
-                                                v-model:value="formDataLedger.party_name"
-                                            />
+                                           <ParentSearchInput
+                      @valueChanged="
+                        (productId) => (formDataLedger.parent_ledger = productId)
+                      "
+                      @valueSuccess="getStockValue"
+                      :productData="data"
+                      v-on:keyup.enter="moveToNextField($event.target)"
+                    />
                                     </a-col>
                                 </a-row>
                             </a-col>
@@ -213,13 +219,19 @@
                                         </a-form-item>
                                     </a-col>
                                     <a-col :xs="24" :sm="24" :md="13" :lg="13">
-                                        <a-select v-model:value="formDataLedger.balancing_method" class="balance">
-                                            <a-select-option key="1" value="1" aria-selected="true">
-                                                On accounts
-                                            </a-select-option>
-
+                                        <a-select
+                                          v-model:value="formDataLedger.balancing_method"
+                                          class="balance"
+                                          v-on:keyup.enter="moveToNextField($event.target)"
+                                        >
+                                          <a-select-option key="1" value="1" aria-selected="true">
+                                            To Collect
+                                          </a-select-option>
+                                          <a-select-option key="1" value="1" aria-selected="true">
+                                            To Pay
+                                          </a-select-option>
                                         </a-select>
-                                    </a-col>
+                                      </a-col>
                                 </a-row>
                                 <a-row :gutter="16">
                                     <a-col :xs="24" :sm="24" :md="24" :lg="24">
@@ -233,11 +245,11 @@
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="13" :lg="13">
                                                 <a-input-group compact>
-                                                    <a-button type="primary" class="indiannumber">
+                                                    <a-span type="primary" class="indiannumber">
                                                         ₹
-                                                    </a-button>
+                                                    </a-span>
                                                     <a-input v-model:value="formDataLedger.opening_balance"
-                                                        class="amount" type="number" style="width:85%" />
+                                                        class="amount" type="number" style="width:85%"  v-on:keyup.enter="moveToNextField($event.target)" />
                                                 </a-input-group>
                                             </a-col>
                                         </a-row>
@@ -253,7 +265,7 @@
                                                 </a-form-item>
                                             </a-col>
                                             <a-col :xs="24" :sm="24" :md="13" :lg="13">
-                                                <a-input v-model:value="formDataLedger.credit_days" type="number" />
+                                                <a-input v-model:value="formDataLedger.credit_days" type="number"  v-on:keyup.enter="moveToNextField($event.target)" />
 
                                             </a-col>
                                         </a-row>
@@ -731,6 +743,87 @@
                     <!--- end of second row add detalis-->
                 </a-tab-pane>
                 <!-- end of fourth tabs-->
+
+
+                    <!-- fifth tab-->
+        <a-tab-pane key="productdetails" tab="Product Detalis">
+            <template #tab class="actingtabs" id="activity">
+              <span> Product Details </span>
+            </template>
+            <a-row
+              :gutter="16"
+              v-for="(field, index) in formDataLedger.inputFields"
+              :key="index"
+            >
+              <!-- Keyword Input -->
+              <a-col :xs="24" :sm="24" :md="2" :lg="2">
+                <a-form-item
+                  :label="$t('stock.keyword')"
+                  name="keyword"
+                  :help="rules.keyword ? rules.keyword.message : null"
+                  :validateStatus="rules.keyword ? 'error' : null"
+                >
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="24" :md="5" :lg="5">
+                <a-input
+                  v-model:value="formDataLedger.inputFields[index].keyword"
+                  placeholder="Enter Keyword"
+                />
+              </a-col>
+  
+              <!-- Value Input -->
+              <a-col :xs="24" :sm="24" :md="2" :lg="2">
+                <a-form-item
+                  :label="$t('stock.value')"
+                  name="value"
+                  :help="rules.value ? rules.value.message : null"
+                  :validateStatus="rules.value ? 'error' : null"
+                >
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="24" :md="5" :lg="5">
+                <a-input
+                  v-model:value="formDataLedger.inputFields[index].value"
+                  placeholder="Enter Value"
+                />
+              </a-col>
+  
+              <!-- Add/Remove Buttons -->
+              <a-col :xs="24" :sm="24" :md="4" :lg="4">
+                <svg
+                  @click="addInputField"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                  class="ml-2 cursor-pointer"
+                >
+                  <path fill="none" d="M0 0h24v24H0z" />
+                  <path
+                    fill="green"
+                    d="M11 11V7h2v4h4v2h-4v4h-2v-4H7v-2h4zm1 11C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"
+                  />
+                </svg>
+                <svg
+                  v-if="formDataLedger.inputFields.length > 1"
+                  @click="removeInputField(index)"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                  class="ml-2 cursor-pointer"
+                >
+                  <path fill="none" d="M0 0h24v24H0z" />
+                  <path
+                    fill="#EC4899"
+                    d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm0-9.414l2.828-2.829 1.415 1.415L13.414 12l2.829 2.828-1.415 1.415L12 13.414l-2.828 2.829-1.415-1.415L10.586 12 7.757 9.172l1.415-1.415L12 10.586z"
+                  />
+                </svg>
+              </a-col>
+            </a-row>
+          </a-tab-pane>
+          <!--- end fifth tab-->
             </a-tabs>
             <!--- end tabs--->
             <!-- <template #footer> -->
@@ -742,9 +835,9 @@
                             <span>Switch Tab</span>
                         </span>
                     </button>
-                    <button @click="showGSTModal" id="btn-Ledger" title="Ledger"
+                    <!-- <button @click="showGSTModal" id="btn-Ledger" title="Ledger"
                         class="btn default-btn ng-star-inserted gst"><span class="box">
-                            <span class="ng-star-inserted">GST Verification</span></span></button>
+                            <span class="ng-star-inserted">GST Verification</span></span></button> -->
                 </a-col>
 
                 <GSTModel v-if="isModalGST" :visible="isModalGST" :formDataLedger="formDataLedger" :url="url"
@@ -754,10 +847,10 @@
                 <a-col :xs="24" :sm="24" :md="7" :lg="7">
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="9" :lg="9">
-                    <button @click="onSubmit" type="submit" id="btn-Ledger" title="Ledger"
+                    <button  @click="saveLedgerEntry" type="button" id="btn-Ledger" title="Ledger"
                         class="btn default-btn ng-star-inserted gst">
                         <span class="box">
-                            <span class="shortcut ng-star-inserted"><code>F10</code></span>
+                            <span class="shortcut ng-star-inserted"><code>F8</code></span>
                             <span class="ng-star-inserted">Save</span>
                         </span>
                         <span class="effect"></span>
@@ -773,7 +866,7 @@
                         <span class="effect"></span>
                     </button>
                     <button type="button" id="btn-Ledger" title="Ledger" class="btn default-btn ng-star-inserted"><span
-                            class="box"><span class="shortcut ng-star-inserted"><code>Esc</code></span><span
+                            class="box"><span class="shortcut ng-star-inserted" @click="closeCreatesale()"><code>Esc</code></span><span
                                 class="ng-star-inserted">Close</span></span><span class="effect"></span></button>
                 </a-col>
             </a-row>
@@ -799,7 +892,7 @@
 
 <script>
 import { defineComponent, reactive, onMounted, watch, ref } from "vue";
-import { PlusOutlined, LoadingOutlined, SaveOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import { PlusOutlined, LoadingOutlined, SaveOutlined, EditOutlined, DeleteOutlined,ExclamationCircleOutlined } from "@ant-design/icons-vue";
 import apiAdmin from "../../../../../common/composable/apiAdmin";
 import ExpenseCategoryModal from '../ExpenseCategoryModal.vue';
 import { SearchOutlined } from "@ant-design/icons-vue";
@@ -816,6 +909,8 @@ import CountySearchInput from "../../.../../../../../common/components/ledger/Co
 import StateSearchInput from "../../.../../../../../common/components/ledger/StateSearchInput.vue";
 import ParentSearchInput from "../.../../../../../../common/components/ledger/ParentSearchInput.vue";
 import StationSearchInput from "../.../../../../../../common/components/ledger/StationSearchInput.vue";
+import { Modal } from 'ant-design-vue';
+import { createVNode } from 'vue';
 export default defineComponent({
     props: [
         "formData",
@@ -869,18 +964,18 @@ export default defineComponent({
             }
         );
 
-        const ledgerSubmit = (formDataLedger) => {
-            console.log("Store Led");
-            if(formDataLedger.xid!=undefined){
-            addEditRequestAdmin({
-                url: `store-ledger/${formDataLedger.xid}`,
-                data: formDataLedger,
-                success: (res) => {
-                    emit("addEditSuccess", res.xid);
-                },
-            });
-        }
-        };
+        // const ledgerSubmit = (formDataLedger) => {
+        //     console.log("Store Led");
+        //     if(formDataLedger.xid!=undefined){
+        //     addEditRequestAdmin({
+        //         url: `store-ledger/${formDataLedger.xid}`,
+        //         data: formDataLedger,
+        //         success: (res) => {
+        //             emit("addEditSuccess", res.xid);
+        //         },
+        //     });
+        // }
+        // };
 
         const valueChanged = (value, option) => {
             emit("valueChanged", value);
@@ -892,7 +987,7 @@ export default defineComponent({
             rules,
             onClose,
             formDataLedger,
-            ledgerSubmit,
+           // ledgerSubmit,
            // getStockValue,
             valueChanged,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
@@ -921,7 +1016,8 @@ export default defineComponent({
                 ledger_type: "1",
                 gender: "Male",
                 account_type: "Saving Account",
-                customer_title: "Mr."
+                customer_title: "Mr.",
+                inputFields: [{ keyword: "", value: "" }],
             },
             inputColor: "",
             partyNameColor: '',
@@ -976,9 +1072,14 @@ export default defineComponent({
 
     methods: {
         switchTab() {
-            const tabs = ['taxdetails','contactinfo', 'bankdetails','visibility',  ];
+            const tabs = ['taxdetails','contactinfo', 'bankdetails','visibility', 'Product Detalis' ];
             const currentIndex = tabs.indexOf(this.activeKey);
             this.activeKey = tabs[(currentIndex + 1) % tabs.length];
+        },
+
+        closeCreatesale(){ console.log("close customer");
+            this.$emit("closed");
+            this.autoFocusInput();
         },
 
         resetForm() {
@@ -986,51 +1087,51 @@ export default defineComponent({
                 this.$refs.myForm1.resetFields();
             }
         },
-        async onSubmitLedger() {
-            try {
-                this.ledgerSubmit(this.formDataLedger);
-            } catch (error) {
-                this.$message.error(this.$t("company.updateFailed"));
-                console.error(error);
-            }
-        },
+        // async onSubmitLedger() {
+        //     try {
+        //         this.ledgerSubmit(this.formDataLedger);
+        //     } catch (error) {
+        //         this.$message.error(this.$t("company.updateFailed"));
+        //         console.error(error);
+        //     }
+        // },
         autoFocusInput() {
-            /*this.$nextTick(() => {
-                this.$refs.partyInput.focus();  // Automatically focus the input
-            });*/
+            this.$nextTick(() => {
+                this.$refs.partyInput.focus();
+            });
         },
         showGSTModal() {
             this.isModalGST = true;
-            document.addEventListener('keydown', this.handleKeydown);
+           // document.addEventListener('keydown', this.handleKeydown);
         },
         showBirthdayModal() {
             this.isModalBirthday = true;
 
-            document.addEventListener('keydown', this.handleKeydown);
+           // document.addEventListener('keydown', this.handleKeydown);
         },
         showLocationModal() {
             this.isLocationModal = true;
-            document.addEventListener('keydown', this.handleKeydown);
+           // document.addEventListener('keydown', this.handleKeydown);
         },
         showCopyModal() {
             this.isModalCopy = true;
-            document.addEventListener('keydown', this.handleKeydown);
+           // document.addEventListener('keydown', this.handleKeydown);
         },
         showBillingModal() {
             this.isModalBillingVisible = true;
-            document.addEventListener('keydown', this.handleKeydown);
+           // document.addEventListener('keydown', this.handleKeydown);
         },
         showModal() {
             this.isModalVisible = true;
-            document.addEventListener('keydown', this.handleKeydown);
+           // document.addEventListener('keydown', this.handleKeydown);
         },
         showModales() {
             this.isModalVisibles = true;
-            document.addEventListener('keydown', this.handleKeydown);
+           // document.addEventListener('keydown', this.handleKeydown);
         },
         showOtherModal() {
             this.isModalVisibleing = true; // Open the modal
-            document.addEventListener('keydown', this.handleKeydown);
+           // document.addEventListener('keydown', this.handleKeydown);
         },
         handleLocationClose() {
             this.isLocationModal = false;
@@ -1065,20 +1166,23 @@ export default defineComponent({
         },
         handleKeydown(event) {
             if (event.key === 'Escape') {
-                this.handleClose();
+                //this.cancelAddLedgerList();
             } else if (event.key === 'F9') {
                 event.preventDefault();
                 this.resetForm();
             } else if (event.key === 'F5') {
                 event.preventDefault();
                 this.switchTab();
-            } else if (event.key === 'F10') {
+            } else if (event.key === 'F8') {
                 event.preventDefault();
-                this.onSubmitLedger();
+                this.saveLedgerEntry();
             }
         },
 
-
+        validateEmail(email) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return emailRegex.test(email);
+    },
 
 
         changeColorOnFocus(inputField) {
@@ -1098,11 +1202,185 @@ export default defineComponent({
             } else if (inputField === 'stations') {
                 this.stationsColor = '';
             }
-        }
+        },
+
+        cancelAddLedgerList(){
+            let that = this;
+            
+            Modal.confirm({
+            title: 'Confirmation',
+            icon: createVNode(ExclamationCircleOutlined),
+            content: 'Transaction data will be loss, Are you sure you want to close?',
+            autoFocusButton:'ok',
+            onOk() {
+              that.$emit("closed");
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            onCancel() {},
+        }); 
+        },
+
+        addInputField() {
+      this.formDataLedger.inputFields.push({ keyword: "", value: "" });
+    },
+
+    removeInputField(index) {
+      this.formDataLedger.inputFields.splice(index, 1);
+    },
+
+
+
+    /// product item///
+
+ success(response) {
+  console.log(5454554635365);
+  notification.success({
+    placement: "bottomRight",
+    message: "Customer Saved Successfully!",
+  });
+
+  document.getElementById("addledgerform").reset();
+
+  this.formDataLedger.inputFields.forEach((data) => {
+    data["id"] = response.data.id;
+  });
+
+  axiosAdmin
+    .post("ledger/ledgeritem", { data: this.formDataLedger.inputFields })
+    .then((response) => {
+      console.log("Ledger items saved successfully:", response);
+      // setTimeout(function() {
+      //   this.handleClose();  
+      //  document.getElementById("form_item_ledger_name_search").focus();
+      // }.bind(this), 2000); 
+    })
+    .catch((error) => {
+      console.error("Error saving ledger items:", error);
+    });
+},
+    // end product item//
+
+
+    // end save ledger//
+    saveLedgerEntry() {
+        console.log("demo")
+      if (this.validateLedger()) {
+        // Only proceed if validation is successful
+        const { inputFields, ...restOfFormDataLedger } = this.formDataLedger;
+        axiosAdmin
+          .post("store-ledger", restOfFormDataLedger)
+          .then((response) => {
+            console.log(response);
+            this.success(response);
+          })
+          .catch((errorResponse) => {
+            var err = errorResponse.response?.data || {};
+            const errorCode = errorResponse.response?.status || 500;
+            var errorRules = {};
+
+            if (errorCode === 422) {
+              if (err.error && typeof err.error.details !== "undefined") {
+                var keys = Object.keys(err.error.details);
+                for (var i = 0; i < keys.length; i++) {
+                  var key = keys[i].replace(".", "\\.");
+                  errorRules[key] = {
+                    required: true,
+                    message: err.error.details[keys[i]][0],
+                  };
+                }
+              }
+              this.rules = errorRules;
+              message.error("Please fix the errors and try again.");
+            } else if (err && err.message) {
+              message.error(err.message);
+            }
+          });
+      }
+    },
+
+    // end save ledger //
+
+    // validate save ledger//
+    validateLedger() {
+      let isValid = true;
+
+      if (
+        !this.formDataLedger.party_name ||
+        this.formDataLedger.party_name.trim() === ""
+      ) {
+        this.rules.party_name = {
+          message: "Party name is required.",
+        };
+        isValid = false;
+      } else {
+        this.rules.party_name = null;
+      }
+
+      if (
+        !this.formDataLedger.mobile_number ||
+        this.formDataLedger.mobile_number.trim() === ""
+      ) {
+        this.rules.mobile_number = {
+          message: "Mobile Number is required.",
+        };
+        isValid = false;
+      } else {
+        this.rules.mobile_number = null;
+      }
+
+      if (
+        !this.formDataLedger.stock_city ||
+        this.formDataLedger.stock_city.trim() === ""
+      ) {
+        this.rules.stock_city = {
+          message: "City is required.",
+        };
+        isValid = false;
+      } else {
+        this.rules.stock_city = null;
+      }
+
+      if (
+        !this.formDataLedger.account_group ||
+        this.formDataLedger.account_group.trim() === ""
+      ) {
+        this.rules.account_group = {
+          message: "Account Group is required.",
+        };
+        isValid = false;
+      } else {
+        this.rules.account_group = null;
+      }
+
+      if (!this.formDataLedger.mail_to || this.formDataLedger.mail_to.trim() === "") {
+        this.rules.mail_to = {
+          message: "Email Id is required.",
+        };
+        isValid = false;
+      } else if (!this.validateEmail(this.formDataLedger.mail_to)) {
+        this.rules.mail_to = {
+          message: "Please enter a valid email address.",
+        };
+        isValid = false;
+      } else {
+        this.rules.mail_to = null;
+      }
+      return isValid;
+    },
+    moveToNextField(elem) {
+      console.log(elem.value);
+      const currentIndex = Array.from(elem.form.elements).indexOf(elem);
+      elem.form.elements
+        .item(currentIndex < elem.form.elements.length - 1 ? currentIndex + 1 : 0)
+        .focus();
+    },
+    /// end validate ledger//
+
     },
     mounted() {
         // Add keydown event listener to capture F9 key
-        window.addEventListener('keydown', this.handleKeydown);
+        //document.getElementById('ledgerform').addEventListener('keyup', this.handleKeydown);
+       //window.addEventListener('keyup', this.handleKeydown);
     },
     beforeDestroy() {
         // Remove event listener when component is destroyed

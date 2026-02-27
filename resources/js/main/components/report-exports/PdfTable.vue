@@ -1,6 +1,6 @@
 <template>
     <a-col :span="24">
-        <a-button type="primary" @click="downloadPdf" :loading="loading">
+        <a-button type="primary" @click="downloadPdf" :loading="loading" class="pdfcolor" >
             <FilePdfOutlined />
             {{ $t("common.pdf") }}
         </a-button>
@@ -54,4 +54,4 @@ export default {
 };
 </script>
 
-<style></style>
+

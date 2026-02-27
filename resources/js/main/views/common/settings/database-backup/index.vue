@@ -87,6 +87,7 @@ export default {
                 title: t("database_backup.delete_backup"),
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t("database_backup.are_you_sure_delete_backup"),
+                autoFocusButton:'ok',
                 okText: t("common.yes"),
                 okType: "danger",
                 cancelText: t("common.no"),

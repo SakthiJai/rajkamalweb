@@ -15,6 +15,25 @@ export default [
                     permission: "brands_view",
                 },
             },
+
+            // product edit//
+
+            {
+                path: "products",
+                component: () =>
+                    import(
+                        "../views/stock-management/purchases/Productedit/index.vue"
+                    ),
+                name: "admin.productedit.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "product_manager",
+                    menuKey: (route) => "partyedit",
+                    permission: (route) => "partyedit",
+                    orderType: "products",
+                },
+            },
+
             {
                 path: "/admin/categories",
                 component: () =>

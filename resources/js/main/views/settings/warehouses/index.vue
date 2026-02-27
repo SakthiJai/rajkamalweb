@@ -1,7 +1,7 @@
 <template>
     <AdminPageHeader>
         <template #header>
-            <a-page-header :title="$t(`menu.warehouses`)" class="p-0" />
+            <a-page-header :title="$t(`Branches`)" class="p-0" />
         </template>
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
@@ -14,14 +14,21 @@
                     {{ $t(`menu.settings`) }}
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`menu.warehouses`) }}
+                    {{ $t(`Branch`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
         </template>
     </AdminPageHeader>
 
     <a-row>
-        <a-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4" class="bg-setting-sidebar">
+        <a-col
+            :xs="24"
+            :sm="24"
+            :md="24"
+            :lg="4"
+            :xl="4"
+            class="bg-setting-sidebar"
+        >
             <SettingSidebar />
         </a-col>
         <a-col :xs="24" :sm="24" :md="24" :lg="20" :xl="20">
@@ -37,7 +44,7 @@
                             >
                                 <a-button type="primary" @click="addItem">
                                     <PlusOutlined />
-                                    {{ $t("warehouse.add") }}
+                                    {{ $t("Add New Branch") }}
                                 </a-button>
                             </template>
                             <a-button
@@ -63,7 +70,9 @@
                                         style="width: 25%"
                                         v-model:value="table.searchColumn"
                                         :placeholder="
-                                            $t('common.select_default_text', [''])
+                                            $t('common.select_default_text', [
+                                                '',
+                                            ])
                                         "
                                     >
                                         <a-select-option
@@ -110,9 +119,12 @@
                                     onChange: onRowSelectChange,
                                     getCheckboxProps: (record) => ({
                                         disabled:
-                                            (permsArray.includes('warehouses_delete') ||
+                                            (permsArray.includes(
+                                                'warehouses_delete'
+                                            ) ||
                                                 permsArray.includes('admin')) &&
-                                            appSetting.x_warehouse_id != record.xid
+                                            appSetting.x_warehouse_id !=
+                                                record.xid
                                                 ? false
                                                 : true,
                                         name: record.xid,
@@ -128,18 +140,32 @@
                                 size="middle"
                             >
                                 <template #bodyCell="{ column, record }">
-                                    <template v-if="column.dataIndex === 'logo'">
-                                        <a-image :width="48" :src="record.logo_url" />
+                                    <template
+                                        v-if="column.dataIndex === 'logo'"
+                                    >
+                                        <a-image
+                                            :width="48"
+                                            :src="record.logo_url"
+                                        />
                                     </template>
                                     <template
-                                        v-if="column.dataIndex === 'online_store_enabled'"
+                                        v-if="
+                                            column.dataIndex ===
+                                            'online_store_enabled'
+                                        "
                                     >
                                         <OnlineStoreStatus
-                                            :status="record.online_store_enabled"
+                                            :status="
+                                                record.online_store_enabled
+                                            "
                                             :x_warehouse_id="record.xid"
                                             @success="fetch"
                                         />
-                                        <template v-if="record.online_store_enabled == 1">
+                                        <template
+                                            v-if="
+                                                record.online_store_enabled == 1
+                                            "
+                                        >
                                             <br />
                                             <router-link
                                                 :to="{
@@ -150,39 +176,57 @@
                                                 }"
                                                 target="_blank"
                                             >
-                                                <a-button type="link" class="p-0 mt-5">
+                                                <a-button
+                                                    type="link"
+                                                    class="p-0 mt-5"
+                                                >
                                                     {{
-                                                        $t("warehouse.view_online_store")
+                                                        $t(
+                                                            "warehouse.view_online_store"
+                                                        )
                                                     }}
                                                 </a-button>
                                             </router-link>
                                         </template>
                                     </template>
-                                    <template v-if="column.dataIndex === 'action'">
+                                    <template
+                                        v-if="column.dataIndex === 'action'"
+                                    >
                                         <a-button
                                             v-if="
-                                                permsArray.includes('warehouses_edit') ||
+                                                permsArray.includes(
+                                                    'warehouses_edit'
+                                                ) ||
                                                 permsArray.includes('admin')
                                             "
                                             type="primary"
                                             @click="editItem(record)"
                                             style="margin-left: 4px"
                                         >
-                                            <template #icon><EditOutlined /></template>
+                                            <template #icon
+                                                ><EditOutlined
+                                            /></template>
                                         </a-button>
                                         <a-button
                                             v-if="
                                                 (permsArray.includes(
                                                     'warehouses_delete'
                                                 ) ||
-                                                    permsArray.includes('admin')) &&
-                                                appSetting.x_warehouse_id != record.xid
+                                                    permsArray.includes(
+                                                        'admin'
+                                                    )) &&
+                                                appSetting.x_warehouse_id !=
+                                                    record.xid
                                             "
                                             type="primary"
-                                            @click="showDeleteConfirm(record.xid)"
+                                            @click="
+                                                showDeleteConfirm(record.xid)
+                                            "
                                             style="margin-left: 4px"
                                         >
-                                            <template #icon><DeleteOutlined /></template>
+                                            <template #icon
+                                                ><DeleteOutlined
+                                            /></template>
                                         </a-button>
                                     </template>
                                 </template>
@@ -196,7 +240,11 @@
 </template>
 <script>
 import { onMounted } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+} from "@ant-design/icons-vue";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
 import fields from "./fields";
@@ -217,7 +265,8 @@ export default {
     },
     setup() {
         const { permsArray, appSetting } = common();
-        const { url, addEditUrl, initData, columns, filterableColumns } = fields();
+        const { url, addEditUrl, initData, columns, filterableColumns } =
+            fields();
         const crudVariables = crud();
 
         onMounted(() => {

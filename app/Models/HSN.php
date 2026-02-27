@@ -10,11 +10,11 @@ class HSN extends BaseModel
 {
     protected $table = 'hsc_sac';
 
-    protected $default = ['xid', 'code', 'name', 'status'];
+    protected $default = ['xid', 'code', 'name', 'status','gst','cgst','sgst','lgst','cess'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    protected $filterable = ['name','code'];
+    protected $filterable = ['name','code','gst','cgst','sgst','lgst'];
 
     protected $hidden = [];
 

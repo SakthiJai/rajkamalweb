@@ -14,7 +14,9 @@
                         permsArray.includes('companies_edit') ||
                         permsArray.includes('admin')
                     "
-                    @click="$router.push({ name: 'admin.settings.company.index' })"
+                    @click="
+                        $router.push({ name: 'admin.settings.company.index' })
+                    "
                 >
                     <template #icon>
                         <LaptopOutlined />
@@ -37,32 +39,76 @@
                         (permsArray.includes('translations_view') ||
                             permsArray.includes('admin'))
                     "
-                    @click="$router.push({ name: 'admin.settings.translations.index' })"
+                    @click="
+                        $router.push({
+                            name: 'admin.settings.translations.index',
+                        })
+                    "
                 >
                     <template #icon>
                         <TranslationOutlined />
                     </template>
                     {{ $t("menu.translations") }}
                 </a-menu-item>
+
+                <!-- <a-menu-item
+                    key="account"
+                    v-if="
+                        permsArray.includes('receiptbank_view') ||
+                        permsArray.includes('admin')
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.account.index' })
+                    "
+                >
+                    <template #icon>
+                        <DollarOutlined />
+                    </template>
+                    {{ "Bank Account" }}
+                </a-menu-item> -->
+
+                <!-- <a-menu-item
+                    key="expensecategory"
+                    v-if="
+                        permsArray.includes('expensecategory_view') ||
+                        permsArray.includes('admin')
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.expensecategory.index' })
+                    "
+                >
+                    <template #icon>
+                        <ApartmentOutlined />
+                    </template>
+                    {{ "Expense Category" }}
+                </a-menu-item>
+ -->
                 <a-menu-item
                     key="warehouses"
                     v-if="
                         permsArray.includes('warehouses_view') ||
                         permsArray.includes('admin')
                     "
-                    @click="$router.push({ name: 'admin.settings.warehouses.index' })"
+                    @click="
+                        $router.push({
+                            name: 'admin.settings.warehouses.index',
+                        })
+                    "
                 >
                     <template #icon>
                         <ShopOutlined />
                     </template>
-                    {{ $t("menu.warehouses") }}
+                    {{ $t("Branches") }}
                 </a-menu-item>
                 <a-menu-item
                     key="roles"
                     v-if="
-                        permsArray.includes('roles_view') || permsArray.includes('admin')
+                        permsArray.includes('roles_view') ||
+                        permsArray.includes('admin')
                     "
-                    @click="$router.push({ name: 'admin.settings.roles.index' })"
+                    @click="
+                        $router.push({ name: 'admin.settings.roles.index' })
+                    "
                 >
                     <template #icon>
                         <SolutionOutlined />
@@ -72,9 +118,12 @@
                 <a-menu-item
                     key="taxes"
                     v-if="
-                        permsArray.includes('taxes_view') || permsArray.includes('admin')
+                        permsArray.includes('taxes_view') ||
+                        permsArray.includes('admin')
                     "
-                    @click="$router.push({ name: 'admin.settings.taxes.index' })"
+                    @click="
+                        $router.push({ name: 'admin.settings.taxes.index' })
+                    "
                 >
                     <template #icon>
                         <ScheduleOutlined />
@@ -87,7 +136,11 @@
                         permsArray.includes('currencies_view') ||
                         permsArray.includes('admin')
                     "
-                    @click="$router.push({ name: 'admin.settings.currencies.index' })"
+                    @click="
+                        $router.push({
+                            name: 'admin.settings.currencies.index',
+                        })
+                    "
                 >
                     <template #icon>
                         <DollarOutlined />
@@ -100,7 +153,11 @@
                         permsArray.includes('payment_modes_view') ||
                         permsArray.includes('admin')
                     "
-                    @click="$router.push({ name: 'admin.settings.payment_modes.index' })"
+                    @click="
+                        $router.push({
+                            name: 'admin.settings.payment_modes.index',
+                        })
+                    "
                 >
                     <template #icon>
                         <AccountBookOutlined />
@@ -110,14 +167,17 @@
                 <a-menu-item
                     key="units"
                     v-if="
-                        permsArray.includes('units_view') || permsArray.includes('admin')
+                        permsArray.includes('units_view') ||
+                        permsArray.includes('admin')
                     "
-                    @click="$router.push({ name: 'admin.settings.units.index' })"
+                    @click="
+                        $router.push({ name: 'admin.settings.units.index' })
+                    "
                 >
                     <template #icon>
                         <ApartmentOutlined />
                     </template>
-                    {{ $t("menu.units") }}
+                    {{ $t("Measuring Units") }}
                 </a-menu-item>
                 <a-menu-item
                     key="custom_fields"
@@ -125,7 +185,11 @@
                         permsArray.includes('custom_fields_view') ||
                         permsArray.includes('admin')
                     "
-                    @click="$router.push({ name: 'admin.settings.custom_fields.index' })"
+                    @click="
+                        $router.push({
+                            name: 'admin.settings.custom_fields.index',
+                        })
+                    "
                 >
                     <template #icon>
                         <FormOutlined />
@@ -136,7 +200,11 @@
                     <a-menu-item
                         key="modules"
                         v-if="permsArray.includes('admin')"
-                        @click="$router.push({ name: 'admin.settings.modules.index' })"
+                        @click="
+                            $router.push({
+                                name: 'admin.settings.modules.index',
+                            })
+                        "
                     >
                         <template #icon>
                             <AppstoreAddOutlined />
@@ -149,7 +217,11 @@
                             permsArray.includes('storage_edit') ||
                             permsArray.includes('admin')
                         "
-                        @click="$router.push({ name: 'admin.settings.storage.index' })"
+                        @click="
+                            $router.push({
+                                name: 'admin.settings.storage.index',
+                            })
+                        "
                     >
                         <template #icon>
                             <FolderOpenOutlined />
@@ -162,7 +234,9 @@
                             permsArray.includes('email_edit') ||
                             permsArray.includes('admin')
                         "
-                        @click="$router.push({ name: 'admin.settings.email.index' })"
+                        @click="
+                            $router.push({ name: 'admin.settings.email.index' })
+                        "
                     >
                         <template #icon>
                             <MailOutlined />
@@ -176,7 +250,9 @@
                             permsArray.includes('admin')
                         "
                         @click="
-                            $router.push({ name: 'admin.settings.database_backup.index' })
+                            $router.push({
+                                name: 'admin.settings.database_backup.index',
+                            })
                         "
                     >
                         <template #icon>
@@ -190,7 +266,11 @@
                             permsArray.includes('update_app') ||
                             permsArray.includes('admin')
                         "
-                        @click="$router.push({ name: 'admin.settings.update_app.index' })"
+                        @click="
+                            $router.push({
+                                name: 'admin.settings.update_app.index',
+                            })
+                        "
                     >
                         <template #icon>
                             <HistoryOutlined />
@@ -205,13 +285,140 @@
                         (permsArray.includes('email_edit') ||
                             permsArray.includes('admin'))
                     "
-                    @click="$router.push({ name: 'admin.settings.email.index' })"
+                    @click="
+                        $router.push({ name: 'admin.settings.email.index' })
+                    "
                 >
                     <template #icon>
                         <MailOutlined />
                     </template>
                     {{ $t("menu.email_settings") }}
                 </a-menu-item>
+
+                <!--- country menu-->
+                <a-menu-item
+                    key="country"
+                    v-if="
+                        appType == 'non-saas' &&
+                        (permsArray.includes('country_view') ||
+                            permsArray.includes('admin'))
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.country.index' })
+                    "
+                >
+                    <template #icon>
+                        <ApartmentOutlined />
+                    </template>
+                    {{ $t("menu.country") }}
+                </a-menu-item>
+                <!-- end country menu-->
+
+                <!-- state menu-->
+                <a-menu-item
+                    key="state"
+                    v-if="
+                        appType == 'non-saas' &&
+                        (permsArray.includes('state_view') ||
+                            permsArray.includes('admin'))
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.state.index' })
+                    "
+                >
+                    <template #icon>
+                        <ApartmentOutlined />
+                    </template>
+                    {{ $t("menu.state") }}
+                </a-menu-item>
+                <!-- end state menu-->
+
+                <!-- start station-->
+                <a-menu-item
+                    key="station"
+                    v-if="
+                        permsArray.includes('station_view') ||
+                        permsArray.includes('admin')
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.station.index' })
+                    "
+                >
+                    <template #icon>
+                        <ApartmentOutlined />
+                    </template>
+                    {{ $t("menu.station") }}
+                </a-menu-item>
+
+                <a-menu-item
+                    key="god-owns"
+                    v-if="
+                        permsArray.includes('godown_view') ||
+                        permsArray.includes('admin')
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.godown.index' })
+                    "
+                >
+                    <template #icon>
+                        <ApartmentOutlined />
+                    </template>
+                    {{ "Godowns" }}
+                </a-menu-item>
+
+                <!-- <a-menu-item
+                    key="product-category"
+                    v-if="
+                        permsArray.includes('product_view') ||
+                        permsArray.includes('admin')
+                    "
+                    @click="
+                        $router.push({
+                            name: 'admin.settings.productcategory.index',
+                        })
+                    "
+                >
+                    <template #icon>
+                        <ApartmentOutlined />
+                    </template>
+                    {{ "Product Category" }}
+                </a-menu-item> -->
+
+                <a-menu-item
+                    key="category"
+                    v-if="
+                        permsArray.includes('category_view') ||
+                        permsArray.includes('admin')
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.category.index' })
+                    "
+                >
+                    <template #icon>
+                        <ApartmentOutlined />
+                    </template>
+                    {{ "Category" }}
+                </a-menu-item>
+
+                <a-menu-item
+                    key="discount"
+                    v-if="
+                        permsArray.includes('discount_view') ||
+                        permsArray.includes('admin')
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.discount.index' })
+                    "
+                >
+                    <template #icon>
+                        <ApartmentOutlined />
+                    </template>
+                    {{ "Discount" }}
+                </a-menu-item>
+
+                <!-- my try    -->
+
+                <!-- end  station-->
             </a-menu>
         </perfect-scrollbar>
     </div>

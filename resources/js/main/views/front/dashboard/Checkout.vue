@@ -282,6 +282,7 @@ export default defineComponent({
                 title: t("front.confirm_order"),
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t("front.confirm_order_message"),
+                autoFocusButton:'ok',
                 okText: t("common.yes"),
                 cancelText: t("common.no"),
                 onOk() {

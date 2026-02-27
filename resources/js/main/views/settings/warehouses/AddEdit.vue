@@ -25,16 +25,23 @@
                                     <a-form-item
                                         :label="$t('warehouse.name')"
                                         name="name"
-                                        :help="rules.name ? rules.name.message : null"
-                                        :validateStatus="rules.name ? 'error' : null"
+                                        :help="
+                                            rules.name
+                                                ? rules.name.message
+                                                : null
+                                        "
+                                        :validateStatus="
+                                            rules.name ? 'error' : null
+                                        "
                                         class="required"
                                     >
                                         <a-input
                                             v-model:value="formData.name"
                                             :placeholder="
-                                                $t('common.placeholder_default_text', [
-                                                    $t('warehouse.name'),
-                                                ])
+                                                $t(
+                                                    'common.placeholder_default_text',
+                                                    [$t('warehouse.name')]
+                                                )
                                             "
                                             v-on:keyup="
                                                 formData.slug = slugify(
@@ -48,16 +55,23 @@
                                     <a-form-item
                                         :label="$t('warehouse.slug')"
                                         name="slug"
-                                        :help="rules.slug ? rules.slug.message : null"
-                                        :validateStatus="rules.slug ? 'error' : null"
+                                        :help="
+                                            rules.slug
+                                                ? rules.slug.message
+                                                : null
+                                        "
+                                        :validateStatus="
+                                            rules.slug ? 'error' : null
+                                        "
                                         class="required"
                                     >
                                         <a-input
                                             v-model:value="formData.slug"
                                             :placeholder="
-                                                $t('common.placeholder_default_text', [
-                                                    $t('warehouse.slug'),
-                                                ])
+                                                $t(
+                                                    'common.placeholder_default_text',
+                                                    [$t('warehouse.slug')]
+                                                )
                                             "
                                         />
                                     </a-form-item>
@@ -68,31 +82,45 @@
                                     <a-form-item
                                         :label="$t('warehouse.email')"
                                         name="email"
-                                        :help="rules.email ? rules.email.message : null"
-                                        :validateStatus="rules.email ? 'error' : null"
+                                        :help="
+                                            rules.email
+                                                ? rules.email.message
+                                                : null
+                                        "
+                                        :validateStatus="
+                                            rules.email ? 'error' : null
+                                        "
                                         class="required"
                                     >
                                         <a-input
                                             v-model:value="formData.email"
                                             :placeholder="
-                                                $t('common.placeholder_default_text', [
-                                                    $t('warehouse.email'),
-                                                ])
+                                                $t(
+                                                    'common.placeholder_default_text',
+                                                    [$t('warehouse.email')]
+                                                )
                                             "
                                         />
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="8" :lg="8">
                                     <a-form-item
-                                        :label="$t('warehouse.show_email_on_invoice')"
+                                        :label="
+                                            $t(
+                                                'warehouse.show_email_on_invoice'
+                                            )
+                                        "
                                         name="show_email_on_invoice"
                                         :help="
                                             rules.show_email_on_invoice
-                                                ? rules.show_email_on_invoice.message
+                                                ? rules.show_email_on_invoice
+                                                      .message
                                                 : null
                                         "
                                         :validateStatus="
-                                            rules.show_email_on_invoice ? 'error' : null
+                                            rules.show_email_on_invoice
+                                                ? 'error'
+                                                : null
                                         "
                                     >
                                         <a-switch
@@ -110,31 +138,45 @@
                                     <a-form-item
                                         :label="$t('warehouse.phone')"
                                         name="phone"
-                                        :help="rules.phone ? rules.phone.message : null"
-                                        :validateStatus="rules.phone ? 'error' : null"
+                                        :help="
+                                            rules.phone
+                                                ? rules.phone.message
+                                                : null
+                                        "
+                                        :validateStatus="
+                                            rules.phone ? 'error' : null
+                                        "
                                         class="required"
                                     >
                                         <a-input
                                             v-model:value="formData.phone"
                                             :placeholder="
-                                                $t('common.placeholder_default_text', [
-                                                    $t('warehouse.phone'),
-                                                ])
+                                                $t(
+                                                    'common.placeholder_default_text',
+                                                    [$t('warehouse.phone')]
+                                                )
                                             "
                                         />
                                     </a-form-item>
                                 </a-col>
                                 <a-col :xs="24" :sm="24" :md="8" :lg="8">
                                     <a-form-item
-                                        :label="$t('warehouse.show_phone_on_invoice')"
+                                        :label="
+                                            $t(
+                                                'warehouse.show_phone_on_invoice'
+                                            )
+                                        "
                                         name="show_phone_on_invoice"
                                         :help="
                                             rules.show_phone_on_invoice
-                                                ? rules.show_phone_on_invoice.message
+                                                ? rules.show_phone_on_invoice
+                                                      .message
                                                 : null
                                         "
                                         :validateStatus="
-                                            rules.show_phone_on_invoice ? 'error' : null
+                                            rules.show_phone_on_invoice
+                                                ? 'error'
+                                                : null
                                         "
                                     >
                                         <a-switch
@@ -157,8 +199,14 @@
                                     <a-form-item
                                         :label="$t('warehouse.logo')"
                                         name="logo"
-                                        :help="rules.logo ? rules.logo.message : null"
-                                        :validateStatus="rules.logo ? 'error' : null"
+                                        :help="
+                                            rules.logo
+                                                ? rules.logo.message
+                                                : null
+                                        "
+                                        :validateStatus="
+                                            rules.logo ? 'error' : null
+                                        "
                                     >
                                         <Upload
                                             :formData="formData"
@@ -167,7 +215,8 @@
                                             @onFileUploaded="
                                                 (file) => {
                                                     formData.logo = file.file;
-                                                    formData.logo_url = file.file_url;
+                                                    formData.logo_url =
+                                                        file.file_url;
                                                 }
                                             "
                                         />
@@ -186,7 +235,9 @@
                                                 ? rules.dark_logo.message
                                                 : null
                                         "
-                                        :validateStatus="rules.dark_logo ? 'error' : null"
+                                        :validateStatus="
+                                            rules.dark_logo ? 'error' : null
+                                        "
                                     >
                                         <Upload
                                             :formData="formData"
@@ -194,7 +245,8 @@
                                             imageField="dark_logo"
                                             @onFileUploaded="
                                                 (file) => {
-                                                    formData.dark_logo = file.file;
+                                                    formData.dark_logo =
+                                                        file.file;
                                                     formData.dark_logo_url =
                                                         file.file_url;
                                                 }
@@ -211,7 +263,9 @@
                             <a-form-item
                                 :label="$t('warehouse.address')"
                                 name="address"
-                                :help="rules.address ? rules.address.message : null"
+                                :help="
+                                    rules.address ? rules.address.message : null
+                                "
                                 :validateStatus="rules.address ? 'error' : null"
                             >
                                 <a-textarea
@@ -249,9 +303,13 @@
                                 :label="$t('warehouse.bank_details')"
                                 name="bank_details"
                                 :help="
-                                    rules.bank_details ? rules.bank_details.message : null
+                                    rules.bank_details
+                                        ? rules.bank_details.message
+                                        : null
                                 "
-                                :validateStatus="rules.bank_details ? 'error' : null"
+                                :validateStatus="
+                                    rules.bank_details ? 'error' : null
+                                "
                             >
                                 <a-textarea
                                     v-model:value="formData.bank_details"
@@ -276,7 +334,9 @@
                                         ? rules.terms_condition.message
                                         : null
                                 "
-                                :validateStatus="rules.terms_condition ? 'error' : null"
+                                :validateStatus="
+                                    rules.terms_condition ? 'error' : null
+                                "
                             >
                                 <a-textarea
                                     v-model:value="formData.terms_condition"
@@ -296,8 +356,14 @@
                             <a-form-item
                                 :label="$t('warehouse.signature')"
                                 name="signature"
-                                :help="rules.signature ? rules.signature.message : null"
-                                :validateStatus="rules.signature ? 'error' : null"
+                                :help="
+                                    rules.signature
+                                        ? rules.signature.message
+                                        : null
+                                "
+                                :validateStatus="
+                                    rules.signature ? 'error' : null
+                                "
                             >
                                 <Upload
                                     :formData="formData"
@@ -306,7 +372,8 @@
                                     @onFileUploaded="
                                         (file) => {
                                             formData.signature = file.file;
-                                            formData.signature_url = file.file_url;
+                                            formData.signature_url =
+                                                file.file_url;
                                         }
                                     "
                                 />
@@ -337,13 +404,22 @@
                                 "
                             >
                                 <a-radio-group
-                                    v-model:value="formData.customers_visibility"
+                                    v-model:value="
+                                        formData.customers_visibility
+                                    "
                                 >
                                     <a-radio :style="radioStyle" value="all">
                                         {{ $t("warehouse.view_all_customers") }}
                                     </a-radio>
-                                    <a-radio :style="radioStyle" value="warehouse">
-                                        {{ $t("warehouse.view_warehouse_customers") }}
+                                    <a-radio
+                                        :style="radioStyle"
+                                        value="warehouse"
+                                    >
+                                        {{
+                                            $t(
+                                                "warehouse.view_warehouse_customers"
+                                            )
+                                        }}
                                     </a-radio>
                                 </a-radio-group>
                             </a-form-item>
@@ -365,13 +441,22 @@
                                 "
                             >
                                 <a-radio-group
-                                    v-model:value="formData.suppliers_visibility"
+                                    v-model:value="
+                                        formData.suppliers_visibility
+                                    "
                                 >
                                     <a-radio :style="radioStyle" value="all">
                                         {{ $t("warehouse.view_all_suppliers") }}
                                     </a-radio>
-                                    <a-radio :style="radioStyle" value="warehouse">
-                                        {{ $t("warehouse.view_warehouse_suppliers") }}
+                                    <a-radio
+                                        :style="radioStyle"
+                                        value="warehouse"
+                                    >
+                                        {{
+                                            $t(
+                                                "warehouse.view_warehouse_suppliers"
+                                            )
+                                        }}
                                     </a-radio>
                                 </a-radio-group>
                             </a-form-item>
@@ -398,8 +483,15 @@
                                     <a-radio :style="radioStyle" value="all">
                                         {{ $t("warehouse.view_all_products") }}
                                     </a-radio>
-                                    <a-radio :style="radioStyle" value="warehouse">
-                                        {{ $t("warehouse.view_warehouse_products") }}
+                                    <a-radio
+                                        :style="radioStyle"
+                                        value="warehouse"
+                                    >
+                                        {{
+                                            $t(
+                                                "warehouse.view_warehouse_products"
+                                            )
+                                        }}
                                     </a-radio>
                                 </a-radio-group>
                             </a-form-item>
@@ -417,7 +509,9 @@
                     <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
-                                :label="$t('warehouse.default_pos_order_status')"
+                                :label="
+                                    $t('warehouse.default_pos_order_status')
+                                "
                                 name="default_pos_order_status"
                                 :help="
                                     rules.default_pos_order_status
@@ -425,11 +519,15 @@
                                         : null
                                 "
                                 :validateStatus="
-                                    rules.default_pos_order_status ? 'error' : null
+                                    rules.default_pos_order_status
+                                        ? 'error'
+                                        : null
                                 "
                             >
                                 <a-select
-                                    v-model:value="formData.default_pos_order_status"
+                                    v-model:value="
+                                        formData.default_pos_order_status
+                                    "
                                     :placeholder="
                                         $t('warehouse.default_pos_order_status')
                                     "
@@ -480,19 +578,26 @@
                     <a-row :gutter="16">
                         <a-col :span="24">
                             <a-form-item
-                                :label="$t('warehouse.show_discount_tax_on_invoice')"
+                                :label="
+                                    $t('warehouse.show_discount_tax_on_invoice')
+                                "
                                 name="show_discount_tax_on_invoice"
                                 :help="
                                     rules.show_discount_tax_on_invoice
-                                        ? rules.show_discount_tax_on_invoice.message
+                                        ? rules.show_discount_tax_on_invoice
+                                              .message
                                         : null
                                 "
                                 :validateStatus="
-                                    rules.show_discount_tax_on_invoice ? 'error' : null
+                                    rules.show_discount_tax_on_invoice
+                                        ? 'error'
+                                        : null
                                 "
                             >
                                 <a-radio-group
-                                    v-model:value="formData.show_discount_tax_on_invoice"
+                                    v-model:value="
+                                        formData.show_discount_tax_on_invoice
+                                    "
                                     size="small"
                                     buttonStyle="solid"
                                 >
@@ -512,9 +617,13 @@
                                 :label="$t('warehouse.barcode_type')"
                                 name="barcode_type"
                                 :help="
-                                    rules.barcode_type ? rules.barcode_type.message : null
+                                    rules.barcode_type
+                                        ? rules.barcode_type.message
+                                        : null
                                 "
-                                :validateStatus="rules.barcode_type ? 'error' : null"
+                                :validateStatus="
+                                    rules.barcode_type ? 'error' : null
+                                "
                                 class="required"
                             >
                                 <a-select
@@ -522,10 +631,14 @@
                                     style="width: 100%"
                                 >
                                     <a-select-option value="barcode">
-                                        {{ $t("warehouse.barcode") }}</a-select-option
+                                        {{
+                                            $t("warehouse.barcode")
+                                        }}</a-select-option
                                     >
                                     <a-select-option value="qrcode">
-                                        {{ $t("warehouse.qrcode") }}</a-select-option
+                                        {{
+                                            $t("warehouse.qrcode")
+                                        }}</a-select-option
                                     >
                                 </a-select>
                             </a-form-item>
@@ -542,7 +655,11 @@
                 :loading="loading"
             >
                 <template #icon> <SaveOutlined /> </template>
-                {{ addEditType == "add" ? $t("common.create") : $t("common.update") }}
+                {{
+                    addEditType == "add"
+                        ? $t("common.create")
+                        : $t("common.update")
+                }}
             </a-button>
             <a-button @click="onClose">
                 {{ $t("common.cancel") }}

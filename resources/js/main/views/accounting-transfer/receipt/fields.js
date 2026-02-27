@@ -172,13 +172,13 @@ const fields = () => {
                 userType: "suppliers",
                 permission: "purchase_returns",
             };
-        } else if (orderType.value == "sales-returns") {
+        } else if (orderType.value == "sales-returns22") {
             pageObjectDetails = {
-                type: "sales-returns",
-                langKey: "sales_returns",
-                menuKey: "sales_returns",
+                type: "sales-returns2",
+                langKey: "sales_returns22",
+                menuKey: "sales_returns22",
                 userType: "customers",
-                permission: "sales_returns",
+                permission: "sales_returns22",
             };
         } else if (orderType.value == "online-orders") {
             pageObjectDetails = {

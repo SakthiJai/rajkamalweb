@@ -245,7 +245,7 @@
         <template #footer>
             <button
                 @click="onSubmit"
-                type="submit"
+                type="button"
                 id="btn-Ledger"
                 title="Ledger"
                 class="btn default-btn ng-star-inserted gst"

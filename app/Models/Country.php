@@ -11,11 +11,11 @@ class Country extends BaseModel
 
     protected $table = 'countries';
 
-    protected $default = ['xid','name', 'status',];
+    protected $default = ['xid','country_name', 'status',];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $appends = ['xid'];
     
-    protected $filterable = ['id', 'name'];
+    protected $filterable = ['id', 'country_name'];
 }

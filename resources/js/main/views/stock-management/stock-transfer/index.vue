@@ -33,13 +33,13 @@
                                 name: `admin.stock.stock-transfers.create`,
                             }"
                         >
-                            <a-button type="primary">
+                            <a-button type="primary" style="background-color: #1f6d70;">
                                 <PlusOutlined />
-                                {{ $t("stock_transfer.add") }}
+                                {{ $t("stock_transfer.add") }} / F2
                             </a-button>
                         </router-link>
                     </template>
-                    <a-button
+                    <!-- <a-button
                         v-if="
                             selectedRowIds.length > 0 &&
                             (permsArray.includes('stock_transfers_delete') ||
@@ -51,13 +51,14 @@
                     >
                         <template #icon><DeleteOutlined /></template>
                         {{ $t("common.delete") }}
-                    </a-button>
+                    </a-button> -->
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="12" :lg="6" :xl="6">
                         <a-input-search
+                        ref="searchInputRef"
                             style="width: 100%"
                             v-model:value="filters.searchString"
                             show-search
@@ -77,6 +78,7 @@
                         :xl="6"
                     >
                         <a-select
+                        ref="warehouseSelectRef"
                             v-model:value="filters.warehouse_id"
                             :placeholder="
                                 $t('common.select_default_text', [
@@ -100,7 +102,7 @@
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
                         <DateRangePicker
-                            ref="serachDateRangePicker"
+                            ref="datePickerRef"
                             @dateTimeChanged="
                                 (changedDateTime) => (filters.dates = changedDateTime)
                             "
@@ -134,7 +136,7 @@
 </template>
 
 <script>
-import { onMounted, watch, ref } from "vue";
+import { onMounted, watch, ref, onBeforeUnmount } from "vue";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import common from "../../../../common/composable/common";
@@ -160,12 +162,106 @@ export default {
             selectedWarehouse,
         } = common();
         const router = useRouter();
+        const selectedRowIndex = ref(-1);
+        const searchInputRef = ref(null);
+        const warehouseSelectRef = ref(null);
+        const datePickerRef = ref(null);
+        const filterFocusIndex = ref(0);
 
         const warehouses = ref([]);
         const serachDateRangePicker = ref(null);
 
         const selectedRowIds = ref([]);
         const orderTableRef = ref(null);
+        const handleKeyDown = (event) => {
+
+            // LEFT / RIGHT for filter controls
+if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+    event.preventDefault();
+
+    const controls = [
+        searchInputRef,
+        warehouseSelectRef,
+        datePickerRef,
+    ].filter(Boolean);
+
+    if (event.key === "ArrowRight") {
+        filterFocusIndex.value =
+            (filterFocusIndex.value + 1) % controls.length;
+    } else {
+        filterFocusIndex.value =
+            (filterFocusIndex.value - 1 + controls.length) %
+            controls.length;
+    }
+
+    const current = controls[filterFocusIndex.value];
+
+    current.value?.focus?.();
+    current.value?.$el?.querySelector("input")?.focus();
+
+    return;
+}
+            if (event.code === "F2") {
+                event.preventDefault();
+
+                if (
+                    (permsArray.value.includes("stock_transfers_create") ||
+                    permsArray.value.includes("admin")) &&
+                    filters.value.transfer_type === "transfered"
+                ) {
+                    router.push({
+                        name: "admin.stock.stock-transfers.create",
+                    });
+                }
+
+                return;
+            }
+
+            const table = orderTableRef.value;
+            if (!table || !table.tableData || table.tableData.length === 0) return;
+
+            const data = table.tableData;
+
+            // Arrow Down
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+
+                if (selectedRowIndex.value < data.length - 1) {
+                    selectedRowIndex.value++;
+                }
+
+                const row = data[selectedRowIndex.value];
+                selectedRowIds.value = [row.xid];
+                table.setSelectedRowKeys?.([row.xid]);
+            }
+
+            // Arrow Up
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+
+                if (selectedRowIndex.value > 0) {
+                    selectedRowIndex.value--;
+                }
+
+                const row = data[selectedRowIndex.value];
+                selectedRowIds.value = [row.xid];
+                table.setSelectedRowKeys?.([row.xid]);
+            }
+
+            // Enter → View/Edit page
+            if (event.key === "Enter") {
+                event.preventDefault();
+
+                if (selectedRowIndex.value >= 0) {
+                    const row = data[selectedRowIndex.value];
+
+                    router.push({
+                        name: "admin.stock.stock-transfers.edit",
+                        params: { id: row.xid },
+                    });
+                }
+            }
+        };
 
         const filters = ref({
             payment_status: "all",
@@ -179,9 +275,17 @@ export default {
         onMounted(() => {
             const warehouseUrl = `warehouses?filters=id ne "${selectedWarehouse.value.xid}"&hashable=${selectedWarehouse.value.xid}&limit=10000`;
             const warehousesPromise = axiosAdmin.get(warehouseUrl);
+
             Promise.all([warehousesPromise]).then(([warehousesResponse]) => {
                 warehouses.value = warehousesResponse.data;
             });
+
+            window.addEventListener("keydown", handleKeyDown);
+
+            setTimeout(() => {
+                searchInputRef.value?.focus?.();
+                searchInputRef.value?.$el?.querySelector("input")?.focus();
+            }, 150);
         });
 
         watch(selectedWarehouse, (newVal, oldVal) => {
@@ -201,6 +305,9 @@ export default {
             orderPageObject,
             permsArray,
             orderStatus,
+            searchInputRef,
+            warehouseSelectRef,
+            datePickerRef,
             formatAmountCurrency,
             warehouses,
             filters,

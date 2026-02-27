@@ -36,12 +36,12 @@
                             ) || permsArray.includes('admin')
                         "
                     >
-                        <a-button type="primary" @click="addItem">
+                        <a-button type="primary" @click="addItem" style="background-color: #1f6d70;">
                             <PlusOutlined />
-                            {{ $t("payments.add") }}
+                            {{ $t("payments.add") }} /F2
                         </a-button>
                     </template>
-                    <a-button
+                    <!-- <a-button
                         v-if="
                             table.selectedRowKeys.length > 0 &&
                             (permsArray.includes(
@@ -57,7 +57,7 @@
                     >
                         <template #icon><DeleteOutlined /></template>
                         {{ $t("common.delete") }}
-                    </a-button>
+                    </a-button> -->
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
@@ -79,9 +79,12 @@
                                 </a-select-option>
                             </a-select>
                             <a-input-search
+                                ref="searchInputRef" 
                                 style="width: 75%"
                                 v-model:value="table.searchString"
                                 show-search
+                                @focus="isSearchFocused = true"
+                                @blur="isSearchFocused = false"
                                 @change="onTableSearch"
                                 @search="onTableSearch"
                                 :loading="table.filterLoading"
@@ -90,6 +93,7 @@
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="12" :lg="6" :xl="6">
                         <a-select
+                        ref="userSelectRef"
                             v-model:value="filters.user_id"
                             :placeholder="
                                 $t('common.select_default_text', [
@@ -103,6 +107,7 @@
                             @change="setUrlData"
                         >
                             <a-select-option
+                            
                                 v-for="user in users"
                                 :key="user.xid"
                                 :title="user.name"
@@ -129,7 +134,6 @@
             :pageTitle="pageTitle"
             :successMessage="successMessage"
         />
-
         <a-row>
             <a-col :span="24">
                 <div class="table-responsive">
@@ -222,7 +226,7 @@
 </template>
 
 <script>
-import { onMounted, reactive, ref, watch,computed } from "vue";
+import { onMounted, onBeforeUnmount, nextTick, reactive, ref, watch, computed } from "vue";
 import {
     PlusOutlined,
     EditOutlined,
@@ -255,7 +259,113 @@ export default {
             hashableColumns,
             filterableColumns,
         } = fields();
+        const selectedRowIndex = ref(-1);
+        const searchInputRef = ref(null);
+        const isSearchFocused = ref(false);
+        const searchColumnRef = ref(null);
+        const userSelectRef = ref(null);
         const crudVariables = crud();
+        const onCloseAddEdit = () => {
+            crudVariables.addEditVisible.value = false; 
+            focusSearchInput();
+        };
+        const addEditSuccess = async () => {
+            crudVariables.addEditVisible.value = false;
+            await crudVariables.fetch({ page: 1 });
+            focusSearchInput(); 
+        };
+        const focusSearchInput = () => { 
+            if (crudVariables.addEditVisible.value) return;
+
+            const tryFocus = () => {
+                const input = searchInputRef.value?.$el?.querySelector('input');
+                if (input) {
+                    input.focus();
+                } else { 
+                    setTimeout(tryFocus, 50);
+                }
+            };
+
+            nextTick(tryFocus);
+        };
+        const focusUserSelect = () => {
+            nextTick(() => {
+                const el = userSelectRef.value?.$el?.querySelector("input");
+                el?.focus();
+            });
+        };
+
+        const handleKeyDown = (event) => {
+            const active = document.activeElement;
+        
+            if (crudVariables.addEditVisible.value) {
+                const drawerFooterButtons = document.querySelectorAll(".ant-drawer-footer .ant-btn");
+                const primaryBtn = Array.from(drawerFooterButtons).find(btn => btn.classList.contains("ant-btn-primary"));
+                const cancelBtn = Array.from(drawerFooterButtons).find(btn => btn.classList.contains("ant-btn-default"));
+
+                const confirmModal = document.querySelector(".ant-modal-confirm");
+                if (confirmModal) {
+                    const modalButtons = confirmModal.querySelectorAll(".ant-btn");
+                    const okBtn = Array.from(modalButtons).find(btn => btn.classList.contains("ant-btn-primary"));
+                    const cancelModalBtn = Array.from(modalButtons).find(btn => btn.classList.contains("ant-btn-default"));
+
+                    if (event.key === "ArrowLeft") { event.preventDefault(); cancelModalBtn?.focus(); return; }
+                    if (event.key === "ArrowRight") { event.preventDefault(); okBtn?.focus(); return; }
+                }
+
+                if (event.key === "ArrowLeft") { event.preventDefault(); cancelBtn?.focus(); return; }
+                if (event.key === "ArrowRight") { event.preventDefault(); primaryBtn?.focus(); return; }
+
+                return;  
+            }
+        
+            const searchInputEl = searchInputRef.value?.$el?.querySelector("input");
+            const userSelectEl = userSelectRef.value?.$el?.querySelector("input");
+        
+            if (event.key === "ArrowRight" && active === searchInputEl) {
+                event.preventDefault();
+                focusUserSelect();
+                return;
+            }
+        
+            if (event.key === "ArrowLeft" && active === userSelectEl) {
+                event.preventDefault();
+                focusSearchInput();
+                return;
+            }
+        
+            const data = crudVariables.table.data;
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                if (data.length === 0) return;
+                if (selectedRowIndex.value < data.length - 1) selectedRowIndex.value++;
+                crudVariables.table.selectedRowKeys = [data[selectedRowIndex.value].xid];
+                return;
+            }
+
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+                if (data.length === 0) return;
+                if (selectedRowIndex.value > 0) selectedRowIndex.value--;
+                crudVariables.table.selectedRowKeys = [data[selectedRowIndex.value].xid];
+                return;
+            }
+        
+            if (event.key === "Enter" && selectedRowIndex.value >= 0) {
+                event.preventDefault();
+                const row = data[selectedRowIndex.value];
+                crudVariables.editItem(row);
+                return;
+            }
+        
+            if (event.code === "F2") {
+                event.preventDefault();
+                crudVariables.addEditType.value = "add";
+                crudVariables.formData.value = { ...crudVariables.initData.value };
+                crudVariables.addEditVisible.value = true;
+                return;
+            }
+        };
         const {
             permsArray,
             formatAmountCurrency,
@@ -270,9 +380,24 @@ export default {
 
         onMounted(() => {
             getInitialData();
-
             setUrlData();
+
+            window.addEventListener("keydown", handleKeyDown);
+ 
+            focusSearchInput();
         });
+        onBeforeUnmount(() => {
+            window.removeEventListener("keydown", handleKeyDown);
+        });
+        const onRowSelectChange = (selectedKeys) => {
+            crudVariables.table.selectedRowKeys = selectedKeys;
+
+            if (selectedKeys.length > 0) {
+                selectedRowIndex.value = crudVariables.table.data.findIndex(
+                    (row) => row.xid === selectedKeys[0]
+                );
+            }
+        };
 
         const setUrlData = () => {
             crudVariables.tableUrl.value = {
@@ -335,6 +460,7 @@ export default {
         return {
             columns,
             ...crudVariables,
+            onCloseAddEdit,
             permsArray,
             formatAmountCurrency,
             paymentType,
@@ -345,6 +471,11 @@ export default {
             filterableColumns,
             formatDate,
             totals,
+            onRowSelectChange,
+            searchInputRef,
+            isSearchFocused,
+            searchColumnRef,
+            userSelectRef,
         };
     },
 };

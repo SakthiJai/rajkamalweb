@@ -125,7 +125,7 @@
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted, ref, createVNode, unref, computed } from "vue";
+import { onMounted, onBeforeUnmount, ref, createVNode, unref, computed, nextTick } from "vue";
 import fields from "./fields";
 import {
     PlusOutlined,
@@ -161,6 +161,8 @@ export default {
 
         const detailsVisible = ref(false);
         const viewData = ref({});
+        const selectedRowIndex = ref(-1);
+const flatCategoryList = ref([]);
 
         const addEditVisible = ref(false);
         const addEditType = ref("add");
@@ -171,12 +173,24 @@ export default {
 
         const selectedRowKeys = ref([]);
 
-        onMounted(() => {
+        onMounted(async () => {
             getCategories();
+            window.addEventListener("keydown", handleKeyDown);
+
+            await nextTick();
+        });
+        onBeforeUnmount(() => {
+            window.removeEventListener("keydown", handleKeyDown);
         });
 
         const onRowSelectionChange = (selectedRowKeyValues) => {
             selectedRowKeys.value = selectedRowKeyValues;
+
+            if (selectedRowKeyValues.length > 0) {
+                selectedRowIndex.value = flatCategoryList.value.findIndex(
+                    row => row.xid === selectedRowKeyValues[0]
+                );
+            }
         };
 
         const getCheckboxProps = (record) => {
@@ -193,7 +207,51 @@ export default {
                 getCheckboxProps: getCheckboxProps,
             };
         });
+        const handleKeyDown = (event) => {
+            if (this.modalVisible) return;
+            if (event.code === "F2") {
+                event.preventDefault();
+                addItem();
+                return;
+            }
 
+            const data = flatCategoryList.value;
+            if (!data.length) return;
+
+            // Arrow Down
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+
+                if (selectedRowIndex.value < data.length - 1) {
+                    selectedRowIndex.value++;
+                }
+
+                const row = data[selectedRowIndex.value];
+                selectedRowKeys.value = [row.xid];
+            }
+
+            // Arrow Up
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+
+                if (selectedRowIndex.value > 0) {
+                    selectedRowIndex.value--;
+                }
+
+                const row = data[selectedRowIndex.value];
+                selectedRowKeys.value = [row.xid];
+            }
+
+            // Enter → Edit
+            if (event.key === "Enter") {
+                event.preventDefault();
+
+                if (selectedRowIndex.value >= 0) {
+                    const row = data[selectedRowIndex.value];
+                    editItem(row);
+                }
+            }
+        };
         const getCategories = () => {
             axiosAdmin
                 .get(
@@ -201,6 +259,15 @@ export default {
                 )
                 .then((response) => {
                     const allCategoriesArray = [];
+                    const flattenTree = (nodes, result = []) => {
+                        nodes.forEach(node => {
+                            result.push(node);
+                            if (node.children && node.children.length) {
+                                flattenTree(node.children, result);
+                            }
+                        });
+                        return result;
+                    };
                     var listArray = response.data;
                     // listArray = sortBy(listArray, "x_parent_id");
 
@@ -220,6 +287,7 @@ export default {
                     });
 
                     allCategories.value = allCategoriesArray;
+flatCategoryList.value = flattenTree(allCategoriesArray);
                 });
         };
 
@@ -276,6 +344,7 @@ export default {
                 title: t("common.delete") + "?",
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t("category.delete_message"),
+                autoFocusButton:'ok',
                 centered: true,
                 okText: t("common.yes"),
                 okType: "danger",
@@ -298,6 +367,7 @@ export default {
                 title: t("common.delete") + "?",
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t("category.delete_message"),
+                autoFocusButton:'ok',
                 centered: true,
                 okText: t("common.yes"),
                 okType: "danger",

@@ -4,7 +4,7 @@
         :format="formatOrderDate"
         :disabled-date="disabledDate"
         show-time
-        :placeholder="$t('common.date_time')"
+       @keydown="handleArrowNavigation"
         style="width: 100%"
         @change="dateTimeChanged"
         :disabled="disabled"
@@ -24,10 +24,46 @@ export default defineComponent({
             default: false,
         },
     },
-    emits: ["dateTimeChanged"],
+    emits: ["dateTimeChanged", "enterPressed"],
     setup(props, { emit }) {
-        const dateTimeValue = ref(undefined);
+        
         const { disabledDate, formatDateTime, dayjs } = common();
+        const dateTimeValue = ref(dayjs());
+        const handleArrowNavigation = (event) => {
+    if (!dateTimeValue.value) return;
+
+    const current = dateTimeValue.value;
+
+    switch (event.key) {
+        case "ArrowRight":
+            event.preventDefault();
+            dateTimeValue.value = current.add(1, "day");
+            break;
+
+        case "ArrowLeft":
+            event.preventDefault();
+            dateTimeValue.value = current.subtract(1, "day");
+            break;
+
+        case "ArrowUp":
+            event.preventDefault();
+            dateTimeValue.value = current.subtract(7, "day");
+            break;
+
+        case "ArrowDown":
+            event.preventDefault();
+            dateTimeValue.value = current.add(7, "day");
+            break;
+    }
+};
+        const handleKeydown = (event) => {
+            if (event.key !== "Enter") return;
+
+            if (!dateTimeValue.value) return;
+
+            event.preventDefault();
+            emit("enterPressed");
+        };
 
         onMounted(() => {
             setDateTime(props.dateTime);
@@ -64,6 +100,8 @@ export default defineComponent({
             disabledDate,
             formatOrderDate,
             dateTimeChanged,
+            handleKeydown,
+            handleArrowNavigation,
         };
     },
 });

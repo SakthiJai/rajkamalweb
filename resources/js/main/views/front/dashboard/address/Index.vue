@@ -126,6 +126,7 @@ export default defineComponent({
 				title: t("common.delete") + "?",
 				icon: createVNode(ExclamationCircleOutlined),
 				content: t("front.address_delete_message"),
+				autoFocusButton:'ok',
 				centered: true,
 				okText: t("common.yes"),
 				okType: "danger",

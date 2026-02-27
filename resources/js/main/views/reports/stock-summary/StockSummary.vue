@@ -21,7 +21,7 @@
                             </a-badge>
                         </template>
                         <template v-if="column.dataIndex === 'category_id'">
-                            {{ record.category.name }}
+                            {{ record.category?.name || "-" }}
                         </template>
                         <template v-if="column.dataIndex === 'brand_id'">
                             {{
@@ -29,30 +29,28 @@
                             }}
                         </template>
                         <template v-if="column.dataIndex === 'sales_price'">
-                            {{ formatAmountCurrency(record.details.sales_price) }}
+                            {{ formatAmountCurrency(record.details?.sales_price || 0) }}
                         </template>
                         <template v-if="column.dataIndex === 'purchase_price'">
-                            {{ formatAmountCurrency(record.details.purchase_price) }}
+                            {{ formatAmountCurrency(record.details?.purchase_price || 0) }}
                         </template>
                         <template v-if="column.dataIndex === 'current_stock'">
                             {{
-                                `${record.details.current_stock} ${record.unit.short_name}`
+                                `${record.details?.current_stock || 0} ${record.unit?.short_name || "-" }`
                             }}
                         </template>
                         <template v-if="column.dataIndex === 'stock_value'">
                             {{ $t("product.by_purchase") }} :
                             <a-typography-text strong>{{
                                 formatAmountCurrency(
-                                    record.details.current_stock *
-                                        record.details.purchase_price
+                                    (record.details?.current_stock || 0) * (record.details?.purchase_price || 0)
                                 )
                             }}</a-typography-text>
                             <br />
                             {{ $t("product.by_sales") }} :
                             <a-typography-text strong>{{
                                 formatAmountCurrency(
-                                    record.details.current_stock *
-                                        record.details.sales_price
+                                    (record.details?.current_stock || 0) * (record.details?.sales_price || 0)
                                 )
                             }}</a-typography-text>
                         </template>
@@ -167,13 +165,13 @@ export default defineComponent({
             let totalPurchasePrice = 0;
             datatableVariables.table.data.forEach((tableRowData) => {
                 {
-                    totalCurrentStock += tableRowData.details.current_stock;
+                    totalCurrentStock += tableRowData.details?.current_stock || 0;
                     totalSalesPrice +=
-                        tableRowData.details.current_stock *
-                        tableRowData.details.sales_price;
+                            (tableRowData.details?.current_stock || 0) *
+                            (tableRowData.details?.sales_price || 0);
                     totalPurchasePrice +=
-                        tableRowData.details.current_stock *
-                        tableRowData.details.purchase_price;
+                        (tableRowData.details?.current_stock || 0) *
+                        (tableRowData.details?.purchase_price || 0);
                 }
             });
             return {

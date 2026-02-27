@@ -27,6 +27,7 @@ class UpdateRequest extends FormRequest
 
 		$rules = [
 			'state_name'    => 'required',
+			'state_code'    => 'required',
 		];
 
 		return $rules;

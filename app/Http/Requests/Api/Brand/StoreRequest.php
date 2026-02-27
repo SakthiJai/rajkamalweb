@@ -28,7 +28,7 @@ class StoreRequest extends FormRequest
         $company = company();
 
         $rules = [
-            'name'    => 'required',
+            'brands_name'    => 'required',
             'slug'    => [
                 'required',
                 Rule::unique('brands', 'slug')->where(function ($query) use ($company) {

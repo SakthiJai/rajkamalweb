@@ -65,7 +65,7 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const state = reactive({
-            orderSearchTerm: [],
+            ordersearchTerm: [],
             productFetching: false,
             products: [],
         });

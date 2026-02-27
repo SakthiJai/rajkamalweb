@@ -104,6 +104,7 @@ export default defineComponent({
                     },
                     t("messages.are_you_sure_update_message")
                 ),
+                autoFocusButton:'ok',
                 okText: t("common.yes"),
                 okType: "danger",
                 cancelText: t("common.no"),

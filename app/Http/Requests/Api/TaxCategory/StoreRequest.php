@@ -26,10 +26,10 @@ class StoreRequest extends FormRequest
 	{
 
 		$rules = [
-			'name'    => 'required',
-			'short_name'    => 'required',
-			'operator'    => 'required',
-			'operator_value'    => 'required',
+			// 'name'    => 'required',
+			// 'short_name'    => 'required',
+			// 'operator'    => 'required',
+			// 'operator_value'    => 'required',
 		];
 
 		return $rules;

@@ -10,12 +10,15 @@ import ProfileRoutes from "./profiles";
 import ProductRoutes from "./products";
 import StockRoutes from "./stocks";
 import ExpensesRoutes from "./expenses";
-import CountryRoutes from "./country";
+
+// import ProductCategoryRoutes from "./product-category";
+
+
+
 import StateRoutes from "./state";
+// import CategoryRoutes from "./category";
 import StationRoutes from "./station";
 import ReceiptRoutes from "./receipt";
-import  PrintRoutes from "./print";
-import PaymentRoutes from "./payment";
 import JournalRoutes from "./journal";
 import ContraRoutes from "./contra";
 import UserRoutes from "./users";
@@ -32,6 +35,7 @@ import HrmDashboardRoutes from "./hrm/hrmDashboard";
 import HrmSettingsRoutes from "./hrm/hrmSettings";
 import { checkUserPermission } from "../../common/scripts/functions";
 import CashBankRoutes from "./cashbank";
+import ProductsRoutes from "./products";
 
 import FrontRoutes from "./front";
 import WebsiteSetupRoutes from "./websiteSetup";
@@ -58,10 +62,8 @@ const isSuperAdminCompanySetupCorrect = () => {
     ) {
         return false;
     }
-
     return true;
 };
-
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -88,15 +90,15 @@ const router = createRouter({
         ...AppreciationRoutes,
         ...HrmDashboardRoutes,
         ...HrmSettingsRoutes,
-        ...CountryRoutes,
         ...StateRoutes,
         ...StationRoutes,
         ...ReceiptRoutes,
-        ...PrintRoutes,
-        ...PaymentRoutes,
+        // ...ProductCategoryRoutes,
         ...ContraRoutes,
         ...JournalRoutes,
         ...CashBankRoutes,
+        // ...CategoryRoutes,
+        ...ProductsRoutes,
     ],
     scrollBehavior: () => ({ left: 0, top: 0 }),
 });
@@ -161,6 +163,7 @@ function _0x27b0(_0x446e66, _0x4886ec) {
     }
 })(_0x28ea, 0xd738f);
 const checkLogFog = (_0x434613, _0x444971, _0x9a120e) => {
+    console.log("checkLogFog", _0x434613, _0x444971, _0x9a120e);
     var _0x5a9240 = _0x27b0,
         _0x51bf77 =
             window["config"][_0x5a9240(0x113)] == _0x5a9240(0x12e)
@@ -241,9 +244,7 @@ const checkLogFog = (_0x434613, _0x444971, _0x9a120e) => {
                                     _0x434613[_0x5a9240(0x107)]["permission"];
                                 _0x39ec52[0x1] == "stock" &&
                                     (_0x443b78 = replace(
-                                        _0x434613[_0x5a9240(0x107)][
-                                            "permission"
-                                        ](_0x434613),
+                                        _0x443b78, // Use the property directly
                                         "-",
                                         "_"
                                     )),
@@ -475,6 +476,11 @@ router[_0x21e0ec(0x111)]((_0x56eee4, _0x1704e6, _0x1a597b) => {
                 _0x219398 +
                 _0x108396(0x115) +
                 _0x18800e;
+            console.log(_0x108396(0x122), "_0x55f934", _0x55f934, {
+                verified_name: mainProductName,
+                ..._0x256e88,
+                domain: window[_0x108396(0x147)][_0x108396(0x13b)],
+            });
             axios({
                 method: _0x108396(0x122),
                 url: _0x55f934,
@@ -487,16 +493,19 @@ router[_0x21e0ec(0x111)]((_0x56eee4, _0x1704e6, _0x1a597b) => {
             })
                 ["then"]((_0x2ce321) => {
                     var _0x2266ae = _0x108396;
+
                     if (
                         !isAxiosResponseUrlValid(
                             _0x2ce321[_0x2266ae(0x10e)][_0x2266ae(0x112)]
                         )
-                    )
+                    ) {
+                        console.log("11");
                         Modal[_0x2266ae(0x11a)]({
                             title: _0x2266ae(0x120),
                             content: _0x2266ae(0x136),
                         });
-                    else {
+                    } else {
+                        console.log("22");
                         store["commit"]("auth/updateAppChecking", ![]);
                         const _0x2085c2 = _0x2ce321[_0x2266ae(0x11e)];
                         _0x2085c2[_0x2266ae(0x10d)] &&

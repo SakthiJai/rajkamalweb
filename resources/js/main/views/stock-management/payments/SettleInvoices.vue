@@ -1,7 +1,7 @@
 <template>
     <a-row>
         <a-col :span="24">
-            <div class="table-responsive">
+            <div class="table-responsive" ref="tableWrapper" @keydown.enter.prevent="focusNextInput">
                 <a-table
                     :columns="settleInvoiceColumns"
                     :row-key="(record) => record.xid"
@@ -125,6 +125,19 @@ export default defineComponent({
                         parseFloat(props.amount) - parseFloat(setteledAmt);
                     invoices.value = allInvoices;
                 });
+        };
+        const tableWrapper = ref(null);
+
+        const focusNextInput = (event) => { 
+            const inputs = tableWrapper.value.querySelectorAll("input.ant-input-number-input");
+
+            const index = Array.from(inputs).indexOf(event.target);
+            if (index !== -1 && index < inputs.length - 1) { 
+                inputs[index + 1].focus();
+                inputs[index + 1].select?.();  
+            } else { 
+        emit("lastFieldEnter");
+    }
         };
 
         const inputValueChanged = (record) => {

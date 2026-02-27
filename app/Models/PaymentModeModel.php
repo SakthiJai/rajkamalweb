@@ -11,7 +11,7 @@ class PaymentModeModel extends BaseModel
 {
     protected $table = 'payment_mode';
     protected $guarded = ['id', 'bill_amount', 'created_at', 'updated_at'];
-    protected $default = ['xid','bill_amount', 'order_id','balance_adjusted','amount','settlement_mode','remarks','cash_tender','cash_return','bill_number'];
+    protected $default = ['xid','bill_amount', 'order_id','balance_adjusted','amount','settlement_mode','remarks','cash_tender','cash_return','bill_number','payment_reference','payment_type','payment_added_by','payment_added_at'];
 
     protected $appends = ['xid'];
     

@@ -15,10 +15,7 @@ const fields = () => {
 			dataIndex: "station_name",
 			sorter:true
 		},
-		// {
-		// 	title: t("expense_category.description"),
-		// 	dataIndex: "description",
-		// },
+		
 		{
 			title: t("common.action"),
 			dataIndex: "action",

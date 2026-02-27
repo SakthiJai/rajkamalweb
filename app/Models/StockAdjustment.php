@@ -10,15 +10,25 @@ class StockAdjustment extends BaseModel
 {
     protected $table = 'stock_adjustments';
 
-    protected $default = ['xid'];
+    protected $default = [
+    'xid',
+    'x_product_id',
+    'quantity',
+    'adjustment_type',
+    'reason',
+    'value',
+    'packaging',
+    'created_at'
+];
+
 
     protected $guarded = ['id', 'warehouse_id', 'created_by', 'created_at', 'updated_at'];
 
-    protected $hidden = ['id', 'warehouse_id', 'product_id', 'created_by'];
+    protected $hidden = ['id', 'warehouse_id', 'created_by'];
 
     protected $appends = ['xid', 'x_warehouse_id', 'x_product_id', 'x_created_by'];
 
-    protected $filterable = ['warehouse_id', 'product_id'];
+    protected $filterable = ['warehouse_id', 'product_id','reason'];
 
     protected $hashableGetterFunctions = [
         'getXWarehouseIdAttribute' => 'warehouse_id',
@@ -31,6 +41,7 @@ class StockAdjustment extends BaseModel
         'product_id' => Hash::class . ':hash',
         'created_by' => Hash::class . ':hash',
         'quantity' => 'double',
+        'value' => 'double',
     ];
 
     protected static function boot()

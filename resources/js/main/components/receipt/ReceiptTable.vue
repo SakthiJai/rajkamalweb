@@ -453,7 +453,7 @@ import { useStore } from "vuex";
 import { find, forEach } from "lodash-es";
 import { useI18n } from "vue-i18n";
 import print from "print-js";
-import fields from "../../views/accounting-transaction/receipt/fields";
+import fields from "../../../main/views/accounting-transfer/receipt/fields";
 import common from "../../../common/composable/common";
 import datatable from "../../../common/composable/datatable";
 import PaymentStatus from "../../../common/components/order/PaymentStatus.vue";
@@ -689,6 +689,7 @@ export default {
                 title: t("common.delete") + "?",
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t(`${pageObject.value.langKey}.delete_message`),
+                autoFocusButton:'ok',
                 centered: true,
                 okText: t("common.yes"),
                 okType: "danger",
@@ -718,6 +719,7 @@ export default {
                 content: t(
                     `${pageObject.value.langKey}.selected_delete_message`
                 ),
+                autoFocusButton:'ok',
                 centered: true,
                 okText: t("common.yes"),
                 okType: "danger",
@@ -834,6 +836,7 @@ export default {
                 title: t("quotation.convert_to_sale") + "?",
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t(`quotation.convert_message`),
+                autoFocusButton:'ok',
                 centered: true,
                 okText: t("common.yes"),
                 okType: "danger",
@@ -863,6 +866,7 @@ export default {
                 title: t("online_orders.cancel_order") + "?",
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t(`online_orders.cancel_message`),
+                autoFocusButton:'ok',
                 centered: true,
                 okText: t("common.yes"),
                 okType: "danger",
@@ -888,6 +892,7 @@ export default {
                 title: t("common.delivered") + "?",
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t(`online_orders.deliver_message`),
+                autoFocusButton:'ok',
                 centered: true,
                 okText: t("common.yes"),
                 okType: "danger",

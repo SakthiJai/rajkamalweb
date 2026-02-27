@@ -8,7 +8,10 @@
         @cancel="onClose"
     >
         <div id="pos-invoice">
-            <div style="max-width: 400px; margin: 0px auto" v-if="order && order.xid">
+            <div
+                style="max-width: 400px; margin: 0px auto"
+                v-if="order && order.xid"
+            >
                 <div class="invoice-header">
                     <img
                         class="invoice-logo"
@@ -24,14 +27,19 @@
                     <h4 style="margin-bottom: 0px">
                         {{ $t("common.phone") }}: {{ selectedWarehouse.phone }}
                     </h4>
-                    <h4>{{ $t("common.email") }}: {{ selectedWarehouse.email }}</h4>
+                    <h4>
+                        {{ $t("common.email") }}: {{ selectedWarehouse.email }}
+                    </h4>
                 </div>
                 <div class="tax-invoice-details">
-                    <h3 class="tax-invoice-title">{{ $t("sales.tax_invoice") }}</h3>
+                    <h3 class="tax-invoice-title">
+                        {{ $t("sales.tax_invoice") }}
+                    </h3>
                     <table class="invoice-customer-details">
                         <tr>
                             <td style="width: 50%">
-                                {{ $t("sales.invoice") }} &nbsp;&nbsp;&nbsp;&nbsp;:
+                                {{ $t("sales.invoice") }}
+                                &nbsp;&nbsp;&nbsp;&nbsp;:
                                 {{ order.invoice_number }}
                             </td>
                             <td style="width: 50%">
@@ -41,10 +49,12 @@
                         </tr>
                         <tr>
                             <td style="width: 50%">
-                                {{ $t("stock.customer") }} : {{ order.user.name }}
+                                {{ $t("stock.customer") }} :
+                                {{ order.user.name }}
                             </td>
                             <td style="width: 50%">
-                                {{ $t("stock.sold_by") }} : {{ order.staff_member.name }}
+                                {{ $t("stock.sold_by") }} :
+                                {{ order.staff_member.name }}
                             </td>
                         </tr>
                     </table>
@@ -101,11 +111,25 @@
                             >
                                 <td>{{ index + 1 }}</td>
                                 <td>{{ item.product.name }}</td>
-                                <td>{{ item.quantity + "" + item.unit?.short_name }}</td>
-                                <td v-if="selectedWarehouse.show_mrp_on_invoice">
-                                    {{ item.mrp ? formatAmountCurrency(item.mrp) : "-" }}
+                                <td>
+                                    {{
+                                        item.quantity +
+                                        "" +
+                                        item.unit?.short_name
+                                    }}
                                 </td>
-                                <td>{{ formatAmountCurrency(item.unit_price) }}</td>
+                                <td
+                                    v-if="selectedWarehouse.show_mrp_on_invoice"
+                                >
+                                    {{
+                                        item.mrp
+                                            ? formatAmountCurrency(item.mrp)
+                                            : "-"
+                                    }}
+                                </td>
+                                <td>
+                                    {{ formatAmountCurrency(item.unit_price) }}
+                                </td>
                                 <td style="text-align: right">
                                     {{ formatAmountCurrency(item.subtotal) }}
                                 </td>
@@ -113,7 +137,9 @@
                             <tr class="item-row-other">
                                 <td
                                     :colspan="
-                                        selectedWarehouse.show_mrp_on_invoice ? 4 : 3
+                                        selectedWarehouse.show_mrp_on_invoice
+                                            ? 4
+                                            : 3
                                     "
                                     style="text-align: right"
                                 >
@@ -126,7 +152,9 @@
                             <tr class="item-row-other">
                                 <td
                                     :colspan="
-                                        selectedWarehouse.show_mrp_on_invoice ? 4 : 3
+                                        selectedWarehouse.show_mrp_on_invoice
+                                            ? 4
+                                            : 3
                                     "
                                     style="text-align: right"
                                 >
@@ -139,7 +167,9 @@
                             <tr class="item-row-other">
                                 <td
                                     :colspan="
-                                        selectedWarehouse.show_mrp_on_invoice ? 4 : 3
+                                        selectedWarehouse.show_mrp_on_invoice
+                                            ? 4
+                                            : 3
                                     "
                                     style="text-align: right"
                                 >
@@ -157,12 +187,14 @@
                         <tr>
                             <td style="width: 30%">
                                 <h3 style="margin-bottom: 0px">
-                                    {{ $t("common.items") }}: {{ order.total_items }}
+                                    {{ $t("common.items") }}:
+                                    {{ order.total_items }}
                                 </h3>
                             </td>
                             <td style="width: 30%">
                                 <h3 style="margin-bottom: 0px">
-                                    {{ $t("common.qty") }}: {{ order.total_quantity }}
+                                    {{ $t("common.qty") }}:
+                                    {{ order.total_quantity }}
                                 </h3>
                             </td>
                             <td style="width: 40%; text-align: center">
@@ -177,13 +209,23 @@
                 <div class="paid-amount-deatils">
                     <table style="width: 100%">
                         <thead style="background: #eee">
-                            <td style="width: 50%">{{ $t("payments.paid_amount") }}</td>
-                            <td style="width: 50%">{{ $t("payments.due_amount") }}</td>
+                            <td style="width: 50%">
+                                {{ $t("payments.paid_amount") }}
+                            </td>
+                            <td style="width: 50%">
+                                {{ $t("payments.due_amount") }}
+                            </td>
                         </thead>
                         <tbody>
                             <tr class="paid-amount-row">
-                                <td>{{ formatAmountCurrency(order.paid_amount) }}</td>
-                                <td>{{ formatAmountCurrency(order.due_amount) }}</td>
+                                <td>
+                                    {{
+                                        formatAmountCurrency(order.paid_amount)
+                                    }}
+                                </td>
+                                <td>
+                                    {{ formatAmountCurrency(order.due_amount) }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -212,13 +254,13 @@
                                                 currentOrderPayments.payment &&
                                                 currentOrderPayments.payment
                                                     .payment_mode &&
-                                                currentOrderPayments.payment.payment_mode
-                                                    .name
+                                                currentOrderPayments.payment
+                                                    .payment_mode.name
                                             "
                                         >
                                             {{
-                                                currentOrderPayments.payment.payment_mode
-                                                    .name
+                                                currentOrderPayments.payment
+                                                    .payment_mode.name
                                             }}
                                         </span>
                                         )
@@ -299,14 +341,16 @@ export default defineComponent({
         QRcodeGenerator,
     },
     setup(props, { emit }) {
-        const { formatAmountCurrency, formatDate, selectedWarehouse } = common();
+        const { formatAmountCurrency, formatDate, selectedWarehouse } =
+            common();
 
         const onClose = () => {
             emit("closed");
         };
 
         const printInvoice = () => {
-            var invoiceContent = document.getElementById("pos-invoice").innerHTML;
+            var invoiceContent =
+                document.getElementById("pos-invoice").innerHTML;
             var newWindow = window.open("", "", "height=500, width=500");
             newWindow.document.write(
                 `<link rel="stylesheet" href="${posInvoiceCssUrl}"><html><body>`

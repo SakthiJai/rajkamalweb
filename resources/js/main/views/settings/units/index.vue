@@ -1,7 +1,7 @@
 <template>
     <AdminPageHeader>
         <template #header>
-            <a-page-header :title="$t(`menu.units`)" class="p-0" />
+            <a-page-header :title="$t(`Measuring Units`)" class="p-0" />
         </template>
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
@@ -14,14 +14,21 @@
                     {{ $t(`menu.settings`) }}
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`menu.units`) }}
+                    {{ $t(`Measuring Unit`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
         </template>
     </AdminPageHeader>
 
     <a-row>
-        <a-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4" class="bg-setting-sidebar">
+        <a-col
+            :xs="24"
+            :sm="24"
+            :md="24"
+            :lg="4"
+            :xl="4"
+            class="bg-setting-sidebar"
+        >
             <SettingSidebar />
         </a-col>
         <a-col :xs="24" :sm="24" :md="24" :lg="20" :xl="20">
@@ -63,7 +70,9 @@
                                         style="width: 25%"
                                         v-model:value="table.searchColumn"
                                         :placeholder="
-                                            $t('common.select_default_text', [''])
+                                            $t('common.select_default_text', [
+                                                '',
+                                            ])
                                         "
                                     >
                                         <a-select-option
@@ -111,7 +120,9 @@
                                     getCheckboxProps: (record) => ({
                                         disabled:
                                             record.is_deletable &&
-                                            (permsArray.includes('units_delete') ||
+                                            (permsArray.includes(
+                                                'units_delete'
+                                            ) ||
                                                 permsArray.includes('admin'))
                                                 ? false
                                                 : true,
@@ -128,29 +139,43 @@
                                 size="middle"
                             >
                                 <template #bodyCell="{ column, record }">
-                                    <template v-if="column.dataIndex === 'action'">
+                                    <template
+                                        v-if="column.dataIndex === 'action'"
+                                    >
                                         <a-button
                                             v-if="
-                                                permsArray.includes('units_edit') ||
+                                                permsArray.includes(
+                                                    'units_edit'
+                                                ) ||
                                                 permsArray.includes('admin')
                                             "
                                             type="primary"
                                             @click="editItem(record)"
                                             style="margin-left: 4px"
                                         >
-                                            <template #icon><EditOutlined /></template>
+                                            <template #icon
+                                                ><EditOutlined
+                                            /></template>
                                         </a-button>
                                         <a-button
                                             v-if="
                                                 record.is_deletable &&
-                                                (permsArray.includes('units_delete') ||
-                                                    permsArray.includes('admin'))
+                                                (permsArray.includes(
+                                                    'units_delete'
+                                                ) ||
+                                                    permsArray.includes(
+                                                        'admin'
+                                                    ))
                                             "
                                             type="primary"
-                                            @click="showDeleteConfirm(record.xid)"
+                                            @click="
+                                                showDeleteConfirm(record.xid)
+                                            "
                                             style="margin-left: 4px"
                                         >
-                                            <template #icon><DeleteOutlined /></template>
+                                            <template #icon
+                                                ><DeleteOutlined
+                                            /></template>
                                         </a-button>
                                     </template>
                                 </template>
@@ -164,7 +189,11 @@
 </template>
 <script>
 import { onMounted } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+} from "@ant-design/icons-vue";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
 import fields from "./fields";
@@ -183,7 +212,8 @@ export default {
     },
     setup() {
         const { permsArray } = common();
-        const { url, addEditUrl, initData, columns, filterableColumns } = fields();
+        const { url, addEditUrl, initData, columns, filterableColumns } =
+            fields();
         const crudVariables = crud();
 
         onMounted(() => {

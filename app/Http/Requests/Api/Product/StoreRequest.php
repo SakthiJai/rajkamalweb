@@ -30,13 +30,10 @@ class StoreRequest extends FormRequest
 
         $rules = [
 
-            'name'         =>'required',
-            'unit_1st'     =>'required',
-            'hsn_sac'      =>'required',
-            'tax_category' =>'required',
-            'company'      =>'required',
-            // 'purchase_rate'=>'required',
-            // 'sale_rate'    =>'required',
+            //'name'         =>'required',
+            //'unit_1st'     =>'required',
+            //'hsn_sac'      =>'required',
+            //'tax_category' =>'required',
         ];
 
         return $rules;
@@ -44,11 +41,11 @@ class StoreRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => 'Product name is required.',
-            'unit_1st.required' => 'Unit 1st  is required.',
-            'hsn_sac.required' => 'HSN/SAC is required.',
-            'tax_category.required' => 'Tax Category is required.',
-            'company.required' => 'Company is required.',
+            // 'name.required' => 'Product name is required.',
+            // 'unit_1st.required' => 'Unit 1st  is required.',
+            // 'hsn_sac.required' => 'HSN/SAC is required.',
+            // 'tax_category.required' => 'Tax Category is required.',
+            // 'company.required' => 'Company is required.',
             // 'purchase_rate.required' => 'Purchase rate is required.',
             // 'sale_rate.required' => 'Sales rate is required.',
 

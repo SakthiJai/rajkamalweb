@@ -62,7 +62,7 @@
             </a-button> -->
                 <button key="submit"  type="primary" id="btn-Ledger" title="Ledger" @click="onSubmit" :loading="loading"
                     class="btn default-btn ng-star-inserted saving"><span class="box"><span
-                            class="shortcut ng-star-inserted"><code>F10</code></span><span class="ng-star-inserted">Save
+                            class="shortcut ng-star-inserted"><code>F8</code></span><span class="ng-star-inserted">Save
                             <SaveOutlined />
                         </span></span><span class="effect"></span></button>
 
@@ -119,7 +119,7 @@ export default defineComponent({
     };
 
     document.addEventListener('keydown', (event) => {
-    if (event.key === 'F10') {
+    if (event.key === 'F8') {
         event.preventDefault();
         onSubmit(); 
     }

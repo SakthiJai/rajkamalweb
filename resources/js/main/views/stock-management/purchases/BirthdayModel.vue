@@ -58,7 +58,7 @@
 
                 <button type="button" id="btn-Ledger" title="Ledger"
                     class="btn default-btn ng-star-inserted saving"><span class="box"><span
-                            class="shortcut ng-star-inserted"><code>F10</code></span><span class="ng-star-inserted">Save
+                            class="shortcut ng-star-inserted"><code>F8</code></span><span class="ng-star-inserted">Save
                             <SaveOutlined />
                         </span></span><span class="effect"></span></button>
                 <!-- <a-button key="back" @click="onClose">

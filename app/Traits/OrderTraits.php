@@ -362,7 +362,8 @@ trait OrderTraits
         // Notifying to Warehouse
         Notify::send(str_replace('-', '_', $object->order_type) . '_delete', $object);
 
-        $object->delete();
+         $object->is_delete=1;
+        $object->save();
 
         foreach ($orderItems as $orderItem) {
             $productId = $orderItem->product_id;

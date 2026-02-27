@@ -10,7 +10,7 @@ class TaxCategory extends BaseModel
 {
     protected $table = 'tax_catagories';
 
-    protected $default = ['xid', 'sales_type', 'local', 'central','lgst','cgst','sgst','cess','nature_of_transaction','tax_ability','lgst_ledger','cgst_ledger','sgst_ledger','cess_ledger'];
+    protected $default = ['xid', 'sales_type', 'local', 'central','igst','cgst','sgst','cess','nature_of_transaction','tax_ability','igst_ledger','cgst_ledger','sgst_ledger','cess_ledger'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 

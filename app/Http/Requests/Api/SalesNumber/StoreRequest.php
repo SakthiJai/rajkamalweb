@@ -27,13 +27,13 @@ class StoreRequest extends FormRequest
     {
 
         $rules = [
-            'name'    => 'required',
-            'mobile_number' =>'requried',
-            'gender' => 'requried',
-            'age' => 'requried',
-            'billing_discount' => 'requried',
-            'customer_type' => 'requried',
-            'customer_status' => 'requried',
+            // 'name'    => 'required',
+            // 'mobile_number' =>'requried',
+            // 'gender' => 'requried',
+            // 'age' => 'requried',
+            // 'billing_discount' => 'requried',
+            // 'customer_type' => 'requried',
+            // 'customer_status' => 'requried',
         ];
 
         return $rules;

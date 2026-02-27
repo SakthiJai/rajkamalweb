@@ -22,10 +22,7 @@ class CustomerRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-			'name'    => 'required|string',
-			
-            'ledger_id' => 'required|integer',
-            
+			'cus_name'    => 'required|string',
             'mobile_number' => 'required',
 		];
 
@@ -39,9 +36,7 @@ class CustomerRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => 'Customer name is required.',
-            'ledger_id.required' => 'Legder is required.',
-            
+            'cus_name.required' => 'Customer name is required.',
             'mobile_number.required' => 'number is required.',
         ];
     }

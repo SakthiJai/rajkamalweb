@@ -47,8 +47,14 @@ class UpdateRequest extends FormRequest
             'exp_date' => 'required',
             'juris_dicition' => 'required',
             'working_style' => 'required',
-            
-            // 'lang_id' => 'required',
+            'contact_number' => 'required|numeric',
+            'whatsapp_number' => 'required|numeric',
+         //   'logo' => 'required',
+            'tcs' => 'required',
+            'tds' => 'required',
+            'einvoicing' => 'required',
+
+
         ];
 
         return $rules;
@@ -77,6 +83,12 @@ class UpdateRequest extends FormRequest
             'exp_date' => 'Experience Date is required.',
             'juris_dicition' => 'Juris Dicition is required.',
             'working_style' => 'Work Style is required.',
+            'tcs' => 'TCS  is required.',
+            'tds' => 'TDS  is required.',
+            //'logo'=> 'Logo is requried',
+            'einvoicing' => 'E-Invoicing   is required.',
+            'whatsapp_number' => 'The whatsapp number field is required'
+
             
         ];
     }

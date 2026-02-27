@@ -6,7 +6,7 @@
         <template #breadcrumb>
             <a-breadcrumb separator="-" style="font-size: 12px">
                 <a-breadcrumb-item>
-                    <router-link :to="{ name: 'admin.dashboard.index' }">
+                    <router-link :to="{ brands_name: 'admin.dashboard.index' }">
                         {{ $t(`menu.dashboard`) }}
                     </router-link>
                 </a-breadcrumb-item>
@@ -31,9 +31,9 @@
                         "
                     >
                         <a-space>
-                            <a-button type="primary" @click="addItem">
+                            <a-button type="primary" @click="addItem" style="background-color: #1f6d70;">
                                 <PlusOutlined />
-                                {{ $t("brand.add") }}
+                                {{ $t("brand.add") }} / F2
                             </a-button>
                             <ImportBrands
                                 :pageTitle="$t('brand.import_brands')"
@@ -43,7 +43,7 @@
                             />
                         </a-space>
                     </template>
-                    <a-button
+                    <!-- <a-button
                         v-if="
                             table.selectedRowKeys.length > 0 &&
                             (permsArray.includes('brands_delete') ||
@@ -55,7 +55,7 @@
                     >
                         <template #icon><DeleteOutlined /></template>
                         {{ $t("common.delete") }}
-                    </a-button>
+                    </a-button> -->
                 </a-space>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="14" :xl="14">
@@ -65,7 +65,9 @@
                             <a-select
                                 style="width: 25%"
                                 v-model:value="table.searchColumn"
-                                :placeholder="$t('common.select_default_text', [''])"
+                                :placeholder="
+                                    $t('common.select_default_text', [''])
+                                "
                             >
                                 <a-select-option
                                     v-for="filterableColumn in filterableColumns"
@@ -74,13 +76,14 @@
                                     {{ filterableColumn.value }}
                                 </a-select-option>
                             </a-select>
-                            <a-input-search
+                           <a-input-search
+                                ref="searchInputRef"
                                 style="width: 75%"
                                 v-model:value="table.searchString"
-                                show-search
+                                @focus="isSearchFocused = true"
+                                @blur="isSearchFocused = false"
                                 @change="onTableSearch"
                                 @search="onTableSearch"
-                                :loading="table.filterLoading"
                             />
                         </a-input-group>
                     </a-col>
@@ -111,7 +114,7 @@
                             onChange: onRowSelectChange,
                             getCheckboxProps: (record) => ({
                                 disabled: false,
-                                name: record.xid,
+                                brands_name: record.xid,
                             }),
                         }"
                         :columns="columns"
@@ -148,7 +151,9 @@
                                     @click="showDeleteConfirm(record.xid)"
                                     style="margin-left: 4px"
                                 >
-                                    <template #icon><DeleteOutlined /></template>
+                                    <template #icon
+                                        ><DeleteOutlined
+                                    /></template>
                                 </a-button>
                             </template>
                         </template>
@@ -159,8 +164,12 @@
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted } from "vue";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import { onMounted ,nextTick , onBeforeUnmount, ref, watch } from "vue";
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+} from "@ant-design/icons-vue";
 import fields from "./fields";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
@@ -177,40 +186,130 @@ export default {
         AdminPageHeader,
         ImportBrands,
     },
-    setup() {
-        const { addEditUrl, initData, columns, filterableColumns } = fields();
-        const crudVariables = crud();
-        const { permsArray } = common();
-        const sampleFileUrl = window.config.brand_sample_file;
+ setup() {
+    const { addEditUrl, initData, columns, filterableColumns } = fields();
+    const crudVariables = crud();
+    const { permsArray } = common();
+    const sampleFileUrl = window.config.brand_sample_file;
 
-        onMounted(() => {
-            setUrlData();
-        });
+    const selectedRowIndex = ref(-1);
+    const searchInputRef = ref(null);
+    const isSearchFocused = ref(false);
+    const onCloseAddEdit = () => {
+        crudVariables.onCloseAddEdit();
+    };
+    const handleKeyDown = (event) => {
+        if (crudVariables.addEditVisible.value) return;
+        if (event.code === "F2") {
+            event.preventDefault();
 
-        const setUrlData = () => {
-            crudVariables.tableUrl.value = {
-                url: "brands?fields=id,xid,name,slug,image,image_url",
-            };
-            crudVariables.table.filterableColumns = filterableColumns;
+            crudVariables.addEditType.value = "add";
+            crudVariables.formData.value = { ...crudVariables.initData.value };
+            crudVariables.addEditVisible.value = true;
 
-            crudVariables.fetch({
-                page: 1,
-            });
+            return;
+        }
 
-            crudVariables.crudUrl.value = addEditUrl;
-            crudVariables.langKey.value = "brand";
-            crudVariables.initData.value = { ...initData };
-            crudVariables.formData.value = { ...initData };
-        };
+    if (
+    isSearchFocused.value &&
+    !["ArrowUp", "ArrowDown", "Enter"].includes(event.key)
+) {
+    return;
+}
 
-        return {
-            columns,
-            filterableColumns,
-            permsArray,
-            ...crudVariables,
-            sampleFileUrl,
-            setUrlData,
-        };
-    },
+        const data = crudVariables.table.data;
+
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (data.length === 0) return;
+
+            if (selectedRowIndex.value < data.length - 1) {
+                selectedRowIndex.value++;
+            }
+
+            const row = data[selectedRowIndex.value];
+            crudVariables.table.selectedRowKeys = [row.xid];
+        }
+
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            if (data.length === 0) return;
+
+            if (selectedRowIndex.value > 0) {
+                selectedRowIndex.value--;
+            }
+
+            const row = data[selectedRowIndex.value];
+            crudVariables.table.selectedRowKeys = [row.xid];
+        }
+
+        if (event.key === "Enter") {
+            event.preventDefault();
+
+            if (selectedRowIndex.value >= 0) {
+                const row = data[selectedRowIndex.value];
+                crudVariables.editItem(row);
+            }
+        }
+    };
+    watch(
+        () => crudVariables.addEditVisible.value,
+        async (visible) => {
+            if (!visible) {
+                await nextTick();
+                searchInputRef.value?.focus();
+            }
+        }
+    );
+
+    const onRowSelectChange = (selectedKeys) => {
+        crudVariables.table.selectedRowKeys = selectedKeys;
+
+        if (selectedKeys.length > 0) {
+            selectedRowIndex.value = crudVariables.table.data.findIndex(
+                (row) => row.xid === selectedKeys[0]
+            );
+        }
+    };
+
+const setUrlData = () => {
+    crudVariables.tableUrl.value = {
+        url: "brands?fields=id,xid,brands_name,slug,image,image_url",
+    };
+
+    crudVariables.crudUrl.value = "brands";
+
+    crudVariables.langKey.value = "brand";
+    crudVariables.initData.value = { ...initData };
+    crudVariables.formData.value = { ...initData };
+
+    crudVariables.fetch({ page: 1 });
+};
+
+    onMounted(async () => {
+        setUrlData();
+        window.addEventListener("keydown", handleKeyDown);
+
+        await nextTick();
+
+        searchInputRef.value?.focus();
+    });
+    onBeforeUnmount(() => {
+        window.removeEventListener("keydown", handleKeyDown);
+    });
+
+    return {
+        columns,
+        filterableColumns,
+        permsArray,
+        ...crudVariables,
+        onCloseAddEdit,
+        sampleFileUrl,
+        setUrlData,
+        onRowSelectChange,
+        searchInputRef,
+        isSearchFocused,
+    };
+},
 };
 </script>

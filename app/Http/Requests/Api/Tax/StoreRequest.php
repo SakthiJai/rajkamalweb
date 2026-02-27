@@ -26,9 +26,11 @@ class StoreRequest extends FormRequest
     {
 
         $rules = [
-            'name'    => 'required',
-            'tax_type'    => 'required',
-            'rate'    => 'required|numeric|between:0,100',
+            'sales_type'    => 'required',
+            'lgst'    => 'required',
+            'cgst'    => 'required',
+            'sgst'    => 'required',
+            
         ];
 
         if($this->tax_type == 'multiple') {

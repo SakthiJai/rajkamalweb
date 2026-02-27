@@ -1,115 +1,201 @@
-import { reactive } from 'vue';
+import { reactive } from "vue";
 import { useI18n } from "vue-i18n";
 
 const fields = () => {
-	//const addEditUrl = "store-ledger";
-	const url = "store-ledger?fields=id,xid,party_name,gst_number,debit,credit,station_name,station,name,state_name,Address,stock_country,stock_state,stock_city,parent_ledger,account_group,mail_to,stock_pincode,balancing_method,opening_balance,credit_days,phone_number,mobile_number,whatsapp_number,ledger_type,pan_number,customer_title,customer_first_name,customer_last_name,gender,designation,website,customer_email,bank_name,branch,ifsc_code,account_number,account_type,account_holder_name";
-	const hashableColumns = ['id'];
-	const { t } = useI18n();
+    //const addEditUrl = "store-ledger";
+    const url =
+        "store-ledger?fields=id,xid,party_name,gst_number,debit,credit,station_name,station,name,state_name,Address,stock_country,stock_state,stock_city,parent_ledger,account_group,mail_to,stock_pincode,balancing_method,opening_balance,credit_days,phone_number,mobile_number,whatsapp_number,ledger_type,pan_number,customer_title,customer_first_name,customer_last_name,gender,designation,website,customer_email,ship_address,ship_city,ship_pincode,ship_contactno,bank_name,branch,ifsc_code,account_number,account_type,account_holder_name,party_full_name";
+    const hashableColumns = ["id"];
+    const { t } = useI18n();
 
-	
-	const initData = {
-		xid: undefined,
-		name:undefined,
-		state_name:undefined,
-		party_name: undefined,
-		party_type:undefined,
-		station: undefined,
-		station_name:undefined,
-		Address:undefined,
-		mail_to: undefined,
-		stock_country: undefined,
-		stock_state: undefined,
-		stock_city: undefined,
-		parent_ledger: undefined,
-		account_group: undefined,
-		stock_pincode: undefined,
-		balancing_method: undefined,
-		opening_balance: undefined,
-		credit_days: undefined,
-		phone_number: undefined,
-		mobile_number: undefined,
-		whatsapp_number: undefined,
-		ledger_type: undefined,
-		pan_number: undefined,
-		customer_title: undefined,
-		customer_first_name: undefined,
-		customer_last_name: undefined,
-		gender: undefined,
-		designation: undefined,
-		website: undefined,
-		customer_email: undefined,
-		bank_name: undefined,
-		branch: undefined,
-		ifsc_code: undefined,
-		account_number: undefined,
-		account_type: undefined,
-		account_holder_name: undefined,
-		gst_number:undefined,
-		debit:undefined,
-		credit:undefined,
-		
-	};
-	//const sortDirections= "ascend";
+    const initData = {
+        xid: undefined,
+        name: undefined,
+        state_name: undefined,
+        party_name: undefined,
+        party_type: undefined,
+        station: undefined,
+        station_name: undefined,
+        Address: undefined,
+        mail_to: undefined,
+        stock_country: undefined,
+        stock_state: undefined,
+        stock_city: undefined,
+        parent_ledger: undefined,
+        account_group: undefined,
+        stock_pincode: undefined,
+        balancing_method: undefined,
+        opening_balance: undefined,
+        credit_days: undefined,
+        phone_number: undefined,
+        mobile_number: undefined,
+        whatsapp_number: undefined,
+        ledger_type: undefined,
+        pan_number: undefined,
+        customer_title: undefined,
+        customer_first_name: undefined,
+        customer_last_name: undefined,
+        gender: undefined,
+        designation: undefined,
+        website: undefined,
+        customer_email: undefined,
+        bank_name: undefined,
+        branch: undefined,
+        ifsc_code: undefined,
+        account_number: undefined,
+        account_type: undefined,
+        account_holder_name: undefined,
+        gst_number: undefined,
+        debit: undefined,
+        credit: undefined,
+        inputFields: undefined,
+        ship_city: undefined,
+        ship_address: undefined,
+        ship_pincode: undefined,
+        ship_contactno: undefined,
+    };
+    //const sortDirections= "ascend";
 
-	const columns = [
-	
-		{
-			title: t("stock.sales_ledger_name"),
-			dataIndex: "party_name",
-			sorter:true
-		},
-		{
-			title: t("stock.sales_station"),
-			dataIndex: "station_name",
-			sorter:true
-		},
-		{
-			title: "₹ " + t("stock.sales_balance"),
-			dataIndex: "opening_balance",
-			sorter:true
-		},
-		
-		{
-			title: t("common.action"),
-			dataIndex: "action",
-		},
-	];
+    const columns = [
+        // {
+        // 	title: t("stock.sales_ledger_name"),
+        // 	dataIndex: "party_name",
+        // 	sorter:true
+        // },
+        // {
+        // 	title: t("stock.sales_station"),
+        // 	dataIndex: "station_name",
+        // 	sorter:true
+        // },
+        // {
+        // 	title: "₹ " + t("stock.sales_balance"),
+        // 	dataIndex: "opening_balance",
+        // 	sorter:true
+        // },
 
-	const adjustmentTypes = [
-		{
-			key: "add",
-			value: t("stock_adjustment.adjustment_add"),
-		},
-		{
-			key: "subtract",
-			value: t("stock_adjustment.adjustment_subtract"),
-		},
-	];
+        {
+            title: t("stock.sales_ledger_name"),
+            dataIndex: ["party_name"],
+            sorter: (a, b) => {
+                const aMobileNumber = a.party_name?.party_name || "";
+                const bMobileNumber = b.party_name?.party_name || "";
 
-	const filterableColumns = [
-		{
-			key: "party_name",
-			value: t("common.party_name") 
-		},
-	];
-	
+                return aMobileNumber.localeCompare(bMobileNumber);
+            },
+            sortDirections: ["ascend", "descend"],
+        },
 
-	const editItem = (product) => {
+        {
+            title: t("stock.stock_city"),
+            dataIndex: ["stock_city"],
+            sorter: (a, b) => {
+                const aMobileNumber = a.customer?.stock_city || "";
+                const bMobileNumber = b.customer?.stock_city || "";
+
+                return aMobileNumber.localeCompare(bMobileNumber);
+            },
+            sortDirections: ["ascend", "descend"],
+        },
+        {
+            title: t("stock.customer"),
+            dataIndex: ["customer_first_name"],
+        },
+        {
+            title: t("stock.sales_number"),
+            dataIndex: ["mobile_number"],
+        },
+        {
+            title: t("stock.whatsapp_number"),
+            dataIndex: ["whatsapp_number"],
+        },
+
+        {
+            title: "₹ " + t("stock.sales_balance"),
+            align: "right",
+            dataIndex: "opening_balance",
+            headerStyle: " text-align: right",
+            sorter: (a, b) => {
+                const aMobileNumber = a.customer?.opening_balance || "";
+                const bMobileNumber = b.customer?.opening_balance || "";
+
+                return aMobileNumber.localeCompare(bMobileNumber);
+            },
+            sortDirections: ["ascend", "descend"],
+        },
+
+        // {
+        // 	title: t("common.action"),
+        // 	dataIndex: "action",
+        // },
+    ];
+    const invoiceDataColumns = [
+        {
+            title: t("Invoice"),
+            dataIndex: "invoice_number",
+            sorter: true,
+        },
+        ,
+        {
+            title: t("Item"),
+            dataIndex: "product_name",
+            sorter: true,
+        },
+        {
+            title: t("Quantity"),
+            dataIndex: "quantity",
+            sorter: true,
+        },
+
+        {
+            title: t("Discount"),
+            dataIndex: "discount",
+            sorter: true,
+        },
+
+        {
+            title: t("Rate"),
+            dataIndex: "single_unit_price",
+            align: "right",
+            render: function (data, type, row) {
+                return (100 * data).toFixed(2) + "%";
+            },
+        },
+    ];
+
+    const adjustmentTypes = [
+        {
+            key: "add",
+            value: t("stock_adjustment.adjustment_add"),
+        },
+        {
+            key: "subtract",
+            value: t("stock_adjustment.adjustment_subtract"),
+        },
+    ];
+
+    const filterableColumns = [
+        {
+            key: "party_name",
+            value: t("common.party_name"),
+        },
+    ];
+
+    const editItem = (product) => {
         console.log(product);
     };
 
-	return {
-		url,
-		//addEditUrl,
-		hashableColumns,
-		initData,
-		columns,
-		//sortDirections,
-		adjustmentTypes,
-		filterableColumns,
-		editItem,
-	}
-}
+    return {
+        url,
+        //addEditUrl,
+        hashableColumns,
+        initData,
+        columns,
+        //sortDirections,
+        adjustmentTypes,
+        filterableColumns,
+        invoiceDataColumns,
+        editItem,
+    };
+};
 
 export default fields;

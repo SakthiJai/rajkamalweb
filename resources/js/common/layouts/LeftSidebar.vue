@@ -29,11 +29,11 @@
             <img
                 :style="{
                     width: '150px',
-                    height: '53px',
+                    height: '90px',
                     paddingLeft: appSetting.rtl ? '0px' : '30px',
                     paddingRight: appSetting.rtl ? '30px' : '0px',
                     paddingTop: '5px',
-                    paddingBottom: '20px',
+                    paddingBottom: '10px',
                     marginLeft: appSetting.rtl ? '0px' : '10px',
                     marginRight: appSetting.rtl ? '10px' : '0px',
                 }"
@@ -88,12 +88,16 @@
                     </a-menu-item>
 
                     <a-sub-menu
+                        key="party"
                         v-if="
+                            permsArray.includes('party_view') ||
+                            permsArray.includes('customers_view') ||
+                            permsArray.includes('suppliers_view') ||
+                            permsArray.includes('products_view') ||
                             permsArray.includes('customers_view') ||
                             permsArray.includes('suppliers_view') ||
                             permsArray.includes('admin')
                         "
-                        key="parties"
                     >
                         <template #title>
                             <span>
@@ -101,6 +105,79 @@
                                 <span>{{ $t("menu.parties") }}</span>
                             </span>
                         </template>
+
+                        <a-menu-item
+                            @click="
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.party.index'
+                                    )
+                            "
+                            key="party"
+                        >
+                            {{ "Party" }}
+                        </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.stock.customer.Customerindex'
+                                    )
+                            "
+                            key="customer"
+                        >
+                            {{ $t("Walk in Customers") }}
+                        </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.stock.supplier.Supplierindex'
+                                    )
+                            "
+                            key="supplier"
+                        >
+                            {{ $t("menu.suppliers") }}
+                        </a-menu-item>
+                        <a-menu-item
+                            v-if="
+                                permsArray.includes('products_view') ||
+                                permsArray.includes('admin')
+                            "
+                            @click="
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.stock.index'
+                                    )
+                            "
+                            key="stock_alert"
+                        >
+                            {{ $t("menu.stock_alert") }}
+                        </a-menu-item>
+                         <a-menu-item
+                            v-if="
+                                permsArray.includes('customers_view') ||
+                                permsArray.includes('suppliers_view') ||
+                                permsArray.includes('admin')
+                            "
+                            @click="
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.users.index'
+                                    )
+                            "
+                            key="users_reports"
+                        >
+                            {{ $t("menu.users_reports") }}
+                        </a-menu-item>
+                        <!--
                         <a-menu-item
                             v-if="
                                 permsArray.includes('customers_view') ||
@@ -134,12 +211,13 @@
                             key="suppliers"
                         >
                             {{ $t("menu.suppliers") }}
-                        </a-menu-item>
+                        </a-menu-item> -->
                     </a-sub-menu>
 
                     <a-sub-menu
                         key="product_manager"
                         v-if="
+                            permsArray.includes('party_view') ||
                             permsArray.includes('brands_view') ||
                             permsArray.includes('categories_view') ||
                             permsArray.includes('variations_view') ||
@@ -153,6 +231,25 @@
                                 <span>{{ $t("menu.product_manager") }}</span>
                             </span>
                         </template>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.productedit.index',
+                                    });
+                                }
+                            "
+                            key="partyedit"
+                            v-if="
+                                permsArray.includes('party_view') ||
+                                permsArray.includes('admin')
+                            "
+                        >
+                            {{ "Product List" }}
+                        </a-menu-item>
+
                         <a-menu-item
                             @click="
                                 () => {
@@ -170,12 +267,13 @@
                         >
                             {{ $t("menu.brands") }}
                         </a-menu-item>
+
                         <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
                                     $router.push({
-                                        name: 'admin.categories.index',
+                                        name: 'admin.settings.productcategory.index',
                                     });
                                 }
                             "
@@ -185,7 +283,7 @@
                                 permsArray.includes('admin')
                             "
                         >
-                            {{ $t("menu.categories") }}
+                            {{ $t("Product Categories") }}
                         </a-menu-item>
                         <a-menu-item
                             @click="
@@ -204,7 +302,8 @@
                         >
                             {{ $t("menu.variations") }}
                         </a-menu-item>
-                        <a-menu-item
+
+                        <!-- <a-menu-item
                             @click="
                                 () => {
                                     menuSelected();
@@ -220,7 +319,8 @@
                             "
                         >
                             {{ $t("menu.products") }}
-                        </a-menu-item>
+                        </a-menu-item> -->
+
                         <a-menu-item
                             @click="
                                 () => {
@@ -258,67 +358,37 @@
                         </template>
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock.sales.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.stock.sales.index'
+                                    )
                             "
                             key="sales"
-                            v-if="
-                                permsArray.includes('sales_view') ||
-                                permsArray.includes('admin')
-                            "
                         >
                             {{ $t("menu.sales") }}
                         </a-menu-item>
 
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock.sales-returns.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.stock.sales-returns.index'
+                                    )
                             "
                             key="sales_returns"
-                            v-if="
-                                (permsArray.includes('sales_returns_view') ||
-                                    permsArray.includes('admin')) &&
-                                willSubscriptionModuleVisible('sales_return')
-                            "
                         >
                             {{ $t("menu.sales_returns") }}
                         </a-menu-item>
 
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.payments.in',
-                                    });
-                                }
-                            "
-                            key="payment_in"
-                            v-if="
-                                permsArray.includes('payment_in_view') ||
-                                permsArray.includes('admin')
-                            "
-                        >
-                            {{ $t("menu.payment_in") }}
-                        </a-menu-item>
-
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock.quotations.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.stock.quotations.index'
+                                    )
                             "
                             key="quotations"
                             v-if="
@@ -329,34 +399,31 @@
                         >
                             {{ $t("menu.quotation_estimate") }}
                         </a-menu-item>
-                    </a-sub-menu>
 
-                    <a-sub-menu key="cash_and_bank">
-                        <template #title>
-                            <BankOutlined />
-                            <span>Add Cash and Bank</span>
-                        </template>
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.cashbank.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.payments.in'
+                                    )
                             "
-                            key="cashbank"
+                            key="payment_in"
+                            v-if="
+                                permsArray.includes('payment_in_view') ||
+                                permsArray.includes('admin')
+                            "
                         >
-                            {{ "cashbank" }}
+                            {{ $t("menu.payment_in") }}
                         </a-menu-item>
                     </a-sub-menu>
 
-
-                    <a-sub-menu key="master_menu">
+                    <a-sub-menu key="accountingtrans">
                         <template #title>
-                        <TeamOutlined />
-                        <span>Accounting Trans.</span>
+                            <TeamOutlined />
+                            <span>Account Transactions</span>
                         </template>
+
                         <a-menu-item
                             @click="
                                 () => {
@@ -366,63 +433,99 @@
                                     });
                                 }
                             "
-                            key="country"
-                        >
-                            {{ ("Receipt") }}
-                            
-                        </a-menu-item>
-
-                         <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.print.index',
-                                    });
-                                }
+                            key="receipt"
+                            v-if="
+                                (permsArray.includes('receipt_view') ||
+                                    permsArray.includes('admin')) &&
+                                willSubscriptionModuleVisible('receipt')
                             "
-                            key="state"
                         >
-                            {{ ("Payment") }}
-                        </a-menu-item>
-
-                            <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.station.index',
-                                    });
-                                }
-                            "
-                            key="station"
-                        >
-                            {{ ("Contra") }}
+                            {{ $t("menu.receipt") }}
                         </a-menu-item>
 
                         <a-menu-item
-                        @click="
-                            () => {
-                                menuSelected();
-                                $router.push({
-                                    name: 'admin.station.index',
-                                });
-                            }
-                        "
-                        key="station"
-                    >
-                        {{ ("Journal") }}
-                    </a-menu-item>
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.payment.index',
+                                    });
+                                }
+                            "
+                            key="payment"
+                            v-if="
+                                (permsArray.includes('payment_view') ||
+                                    permsArray.includes('admin')) &&
+                                willSubscriptionModuleVisible('payment')
+                            "
+                        >
+                            {{ $t("menu.payment") }}
+                        </a-menu-item>
 
-                        
-                        
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.contra.index',
+                                    });
+                                }
+                            "
+                            key="contra"
+                            v-if="
+                                (permsArray.includes('contra_view') ||
+                                    permsArray.includes('admin')) &&
+                                willSubscriptionModuleVisible('contra')
+                            "
+                        >
+                            {{ $t("menu.contra") }}
+                        </a-menu-item>
+
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.journal.index',
+                                    });
+                                }
+                            "
+                            key="journal"
+                            v-if="
+                                (permsArray.includes('journal_view') ||
+                                    permsArray.includes('admin')) &&
+                                willSubscriptionModuleVisible('journal')
+                            "
+                        >
+                            {{ $t("menu.journal") }}
+                        </a-menu-item>
                     </a-sub-menu>
 
+                    <a-sub-menu key="cashbank">
+                        <template #title>
+                            <BankOutlined />
+
+                            <span>Add Bank</span>
+                        </template>
+
+                        <a-menu-item
+                            @click="
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.account.index'
+                                    )
+                            "
+                            key="cashbank"
+                        >
+                            {{ "Add Bank Details" }}
+                        </a-menu-item>
+                    </a-sub-menu>
                     <a-sub-menu
                         key="purchases"
                         v-if="
-                            permsArray.includes('purchases_view') ||
-                            permsArray.includes('purchase_returns_view') ||
+                            permsArray.includes('bill_view') ||
+                            permsArray.includes('return_view') ||
                             permsArray.includes('payment_out_view') ||
                             permsArray.includes('admin')
                         "
@@ -433,50 +536,49 @@
                                 <span>{{ $t("menu.purchases") }}</span>
                             </span>
                         </template>
+
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock.purchases.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.stock.purchases.Billindex'
+                                    )
                             "
-                            key="purchases"
+                            key="purchases_bill"
                             v-if="
-                                permsArray.includes('purchases_view') ||
+                                permsArray.includes('bill_view') ||
                                 permsArray.includes('admin')
                             "
                         >
-                            {{ $t("menu.purchases") }}
+                            {{ $t("menu.bill") }}
                         </a-menu-item>
+
+                        <!-- purchases return -->
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.stock.purchase-returns.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.stock.purchases.Returnindex'
+                                    )
                             "
-                            key="purchase_returns"
+                            key="purchases_return"
                             v-if="
-                                (permsArray.includes('purchase_returns_view') ||
-                                    permsArray.includes('admin')) &&
-                                willSubscriptionModuleVisible('purchase_return')
+                                permsArray.includes('return_view') ||
+                                permsArray.includes('admin')
                             "
                         >
-                            {{ $t("menu.purchase_returns") }}
+                            {{ $t("menu.return") }}
                         </a-menu-item>
 
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.payments.out',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.payments.out'
+                                    )
                             "
                             key="payment_out"
                             v-if="
@@ -488,14 +590,47 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                    <a-menu-item
+                    <!-- expense menu-->
+                    <!-- <a-menu-item
+          @click="
+            menuSelected(),
+              handleSalesClick($event, 'admin.stock.expense.index')
+          "
+          key="expense"
+          v-if="
+            (permsArray.includes('stock_transfers_view') ||
+              permsArray.includes('admin')) &&
+            willSubscriptionModuleVisible('stock_transfer')
+          "
+        >
+        <WalletOutlined />
+          <span>{{ $t("Expense") }}</span>
+        </a-menu-item> -->
+
+                    <!-- end of expense menu-->
+                      <a-sub-menu
+                        key="stock_account"
+                        v-if="
+                            permsArray.includes('stock_transfers_view') ||
+                            permsArray.includes('rate_enquiry_view') ||
+                            permsArray.includes('new_product_list_view') ||
+                            permsArray.includes('stock_adjustments_view') ||
+                            permsArray.includes('admin')
+                        "
+                    >
+                        <template #title>
+                            <span>
+                               <CarOutlined />
+                                <span>{{ $t("Stock Account") }}</span>
+                            </span>
+                        </template>
+                         <a-menu-item
                         @click="
-                            () => {
-                                menuSelected();
-                                $router.push({
-                                    name: 'admin.stock.stock-transfers.index',
-                                });
-                            }
+                            menuSelected(),
+                                handleSalesClick(
+                                    $event,
+                                    'admin.stock.stock-transfers.index'
+                                )
                         "
                         key="stock_transfer"
                         v-if="
@@ -504,11 +639,43 @@
                             willSubscriptionModuleVisible('stock_transfer')
                         "
                     >
-                        <CarOutlined />
                         <span>{{ $t("menu.stock_transfer") }}</span>
                     </a-menu-item>
 
-                    <a-menu-item
+                    <!-- <a-menu-item
+                        @click="
+                            () => {
+                                menuSelected();
+                                $router.push('/admin/stock/rate-enquiry');
+                            }
+                        "
+                        key="rate_enquiry"
+                        v-if="
+                            (permsArray.includes('rate_enquiry_view') ||
+                                permsArray.includes('admin')) &&
+                            willSubscriptionModuleVisible('rate_enquiry')
+                        "
+                    >
+                        <span>{{ $t('Rate Enquiry / Modification') }}</span>
+                    </a-menu-item> -->
+                    <!-- <a-menu-item
+                        @click="
+                            () => {
+                                menuSelected();
+                                $router.push('/admin/stock/new-product-list');
+                            }
+                        "
+                        key="new_product_list"
+                        v-if="
+                            (permsArray.includes('new_product_list_view') ||
+                                permsArray.includes('admin')) &&
+                            willSubscriptionModuleVisible('new_product_list')
+                        "
+                    >
+                        <span>{{ $t('New Product List') }}</span>
+                    </a-menu-item> -->
+
+                      <a-menu-item
                         @click="
                             () => {
                                 menuSelected();
@@ -524,9 +691,10 @@
                             willSubscriptionModuleVisible('stock_adjustment')
                         "
                     >
-                        <CalculatorOutlined />
                         <span>{{ $t("menu.stock_adjustment") }}</span>
                     </a-menu-item>
+                        </a-sub-menu>
+                   
 
                     <a-menu-item
                         v-if="
@@ -535,10 +703,8 @@
                             willSubscriptionModuleVisible('pos')
                         "
                         @click="
-                            () => {
-                                menuSelected();
-                                $router.push({ name: 'admin.pos.index' });
-                            }
+                            menuSelected(),
+                                handleSalesClick($event, 'admin.pos.index')
                         "
                         key="pos"
                     >
@@ -552,12 +718,11 @@
                             permsArray.includes('admin')
                         "
                         @click="
-                            () => {
-                                menuSelected();
-                                $router.push({
-                                    name: 'admin.reports.cash_bank.index',
-                                });
-                            }
+                            menuSelected(),
+                                handleSalesClick(
+                                    $event,
+                                    'admin.reports.cash_bank.index'
+                                )
                         "
                         key="cash_bank"
                     >
@@ -580,14 +745,15 @@
                                 <span>{{ $t("menu.expense_manager") }}</span>
                             </span>
                         </template>
+
+                        <!-- Expense catrgoeiriesss -->
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.expense_categories.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.expensecategory.index'
+                                    )
                             "
                             key="expense_categories"
                             v-if="
@@ -598,16 +764,16 @@
                         >
                             {{ $t("menu.expense_categories") }}
                         </a-menu-item>
+
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.expenses.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.expenses1.index'
+                                    )
                             "
-                            key="expenses"
+                            key="expenses1"
                             v-if="
                                 permsArray.includes('expenses_view') ||
                                 permsArray.includes('admin')
@@ -624,10 +790,8 @@
                             appModules.includes('StockiflyHrm') == false
                         "
                         @click="
-                            () => {
-                                menuSelected();
-                                $router.push({ name: 'admin.users.index' });
-                            }
+                            menuSelected(),
+                                handleSalesClick($event, 'admin.users.index')
                         "
                         key="users"
                     >
@@ -642,9 +806,9 @@
                                 permsArray.includes('purchase_returns_view') ||
                                 permsArray.includes('sales_returns_view')) &&
                                 permsArray.includes('order_payments_view')) ||
-                                permsArray.includes('products_view') ||
-                                permsArray.includes('customers_view') ||
-                                permsArray.includes('suppliers_view') ||
+                                // permsArray.includes('products_view') ||
+                                // permsArray.includes('customers_view') ||
+                                // permsArray.includes('suppliers_view') ||
                                 permsArray.includes('expenses_view') ||
                                 permsArray.includes('admin')) &&
                             willSubscriptionModuleVisible('reports')
@@ -673,46 +837,43 @@
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.payments.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.payments.index'
+                                    )
                             "
                             key="payments"
                         >
                             {{ $t("menu.payments") }}
                         </a-menu-item>
-                        <a-menu-item
+                        <!-- <a-menu-item
                             v-if="
                                 permsArray.includes('products_view') ||
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.stock.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.stock.index'
+                                    )
                             "
                             key="stock_alert"
                         >
                             {{ $t("menu.stock_alert") }}
-                        </a-menu-item>
+                        </a-menu-item> -->
                         <a-menu-item
                             v-if="
                                 permsArray.includes('users_view') ||
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.sales_summary.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.sales_summary.index'
+                                    )
                             "
                             key="sales_summary"
                         >
@@ -724,12 +885,11 @@
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.stock_summary.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.stock_summary.index'
+                                    )
                             "
                             key="stock_summary"
                         >
@@ -741,12 +901,11 @@
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.rate_list.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.rate_list.index'
+                                    )
                             "
                             key="rate_list"
                         >
@@ -758,47 +917,44 @@
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.product_sales_summary.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.product_sales_summary.index'
+                                    )
                             "
                             key="product_sales_summary"
                         >
                             {{ $t("menu.product_sales_summary") }}
                         </a-menu-item>
-                        <a-menu-item
+                        <!-- <a-menu-item
                             v-if="
                                 permsArray.includes('customers_view') ||
                                 permsArray.includes('suppliers_view') ||
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.users.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.users.index'
+                                    )
                             "
                             key="users_reports"
                         >
                             {{ $t("menu.users_reports") }}
-                        </a-menu-item>
+                        </a-menu-item> -->
                         <a-menu-item
                             v-if="
                                 permsArray.includes('expenses_view') ||
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.expenses.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.expenses.index'
+                                    )
                             "
                             key="expense_reports"
                         >
@@ -818,20 +974,17 @@
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.reports.profit_loss.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.reports.profit_loss.index'
+                                    )
                             "
                             key="profit_loss"
                         >
                             {{ $t("menu.profit_loss") }}
                         </a-menu-item>
                     </a-sub-menu>
-
-                    
 
                     <a-menu-item
                         @click="menuSelected"
@@ -908,20 +1061,14 @@
                         <template #title>
                             <TeamOutlined />
                             <span>{{ $t("menu.hrm") }}</span>
-                            <!-- <a-badge
-                                :count="$t('common.module')"
-                                size="small"
-                                :style="{ marginLeft: '5px' }"
-                            ></a-badge> -->
                         </template>
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.hrm.dashboards.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.hrm.dashboards.index'
+                                    )
                             "
                             key="dashboards"
                         >
@@ -937,12 +1084,11 @@
                                 appModules.includes('StockiflyHrm') == true
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.hrm.staffs.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.hrm.staffs.index'
+                                    )
                             "
                             key="staff"
                         >
@@ -950,12 +1096,11 @@
                         </a-menu-item>
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.hrm.all-holidays.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.hrm.all-holidays.index'
+                                    )
                             "
                             key="holidays"
                         >
@@ -963,12 +1108,11 @@
                         </a-menu-item>
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.hrm.appreciations.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.hrm.appreciations.index'
+                                    )
                             "
                             key="appreciations"
                         >
@@ -976,12 +1120,11 @@
                         </a-menu-item>
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.hrm.leaves.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.hrm.leaves.index'
+                                    )
                             "
                             key="leaves"
                         >
@@ -989,12 +1132,11 @@
                         </a-menu-item>
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.hrm.attendance.details',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.hrm.attendance.details'
+                                    )
                             "
                             key="attendances"
                         >
@@ -1002,12 +1144,11 @@
                         </a-menu-item>
                         <a-menu-item
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.hrm.payrolls.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.hrm.payrolls.index'
+                                    )
                             "
                             key="payrolls"
                         >
@@ -1019,12 +1160,11 @@
                                 permsArray.includes('admin')
                             "
                             @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.hrm_settings.index',
-                                    });
-                                }
+                                menuSelected(),
+                                    handleSalesClick(
+                                        $event,
+                                        'admin.hrm_settings.index'
+                                    )
                             "
                             key="hrm_settings"
                         >
@@ -1032,69 +1172,13 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                     
-                      <a-sub-menu key="master_menu">
-                        <template #title>
-                        <TeamOutlined />
-                        <span>Master Menu</span>
-                        </template>
-                        <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.country.index',
-                                    });
-                                }
-                            "
-                            key="country"
-                        >
-                            {{ ("Country") }}
-                            
-                        </a-menu-item>
-
-                         <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.state.index',
-                                    });
-                                }
-                            "
-                            key="state"
-                        >
-                            {{ ("State") }}
-                        </a-menu-item>
-
-                            <a-menu-item
-                            @click="
-                                () => {
-                                    menuSelected();
-                                    $router.push({
-                                        name: 'admin.station.index',
-                                    });
-                                }
-                            "
-                            key="station"
-                        >
-                            {{ ("Station") }}
-                        </a-menu-item>
-                        
-                    </a-sub-menu>
-                                    
-                    
-                    
-
-
                     <a-menu-item
                         @click="
-                            () => {
-                                menuSelected();
-                                $router.push({
-                                    name: 'admin.settings.profile.index',
-                                });
-                            }
+                            menuSelected(),
+                                handleSalesClick(
+                                    $event,
+                                    'admin.settings.profile.index'
+                                )
                         "
                         key="settings"
                     >
@@ -1108,12 +1192,11 @@
                             appSetting.x_admin_id == user.xid
                         "
                         @click="
-                            () => {
-                                menuSelected();
-                                $router.push({
-                                    name: 'admin.subscription.current_plan',
-                                });
-                            }
+                            menuSelected(),
+                                handleSalesClick(
+                                    $event,
+                                    'admin.subscription.current_plan'
+                                )
                         "
                         key="subscription"
                     >
@@ -1155,17 +1238,23 @@ import {
     LaptopOutlined,
     CarOutlined,
     DollarCircleOutlined,
+    ExclamationCircleOutlined,
+    DollarOutlined,
+    UnorderedListOutlined,
 } from "@ant-design/icons-vue";
 import { PerfectScrollbar } from "vue3-perfect-scrollbar";
 import common from "../../common/composable/common";
 const { Sider } = Layout;
+
+import { Modal } from "ant-design-vue";
+import { createVNode } from "vue";
 
 export default defineComponent({
     components: {
         Sider,
         PerfectScrollbar,
         Layout,
-
+        ExclamationCircleOutlined,
         HomeOutlined,
         LogoutOutlined,
         UserOutlined,
@@ -1184,6 +1273,8 @@ export default defineComponent({
         LaptopOutlined,
         CarOutlined,
         DollarCircleOutlined,
+        DollarOutlined,
+        UnorderedListOutlined,
     },
     setup(props, { emit }) {
         const {
@@ -1200,6 +1291,7 @@ export default defineComponent({
             "product_manager",
             "stock_management",
             "pos",
+            "stock_account",
             "stock_transfer",
             "stock_adjustment",
             "sales",
@@ -1214,6 +1306,7 @@ export default defineComponent({
             "cash_bank",
             "subscription",
             "hrm",
+            "expense",
         ];
         const store = useStore();
         const route = useRoute();
@@ -1272,13 +1365,28 @@ export default defineComponent({
                 route.meta.menuParent == "holidays"
             ) {
                 openKeys.value = menuCollapsed.value ? [] : ["hrm"];
+            } else if (
+                route.meta.menuParent == "new_product_list" ||
+                route.meta.menuParent == "rate_enquiry" ||
+                route.meta.menuParent == "stock_adjustment" ||
+                route.meta.menuParent == "stock_transfer"
+            ) {
+                openKeys.value = menuCollapsed.value ? [] : ["stock_account"];
+            } else if (
+                route.meta.menuParent == "party" ||
+                route.meta.menuParent == "customer" ||
+                route.meta.menuParent == "supplier"||
+                route.meta.menuParent == "customers_view"||
+                route.meta.menuParent == "suppliers_view"
+            ) {
+                openKeys.value = menuCollapsed.value ? [] : ["party"];
             } else {
                 openKeys.value = menuCollapsed.value
                     ? []
                     : [route.meta.menuParent];
             }
 
-            selectedKeys.value = [menuKey.replace("-", "_")];
+            selectedKeys.value = [menuKey ? menuKey.replace("-", "_") : ""];
         });
 
         const logout = () => {
@@ -1286,6 +1394,7 @@ export default defineComponent({
         };
 
         const menuSelected = () => {
+            console.log("menu Cliked", route.path);
             if (innerWidth <= 991) {
                 store.commit("auth/updateMenuCollapsed", true);
             }
@@ -1320,6 +1429,21 @@ export default defineComponent({
                 newVal.meta.menuParent == "holidays"
             ) {
                 openKeys.value = ["hrm"];
+            } else if (
+                newVal.meta.menuParent == "new_product_list" ||
+                newVal.meta.menuParent == "rate_enquiry" ||
+                newVal.meta.menuParent == "stock_adjustment" ||
+                newVal.meta.menuParent == "stock_transfer"
+            ) {
+                openKeys.value = ["stock_account"];
+            } else if (
+                newVal.meta.menuParent == "party" ||
+                newVal.meta.menuParent == "customer" ||
+                newVal.meta.menuParent == "supplier"||
+                newVal.meta.menuParent == "customers_view"||
+                newVal.meta.menuParent == "suppliers_view"
+            ) {
+                openKeys.value = ["party"];
             } else {
                 openKeys.value = [newVal.meta.menuParent];
             }
@@ -1341,7 +1465,7 @@ export default defineComponent({
             } else if (newVal.meta.menuParent == "appreciations") {
                 selectedKeys.value = ["appreciations"];
             } else {
-                selectedKeys.value = [menuKey.replace("-", "_")];
+                selectedKeys.value = [menuKey ? menuKey.replace("-", "_") : ""];
             }
         });
 
@@ -1355,10 +1479,34 @@ export default defineComponent({
 
                 if (innerWidth <= 991 && menuCollapsed.value) {
                     openKeys.value = [];
+                } else if (menuCollapsed.value) {
+                    openKeys.value = [];
+                } else if (
+                    route.meta.menuParent == "new_product_list" ||
+                    route.meta.menuParent == "rate_enquiry" ||
+                    route.meta.menuParent == "stock_adjustment" ||
+                    route.meta.menuParent == "stock_transfer"
+                ) {
+                    openKeys.value = ["stock_account"];
+                } else if (
+                    route.meta.menuParent == "staff" ||
+                    route.meta.menuParent == "leaves" ||
+                    route.meta.menuParent == "attendances" ||
+                    route.meta.menuParent == "payrolls" ||
+                    route.meta.menuParent == "appreciations" ||
+                    route.meta.menuParent == "holidays"
+                ) {
+                    openKeys.value = ["hrm"];
+                } else if (
+                    route.meta.menuParent == "party" ||
+                    route.meta.menuParent == "customer" ||
+                    route.meta.menuParent == "supplier"||
+                    route.meta.menuParent == "customers_view"||
+                    route.meta.menuParent == "suppliers_view"
+                ) {
+                    openKeys.value = ["party"];
                 } else {
-                    openKeys.value = menuCollapsed.value
-                        ? []
-                        : [route.meta.menuParent];
+                    openKeys.value = [route.meta.menuParent];
                 }
 
                 if (
@@ -1402,7 +1550,7 @@ export default defineComponent({
                 ) {
                     selectedKeys.value = ["attendances"];
                 } else {
-                    selectedKeys.value = [menuKey.replace("-", "_")];
+                    selectedKeys.value = [menuKey ? menuKey.replace("-", "_") : ""];
                 }
             }
         );
@@ -1424,6 +1572,92 @@ export default defineComponent({
             appModules,
             willSubscriptionModuleVisible,
         };
+    },
+
+    methods: {
+        handleSalesClick(event, routeName) {
+            console.log("routeName=>", routeName);
+            if (this.$route.name.includes("create")) {
+                this.showConfirmationModal(event, routeName);
+            } else {
+                this.$router.push({ name: routeName });
+                //this.navigateToSales();
+            }
+        },
+        handleSalesReturnClick() {
+            if (this.$route.name === "admin.stock.sales-returns.create") {
+                // this.showConfirmationSalesModal();
+            } else {
+                //this.navigateToSalesReturn();
+            }
+        },
+        showConfirmationModal(event, selectedRoute) {
+            Modal.confirm({
+                title: "Confirmation",
+                icon: createVNode(ExclamationCircleOutlined),
+                content:
+                    "Transaction data will be loss, Are you sure you want to close?",
+                onOk: () => {
+                    this.$router.push({
+                        name: selectedRoute,
+                    });
+                },
+                onCancel: () => {},
+            });
+            const e = event;
+            setTimeout(() => {
+                if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                    e.preventDefault();
+
+                    const cancelBtn =
+                        document.querySelector(".ant-btn-dangerous");
+                    const okBtn = document.querySelector(".ant-btn-primary");
+
+                    if (e.key === "ArrowRight") {
+                        if (okBtn) {
+                            okBtn.focus();
+                        }
+                    } else if (e.key === "ArrowLeft") {
+                        if (cancelBtn) {
+                            cancelBtn.focus();
+                        }
+                    }
+                }
+            }, 0);
+        },
+
+        // sales return//
+
+        // showConfirmationSalesModal() {
+        //     Modal.confirm({
+        //         title: "Confirmation",
+        //         icon: createVNode(ExclamationCircleOutlined),
+        //         content:
+        //             "Transaction data will be loss, Are you sure you want to close?",
+        //         autoFocusButton: "ok",
+        //         onOk: () => {
+        //             this.navigateToSales();
+        //         },
+        //         onCancel: () => {
+        //             this.$router.push({
+        //                 name: "admin.stock.sales-returns.create",
+        //             });
+        //         },
+        //     });
+        // },
+
+        // sales return//
+
+        navigateToSales() {
+            this.$router.push({
+                name: "admin.stock.sales.index",
+            });
+        },
+        navigateToSalesReturn() {
+            this.$router.push({
+                name: "admin.stock.sales-returns.index",
+            });
+        },
     },
 });
 </script>

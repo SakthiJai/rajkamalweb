@@ -36,13 +36,17 @@
                         </template>
                         <template v-if="column.dataIndex === 'mrp'">
                             {{
-                                record.details.mrp
-                                    ? formatAmountCurrency(record.details.mrp)
+                                record.details && record.details.mrp
+                                    ? formatAmountCurrency(record.details.mrp)      
                                     : "-"
                             }}
                         </template>
                         <template v-if="column.dataIndex === 'sales_price'">
-                            {{ formatAmountCurrency(record.details.sales_price) }}
+                            {{
+    record.details && record.details.sales_price
+        ? formatAmountCurrency(record.details.sales_price)
+        : "-"
+}}
                         </template>
                     </template>
                 </a-table>

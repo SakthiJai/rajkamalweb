@@ -3,26 +3,55 @@ import { useI18n } from "vue-i18n";
 
 const fields = () => {
 	const addEditUrl = "stock-adjustments";
-	const url = "stock-adjustments?fields=xid,product_id,x_product_id,product{id,xid,name,image,image_url},quantity,adjustment_type";
+	const url = "stock-adjustments?fields=xid,product_id,x_product_id,product{id,xid,name,image,image_url},quantity,adjustment_type,reason,value,packaging,updated_at";
 	const hashableColumns = ['product_id'];
 	const { t } = useI18n();
 
 	const initData = {
-		product_id: undefined,
-		quantity: 1,
-		notes: "",
-		adjustment_type: "add",
-	};
+	product_id: "",
+	quantity: null,
+	reason: "",
+	packaging: "",
+	value: null,
+	adjustment_type: "add",
+};
+
 
 	const columns = [
+		{
+			title: t("Date"),
+			dataIndex: "date",
+			sorter: true
+		},
+		{
+			title: t("Time"),
+			dataIndex: "time",
+			sorter: true
+		},
+
 		{
 			title: t("product.product"),
 			dataIndex: "product_id",
 			sorter:true
 		},
 		{
+			title: t("packaging"),
+			dataIndex: "packaging",
+			sorter:true
+		},
+		{
+			title: t("Reason"),
+			dataIndex: "reason",
+			sorter:true
+		},
+		{
 			title: t("stock_adjustment.quantity"),
 			dataIndex: "quantity",
+			sorter:true
+		},
+		{
+			title: t("Value"),
+			dataIndex: "value",
 			sorter:true
 		},
 		{

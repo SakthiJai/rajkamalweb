@@ -1,54 +1,55 @@
 import { useI18n } from "vue-i18n";
 
 const fields = () => {
-    const addEditUrl = "expense-categories";
+    const url =
+        "receiptbank?fields=id,xid,bank_name,accountant_name,ifsc_code,account_number";
+    const addEditUrl = "receiptbank";
     const { t } = useI18n();
 
     const initData = {
-        name: "",
-        description: "",
+        bank_name: "",
+        accountant_name: "",
+        ifsc_code: "",
+        account_number: "",
     };
 
     const columns = [
         {
-            title: t(" Date"),
-            dataIndex: "Date",
+            title: t("Account Number"),
+            dataIndex: "account_number",
         },
 
         {
-            title: t("Voucher No"),
-            dataIndex: "Voucher No",
+            title: t("Accountant Name"),
+            dataIndex: "accountant_name",
         },
         {
-            title: t("Party Name"),
-            dataIndex: "Party Name",
+            title: t("IFSC Code"),
+            dataIndex: "ifsc_code",
+            sorter: true,
         },
+
         {
-            title: t("Station"),
-            dataIndex: "station",
+            title: t("Bank Name"),
+            dataIndex: "bank_name",
+            sorter: true,
         },
+
         {
-            title: t("Inst. Type."),
-            dataIndex: "Inst. Type.",
-        },
-        {
-            title: t("Inst. No."),
-            dataIndex: "Inst. No.",
-        },
-        {
-            title: t("₹ Amount"),
-            dataIndex: "amount",
+            title: t("Action"),
+            dataIndex: "action",
         },
     ];
 
     const filterableColumns = [
         {
-            key: "name",
-            value: t("common.name"),
+            key: "Accountant Name",
+            value: t("accountant_name"),
         },
     ];
 
     return {
+        url,
         addEditUrl,
         initData,
         columns,

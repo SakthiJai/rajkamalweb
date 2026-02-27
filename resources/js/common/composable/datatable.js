@@ -38,7 +38,9 @@ const datatable = () => {
 
         const url = generateUrl(limit, offset);
         sendingUrl.value = url;
+        if(url.includes('undefined')==false){
         return axiosAdmin.get(url);
+        }
     };
 
     const generateUrl = (limit, offset) => {
@@ -83,7 +85,7 @@ const datatable = () => {
         ) {
             var newSearchString = "";
             forEach(table.filterableColumns, (filterColumn) => {
-                newSearchString += `${filterColumn.key} lk "%${table.searchString}%" or `;
+                newSearchString += `${filterColumn.key} lk "%${table.searchString.trim()}%" or `;
             });
 
             if (newSearchString.length > 0) {
@@ -192,7 +194,7 @@ const datatable = () => {
         });
     };
 
-    const fetch = (params = {}) => {
+    const fetch = (params = {}) => { console.log("table params",params)
         table.loading = true;
         queryData({
             limit: table.pagination.pageSize,
@@ -201,6 +203,7 @@ const datatable = () => {
         }).then((results) => {
             const data = results.data;
             const pagination = { ...table.pagination };
+            console.log("table params",pagination)
             // Read total count from server
             // pagination.total = data.totalCount;
             pagination.total = results.meta.paging.total;
@@ -232,7 +235,14 @@ const datatable = () => {
                     ]);
                 }
             }
-
+            if (params.focus) {
+                setTimeout(function () {
+                    console.log("Payment focus3",params.focus);
+                    document.getElementById(params.focus).focus();
+                   
+                }, 1000);
+            }
+            
             if (params.success != undefined) {
                 params.success(data);
             }

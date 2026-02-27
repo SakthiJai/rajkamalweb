@@ -8,8 +8,8 @@
         :show-upload-list="false"
         :customRequest="customRequest"
     >
-        <div v-if="formData[imageField] != undefined">
-            <img style="width: 128px" :src="formData[`${imageField}_url`]" alt="avatar" />
+        <div v-if="formData.image_url">
+            <img style="width: 128px" :src="formData.image_url" alt="avatar" />
         </div>
         <div v-else>
             <loading-outlined v-if="loading"></loading-outlined>
@@ -71,7 +71,7 @@ export default defineComponent({
                 })
                 .catch(() => {
                     loading.value = false;
-                    message.error(t("messages.uploading_failed"));
+                    // message.error(t("messages.uploading_failed"));
                 });
         };
 

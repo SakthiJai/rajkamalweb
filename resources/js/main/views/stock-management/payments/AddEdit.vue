@@ -7,6 +7,7 @@
         :footer-style="{ textAlign: 'right' }"
         :maskClosable="false"
         @close="onClose"
+        @afterOpenChange="onAfterOpenChange"
     >
         <a-form layout="vertical">
             <a-row :gutter="16">
@@ -19,6 +20,9 @@
                         class="required"
                     >
                         <a-select
+                        ref="firstInputRef"
+                        @keydown="handleEnterNavigation"
+                        @keyup.enter="handleUserEnter"
                             v-model:value="newFormData.user_id"
                             :placeholder="
                                 $t('common.select_default_text', [
@@ -53,6 +57,9 @@
                         class="required"
                     >
                         <a-input
+                            ref="amountInputRef"
+                            @keydown="handleEnterNavigation"
+                            @keyup.enter="handleAmountEnter"
                             :prefix="appSetting.currency.symbol"
                             v-model:value="newFormData.amount"
                             :placeholder="
@@ -74,13 +81,14 @@
                         :validateStatus="rules.date ? 'error' : null"
                         class="required"
                     >
+                    <div ref="dateWrapper" >
                         <DateTimePicker
+                            ref="dateRef"
                             :dateTime="newFormData.date"
-                            @dateTimeChanged="
-                                (changedDateTime) =>
-                                    (newFormData.date = changedDateTime)
-                            "
+                            @dateTimeChanged="(val) => (newFormData.date = val)"
+                            @enterPressed="focusPaymentMode"
                         />
+                        </div>
                     </a-form-item>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="12" :lg="12">
@@ -97,6 +105,8 @@
                     >
                         <span style="display: flex">
                             <a-select
+                                ref="paymentModeRef"
+                                @keyup.enter="handlePaymentModeEnter"
                                 v-model:value="newFormData.payment_mode_id"
                                 :placeholder="
                                     $t('common.select_default_text', [
@@ -130,6 +140,9 @@
                         :validateStatus="rules.notes ? 'error' : null"
                     >
                         <a-textarea
+                            ref="notesRef"
+                            @keydown="handleEnterNavigation"
+                            @keyup.enter="focusSubmit"
                             v-model:value="newFormData.notes"
                             :placeholder="
                                 $t('common.placeholder_default_text', [
@@ -160,12 +173,12 @@
                         </a-form-item>
                     </a-col>
                 </a-row>
-
                 <SettleInvoices
                     v-if="newFormData.user_id"
                     ref="settleInvoiceRef"
                     :userId="newFormData.user_id"
                     :amount="newFormData.amount"
+                    @lastFieldEnter="focusSubmit"
                 />
             </div>
             <div v-else></div>
@@ -177,6 +190,8 @@
                     type="primary"
                     :loading="loading"
                     @click="onSubmit"
+                    ref="submitBtnRef"
+                    style="background-color: #1f6d70;"
                 >
                     <template #icon>
                         <SaveOutlined />
@@ -185,22 +200,23 @@
                         addEditType == "add"
                             ? $t("common.create")
                             : $t("common.update")
-                    }}
+                    }} / F8
                 </a-button>
                 <a-button key="back" @click="onClose">
-                    {{ $t("common.cancel") }}
+                    {{ $t("common.cancel") }} / Esc
                 </a-button>
             </a-space>
         </template>
     </a-drawer>
 </template>
 <script>
-import { defineComponent, onMounted, ref, watch } from "vue";
+import { defineComponent, onMounted, nextTick, onUnmounted, ref, watch } from "vue";
 import {
     PlusOutlined,
     LoadingOutlined,
     SaveOutlined,
 } from "@ant-design/icons-vue";
+import { Modal } from "ant-design-vue";
 import { forEach } from "lodash-es";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import UserInfo from "../../../../common/components/user/UserInfo.vue";
@@ -239,19 +255,126 @@ export default defineComponent({
         const paymentModesUrl = "payment-modes?limit=10000";
         const settleInvoiceRef = ref(null);
         const newFormData = ref({});
-
-        onMounted(() => {
-            const usersPromise = axiosAdmin.post(usersUrl);
-            const paymentModesPromise = axiosAdmin.get(paymentModesUrl);
-
-            Promise.all([usersPromise, paymentModesPromise]).then(
-                ([usersResponse, paymentModesResponse]) => {
-                    users.value = usersResponse.data;
-                    paymentModes.value = paymentModesResponse.data;
-                }
-            );
+        const firstInputRef = ref(null);
+        const amountInputRef = ref(null);
+        const dateWrapper = ref(null);
+        const paymentModeRef = ref(null);
+        const notesRef = ref(null);
+        const submitBtnRef = ref(null);
+        const handleGlobalKeydown = (event) => { 
+            if (event.key === "F8") {
+                event.preventDefault();
+                onSubmit();
+            }
+        
+            if (event.key === "Escape") {
+                event.preventDefault();
+                onClose();
+            }
+        };
+        const initEmptyFormData = () => ({
+            user_id: null,
+            amount: null,
+            date: dayjs(),
+            payment_mode_id: null,
+            notes: "",
         });
+        const focusDate = () => {
+            nextTick(() => {
+                const input = dateWrapper.value?.querySelector("input");
+                input?.focus();
+            });
+        };
+        const handleAmountEnter = () => {
+            const amount = newFormData.value.amount;
 
+            if (!amount || Number(amount) <= 0) return;
+
+            focusDate();
+        };
+        const focusPaymentMode = () => {
+            nextTick(() => {
+                paymentModeRef.value?.focus?.();
+            });
+        };
+        const handlePaymentModeEnter = () => {
+            if (!newFormData.value.payment_mode_id) return;
+            focusNotes();
+        };
+
+        const focusNotes = () => {
+            nextTick(() => {
+                notesRef.value?.focus?.();
+            });
+        };
+
+        const focusSubmit = () => {
+            nextTick(() => {
+                submitBtnRef.value?.focus?.();
+            });
+        };
+
+        const handleUserEnter = () => {
+            if (!newFormData.value.user_id) return;
+
+            nextTick(() => {
+                amountInputRef.value?.focus();
+            });
+        };
+        const handleEnterNavigation = (event) => {
+            if (event.key !== "Enter") return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const name = event.target.getAttribute("name");
+
+            let isValid = true;
+
+            switch (name) {
+                case "user_id":
+                    isValid = !!newFormData.value.user_id;
+                    break;
+
+                case "amount":
+                    isValid = !!newFormData.value.amount && Number(newFormData.value.amount) > 0;
+                    break;
+
+                case "notes":
+                    isValid = true; 
+                    break;
+
+                default:
+                    isValid = event.target.value?.trim();
+            }
+
+            if (!isValid) return; 
+
+            const inputs = document.querySelectorAll(
+                ".ant-drawer input:not([disabled]), .ant-drawer textarea:not([disabled])"
+            );
+
+            const index = Array.from(inputs).indexOf(event.target);
+
+            if (index !== -1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+                return;
+            }
+
+            submitBtnRef.value?.focus?.();
+        };
+        onMounted(async () => {
+            try {
+                const [usersResponse, paymentModesResponse] = await Promise.all([
+                    axiosAdmin.post(usersUrl),
+                    axiosAdmin.get(paymentModesUrl),
+                ]);
+                users.value = usersResponse.data;
+                paymentModes.value = paymentModesResponse.data;
+            } catch (error) {
+                console.error("Error fetching users or payment modes:", error);
+            }
+        });
         const onSubmit = () => {
             const invoices = [];
 
@@ -267,9 +390,15 @@ export default defineComponent({
                     });
                 });
             }
+                        let finalUrl = props.url;
+
+            if (props.addEditType === "add" || !finalUrl) {
+                finalUrl = "payment-in";
+            }
 
             addEditRequestAdmin({
-                url: props.url,
+                url: finalUrl,
+                method: props.addEditType === "edit" ? "put" : "post",
                 data: { ...newFormData.value, invoices },
                 successMessage: props.successMessage,
                 success: (res) => {
@@ -277,36 +406,73 @@ export default defineComponent({
                 },
             });
         };
+        const onAfterOpenChange = (open) => {
+            if (!open) return;
 
+            nextTick(() => {
+                setTimeout(() => { 
+                    firstInputRef.value?.focus?.();
+ 
+                    const input =
+                        firstInputRef.value?.$el?.querySelector("input");
+
+                    input?.focus();
+                }, 150);  
+            });
+        };
         const paymentModeAdded = () => {
             axiosAdmin.get("payment-modes?limit=10000").then((response) => {
                 paymentModes.value = response.data;
             });
         };
-
         const onClose = () => {
-            rules.value = {};
-            emit("closed");
-        };
+            const confirmExists = document.querySelector(".ant-modal-confirm");
+            if (confirmExists) return;
 
+            Modal.confirm({
+                title: "Confirmation",
+                content: "Payment data will be lost. Are you sure you want to close?",
+                okText: "OK",
+                cancelText: "Cancel",
+                autoFocusButton: "cancel",
+                onOk() {
+                    rules.value = {};
+                    emit("closed");
+                },
+            });
+        };
         watch(
             () => props.visible,
-            (newVal, oldVal) => {
-                if (newVal) {
-                    if (props.addEditType == "add") {
+            (isVisible) => {
+                if (isVisible) {
+                    window.addEventListener("keydown", handleGlobalKeydown);
+
+                    rules.value = {};
+
+                    if (props.addEditType === "add") {
+                        newFormData.value = { ...initEmptyFormData() };
+                    }
+
+                    if (props.addEditType === "edit" && props.data) {
                         newFormData.value = {
-                            ...props.formData,
-                            date: dayjs().utc().format("YYYY-MM-DDTHH:mm:ssZ"),
-                        };
-                    } else {
-                        newFormData.value = {
-                            ...props.formData,
+                            user_id: props.data.x_user_id,
+                            amount: props.data.amount,
+                            date: dayjs(props.data.date),
+                            payment_mode_id: props.data.x_payment_mode_id,
+                            notes: props.data.notes || "",
                         };
                     }
+                } else {
+                    window.removeEventListener("keydown", handleGlobalKeydown);
                 }
-            }
+            },
+            { immediate: true }
         );
 
+
+        onUnmounted(() => {
+            window.removeEventListener("keydown", handleGlobalKeydown);
+        });
         return {
             loading,
             rules,
@@ -316,10 +482,24 @@ export default defineComponent({
             paymentModes,
             paymentModeAdded,
             settleInvoiceRef,
-
+            firstInputRef,
             appSetting,
             disabledDate,
             formatAmountCurrency,
+            amountInputRef,
+            handleUserEnter,
+             focusDate,
+            focusNotes,
+            focusSubmit,
+            paymentModeRef,
+            notesRef,
+            submitBtnRef,
+            dateWrapper,
+            onAfterOpenChange,
+            handleAmountEnter,
+            handlePaymentModeEnter,
+            handleUserEnter,
+            handleEnterNavigation,
 
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
 

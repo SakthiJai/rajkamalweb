@@ -33,9 +33,7 @@ class StoreRequest extends FormRequest
             //'with_pan_number' => 'required',
 		];
 
-        if ($this->filled('mail_to')) {
-            $rules['mail_to'] = 'required|email';
-        }
+     
 
 		return $rules;
     }

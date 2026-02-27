@@ -5,6 +5,7 @@
         :centered="true"
         :title="pageTitle"
         @ok="onSubmit"
+        @cancel="onClose"
     >
         <a-form layout="vertical">
             <a-row :gutter="16">
@@ -17,12 +18,15 @@
                         class="required"
                     >
                         <a-input
+                            ref="nameInputRef"
+                            id="variation_name"
                             v-model:value="formData.name"
                             :placeholder="
                                 $t('common.placeholder_default_text', [
                                     $t('variation.variation_name'),
                                 ])
                             "
+                            @keydown="handleEnterNavigation"
                         />
                     </a-form-item>
                 </a-col>
@@ -40,11 +44,8 @@
                     <a-form-item :label="$t('variation.value')" name="name">
                         <a-input
                             v-model:value="formField.name"
-                            :placeholder="
-                                $t('common.placeholder_default_text', [
-                                    $t('variation.value'),
-                                ])
-                            "
+                            :placeholder="$t('common.placeholder_default_text', [$t('variation.value')])"
+                            @keydown="handleEnterNavigation"
                         />
                     </a-form-item>
                 </a-col>
@@ -71,27 +72,28 @@
             </a-col>
         </a-form>
         <template #footer>
-            <a-button key="submit" type="primary" :loading="loading" @click="onSubmit">
+            <a-button key="submit" type="primary" :loading="loading" @click="onSubmit" style="background-color: #1f6d70;">
                 <template #icon>
                     <SaveOutlined />
                 </template>
-                {{ addEditType == "add" ? $t("common.create") : $t("common.update") }}
+                {{ addEditType == "add" ? $t("common.create") : $t("common.update") }} / F8
             </a-button>
             <a-button key="back" @click="onClose">
-                {{ $t("common.cancel") }}
+                {{ $t("common.cancel") }} / Esc
             </a-button>
         </template>
     </a-modal>
 </template>
 
 <script>
-import { defineComponent, ref, computed, watch } from "vue";
+import { defineComponent, ref, computed, watch, nextTick, onBeforeUnmount } from "vue";
 import {
     PlusOutlined,
     LoadingOutlined,
     SaveOutlined,
     MinusSquareOutlined,
 } from "@ant-design/icons-vue";
+import { Modal } from "ant-design-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import Upload from "../../../../common/core/ui/file/Upload.vue";
 import common from "../../../../common/composable/common";
@@ -117,6 +119,7 @@ export default defineComponent({
         FormItemHeading,
     },
     setup(props, { emit }) {
+        const nameInputRef = ref(null);
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
         const { slugify } = common();
         const formFields = ref([
@@ -133,9 +136,13 @@ export default defineComponent({
                 value: formFieldFilter(),
                 removed_variations: removedVariations.value,
             };
+            let finalUrl = props.url;
 
+                if (props.addEditType === "add" || !finalUrl) {
+                    finalUrl = "variations";
+                }
             addEditRequestAdmin({
-                url: props.url,
+                url: finalUrl,
                 data: newFormData,
                 successMessage: props.successMessage,
                 success: (res) => {
@@ -148,6 +155,108 @@ export default defineComponent({
                 name: "",
                 id: "",
             });
+        };
+const handleEnterNavigation = (event) => {
+    if (event.key !== "Enter" && event.key !== "Tab") return;
+
+    const value = event.target.value?.trim();
+
+    if (!value) {
+        event.preventDefault();
+        return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Get all visible inputs inside modal
+    const inputs = document.querySelectorAll(".ant-modal input:not([disabled])");
+    const index = Array.from(inputs).indexOf(event.target);
+
+    if (index !== -1 && index < inputs.length - 1) {
+        // Move to next input
+        inputs[index + 1].focus();
+        return;
+    }
+
+    // If this is the last input, focus the "Add New Value" button
+    const addButton = document.querySelector(
+        ".ant-modal .ant-btn-dashed"
+    );
+    if (addButton) {
+        addButton.focus();
+    }
+};
+        let handleKeyDown = null;
+
+        handleKeyDown = (event) => {
+            const modal = document.querySelector(".ant-modal");
+            if (!modal) return;
+
+            // Arrow navigation
+const confirmModal = document.querySelector(".ant-modal-confirm");
+
+if (confirmModal && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
+    event.preventDefault();
+
+    const buttons = confirmModal.querySelectorAll(".ant-btn");
+
+    const cancelBtn = Array.from(buttons).find(btn =>
+        btn.classList.contains("ant-btn-default")
+    );
+
+    const okBtn = Array.from(buttons).find(btn =>
+        btn.classList.contains("ant-btn-primary")
+    );
+
+    if (event.key === "ArrowLeft") {
+        cancelBtn?.focus();
+    }
+
+    if (event.key === "ArrowRight") {
+        okBtn?.focus();
+    }
+
+    return;
+}
+            if (event.key === "Escape") {
+                event.preventDefault();
+                onClose();
+                return;
+            }
+
+            // F8 Save
+            if (event.key === "F8") {
+                event.preventDefault();
+                event.stopPropagation();
+                onSubmit();
+                return;
+            }
+
+            if (
+                !document.querySelector(".ant-modal-confirm") &&
+                (event.key === "ArrowLeft" || event.key === "ArrowRight")
+            ) {
+                event.preventDefault();
+
+                const buttons = modal.querySelectorAll(
+                    ".ant-modal-footer .ant-btn"
+                );
+
+                const primary = Array.from(buttons).find(btn =>
+                    btn.classList.contains("ant-btn-primary")
+                );
+
+                const cancel = Array.from(buttons).find(btn =>
+                    btn.classList.contains("ant-btn-default")
+                );
+
+                if (event.key === "ArrowLeft") {
+                    primary?.focus();
+                } else {
+                    cancel?.focus();
+                }
+            }
         };
 
         const formFieldFilter = () => {
@@ -184,29 +293,56 @@ export default defineComponent({
             }
         };
 
-        const onClose = () => {
-            rules.value = {};
-            emit("closed");
-        };
+            const onClose = () => {
+                const modalExists = document.querySelector(".ant-modal-confirm");
+                if (modalExists) return;
+
+                Modal.confirm({
+                    title: "Confirmation",
+                    content: "Variation data will be lost. Are you sure you want to close?",
+                    okText: "OK",
+                    cancelText: "Cancel",
+                    autoFocusButton: "cancel",
+                    onOk() {
+                        emit("closed");
+                    }
+                });
+            };
 
         watch(
             () => props.visible,
-            (newVal, oldVal) => {
-                if (props.visible) {
+            async (val) => {
+                if (val) {
+                    await nextTick();
+
+                    nameInputRef.value?.input?.focus();
+
+                    window.addEventListener("keydown", handleKeyDown);
+
+                    // IMPORTANT: Fill edit values
                     formFields.value = [];
-                    if (props.addEditType == "edit") {
+
+                    if (props.addEditType === "edit") {
                         forEach(props.data.sub_variations, (subVariation) => {
                             formFields.value.push({
                                 name: subVariation.name,
                                 id: subVariation.xid,
                             });
                         });
+                    } else {
+                        formFields.value.push({
+                            name: "",
+                            id: "",
+                        });
                     }
+
+                } else {
+                    window.removeEventListener("keydown", handleKeyDown);
                 }
             }
         );
 
-        return {
+       return {
             loading,
             rules,
             onClose,
@@ -216,7 +352,8 @@ export default defineComponent({
             removeFormField,
             addFormField,
             addFormButtonStatus,
-
+            nameInputRef,
+            handleEnterNavigation,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
         };
     },

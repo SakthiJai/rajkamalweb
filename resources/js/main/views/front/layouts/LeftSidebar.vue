@@ -28,10 +28,7 @@
             </a-button>
         </template>
 
-        <!-- <a-typography-title class="pl-24 category-menu-title" :level="5">
-            {{ $t("front.categories") }}
-        </a-typography-title>
-        <LeftSidebarMenu :catSelectedKeys="[]" /> -->
+
 
         <div
             v-if="

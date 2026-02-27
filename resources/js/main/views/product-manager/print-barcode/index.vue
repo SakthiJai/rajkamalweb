@@ -280,6 +280,7 @@ export default {
                 title: t("common.delete") + "?",
                 icon: createVNode(ExclamationCircleOutlined),
                 content: t("print_barcode.delete_message"),
+                autoFocusButton:'ok',
                 centered: true,
                 okText: t("common.yes"),
                 okType: "danger",

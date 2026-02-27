@@ -20,7 +20,7 @@ export default [
                 name: "admin.reports.stock.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "reports",
+                    menuParent: "party",
                     menuKey: "stock_alert",
                 },
             },
@@ -30,7 +30,7 @@ export default [
                 name: "admin.reports.users.index",
                 meta: {
                     requireAuth: true,
-                    menuParent: "reports",
+                    menuParent: "party",
                     menuKey: "users_reports",
                 },
             },

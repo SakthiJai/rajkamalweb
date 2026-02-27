@@ -8,19 +8,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Station;
 use App\Models\Country;
+use App\Models\Categorys;
 
 class LedgerModel extends BaseModel
 {
     use HasFactory;
 
     protected $table = 'ledger';
-    protected $appends = ['xid','station_name','name','state_name'];
-    protected $filterable = ['id','party_name'];
-    protected $allowedFilters = [ 'id','party_name', ];
+    protected $appends = ['xid','station_name','name','country_name','state_name','party_name'];
+    protected $filterable = ['id','party_name','phone_number',
+        'mobile_number',
+        'whatsapp_number'];
+    protected $allowedFilters = [ 'id','party_name','mobile_number'];
+
     protected $default = [
         'xid',
         'id',
-        'party_name',
+        'party_name','party_full_name',
         'party_type',
         'station',
         'Address',
@@ -33,6 +37,7 @@ class LedgerModel extends BaseModel
         'stock_pincode',
         'balancing_method',
         'opening_balance',
+        'credit_type',
         'credit_days',
         'phone_number',
         'mobile_number',
@@ -52,7 +57,11 @@ class LedgerModel extends BaseModel
         'account_number',
         'account_type',
         'account_holder_name',
-        'name',
+        "ship_address",
+        "ship_city",
+        "ship_pincode",
+        "ship_contactno",
+         'name',
         'state_name',
         'station_name',
         'gst_number',
@@ -60,38 +69,65 @@ class LedgerModel extends BaseModel
         'credit',
         'credit_limit',
         'with_gst_number',
-        'with_pan_number'
+        'with_pan_number',
+        'contact_mobile',
+        'country_name',
+        'category',
+        'trade_name',
     ];
     protected $casts = [
         'ledger_id' => 'integer',
         // Make sure these attributes exist in your database schema
         'keyword' => 'string',
         'value' => 'string',
+        'is_active' => 'boolean',
     ];
+
+
+
+
 
     public function getNameAttribute()
     {
-       
-        return $this->attributes['party_name'];
+
+        return $this->attributes['id'];
     }
-    
+    public function getPartyNameAttribute()
+    {
+
+        return isset($this->attributes['party_name'])?$this->attributes['party_name']:(isset($this->attributes['party_full_name'])?$this->attributes['party_full_name']:"");
+    }
+
 
     public function getStationNameAttribute()
     {
         $station = Station::find($this->station);
-        return $station ? $station->station_name : 'Unknown'; 
+        $counrty = Country::find($this->stock_country);
+        return $counrty ? $counrty->country_name : 'Unknown';
     }
+    // public function getPartyFullNameAttribute()
+    // {
+    //     $station = LedgerModel::find($this->station);
+    //     $counrty = Country::find($this->parent_ledger);
+    //     return $counrty ? $counrty->party_full_name : 'Unknown';
+    // }
 
-    public function getNamesAttribute()
+    public function getCountryNameAttribute()
     {
         $counrty = Country::find($this->stock_country);
-        return $counrty ? $counrty->name : 'Unknown'; 
+        return $counrty ? $counrty->country_name: 'Unknown';
+    }
+
+    public function getCategoryNameAttribute()
+    {
+        $counrty = Categorys::find($this->category);
+        return $counrty ? $counrty->category_name	: 'Unknown';
     }
 
     public function getStateNameAttribute()
     {
         $state = State::find($this->stock_state);
-        return $state ? $state->state_name : 'Unknown'; 
+        return $state ? $state->state_name : 'Unknown';
     }
     public function bills()
     {
@@ -100,6 +136,10 @@ class LedgerModel extends BaseModel
     public function items()
     {
         return $this->hasMany(LedgerItem::class, 'ledger_id', localKey: 'id');
+    }
+    public function contactinfo()
+    {
+        return $this->hasMany(ContactModel::class, 'ledger_id', localKey: 'id');
     }
 
 

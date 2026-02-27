@@ -222,6 +222,8 @@ class LangTrans
             'warehouses_reports' => 'Warehouses Reports',
             'pos' => 'POS',
             'stock_adjustment' => 'Stock Adjustment',
+            'new_product_list' => 'New Product List',
+            'rate_enquiry' => 'Rate Enquiry',
             'verify_product' => 'Verify Product',
             'modules' => 'Modules',
             'storage_settings' => 'Storage Settings',
@@ -285,6 +287,7 @@ class LangTrans
             'attendance_summary' => 'Attendance Summary',
             'basic_salaries' => 'Basic Salary',
             'hrm_settings' => 'HRM Settings',
+            'rate_enquiry' => 'Rate Enquiry',
         ],
         'mobile_app' => [
             'welcome_your_business_overview' => 'Welcome, your business overview',
@@ -965,6 +968,131 @@ class LangTrans
             'divide' => 'Divide (/)',
             'operator_value' => 'Operator Value',
         ],
+        'country' => [
+          'add' => 'Add New country',
+          'edit' => 'Edit country',
+          'created' => 'Country Created Successfully',
+          'updated' => 'Country Updated Successfully',
+          'deleted' => 'Country Deleted Successfully',
+          'delete_message' => 'Are you sure you want to delete this Country?',
+          'selected_delete_message' => 'Are you sure you want to delete selected Country?',
+          'country_details' => 'Country Details',
+          'name' => 'Country Name',
+          'short_name' => 'Short Name',
+          'base_unit' => 'Base Country',
+
+                ],
+
+                'bankdetails' => [
+                    'add' => 'Add New Bank Account',
+                    'edit' => 'Edit Bank Account',
+                    'created' => 'Bank Account Created Successfully',
+                    'updated' => 'Bank Account Updated Successfully',
+                    'deleted' => 'Bank Account Deleted Successfully',
+                    'delete_message' => 'Are you sure you want to delete this Bank Account?',
+                    'selected_delete_message' => 'Are you sure you want to delete selected Bank Account?',
+                    'bank_account_details' => 'Bank Account Details',
+                    'name' => 'Bank Account Name',
+                    'short_name' => 'Short Name',
+                    'base_unit' => 'Base Bank Account',
+
+                          ],
+
+                'state' => [
+                        'add' => 'Add New State',
+                        'edit' => 'Edit State',
+                        'created' => 'State Created Successfully',
+                        'updated' => 'State Updated Successfully',
+                        'deleted' => 'State Deleted Successfully',
+                        'delete_message' => 'Are you sure you want to delete this State?',
+                        'selected_delete_message' => 'Are you sure you want to delete selected State?',
+                        'state_details' => 'State Details',
+                        'name' => 'State Name',
+                        'short_name' => 'Short Name',
+                        'base_unit' => 'Base State',
+
+                ],
+
+
+                'station' => [
+                    'add' => 'Add New Station',
+                    'edit' => 'Edit Station',
+                    'created' => 'Station Created Successfully',
+                    'updated' => 'Station Updated Successfully',
+                    'deleted' => 'Station Deleted Successfully',
+                    'delete_message' => 'Are you sure you want to delete this Station?',
+                    'selected_delete_message' => 'Are you sure you want to delete selected Station?',
+                    'station_details' => 'Station Details',
+                    'name' => 'Station Name',
+                    'short_name' => 'Short Name',
+                    'base_unit' => 'Base Station',
+
+                ],
+
+                'customer_create' => [
+                    'add' => 'Add New Customer',
+                    'edit' => 'Edit Customer',
+                    'created' => 'Customer Created Successfully',
+                    'updated' => 'Customer Updated Successfully',
+                    'deleted' => 'Customer Deleted Successfully',
+                    'delete_message' => 'Are you sure you want to delete this Customer?',
+                    'selected_delete_message' => 'Are you sure you want to delete selected Customer?',
+                    'Customer_details' => 'Customer Details',
+                    'name' => 'Customer Name',
+                    'short_name' => 'Short Name',
+                    'base_unit' => 'Base Customer',
+
+                ],
+
+
+                'product_category' => [
+          'add' => 'Add New Product Category',
+          'edit' => 'Edit Product Category',
+          'created' => 'Product Category Created Successfully',
+          'updated' => 'Product Category Updated Successfully',
+          'deleted' => 'Product Category Deleted Successfully',
+          'delete_message' => 'Are you sure you want to delete this Product Category?',
+          'selected_delete_message' => 'Are you sure you want to delete selected Product Category?',
+          'product_category_details' => 'Product Category Details',
+          'name' => 'Product Category Name',
+          'short_name' => 'Short Name',
+          'base_unit' => 'Base Product Category',
+
+],
+
+'godowns' => [
+    'add' => 'Add New Godowns',
+    'edit' => 'Edit Godowns',
+    'created' => 'Godowns Created Successfully',
+    'updated' => 'Godowns Updated Successfully',
+    'deleted' => 'Godowns Deleted Successfully',
+    'delete_message' => 'Are you sure you want to delete this Godowns?',
+    'selected_delete_message' => 'Are you sure you want to delete selected Godowns?',
+    'product_category_details' => 'Godowns Details',
+    'name' => 'Godowns Name',
+    'short_name' => 'Short Name',
+    'base_unit' => 'Base Godowns',
+
+
+],
+
+'discount' => [
+    'add' => 'Add New discount',
+    'edit' => 'Edit discount',
+    'created' => 'discount Created Successfully',
+    'updated' => 'discount Updated Successfully',
+    'deleted' => 'discount Deleted Successfully',
+    'delete_message' => 'Are you sure you want to delete this discount?',
+    'selected_delete_message' => 'Are you sure you want to delete selected discount?',
+    'product_category_details' => 'discount Details',
+    'name' => 'discount Name',
+    'short_name' => 'Short Name',
+    'base_unit' => 'Base discount',
+
+],
+
+
+
         'custom_field' => [
             'add' => 'Add New Custom Field',
             'edit' => 'Edit Custom Field',
@@ -1020,7 +1148,7 @@ class LangTrans
             'name' => 'Expense Category Name',
             'description' => 'Description',
         ],
-        
+
 
 
         'expense' => [
@@ -1462,6 +1590,39 @@ class LangTrans
             'current_stock' => 'Current Stock',
             'quantity' => 'Quantity',
             'adjustment_type' => 'Adjustment Type',
+            'adjustment_add' => 'Add',
+            'adjustment_subtract' => 'Subtract',
+        ], 
+        'new_product_list' => [
+            'add' => 'Add New Product List',
+            'edit' => 'Edit Product List',
+            'details' => 'Product List Details',
+            'created' => 'Product List Created Successfully',
+            'updated' => 'Product List Updated Successfully',
+            'deleted' => 'Product List Deleted Successfully',
+            'delete_message' => 'Are you sure you want to delete this product list?',
+            'selected_delete_message' => 'Are you sure you want to delete selected product list?',
+            'notes' => 'Notes',
+            'current_stock' => 'Current Stock',
+            'quantity' => 'Quantity',
+            'adjustment_type' => 'Adjustment Type',
+            'adjustment_add' => 'Add',
+            'adjustment_subtract' => 'Subtract',
+        ],
+        'rate_enquiry' => [
+            'add' => 'Add New Enquiry',
+            'edit' => 'Edit Enquiry',
+            'details' => 'Enquiry Details',
+            'created' => 'Enquiry Created Successfully',
+            'updated' => 'Enquiry Updated Successfully',
+            'deleted' => 'Enquiry Deleted Successfully',
+            'delete_message' => 'Are you sure you want to delete this stock adjustment?',
+            'selected_delete_message' => 'Are you sure you want to delete selected stock adjustment?',
+            'rate' => 'Rate',
+            'notes' => 'Notes',
+            'current_stock' => 'Current Stock',
+            'quantity' => 'Quantity',
+            'adjustment_type' => 'Enquiry Type',
             'adjustment_add' => 'Add',
             'adjustment_subtract' => 'Subtract',
         ],

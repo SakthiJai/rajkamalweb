@@ -39,7 +39,7 @@ class CustomerRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => 'Customer name is required.',
+            'cus_name.required' => 'Customer name is required.',
             'ledger_id.required' => 'Legder is required.',
 
             'mobile_number.required' => 'number is required.',

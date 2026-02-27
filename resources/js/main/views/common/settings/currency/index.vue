@@ -26,7 +26,9 @@
                             <a-select
                                 style="width: 25%"
                                 v-model:value="table.searchColumn"
-                                :placeholder="$t('common.select_default_text', [''])"
+                                :placeholder="
+                                    $t('common.select_default_text', [''])
+                                "
                             >
                                 <a-select-option
                                     v-for="filterableColumn in filterableColumns"
@@ -68,25 +70,33 @@
                     <a-table
                         :row-selection="{
                             selectedRowKeys: table.selectedRowKeys,
-                            onChange: onRowSelectChange,
+                            onChange: onSelectChange,
                             getCheckboxProps: (record) => ({
                                 disabled:
                                     ((panelType == 'admin' &&
-                                        (permsArray.includes('currencies_delete') ||
+                                        (permsArray.includes(
+                                            'currencies_delete'
+                                        ) ||
                                             permsArray.includes('admin'))) ||
                                         panelType == 'superadmin') &&
-                                    appSetting.x_currency_id != record.xid
+                                    appSetting.x_currency_id != record.id
                                         ? false
                                         : true,
-                                name: record.xid,
+                                name: record.id,
                             }),
                         }"
                         :columns="columns"
-                        :row-key="(record) => record.xid"
+                        :row-key="(record) => record.id"
                         :data-source="table.data"
                         :pagination="table.pagination"
                         :loading="table.loading"
-                        @change="handleTableChange"
+                        :rowSelection="{
+                            selectedRowKeys: selectedRowKeysValue,
+                            onChange: onSelectChange,
+                            hideDefaultSelections: true,
+                            selections: true,
+                            type: 'radio',
+                        }"
                         bordered
                         size="middle"
                     >
@@ -95,8 +105,12 @@
                                 <a-button
                                     v-if="
                                         (panelType == 'admin' &&
-                                            (permsArray.includes('currencies_edit') ||
-                                                permsArray.includes('admin'))) ||
+                                            (permsArray.includes(
+                                                'currencies_edit'
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                ))) ||
                                         panelType == 'superadmin'
                                     "
                                     type="primary"
@@ -108,8 +122,12 @@
                                 <a-button
                                     v-if="
                                         ((panelType == 'admin' &&
-                                            (permsArray.includes('currencies_delete') ||
-                                                permsArray.includes('admin'))) ||
+                                            (permsArray.includes(
+                                                'currencies_delete'
+                                            ) ||
+                                                permsArray.includes(
+                                                    'admin'
+                                                ))) ||
                                             panelType == 'superadmin') &&
                                         appSetting.x_currency_id != record.xid
                                     "
@@ -117,7 +135,9 @@
                                     @click="showDeleteConfirm(record.xid)"
                                     style="margin-left: 4px"
                                 >
-                                    <template #icon><DeleteOutlined /></template>
+                                    <template #icon
+                                        ><DeleteOutlined
+                                    /></template>
                                 </a-button>
                             </template>
                         </template>
@@ -150,9 +170,8 @@ export default {
     },
     setup(props) {
         const { permsArray, appSetting } = common();
-        const { url, addEditUrl, initData, columns, filterableColumns } = fields(
-            props.panelType
-        );
+        const { url, addEditUrl, initData, columns, filterableColumns } =
+            fields(props.panelType);
         const crudVariables = crud();
 
         onMounted(() => {
@@ -170,6 +189,14 @@ export default {
             crudVariables.initData.value = { ...initData };
             crudVariables.formData.value = { ...initData };
         });
+        const onSelectChange = (changableRowKeys, $event) => {
+            console.log("selectedRowKeys changed:  ", changableRowKeys, $event);
+
+            // this.$emit("row-select", this.selectedInvoice);
+            selectedRowKeysValue = [changableRowKeys];
+        };
+
+        let selectedRowKeysValue = [];
 
         return {
             permsArray,
@@ -177,6 +204,7 @@ export default {
             columns,
             ...crudVariables,
             filterableColumns,
+            onSelectChange,
         };
     },
 };

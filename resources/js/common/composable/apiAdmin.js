@@ -12,7 +12,7 @@ const api = () => {
 
     const addEditRequestAdmin = (configObject) => { 
         loading.value = true;
-        const { url, data, success } = configObject;
+        const { url, data, success,method = "post"  } = configObject;
         var formData = {};
 
         // Replace undefined values to null
@@ -24,8 +24,11 @@ const api = () => {
             }
         });
 
-        axiosAdmin
-            .post(url, formData)
+            axiosAdmin({
+                method: method.toLowerCase(), 
+                url: url,
+                data: formData
+            })
             .then(response => {
                 // Toastr Notificaiton
                 if (configObject.successMessage) {
@@ -93,7 +96,6 @@ const api = () => {
                 formData.append(key, value.originFileObj);
             }
         });
-
         axiosAdmin
             .post(url, formData, {
                 headers: {

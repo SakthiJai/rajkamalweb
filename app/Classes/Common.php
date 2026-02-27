@@ -158,7 +158,7 @@ class Common
                 ->where('order_type', '=', 'purchases')
                 ->where('warehouse_id', '=', $warehouseId)
                 ->count();
-
+            
             $purchaseReturnOrderCount = Order::where('user_id', '=', $user->id)
                 ->where('order_type', '=', 'purchase-returns')
                 ->where('warehouse_id', '=', $warehouseId)
@@ -173,15 +173,13 @@ class Common
                 ->where('order_type', '=', 'sales-returns')
                 ->where('warehouse_id', '=', $warehouseId)
                 ->count();
-
-            $userDetails->purchase_order_count = $purchaseOrderCount;
-            $userDetails->purchase_return_count = $purchaseReturnOrderCount;
-            $userDetails->sales_order_count = $salesOrderCount;
-            $userDetails->sales_return_count = $salesReturnOrderCount;
-
+         if($userDetails)
+         {
+            $userDetails->purchase_order_count = $purchaseOrderCount<0?$purchaseOrderCount:0;            
+            $userDetails->purchase_return_count = $purchaseReturnOrderCount<0?$purchaseReturnOrderCount:0;
+            $userDetails->sales_order_count = $salesOrderCount<0?$salesOrderCount:0;
+            $userDetails->sales_return_count = $salesReturnOrderCount<0?$salesReturnOrderCount:0;
             $userDetails->total_amount = $userTotalOrderAmount;
-
-
             if ($userDetails->opening_balance_type == "receive") {
                 $userDetails->paid_amount = $userTotalPaidPayment - $userDetails->opening_balance;
             } else {
@@ -189,8 +187,11 @@ class Common
             }
 
             $userDetails->due_amount = $userDetails->total_amount - $userDetails->paid_amount;
+           
             $userDetails->save();
+        }  
         }
+
     }
 
     public static function updateWarehouseHistory($type, $typeObject, $action = "delete")

@@ -16,26 +16,25 @@
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.dataIndex === 'name'">
                             <a-badge>
-                                <a-avatar
-                                    shape="square"
-                                    :src="record.product.image_url"
-                                />
-                                {{ record.product.name }}
+                            <a-avatar
+                                shape="square"
+                                :src="record.product?.image_url"
+                            />
+                            {{ record.product?.name || '-' }}
                             </a-badge>
                         </template>
                         <template v-if="column.dataIndex === 'unit_sold'">
-                            {{ `${record.unit_sold} ${record.product.unit.short_name}` }}
+                            {{ `${record.quantity} ${record.product?.unit?.short_name || ''}` }}
                         </template>
                         <template v-if="column.dataIndex === 'total_purchase_price'">
                             {{
                                 formatAmountCurrency(
-                                    record.unit_sold *
-                                        record.product.details.purchase_price
+                                    record.quantity * (record.product?.details?.purchase_price || 0)
                                 )
                             }}
                         </template>
                         <template v-if="column.dataIndex === 'total_sales_price'">
-                            {{ formatAmountCurrency(record.total_sales_price) }}
+                            {{ formatAmountCurrency(record.subtotal) }}
                         </template>
                     </template>
                     <template #summary>
@@ -114,7 +113,7 @@ export default defineComponent({
             }
 
             datatableVariables.tableUrl.value = {
-                url: "order-items?fields=id",
+                url: "order-items?fields=id,xid,quantity,single_unit_price,unit_price,total_discount,discount_rate,total_tax,tax_rate,subtotal,order_id,x_order_id,order{id,xid,order_type,order_date},unit_id,x_unit_id,unit{id,xid,short_name},product_id,x_product_id,product{id,xid,unit_id,x_unit_id},product:unit{id,xid,short_name}",
                 filters,
                 extraFilters: {
                     product_sales_summary: true,
@@ -123,7 +122,7 @@ export default defineComponent({
                 },
             };
             datatableVariables.hashable.value = [...hashableColumns];
-            datatableVariables.table.sorter = defaultSorter;
+            datatableVariables.table.sorter = { field: "product_id", order: "asc" };
             datatableVariables.exportDetails.value = {
                 allowExport: true,
                 exportType: "product_sales_summary_reports",
@@ -139,10 +138,11 @@ export default defineComponent({
             let totalSalesPrice = 0;
             let unitSold = 0;
             datatableVariables.table.data.forEach((tableRowData) => {
-                totalPurchasePrice +=
-                    tableRowData.product.details.purchase_price * tableRowData.unit_sold;
-                totalSalesPrice += tableRowData.total_sales_price;
-                unitSold += tableRowData.unit_sold;
+            totalPurchasePrice +=
+                (tableRowData.product?.details?.purchase_price || 0) * tableRowData.quantity;
+
+            totalSalesPrice += tableRowData.subtotal;
+            unitSold += tableRowData.quantity;
             });
             return {
                 totalPurchasePrice,

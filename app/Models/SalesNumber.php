@@ -11,13 +11,13 @@ class SalesNumber extends BaseModel
 
     protected $table = 'party_customers_details';
 
-    protected $default = ['xid','cus_name','ledger_id','mobile_number','gender','age', 'billing_discount','customer_type','customer_status',];
+    protected $default = ['xid','cus_name','ledger_id','mobile_number','gender','age', 'billing_discount','customer_type','customer_status','whatsapp_numbner','government_id','pin_number','phone_number','dob','address'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $appends = ['xid'];
     
-    protected $allowedFilters = [ 'cus_name','id' ];
+    protected $allowedFilters = [ 'cus_name','mobile_number' ];
     
-    protected $filterable = ['id', 'cus_name'];
+    protected $filterable = ['id', 'cus_name','mobile_number'];
 }

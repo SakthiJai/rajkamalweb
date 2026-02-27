@@ -33,8 +33,8 @@ class CompanyTableSeeder extends Seeder
         $enLang = Lang::where('key', 'en')->first();
 
         $setting = new Company();
-        $setting->name = 'Stockifly';
-        $setting->short_name = 'Stockifly';
+        $setting->name = 'DigitalCloudies';
+        $setting->short_name = 'DigitalCloudies';
         $setting->email = 'company@example.com';
         $setting->phone = $faker->e164PhoneNumber();
         $setting->address = '7 street, city, state, 762782';

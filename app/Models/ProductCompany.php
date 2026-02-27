@@ -10,7 +10,19 @@ class ProductCompany extends BaseModel
 {
     protected $table = 'product_company';
 
-    protected $default = ['xid', 'name'];
+    protected $default = [
+        'xid',
+        'name',
+        'print_remark',
+        'status',
+        'reorder_perference',
+        'store_room',
+        'prohibit',
+        'invoice_printing',
+        'dump_days',
+        'reorder_formula',
+        'minimum_margin'
+    ];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
@@ -19,5 +31,4 @@ class ProductCompany extends BaseModel
     protected $hidden = [];
 
     protected $appends = ['xid'];
-
 }

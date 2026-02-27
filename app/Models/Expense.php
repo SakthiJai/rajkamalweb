@@ -1,20 +1,36 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\Categorys;
 use App\Casts\Hash;
 use App\Classes\Common;
 use App\Models\BaseModel;
 use App\Scopes\CompanyScope;
 use Vinkla\Hashids\Facades\Hashids;
-
+use App\Models\PaymentMode;
 class Expense extends BaseModel
 {
     protected $table = 'expenses';
 
-    protected $default = ['xid'];
+    protected $default = [
+        'xid',
+        'id',
+        'tax_type',
+        'party_type',
+        'expense_category',
+        'expense_date',
+        'entry_date',
+        'original_bill_number',
+        'bill_amount',
+        'tax_amount',
+        'payment_mode',
+        'note',
+        'image',
 
-    protected $dates = ['date'];
+
+    ];
+
+    protected $dates = ['date', 'entry_date', 'expense_date'];
 
     protected $guarded = ['id', 'warehouse_id', 'created_at', 'updated_at'];
 
@@ -66,4 +82,17 @@ class Expense extends BaseModel
     {
         return $this->hasOne(Warehouse::class, 'id', 'warehouse_id');
     }
+
+    public function getCategoryNameAttribute()
+    {
+        $unit  = Categorys::find($this->expense_category);
+        return $unit ? $unit->category_name : 'Unknown';
+    }
+
+    public function getPaymentNameAttribute()
+    {
+        $unit  = PaymentMode::find($this->payment_mode);
+        return $unit ? $unit->name : 'Unknown';
+    }
+
 }

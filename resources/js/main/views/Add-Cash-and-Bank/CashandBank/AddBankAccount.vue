@@ -16,7 +16,7 @@
                     align-items: center;
                 "
             >
-                <span>Add Bank Account</span>
+                <span>Add Bank Accounts</span>
             </div>
             <button
                 @click="onClose"
@@ -67,6 +67,7 @@
                         <a-input
                             v-model:value="formDataLedger.account_name"
                             placeholder="ex: Account Name"
+                            autocomplete="off"
                         />
                     </a-form-item>
                 </a-col>
@@ -90,6 +91,7 @@
                             v-model="formDataLedger.opening_balance"
                             @input="onInputOpeningBalance"
                             placeholder="ex: ₹10,000"
+                            autocomplete="off"
                         />
                     </a-form-item>
                 </a-col>
@@ -107,6 +109,7 @@
                         <a-input
                             type="date"
                             v-model:value="formDataLedger.as_of_date"
+                            autocomplete="off"
                         />
                     </a-form-item>
                 </a-col>
@@ -123,7 +126,6 @@
                     margin-top: 10px;
                     border-top: 1px solid #e8e8e8;
                     padding-top: 15px;
-                    background-color: #ffff;
                 "
             >
                 <span>Add Bank Details</span>
@@ -150,6 +152,7 @@
                             v-model:value="formDataLedger.bank_account_number"
                             @input="onInputAccountNumber"
                             placeholder="ex: 123456789157950"
+                            autocomplete="off"
                         />
                     </a-form-item>
                 </a-col>
@@ -173,6 +176,7 @@
                                 formDataLedger.re_enter_bank_account_number
                             "
                             @input="onInputReEnterAccountNumber"
+                            autocomplete="off"
                             placeholder="ex: 123456789157950"
                         />
                     </a-form-item>
@@ -192,6 +196,7 @@
                             v-model:value="formDataLedger.ifsc_code"
                             @input="onInputIfscCode"
                             placeholder="ex: HDFC000075"
+                            autocomplete="off"
                         />
                     </a-form-item>
                 </a-col>
@@ -214,6 +219,7 @@
                             v-model:value="formDataLedger.bank_branch_name"
                             @input="text"
                             placeholder="ex: HDFC, Old Madras"
+                            autocomplete="off"
                         />
                     </a-form-item>
                 </a-col>
@@ -237,6 +243,7 @@
                             v-model:value="formDataLedger.account_holder_name"
                             @input="text"
                             placeholder="ex: Elisa wolf"
+                            autocomplete="off"
                         />
                     </a-form-item>
                 </a-col>
@@ -253,6 +260,7 @@
                             v-model:value="formDataLedger.upi_id"
                             @input="text"
                             placeholder="ex: elisa@okhdfc"
+                            autocomplete="off"
                         />
                     </a-form-item>
                 </a-col>
@@ -275,7 +283,7 @@
 
             <button
                 @click="onSubmitLedger"
-                type="submit"
+                type="button"
                 id="btn-Ledger"
                 title="Ledger"
                 class="btn default-btn ng-star-inserted gst"
@@ -298,6 +306,7 @@ import {
 } from "@ant-design/icons-vue";
 import apiAdmin from "../../../../common/composable/apiAdmin";
 import StaffMemberAddButton from "../../../views/users/StaffAddButton.vue";
+import { message, notification } from "ant-design-vue";
 
 export default defineComponent({
     props: [
@@ -327,9 +336,6 @@ export default defineComponent({
             addEditRequestAdmin({
                 url: `cashbank`,
                 data: formDataLedger,
-                success: (res) => {
-                    emit("addEditSuccess", res.xid);
-                },
             });
         };
 

@@ -11,7 +11,22 @@ const fields = () => {
     const route = useRoute();
     const orderType = ref(route.meta.orderType);
     const columns = ref([]);
-    const hashableColumns = ['user_id', 'warehouse_id','party_customer_id'];
+    const salesReturnColumns = ref([]);
+    const BillReturnColumns = ref([]);
+    const ReceiptColumns = ref([]);
+    const ReceiptPaymentColumns = ref([]);
+    const PaymentColumn = ref([]);
+    const ExpenseColumns = ref([]);
+
+    const purchaseReturnColumns = ref([]);
+
+    const CustomerItem = ref([]);
+
+    const PartyItem = ref([]);
+    const PartyList = ref([]);
+    const ProducteditItem = ref([]);
+
+    const hashableColumns = ["user_id", "warehouse_id", "party_customer_id"];
 
     onMounted(() => {
         if (route.meta && route.meta.orderType) {
@@ -28,8 +43,8 @@ const fields = () => {
         order_status: undefined,
         tax_id: undefined,
         warehouse_id: undefined,
-        party_customer_id:undefined,
-        
+        party_customer_id: undefined,
+
         discount: 0,
         shipping: 0,
         subtotal: 0,
@@ -41,6 +56,52 @@ const fields = () => {
         amount: "",
         notes: "",
     };
+
+    // customer edit //
+    CustomerItem.value = [
+        {
+            title: t("stock.party_full_name"),
+            dataIndex: "party_full_name",
+            sorter: true,
+        },
+
+        // {
+        //     title: t("stock.sales_number"),
+        //     dataIndex: "mobile_number",
+        //     sorter: true,
+        // },
+
+        // {
+        //     title: t("stock.sales_name"),
+        //     dataIndex: "cus_name",
+        //     sorter: true,
+        // },
+
+        // {
+        //     title: t("stock.address"),
+        //     dataIndex: "address",
+        //     sorter: true,
+        // },
+
+        // {
+        //     title: t("stock.sales_age"),
+        //     dataIndex: "age",
+        //     sorter: true,
+        // },
+
+        // {
+        //     title: t("stock.sales_status"),
+        //     dataIndex: "customer_status",
+        //     sorter: true,
+        // },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    //end customer edit //
 
     const orderItemColumns = [
         {
@@ -71,12 +132,12 @@ const fields = () => {
             title: t("product.subtotal"),
             dataIndex: "subtotal",
         },
+
         {
             title: t("common.action"),
             dataIndex: "action",
         },
     ];
-
 
     /* sales */
 
@@ -85,7 +146,7 @@ const fields = () => {
             title: "#",
             dataIndex: "sn",
         },
-      
+
         {
             title: t("product.additonal_details"),
             dataIndex: "unit_quantity",
@@ -94,16 +155,9 @@ const fields = () => {
             title: t("product.percentage "),
             dataIndex: "unit_quantity",
         },
-        {
-            title: t("product.amounts"),
-            dataIndex: "unit_quantity1",
-        },
-       
-       
     ];
 
-     /*  end columnssales  */
-
+    /*  end columnssales  */
 
     const orderItemDetailsColumns = [
         {
@@ -134,14 +188,12 @@ const fields = () => {
 
     const filterableColumns = [
         {
-            
-            key: "invoice_number",
-            value: t("stock.invoice_number")
+            key: "sales_number",
+            value: t("mobile_number"),
         },
         {
-            
-            key: "party_name",
-            value: t("stock.party_name")
+            key: "sales_name",
+            value: t("cus_name"),
         },
     ];
 
@@ -180,6 +232,14 @@ const fields = () => {
                 userType: "customers",
                 permission: "sales_returns",
             };
+        } else if (orderType.value == "bill-returns") {
+            pageObjectDetails = {
+                type: "bill-returns",
+                langKey: "bill-returns",
+                menuKey: "bill-returns",
+                userType: "customers",
+                permission: "bill-returns",
+            };
         } else if (orderType.value == "online-orders") {
             pageObjectDetails = {
                 type: "online-orders",
@@ -214,7 +274,7 @@ const fields = () => {
             {
                 title: t(`stock.bill_no`),
                 dataIndex: "invoice_number",
-                sorter:true
+                sorter: true,
             },
             // {
             //     title: t(`stock.bill_no`),
@@ -223,70 +283,369 @@ const fields = () => {
             // }
         ];
 
-        if (pageObject.value.type == 'stock-transfers') {
+        if (pageObject.value.type == "stock-transfers") {
             allColumns.push({
                 title: t("stock_transfer.warehouse"),
                 dataIndex: "warehouse",
-                sorter:true,
-                sorter_field:"orders.warehouse_id"
+                sorter: true,
+                sorter_field: "orders.warehouse_id",
             });
         }
-        if (pageObject.value.type == 'stock-transfers') {
+        if (pageObject.value.type == "stock-transfers") {
             allColumns.push({
                 title: t("stock_transfer.warehouse"),
                 dataIndex: "stock",
-                sorter:true,
-                sorter_field:"orders.party_customer_id"
+                sorter: true,
+                sorter_field: "orders.party_customer_id",
             });
         }
 
         allColumns.push({
-            title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`),
+            title: t(
+                `${pageObject.value.langKey}.${pageObject.value.langKey}_date`
+            ),
             dataIndex: "order_date",
-            sorter:true
+            sorter: true,
         });
-
-        /*if (pageObject.value.type != 'stock-transfers') {
-            allColumns.push({
-                title: t(`${pageObject.value.langKey}.user`),
-                dataIndex: "user_id",
-                sorter:true,
-                sorter_field:"orders.user_id"
-            });
-        }*/
 
         columns.value = [
             ...allColumns,
             {
                 title: t(`${pageObject.value.langKey}.user`),
-                dataIndex: ['customer', 'cus_name'],
-                sorter:true,
+                dataIndex: ["customer", "cus_name"],
+                sorter: true,
                 //sorter_field:"orders.user_id"
             },
-            
-           
+
             {
                 title: t("stock.party"),
-                dataIndex: ['party_name', 'party_name'],
-                sorter:true,
-               
+                dataIndex: ["party", "party_name"],
+                sorter: true,
             },
+
+            // {
+            //     title: "Party type",
+            //     dataIndex: ["party", "party_type"],
+            //     sorter: true,
+            // },
+
+            // {
+            //     title: t("Customer Number"),
+            //     dataIndex: ["customer", "mobile_number"],
+            //     sorter: true,
+            // },
+
             {
+                title: t("stock.mobile_number"),
+                dataIndex: ["customer", "mobile_number"],
+                sorter: true,
+                //sorter_field:"orders.user_id"
+            },
+
+            /*{
                 title: t(`${pageObject.value.langKey}.${pageObject.value.langKey}_status`),
                 dataIndex: "order_status",
                 sorter:true,
-            },
+            },*/
+            // {
+            //     title: t("stock.sales_amount"),
+            //     dataIndex: "payment_status",
+            //     sorter:true,
+            // },
+
             {
                 title: t("stock.sales_amount"),
-                dataIndex: "payment_status",
-                sorter:true,
+                dataIndex: "total",
+                sorter: true,
+                render: function (data, type, row) {
+                    return (100 * data).toFixed(2) + "%";
+                },
+                footer: {
+                    content: "summColumn",
+                    template: function (obj) {
+                        return (Math.round(object.value * 100) / 100).toFixed(
+                            2
+                        );
+                    },
+                },
             },
+            {
+                title: "Payment Status",
+                dataIndex: "payment_status",
+            },
+
             {
                 title: t("common.action"),
                 dataIndex: "action",
             },
         ];
     };
+
+    salesReturnColumns.value = [
+        {
+            title: t(`CR.Number`),
+            dataIndex: "cr_number",
+            sorter: true,
+        },
+        {
+            title: t("stock.party"),
+            dataIndex: ["party_name", "party_name"],
+            sorter: true,
+        },
+        {
+            title: t(`${pageObject.value.langKey}.user`),
+            dataIndex: ["customer", "cus_name"],
+            sorter: true,
+            //sorter_field:"orders.user_id"
+        },
+        {
+            title: t("stock.sales_amount"),
+            dataIndex: "total",
+            sorter: true,
+        },
+        {
+            title: t("Date"),
+            dataIndex: "order_date",
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    //bill return//
+
+    BillReturnColumns.value = [
+        {
+            title: t(`stock.invoices_number`),
+            dataIndex: "invoice_number",
+            sorter: true,
+        },
+        {
+            title: t("stock.party"),
+
+            dataIndex: ["party_name", "party_full_name"],
+
+            sorter: true,
+        },
+
+        {
+            title: t("stock.sales_amount"),
+            dataIndex: "total",
+            sorter: true,
+        },
+        {
+            title: t("stock.order_date"),
+            dataIndex: "order_date",
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    ReceiptColumns.value = [
+        {
+            title: t(`Order Date`),
+            dataIndex: "order_date",
+            sorter: true,
+        },
+        {
+            title: t("Vocher Number"),
+            dataIndex: "voucher_number",
+            //dataIndex: "party_full_name",
+            sorter: true,
+        },
+
+        {
+            title: t("Party Name"),
+            dataIndex: ["party_name", "party_full_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("Station"),
+            dataIndex: "station",
+        },
+
+        {
+            title: t("Ins.Type"),
+            dataIndex: "inst_type",
+        },
+        {
+            title: t("Ins.No"),
+            dataIndex: "inst_no",
+        },
+
+        {
+            title: t("Amount"),
+            dataIndex: "amount",
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+    /// end of bill retutn//
+
+    ReceiptPaymentColumns.value = [
+        {
+            title: t(`Order Date`),
+            dataIndex: "order_date",
+            sorter: true,
+        },
+        {
+            title: t("Voucher Number"),
+            dataIndex: "payment_voucher",
+            //dataIndex: "party_full_name",
+            sorter: true,
+        },
+
+        {
+            title: t("Party Name"),
+            dataIndex: ["party_name", "party_full_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("Station"),
+            dataIndex: "station",
+        },
+
+        {
+            title: t("Ins.Type"),
+            dataIndex: "inst_type",
+        },
+        {
+            title: t("Ins.No"),
+            dataIndex: "inst_no",
+        },
+
+        {
+            title: t("Amount"),
+            dataIndex: "amount",
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    /// payment recepit//
+
+    //end payment recepit//
+
+    // Payment table data
+
+    PaymentColumn.value = [
+        {
+            title: t("Date"),
+            dataIndex: "order_date",
+        },
+        {
+            title: t("Voucher No"),
+            dataIndex: "invoice_number",
+            // dataIndex: ["partyName", "party_name"],
+        },
+        {
+            title: t("Party Name"),
+            dataIndex: ["customer", "cus_name"],
+        },
+        {
+            title: t("Station"),
+            dataIndex: "total",
+        },
+        {
+            title: t("Ins Type"),
+            dataIndex: "order_date",
+        },
+
+        {
+            title: t("Ins No"),
+            dataIndex: "total",
+        },
+        {
+            title: t("₹ Amount"),
+            dataIndex: "total",
+        },
+        {
+            title: t("Action"),
+            dataIndex: "action",
+        },
+    ];
+    //end payment table data
+
+    /// expense column//
+    ExpenseColumns.value = [
+        {
+            title: t(`stock.expense_number`),
+            dataIndex: "expense_number",
+            sorter: true,
+        },
+
+        {
+            title: t("stock.order_date"),
+            dataIndex: "order_date",
+        },
+        {
+            title: t("stock.party"),
+            dataIndex: ["party_name", "party_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("stock.category"),
+            dataIndex: "category_id",
+            sorter: true,
+        },
+
+        {
+            title: t("stock.sales_amount"),
+            dataIndex: "total",
+            sorter: true,
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+    // end expense colunm//
+
+    // purchase return //
+    purchaseReturnColumns.value = [
+        {
+            title: t(`stock.dr_numbers`),
+            dataIndex: "dr_number",
+            sorter: true,
+        },
+        {
+            title: t("stock.party"),
+            dataIndex: ["party_name", "party_name"],
+            sorter: true,
+        },
+
+        {
+            title: t("stock.sales_amount"),
+            dataIndex: "total",
+            sorter: true,
+        },
+        {
+            title: t("stock.order_date"),
+            dataIndex: "order_date",
+        },
+
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    //end purchase //
 
     const orderPaymentsColumns = [
         {
@@ -297,16 +656,133 @@ const fields = () => {
             title: t("payments.date"),
             dataIndex: "date",
         },
-        {
-            title: t("payments.amount"),
-            dataIndex: "amount",
-        },
+        // {
+        //     title: t("payments.amount"),
+        //     dataIndex: "amount",
+        // },
         {
             title: t("payments.payment_mode"),
             dataIndex: "payment_mode_id",
         },
-      
     ];
+    PartyItem.value = [
+        {
+            title: t("stock.sales_ledger_name"),
+            dataIndex: "party_name",
+        },
+
+        {
+            title: t("stock.sales_station"),
+            dataIndex: "station_name",
+        },
+
+        {
+            title: t("stock.customer"),
+            dataIndex: "customer_first_name",
+        },
+
+        {
+            title: t("stock.whatsapp_number"),
+            dataIndex: "whatsapp_number",
+        },
+
+        {
+            title: "₹ " + t("stock.sales_balance"),
+            dataIndex: "opening_balance",
+            align: "right",
+        },
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    // party edit //
+    PartyList.value = [
+        {
+            title: t("Ledger Name"),
+            dataIndex: "party_name",
+        },
+        {
+            title: t("Contact Name"),
+            render: (contactinfo) =>
+                contactinfo
+                    .map((contactinfo) => contactinfo.contact_name)
+                    .join(),
+            dataIndex: "contactinfo",
+            sorter: true,
+        },
+
+        {
+            title: t("Party Type"),
+            dataIndex: "party_type",
+            sorter: true,
+        },
+
+        // {
+        //     title: t("Account Group"),
+        //     dataIndex: "account_group",
+        // },
+
+        {
+            title: t("Mobile Number"),
+            dataIndex: ["mobile_number"],
+            sorter: true,
+        },
+        {
+            title: t("Whatsapp"),
+            dataIndex: "whatsapp_number",
+        },
+
+        {
+            title: "₹ " + t("stock.sales_balance"),
+            dataIndex: "opening_balance",
+            align: "right",
+        },
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    //end party edit //
+
+    // product edit//
+
+    ProducteditItem.value = [
+        {
+            title: t("Description"),
+            dataIndex: "name",
+            sorter: true,
+        },
+        {
+            title: t("Packing"),
+            dataIndex: "packing",
+            sorter: true,
+        },
+        {
+            title: t("Stock"),
+            dataIndex: "stock",
+            sorter: true,
+        },
+        {
+            title: t("Unit"),
+            dataIndex: "unit_name",
+            sorter: true,
+        },
+        {
+            title: t("Sales Rate"),
+            dataIndex: "sale_rate",
+            align: "right",
+            sorter: true,
+        },
+        {
+            title: t("common.action"),
+            dataIndex: "action",
+        },
+    ];
+
+    //end of product edit
 
     return {
         initData,
@@ -320,8 +796,19 @@ const fields = () => {
         orderItemColumns,
         salesItemColumns,
         orderPaymentsColumns,
-        orderItemDetailsColumns
-    }
-}
+        orderItemDetailsColumns,
+        salesReturnColumns,
+        BillReturnColumns,
+        ReceiptColumns,
+        ReceiptPaymentColumns,
+        PaymentColumn,
+        purchaseReturnColumns,
+        ExpenseColumns,
+        CustomerItem,
+        PartyItem,
+        ProducteditItem,
+        PartyList,
+    };
+};
 
 export default fields;

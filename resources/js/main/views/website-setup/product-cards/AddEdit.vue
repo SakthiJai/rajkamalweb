@@ -204,7 +204,7 @@ export default defineComponent({
         };
         const { t } = useI18n();
         const state = reactive({
-            orderSearchTerm: [],
+            ordersearchTerm: [],
             productFetching: false,
             products: [],
         });
