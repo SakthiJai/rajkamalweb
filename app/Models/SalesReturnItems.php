@@ -9,6 +9,26 @@ use Vinkla\Hashids\Facades\Hashids;
 
 class SalesReturnItems extends BaseModel
 {
+    // Mutators for saving cgst, sgst, igst, cess from payload
+    public function setCgstAttribute($value)
+    {
+        $this->attributes['cgst'] = $value;
+    }
+
+    public function setSgstAttribute($value)
+    {
+        $this->attributes['sgst'] = $value;
+    }
+
+    public function setIgstAttribute($value)
+    {
+        $this->attributes['igst'] = $value;
+    }
+
+    public function setCessAttribute($value)
+    {
+        $this->attributes['cess'] = $value;
+    }
     protected $table = 'sales_return_items';
 
     protected $default = ['xid','product_name','stock','pack','cgst','sgst'];
@@ -77,21 +97,15 @@ class SalesReturnItems extends BaseModel
          $product = Product::find(id: $this->product_id);
          return $product ? $product->packing : 0;
      }
-     public function getCgstAttribute()
-     {
+    public function getCgstAttribute()
+    {
+        return $this->attributes['cgst'] ?? 0;
+    }
 
-        $product = Product::find(id: $this->product_id);
-
-         return $product ? $product->hsn() : 0;
-         //return $this->product->hsn;
-     }
-     public function getSgstAttribute()
-     {
-
-        $product = Product::find(id: $this->product_id);
-         return $product ? $product->hsn->sgst : 0;
-       //  return $this->product->hsn;
-     }
+    public function getSgstAttribute()
+    {
+        return $this->attributes['sgst'] ?? 0;
+    }
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
@@ -110,5 +124,15 @@ class SalesReturnItems extends BaseModel
     public function orderItemTaxes()
     {
         return $this->hasMany(OrderItemTax::class, 'order_item_id', 'id');
+    }
+
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array['cgst'] = $this->cgst;
+        $array['sgst'] = $this->sgst;
+        $array['igst'] = $this->igst;
+        $array['cess'] = $this->cess;
+        return $array;
     }
 }

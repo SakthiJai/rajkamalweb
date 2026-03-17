@@ -310,7 +310,7 @@ public function updatebill($request)
 							'order_id'           => $order->id,
 							'product_id'        => (int)$item['item_id'],
 							'quantity'           => $quantity,
-							'free'              => $item['free'],
+							'free'               => isset($item['free']) ? $item['free'] : 0,
 							'unit_price'         => $item['single_unit_price'],
 							'single_unit_price'  => $item['single_unit_price'],
 							'discount_rate'      => $item['discount_rate'] ?? 0,

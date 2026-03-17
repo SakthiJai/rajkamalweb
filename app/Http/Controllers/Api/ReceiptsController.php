@@ -96,7 +96,7 @@ class ReceiptsController extends ApiBaseController
 							'order_id'           => $order->id,
 							'party_id'           => (int)$item['item_id'],
 							'station'           => $quantity,
-							'receipt_date'        => $item['free'],
+							'receipt_date'         => isset($item['free']) ? $item['free'] : 0,
 							'amount'         => $item['single_unit_price'],
                             'short_amount'         => $item['short_amount'],
 							

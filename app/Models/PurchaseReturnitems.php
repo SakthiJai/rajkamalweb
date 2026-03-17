@@ -90,16 +90,20 @@ class PurchaseReturnitems extends BaseModel
 
      public function getCgstAttribute()
      {
-        
-         $product = Product::find(id: $this->product_id);
-         return $product ? $product->taxCategory->cgst : 0; 
+         $product = Product::find($this->product_id);
+         if ($product && $product->taxCategory) {
+             return $product->taxCategory->cgst ?? 0;
+         }
+         return 0;
      }
 
      public function getSgstAttribute()
      {
-        
-         $product = Product::find(id: $this->product_id);
-         return $product ? $product->taxCategory->sgst : 0; 
+         $product = Product::find($this->product_id);
+         if ($product && $product->taxCategory) {
+             return $product->taxCategory->sgst ?? 0;
+         }
+         return 0;
      }
 
      public function product()

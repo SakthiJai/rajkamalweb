@@ -1,5 +1,6 @@
 <template>
     <a-date-picker
+        ref="pickerRef"
         v-model:value="dateTimeValue"
         :format="formatOrderDate"
         :disabled-date="disabledDate"
@@ -12,7 +13,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, watch } from "vue";
+import { defineComponent, onMounted, ref, watch, nextTick } from "vue";
 import common from "../../../composable/common";
 
 export default defineComponent({
@@ -29,33 +30,48 @@ export default defineComponent({
         
         const { disabledDate, formatDateTime, dayjs } = common();
         const dateTimeValue = ref(dayjs());
-        const handleArrowNavigation = (event) => {
-    if (!dateTimeValue.value) return;
+        const handleArrowNavigation = async (event) => {
+            if (!dateTimeValue.value) return;
 
-    const current = dateTimeValue.value;
+            const current = dateTimeValue.value;
+            let updated = current;
 
-    switch (event.key) {
-        case "ArrowRight":
+            switch (event.key) {
+                case "ArrowRight":
+                    updated = current.add(1, "day");
+                    break;
+
+                case "ArrowLeft":
+                    updated = current.subtract(1, "day");
+                    break;
+
+                case "ArrowUp":
+                    updated = current.subtract(7, "day");
+                    break;
+
+                case "ArrowDown":
+                    updated = current.add(7, "day");
+                    break;
+
+                default:
+                    return; 
+            }
+
             event.preventDefault();
-            dateTimeValue.value = current.add(1, "day");
-            break;
+            event.stopPropagation();
 
-        case "ArrowLeft":
-            event.preventDefault();
-            dateTimeValue.value = current.subtract(1, "day");
-            break;
+            dateTimeValue.value = updated;
+ 
+            const emitValue = updated
+                ? updated.utc().format("YYYY-MM-DDTHH:mm:ssZ")
+                : undefined;
 
-        case "ArrowUp":
-            event.preventDefault();
-            dateTimeValue.value = current.subtract(7, "day");
-            break;
-
-        case "ArrowDown":
-            event.preventDefault();
-            dateTimeValue.value = current.add(7, "day");
-            break;
-    }
-};
+            emit("dateTimeChanged", emitValue);
+ 
+            await nextTick();
+            event.target.focus();
+        };
+        
         const handleKeydown = (event) => {
             if (event.key !== "Enter") return;
 

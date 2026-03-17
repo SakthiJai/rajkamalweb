@@ -51,7 +51,7 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`common.create`) }}sdfsd
+                    {{ $t(`common.create`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
             <div style="float:right;font-size: 12px;margin-top:-2%"> <b>Balance&nbsp; ₹  :&nbsp;<span id="balance_amt" ></span></b>&nbsp;&nbsp;<b>Due&nbsp; ₹ :&nbsp;<span id="Due_amt" style="color:red"></span></b>&nbsp;&nbsp;&nbsp;
@@ -841,7 +841,7 @@ export default {
                 ],
 
                 invoiceitems:[
-                    {index:1,item_id:null,item_name:null,unit_id:null,quantity:'',freeQty:"",remQty:"",withoutDisc:"",withDisc:"",mrp:null,single_unit_price:null,discount_type_id:null,discount_value:0,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null},
+                    {index:1,item_id:null,item_name:null,unit_id:null,quantity:'',freeQty:"",remQty:"",withoutDisc:"",withDisc:"",mrp:null,single_unit_price:null,discount_type_id:null,discount_value:0,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null,cgst:null,sgst:null,cess:null,unique:Math.random().toString(36).substring(2,7),hsnCode:null,qtyUnit:null,isDelete:0},
                 ],
 
                 additems: [
@@ -1110,7 +1110,7 @@ export default {
             isOpensave: false,
 
             dropsitems: [
-        { text: "Save & SMS", icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M256 448h512v128h-512zM256 256h512v128h-512zM960 0h-896c-35.376 0-64 28.624-64 64v704c0 35.376 28.624 64 64 64h128v192l288-192h480c35.376 0 64-28.624 64-64v-704c0-35.376-28.624-64-64-64zM896 704h-416l-160 96v-96h-192v-576h768v576z"></path></svg>`, isSvg: true },
+        { text: "Save & SMS", icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M256 448h512v128h-512zM256 256h512v128h-512zM960 0h-896c-35.376 0-64 28.624-64 64v704c0 35.376 28.658 64 64 64h128v192l288-192h480c35.376 0 64-28.624 64-64v-704c0-35.376-28.658-64-64.002-64zM896 704h-416l-160 96v-96h-192v-576h768v576z"></path></svg>`, isSvg: true },
         { text: "Save & Email",icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M959.998 128h-895.998c-35.342 0-64 28.624-64 64v640c0 35.376 28.658 64 64 64h895.998c35.344 0 64.002-28.624 64.002-64v-640c0-35.376-28.658-64-64.002-64zM832 256l-320 256-320-256h640zM896 768h-768v-448l384 320 384-320v448z"></path></svg>`,
         isSvg: true },
         { text: "Save & Print", icon:`<svg height="14" viewBox="0 0 135.57 125.14"><path fill="currentColor" d="M131,56.75a15.06,15.06,0,0,0-11-4.6h-5.21V31.28a18.81,18.81,0,0,0-1.63-7.17,18.94,18.94,0,0,0-3.91-6.19L96.79,5.54A19,19,0,0,0,90.6,1.63,18.81,18.81,0,0,0,83.43,0H28.68a7.54,7.54,0,0,0-5.54,2.28,7.54,7.54,0,0,0-2.28,5.54V52.14H15.64a15.06,15.06,0,0,0-11,4.6,15.06,15.06,0,0,0-4.6,11v33.89a2.51,2.51,0,0,0,.77,1.83,2.51,2.51,0,0,0,1.83.77H20.86v13a7.79,7.79,0,0,0,7.82,7.82h78.21a7.79,7.79,0,0,0,7.82-7.82v-13H133a2.64,2.64,0,0,0,2.6-2.61V67.78A15.05,15.05,0,0,0,131,56.75Zm-26.68,58h-73V93.86h73Zm0-52.14h-73V10.43H83.43v13a7.79,7.79,0,0,0,7.82,7.82h13Zm19.31,8.88a5.11,5.11,0,1,1,1.55-3.67A5,5,0,0,1,123.59,71.45Z"></path></svg>`,
@@ -1136,17 +1136,29 @@ export default {
         document.getElementById('salescreatevue').addEventListener('keydown', this.handleKeyDowning);
         this.autoFocusInput();
         const billNumberUrl = `sales/billNumber`;
-                axiosAdmin.get(billNumberUrl).then((response) => {
-                    //console.log(response)
-                    if (this.selectedInvoice == null || this.selectedInvoice == "" || this.selectedInvoice == undefined || this.selectedInvoice == "null") {
-                        this.formData.bill_number = response.data.ref;
-                    }
-                this.discountTypes = response.data.discountItems;
-                document.getElementById("form_item_bill_number").value = this.formData.bill_number;
-                //this.loading= false;
-                 });
+        axiosAdmin.get(billNumberUrl).then((response) => {
+            if (this.selectedInvoice == null || this.selectedInvoice == "" || this.selectedInvoice == undefined || this.selectedInvoice == "null") {
+                this.formData.bill_number = response.data.ref;
+            }
+            this.discountTypes = response.data.discountItems;
+            document.getElementById("form_item_bill_number").value = this.formData.bill_number;
+        });
         this.getInvoiceDetails();
 
+        // Enhancement: Focus quantity input and call getQuantity in edit mode
+        if (this.selectedInvoice !== null && this.selectedInvoice !== "null") {
+            this.$nextTick(() => {
+                // Focus the first quantity input
+                const qtyInput = document.getElementById("item_product_quantity_0");
+                if (qtyInput) {
+                    qtyInput.focus();
+                }
+                // Call getQuantity for the first item
+                if (typeof this.getQuantity === "function") {
+                    this.getQuantity(0, null);
+                }
+            });
+        }
     },
     beforeDestroy() {
        // document.removeEventListener('keydown', this.handleKeyDown);
@@ -1233,7 +1245,8 @@ deleteItem()
             this.spinning = true;
             axiosAdmin
             .get("sales/getInvoiceDetails/"+this.selectedInvoice)
-            .then(response => {  console.log(response)
+            .then(response => {  console.log("response",response)
+
                 // Toastr Notificaiton
                 this.formData.party_id=response.data.partyDetails.id;
                 console.log(this.formData);
@@ -1244,6 +1257,7 @@ deleteItem()
             
                 this.formData.shipping_address          =   response.data.shipppingaddressData.shipping_address,
                 this.formData.party_customer_mobile     =   response.data.customerData.mobile_number,
+                this.formData.stock_state               =   response.data.partyDetails.stock_state,
                 this.formData.order_date                =   response.data.invoiceData.order_date.split('T')[0];
 
                 this.spinning = false;
@@ -1329,17 +1343,16 @@ deleteItem()
                     document.getElementById('igst_amount_1').value = this.formatCurrency(totalsgst);
                     document.getElementById("igst_amount_2").value = this.formatCurrency(totalcgst+totalsgst);
                     document.getElementById('igst_amount_3').value = this.formatCurrency(cessAmount);
-                    console.log("edit grand total 2",  grand_total,totalcgst,totalsgst,cessAmount,total_disc);
+                    console.log("cessAmount",cessAmount);
                    
                     document.getElementById('grand_total').innerHTML = this.formatCurrency((grand_total + (cessAmount)));
                     this.formData.total =   (grand_total + (cessAmount));
-                    console.log("this.formData.total", this.formData.total)
                     //console.log("grand_total=>",this.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0));
                     this.selectedItermIndex = (finalIndex);
                     document.getElementById('cgst_total_text').innerHTML        =    this.formatCurrency(totalcgst>0?totalcgst:0)
                     document.getElementById('sgst_total_text').innerHTML = this.formatCurrency(totalsgst > 0 ? totalsgst : 0);
-                   
-                     if (this.formData.party_state == this.company.state) {
+                   console.log("party state",this.formData.stock_state ,"company state",this.company.state)
+                     if (this.formData.stock_state   == this.company.state) {
                     document.getElementById("IGST").style.display = "none";
                     document.getElementById("CGST").style.display = "table-row";
                     document.getElementById("SGST").style.display = "table-row";
@@ -1818,7 +1831,7 @@ hasValidInput(target) {
             this.formData.party_id = selectedParty.id.toString();
             this.formData.party_name = selectedParty.name;
             this.formData.party_state = selectedParty.state;
-            console.log(this.formData.party_state ,"==", this.company.state)
+            console.log("party state",this.formData.party_state ,"company state", this.company.state)
             if (this.formData.party_state == this.company.state) {
                 document.getElementById("IGST").style.display = "none";
                 document.getElementById("CGST").style.display = "table-row";
@@ -2281,7 +2294,25 @@ hasValidInput(target) {
                 }
                  if (element.item_id > 0 && element.sgst > 0) { sgstAmount += ((element.sgst/100) * (singleItemTotal-element.discount_value));   sgst=sgst+element.sgst;  }
                 if (element.item_id > 0 && element.cgst > 0) { cgstAmount += ((element.cgst / 100) * (singleItemTotal - element.discount_value)); cgst = cgst + element.cgst; }
-               if(element.item_id>0 && element.cess>0){    cessAmount += ((element.cess/100) * (singleItemTotal - element.discount_value)); }  
+                if(element.item_id>0 && element.cess>0){
+                    // Recalculate withDisc as in getQuantity
+                    let tempQuantity = element.quantity;
+                    if (element.freeQty && Number(element.freeQty) > 0) {
+                        tempQuantity = tempQuantity - Number(element.freeQty);
+                    }
+                    let singleItemTotalForCess = Number(element.single_unit_price) * Number(tempQuantity);
+                    let discount_value = 0;
+                    if (element.discount_type_id == 2) {
+                        discount_value = (element.discount_rate / 100) * (Number(element.single_unit_price) * Number(tempQuantity));
+                    } else if (element.discount_type_id == 3) {
+                        discount_value = Number(element.discount_rate);
+                    } else if (element.discount_type_id == 4) {
+                        discount_value = Number(element.discount_rate) * Number(tempQuantity);
+                    }
+                    let withDisc = singleItemTotalForCess - discount_value;
+                    cessAmount += ((element.cess/100) * (withDisc));
+                    console.log("cess",element.cess,"singleItemTotal",singleItemTotalForCess,"discount_value",discount_value,"withDisc",withDisc,"cessAmount11",cessAmount);
+                }
                 if (index != null) { break; }
                 // });
             }     
@@ -2307,10 +2338,12 @@ hasValidInput(target) {
             let  discount              = document.getElementById("item_product_disc_"+index).value;
             const cgst_tax_percentage  = Number(this.formData.items[index].cgst);
             const sgst_tax_percentage  = Number( this.formData.items[index].sgst);
+            console.log("item_product_tax_0",item_product_tax_0)
+            console.log("item_product_tax_1",item_product_tax_1)
 
             if (quantity == undefined || quantity == "" || quantity <= 0) { 
                 quantity = 0;
-                console.log("item_product_tax_1")
+                console.log("item_product_tax_0")
                 document.getElementById("item_product_tax_" + index).innerHTML = "";
                 document.getElementById("item_product_amount_" + index).value = this.formatCurrency(0);
                 document.getElementById("item_product_disc_" + index).value = "";
@@ -2381,6 +2414,7 @@ hasValidInput(target) {
                 document.getElementById("item_product_withDisc_" + index).innerHTML = withDisc.toFixed(2); 
                
                 const totalDiscValue = (((cgst_tax_percentage + sgst_tax_percentage) / 100) * (singleItemTotal - totalDiscountByItem)).toFixed(2);
+                console.log("cgst_tax_percentage",cgst_tax_percentage,"sgst_tax_percentage",sgst_tax_percentage,"singleItemTotal",singleItemTotal,"totalDiscountByItem",totalDiscountByItem,"totalDiscValue",totalDiscValue);
                // console.log("totalAmount->",this.totalAmount , Number(totalDiscValue));
               //  this.totalAmount = this.totalAmount + Number(totalDiscValue)
                 const taxvalueStr = (cgst_tax_percentage + sgst_tax_percentage) + ",(" + totalDiscValue +")";
@@ -2400,9 +2434,10 @@ hasValidInput(target) {
              console.log("totalAmount ->",this.totalAmount);
             document.getElementById("igst_amount_1").value       =  this.formatCurrency(totalSgstAmount>0?totalSgstAmount:0);
             document.getElementById("igst_amount_0").value       =  this.formatCurrency(totalCgstAmount>0?totalCgstAmount:0);
-            document.getElementById("igst_amount_2").value = this.formatCurrency((totalSgstAmount + totalCgstAmount) > 0 ? (totalSgstAmount + totalCgstAmount) : 0);
+           
 
             document.getElementById("igst_amount_3").value = this.formatCurrency(cessAmount);
+            console.log("cessAmount",cessAmount);
              document.getElementById("igst_amount_4").value = this.formatCurrency( totalSgstAmount + totalCgstAmount+cessAmount);
 
             this.formData.tax_amount                             =  totalSgstAmount+ totalCgstAmount;
@@ -2410,9 +2445,37 @@ hasValidInput(target) {
             this.formData.subtotal                               =  this.totalAmount>0?this.totalAmount:0;
             document.getElementById("grand_total").innerHTML     = this.totalAmount>0? this.formatCurrency((this.totalAmount+cessAmount)):0;
             this.formData.total                                   = (this.totalAmount+cessAmount);
-            document.getElementById('total_discount_text1').innerHTML = this.formatCurrency((totalSgstAmount + totalCgstAmount) > 0 ? (totalSgstAmount + totalCgstAmount) : 0)
+            // Calculate the sum of totalDiscValue for all items
+            let totalDiscValueSum = 0;
+            this.formData.items.forEach((item, idx) => {
+                const cgst = Number(item.cgst) || 0;
+                const sgst = Number(item.sgst) || 0;
+                const price = Number(item.single_unit_price) || 0;
+                const quantity = Number(item.quantity) || 0;
+                const discount_type_id = Number(item.discount_type_id) || 0;
+                let discount_rate = Number(item.discount_rate) || 0;
+                let discount_value = 0;
+                let tempQuantity = quantity;
+                if (item.freeQty && Number(item.freeQty) > 0) {
+                    tempQuantity = tempQuantity - Number(item.freeQty);
+                }
+                let singleItemTotal = price * tempQuantity;
+                // Calculate discount by type (mimic getTotalAmount logic)
+                if (discount_type_id === 2) {
+                    discount_value = (discount_rate / 100) * (price * tempQuantity);
+                } else if (discount_type_id === 3) {
+                    discount_value = discount_rate;
+                } else if (discount_type_id === 4) {
+                    discount_value = discount_rate * tempQuantity;
+                }
+                const totalDiscValue = ((cgst + sgst) / 100) * (singleItemTotal - discount_value);
+                totalDiscValueSum += totalDiscValue;
+            });
+            document.getElementById('total_discount_text1').innerHTML = this.formatCurrency(totalDiscValueSum);
             this.formData.discount                                   =   totalDiscount;
             this.showGstDetails(index);
+             document.getElementById("igst_amount_2").value =this.formatCurrency(totalDiscValueSum);
+            console.log("totalDiscValueSum",totalDiscValueSum);
         },
         getDiscount(index,event)
         {

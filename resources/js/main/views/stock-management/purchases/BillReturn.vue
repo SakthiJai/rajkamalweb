@@ -850,7 +850,7 @@ export default {
             //selectedPartyIds: [] ,
             index: 0,
         });
-
+console.log("formData",formData.selectedInvoice)
 
             const handleDelete = () => {};
 
@@ -1098,7 +1098,7 @@ export default {
             isOpensave: false,
 
             dropsitems: [
-        { text: "Save & SMS", icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M256 448h512v128h-512zM256 256h512v128h-512zM960 0h-896c-35.376 0-64 28.624-64 64v704c0 35.376 28.624 64 64 64h128v192l288-192h480c35.376 0 64-28.624 64-64v-704c0-35.376-28.624-64-64-64zM896 704h-416l-160 96v-96h-192v-576h768v576z"></path></svg>`, isSvg: true },
+        { text: "Save & SMS", icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M256 448h512v128h-512zM256 256h512v128h-512zM960 0h-896c-35.376 0-64 28.624-64 64v704c0 35.376 28.658 64 64 64h895.998c35.344 0 64.002-28.624 64.002-64v-640c0-35.376-28.658-64-64.002-64zM896 704h-416l-160 96v-96h-192v-576h768v576z"></path></svg>`, isSvg: true },
         { text: "Save & Email",icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M959.998 128h-895.998c-35.342 0-64 28.624-64 64v640c0 35.376 28.658 64 64 64h895.998c35.344 0 64.002-28.624 64.002-64v-640c0-35.376-28.658-64-64.002-64zM832 256l-320 256-320-256h640zM896 768h-768v-448l384 320 384-320v448z"></path></svg>`,
         isSvg: true },
         { text: "Save & Print", icon:`<svg height="14" viewBox="0 0 135.57 125.14"><path fill="currentColor" d="M131,56.75a15.06,15.06,0,0,0-11-4.6h-5.21V31.28a18.81,18.81,0,0,0-1.63-7.17,18.94,18.94,0,0,0-3.91-6.19L96.79,5.54A19,19,0,0,0,90.6,1.63,18.81,18.81,0,0,0,83.43,0H28.68a7.54,7.54,0,0,0-5.54,2.28,7.54,7.54,0,0,0-2.28,5.54V52.14H15.64a15.06,15.06,0,0,0-11,4.6,15.06,15.06,0,0,0-4.6,11v33.89a2.51,2.51,0,0,0,.77,1.83,2.51,2.51,0,0,0,1.83.77H20.86v13a7.79,7.79,0,0,0,7.82,7.82h78.21a7.79,7.79,0,0,0,7.82-7.82v-13H133a2.64,2.64,0,0,0,2.6-2.61V67.78A15.05,15.05,0,0,0,131,56.75Zm-26.68,58h-73V93.86h73Zm0-52.14h-73V10.43H83.43v13a7.79,7.79,0,0,0,7.82,7.82h13Zm19.31,8.88a5.11,5.11,0,1,1,1.55-3.67A5,5,0,0,1,123.59,71.45Z"></path></svg>`,
@@ -1214,7 +1214,7 @@ deleteItem()
 
 
       getInvoiceDetails(){
-        console.log("selectedInvoice inside method",this.selectedInvoice);
+        console.log("selectedInvoice inside method",this.formData.selectedInvoice);
         if(this.selectedInvoice!="null")
         {
             this.formData.bill_number=this.selectedInvoice;
@@ -2398,6 +2398,7 @@ hasValidInput(target) {
             this.formData.subtotal                               =  this.totalAmount>0?this.totalAmount:0;
             document.getElementById("grand_total").innerHTML     = this.totalAmount>0? this.formatCurrency((this.totalAmount+cessAmount)):0;
             this.formData.total                                   = (this.totalAmount+cessAmount);
+            console.log("totalSgstAmount",totalSgstAmount , "totalCgstAmount",totalCgstAmount);
             document.getElementById('total_discount_text1').innerHTML = this.formatCurrency((totalSgstAmount + totalCgstAmount) > 0 ? (totalSgstAmount + totalCgstAmount) : 0)
             this.formData.discount                                   =   totalDiscount;
             this.showGstDetails(index);
@@ -2553,15 +2554,14 @@ hasValidInput(target) {
         {
             this.formData.selectedInvoice = this.formData.bill_number;
             localStorage.setItem("selectedInvoice", this.formData.selectedInvoice);
-            console.log(this.formData.bill_number);
             this.loading= false;
             notification.success({
                         placement:  "bottomRight",
                         message: "Purchase bill saved successfully !    ",
                         description: response.message
                     });
-                    this.resetFormData();
-            //this.isPaymentsModalVisible= true;
+            this.resetFormData();
+            this.isPaymentsModalVisible = true;
         },
         successDraft(response)
         {
@@ -2609,62 +2609,66 @@ hasValidInput(target) {
         },
         saveSalesEntry(event)
         {
-            console.log('submit',event);
-            if(this.validateSales()){
-            this.spinning= true;
+            console.log('submit', event);
+            if (!this.validateSales()) {
+                document.getElementById("shortcut").focus();
+                return false;
+            }
+            // Extra validation: check for duplicate invoice number
+            if (!this.formData.bill_number || this.formData.bill_number === "") {
+                notification.error({
+                    placement: "bottomRight",
+                    message: "Invoice number is required!",
+                });
+                document.getElementById("form_item_bill_number").focus();
+                return false;
+            }
+            this.spinning = true;
             axiosAdmin
-            .post("purchase/purchaseBillDetail", this.formData)
-            .then(response => {  console.log(response)
-                // Toastr Notificaiton
-
-                this.spinning= false;
-                this.success(response);
-                // this.formData.bill_number = response.data.bill_number;
-                // console.log(response.data.bill_number)
-            })
-            .catch(errorResponse => {
-                this.spinning= false;
-                var err = errorResponse.data;
-                const errorCode = errorResponse.status;
-                var errorRules = {};
-
-                if (errorCode == 422) {
-                    if (err.error && typeof err.error.details != "undefined") {
-                        var keys = Object.keys(err.error.details);
-                        for (var i = 0; i < keys.length; i++) {
-                            // Escape dot that comes with error in array fields
-                            var key = keys[i].replace(".", "\\.");
-
-                            errorRules[key] = {
-                                required: true,
-                                message: err.error.details[keys[i]][0],
-                            };
+                .post("purchase/purchaseBillDetail", this.formData)
+                .then(response => {
+                    console.log(response);
+                    this.spinning = false;
+                    if (response.message && response.message.includes("Duplicate entry")) {
+                        notification.error({
+                            placement: "bottomRight",
+                            message: "Duplicate Invoice Number!",
+                            description: response.message
+                        });
+                        document.getElementById("form_item_bill_number").focus();
+                        return false;
+                    }
+                    this.success(response);
+                    this.isModalVisible = true;
+                })
+                .catch(errorResponse => {
+                    this.spinning = false;
+                    var err = errorResponse.data;
+                    const errorCode = errorResponse.status;
+                    var errorRules = {};
+                    if (errorCode == 422) {
+                        if (err.error && typeof err.error.details != "undefined") {
+                            var keys = Object.keys(err.error.details);
+                            for (var i = 0; i < keys.length; i++) {
+                                var key = keys[i].replace(".", "\\.");
+                                errorRules[key] = {
+                                    required: true,
+                                    message: err.error.details[keys[i]][0],
+                                };
+                            }
+                        }
+                        rules.value = errorRules;
+                        message.error(t("common.fix_errors"));
+                    }
+                    if (err && err.message) {
+                        message.error(err.message);
+                        err = {
+                            error: {
+                                ...err
+                            }
                         }
                     }
-
-                    rules.value = errorRules;
-                    message.error(t("common.fix_errors"));
-                }
-
-                if (err && err.message) {
-                    message.error(err.message);
-                    err = {
-                        error: {
-                            ...err
-                        }
-                    }
-                }
-
-
-
-                //loading.value = false;
-            });
-        }
-        else
-        {
-            document.getElementById("shortcut").focus();
-                    return false;
-        }
+                });
         },
         saveSalesEntryDraft(event)
         {
@@ -2703,7 +2707,7 @@ hasValidInput(target) {
                 }
 
                 if (err && err.message) {
-                    message.error(err.message);
+                    message.error("error messagein 2707",err.message);
                     err = {
                         error: {
                             ...err
@@ -2895,64 +2899,66 @@ hasValidInput(target) {
             }
         },
 
-showconfirm() {
-    console.log("Esc called");
-    let that = this;
+    showconfirm() {
+            console.log("Esc called");
+            let that = this;
+            const modal = Modal.confirm({
+                title: "Confirmation",
+                icon: createVNode(ExclamationCircleOutlined),
+                content:
+                    "Transaction data will be lost. Are you sure you want to close?",
+                onOk() {
+                    localStorage.setItem("selectedInvoice", null);
+                    that.$router.push({
+                        name: `admin.stock.sales.index`,
+                    });
+                },
+                onCancel() {
+                    that.$refs.partyinput && that.$refs.partyinput.focus();
+                },
+                okText: "OK",
+                cancelText: "Cancel",
+                autoFocusButton: "cancel",
+            });
 
-    const handleKeydown = (e) => {
-        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-            e.preventDefault();
+            this.$nextTick(() => {
+                const handleKeydown = (e) => {
+                    if (
+                        modal &&
+                        (e.key === "ArrowLeft" || e.key === "ArrowRight")
+                    ) {
+                        e.preventDefault();
+                        const buttons = document.querySelectorAll(
+                            ".ant-modal-confirm .ant-btn"
+                        );
+                        const cancelBtn = Array.from(buttons).find((btn) =>
+                            btn.classList.contains("ant-btn-default")
+                        );
+                        const okBtn = Array.from(buttons).find((btn) =>
+                            btn.classList.contains("ant-btn-primary")
+                        );
 
-            const buttons = document.querySelectorAll(
-                ".ant-modal-confirm .ant-btn"
-            );
+                        const focusedElement = document.activeElement;
 
-            const cancelBtn = Array.from(buttons).find((btn) =>
-                btn.classList.contains("ant-btn-default")
-            );
+                        if (e.key === "ArrowRight") {
+                            if (okBtn) {
+                                okBtn.focus();
+                            }
+                        } else if (e.key === "ArrowLeft") {
+                            if (cancelBtn) {
+                                cancelBtn.focus();
+                            }
+                        }
+                    }
+                };
 
-            const okBtn = Array.from(buttons).find((btn) =>
-                btn.classList.contains("ant-btn-primary")
-            );
+                document.addEventListener("keydown", handleKeydown);
 
-            if (e.key === "ArrowRight" && okBtn) {
-                okBtn.focus();
-            } else if (e.key === "ArrowLeft" && cancelBtn) {
-                cancelBtn.focus();
-            }
-        }
-    };
-
-    document.addEventListener("keydown", handleKeydown);
-
-    Modal.confirm({
-        title: "Confirmation",
-        icon: createVNode(ExclamationCircleOutlined),
-        content:
-            "Transaction data will be lost. Are you sure you want to close?",
-
-        onOk() {
-            localStorage.setItem("selectedInvoice", null);
-
-            that.$router.push({
-                name: `admin.stock.purchases.Billindex`,
+                modal.afterClose(() => {
+                    document.removeEventListener("keydown", handleKeydown);
+                });
             });
         },
-
-        onCancel() {
-            that.$refs.partyinput && that.$refs.partyinput.focus();
-        },
-
-        afterClose() {
-            // ✅ Proper cleanup here
-            document.removeEventListener("keydown", handleKeydown);
-        },
-
-        okText: "OK",
-        cancelText: "Cancel",
-        autoFocusButton: "cancel",
-    });
-},
         
         deleteConfirmation(index)
         {
@@ -3041,10 +3047,10 @@ resetFormData() {
             { index: 1, item_id: null, item_name: null, unit_id: null, quantity: "", free: "", mrp: null, single_unit_price: null, discount_type_id: null, discount_value: 0, discount_rate: null, amount: null, maxquantity: 0, max_single_unit_price: 0, packing: null }
         ],
         additems: [
-            { index: 1, item_id: null, item_name: null, unit_id: null },
-            { index: 2, item_id: null, item_name: null, unit_id: null },
-            { index: 3, item_id: null, item_name: null, unit_id: null },
-        ],
+            { index: 1, item_id: null, item_name: null, unit_id: null,  },
+            { index: 2, item_id: null, item_name: null, unit_id: null,},
+            { index: 3, item_id: null, item_name: null, unit_id: null,}
+                ],
         total_discount: 0,
         invoice_value: 0,
         index: 0,
@@ -3078,18 +3084,12 @@ resetFormData() {
         input.value = (0).toFixed(2);  // Reset the value of each IGST input
     });
 },
-
-
-        // dublicateentery//
-
-
-        // end dublicate//
-    },
     computed: {
         grandTotal() {
             return this.formData.items.reduce((total, item) => total + Number(item.amount), 0);
-        },
-    },
+        }
+    }
+}
 };
 </script>
 <style>

@@ -116,7 +116,7 @@ th {
                 <b>{{ $customer[0]->party_name }},</b><br>
                 <span>{{ $customer[0]->Address }} -{{$customer[0]->stock_pincode}}</span><br>
                 Phone: {{ $customer[0]->mobile_number }}<br>
-                <p style="color:blue">E-mail Id: {{ $customer[0]->customer_email }}<p>
+                <p style="color:blue">E-mail Id: {{ $customer[0]->customer_email }}</p>
             </td>
             <td colspan="1">
                 <div style="height:20px;">Party Name : <b>{{ $party[0]->cus_name }}</b><br></div>
@@ -135,47 +135,133 @@ th {
     <table  class="maintabing">
         
     <tr class="tableheading">
-            <th style="width:5%">#</th>
-            <th style="width:7%">Qty</th>
-            <th style="width:25%">Product</th>
-            <th style="width:8%">HSN</th>
-            <th style="width:8%">MRP</th>
-            <th style="width:8%">Rate</th>
-            <th style="width:8%">Disc(%)</th>
-            <th style="width:8%">SGST</th>
-            <th style="width:8%">CGST</th>
-            <th style="text-align:right"> Amount</th>
+        <th style="width:5%">#</th>
+        <th style="width:10%">Qty</th>
+        <th style="width:18%">Product</th>
+        <th style="width:8%">Free</th>
+        <th style="width:8%">HSN</th>
+        <th style="width:8%">MRP</th>
+        <th style="width:8%">Rate</th>
+        <th style="width:10%">Disc %</th>
+        <th style="width:9%">Tax %</th>
+        <th style="text-align:right">Taxable Amount</th>
           </tr>
-          <?php $subTotal = 0;$sumsgst=0;$sumcgst=0; ?>
-          @foreach($products as $key =>$product)
           @php
-            $cgstAmount     = isset($product->cgst_amount) ? intval($product->cgst_amount) : 0;
-            $saleRate       = isset($product->sale_rate) ? intval($product->sale_rate) : 0;
-            $percentage     = $cgstAmount / 100;
-            $gstAmount      = $percentage * $saleRate;
-            $totalGstAmount = $gstAmount * intval($product->quantity);
-            $subTotal       = $subTotal+$product->subtotal;
-            $sumsgst        = $sumsgst + $product->sgst_amount;
-            $sumcgst        = $sumcgst + $product->cgst_amount;
-        @endphp
-          @endphp
-          <tr>
-                <td>{{$key+1}}</td>
-                <td>{{$product->quantity}}</td>
-                <td>{{$product->name}}</td>
-                <td>{{$product->hsn_sac}}</td>
-                <td>{{$product->single_unit_price ?? 0.00}}</td>
-                <td>{{$product->sale_rate ?? 0.00}}</td>
-                <td>{{number_format($product->discount_rate, 2, '.', ',') ?? 0.00}}</td>
-                <td>{{number_format(($product->subtotal*($product->sgst_amount/100)), 2, '.', ',') ?? 0.00 }}</td>
-                <td>{{number_format(($product->subtotal*($product->cgst_amount/100)), 2, '.', ',') ?? 0.00 }}</td>
-                <td style="text-align:right">{{number_format($product->subtotal , 2, '.', ',')}}</td>
-            </tr>
+        // Get party and company state for GST logic
+        $companyState = (int)($company->state ?? 0);
+        $partyState   = (int)($customer[0]->stock_state ?? 0);
+                 \Log::info('CGST Percent Value', [ 
+    'partyState' => $partyState, 
+    'companyState' => $companyState,
+    'company' => $company,]);
+
             
-          
-          @endforeach
+        $subTotal = 0;
+        $totalCgst = 0;
+        $totalSgst = 0;
+        $totalIgst = 0;
+        $totalCess = 0;
+        @endphp
+        @php 
+
+        @endphp
+
+
+        @foreach($products as $key => $product)
+            @php
+                // Get product values
+                $qty = (float) ($product->quantity ?? 0);
+                $freeQty = isset($product->freeqty) ? (float)$product->freeqty : 0;
+                if ($freeQty === null || $freeQty === '' || $freeQty < 0) {
+                    $freeQty = 0;
+                }
+                if ($qty == 0) {
+                    $freeQty = 0;
+                }
+                if ((int)$freeQty >= (int)$qty) {
+                    $freeQty = 0;
+                }
+                $qty = $qty - $freeQty;
+                $rate = (float) ($product->sale_rate ?? 0);
+                $discountPercent = (float) ($product->discount_rate ?? 0);
+                $basicAmount = $qty * $rate;
+                $discountValue = ($basicAmount * $discountPercent) / 100;
+                $taxableAmount = $basicAmount - $discountValue;
+
+                $cgstPercent = (float) ($product->cgst ?? 0);
+                $sgstPercent = (float) ($product->sgst ?? 0);
+                $igstPercent = $sgstPercent + $cgstPercent;
+                $cessPercent = (float) ($product->cess ?? 0);
+
+                // GST logic: intra/inter state
+
+                if ($partyState !== '' && $companyState !== '') {
+                    if ($partyState === $companyState) {
+                        $igstPercent = 0;
+                    } else {
+                        $cgstPercent = 0;
+                        $sgstPercent = 0;
+                    }
+                }
+
+                // --- Free quantity logic (from Create.vue) ---
+                $freeQty = isset($product->freeqty) ? (float)$product->freeqty : 0;
+                if ($freeQty === null || $freeQty === '' || $freeQty < 0) {
+                    $freeQty = 0;
+                }
+                if ($qty == 0) {
+                    $freeQty = 0;
+                }
+                if ((int)$freeQty >= (int)$qty) {
+                    $freeQty = 0;
+                }
+                $remQty = $qty - $freeQty;
+
+                // Calculate tax values
+                $cgstValue = $taxableAmount * $cgstPercent / 100;
+                $sgstValue = $taxableAmount * $sgstPercent / 100;
+                $igstValue = $taxableAmount * $igstPercent / 100;
+                $cessValue = $taxableAmount * $cessPercent / 100;
+
+                // Calculate row total
+                $rowTotal = $taxableAmount + $cgstValue + $sgstValue + $igstValue ;
+
+                // Accumulate totals
+                $subTotal += $taxableAmount;
+                $totalCgst += $cgstValue;
+                $totalSgst += $sgstValue;
+                $totalIgst += $igstValue;
+                $totalCess += $cessValue;
+            @endphp
+
+            <tr>
+                <td>{{ $key+1 }}</td>
+                <td>{{ $product->quantity }}</td>
+                <td>{{ $product->name }}</td>
+                <td>{{ $freeQty }}</td>
+                <td>{{ $product->hsn_sac }}</td>
+                <td>{{ $product->mrp ?? 0.00 }}</td>
+                <td>{{ $rate }}</td>
+                <td>{{ number_format($discountPercent,2) }}</td>
+                <td>
+                    @php
+                        $totalTaxPercent = (float)($cgstPercent ?? 0)
+                            + (float)($sgstPercent ?? 0)
+                            + (float)($igstPercent ?? 0);
+                    @endphp
+                    {{ number_format($totalTaxPercent, 2) }}
+                </td>
+                <td style="text-align:right">{{ number_format($rowTotal,2) }}</td>
+            </tr>
+
+    @endforeach
+                @php
+                    $grandTotal = $subTotal + $totalCgst + $totalSgst + $totalIgst + $totalCess;
+                    $roundedGrandTotal = round($grandTotal, 2);
+                    $roundOff = $roundedGrandTotal - $grandTotal;
+                @endphp
        <tr style="height:4px !important;" >
-            <td colspan="8" style="padding:23px 12px;"><b></b></td>
+            <td colspan="8"><b></b></td>
             <td style="text-align:left;border:none; color:#1250b7;"><b>Sub Total</b></td>
             <td>
                 <table style="border:none;">
@@ -192,38 +278,67 @@ th {
             }
             $singleTaxAmount = number_format($taxAmount, 2, '.', ',');
         ?>
-        <tr>
-            <td colspan="8" >
-                <b style="text-decoration: underline;  font-weight:bold;">Terms & Conditions:</b><br>
-                1) Goods once sold will not be taken back or exchanged.<br>
-                2) Bills not paid due date will attract 24% interest.<br>
-                3) All disputes subject to Jurisdiction only.<br>
-                4) Prescribed Sales Tax declaration will be given.<br><br><br>
-                <b>Rs.&nbsp;{{ucfirst(numToWordsRec($invoice_details->total))}}&nbsp;only</b>
-            </td>
-            <td style="padding:0px;" colspan="2">
-                <table style="border:none;">
-                    <tr><td style="text-align:left;border:none;"><b>Bill Disc</b></td>
-                    <td style="text-align:right;border:none;">{{ $invoice_details->discount? number_format($invoice_details->discount,2):"0.00"}}</td>
-                    </tr>
-                    <tr><td style="text-align:left;border:none;"><b>SGST</b></td>
-                    <td style="text-align:right;border:none;">{{number_format((($invoice_details->total-$invoice_details->tax_amount) *($sumsgst/100)),2) }}</td>
-                    </tr>
-                    <tr><td style="text-align:left;border:none;"><b>CGST</b></td>
-                    <td style="text-align:right;border:none;">{{number_format((($invoice_details->total-$invoice_details->tax_amount) *($sumcgst/100)),2) }}</td>
-                    </tr>
-                    <tr><td style="text-align:left;border:none;"><b>Round Off</b></td>
-                    <td style="text-align:right;border:none;">0.00</td>
-                    </tr>
-                    <tr style="background-color:#1250b7;"><td style="text-align:left;border:none; color:white;"><b>Grand Total</b></td>
-                    <td style="text-align:right;border:none;color:white; font-weight:bold;">{{number_format(($invoice_details->total), 2, '.', ',')}}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
+<tr>
+    <td colspan="7">
+        <b style="text-decoration: underline;">Terms & Conditions:</b><br>
+        1) Goods once sold will not be taken back or exchanged.<br>
+        2) Bills not paid due date will attract 24% interest.<br>
+        3) All disputes subject to Jurisdiction only.<br>
+        4) Prescribed Sales Tax declaration will be given.<br><br>
+
+        <b>Rs. {{ ucfirst(numToWordsRec($roundedGrandTotal)) }} only</b>
+    </td>
+
+    <td colspan="4" style="padding:0;">
+        <table class="responsive-table" style="width:100%; border:none;">
+            <thead>
+                <tr>
+                    <th class="tableheading" style="font-weight:bolder;font-size:13px;width:40%">Tax Name</th>
+                    <th class="tableheading" style="font-weight:bolder;font-size:13px;text-align:right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if($totalCgst > 0)
+                <tr>
+                    <td style="font-weight:bolder;font-size:13px;">CGST</td>
+                    <td style="text-align:right;color:black;font-weight:bolder;">{{ number_format($totalCgst,2) }}</td>
+                </tr>
+                    @endif
+                
+                    @if($totalSgst > 0)
+                        <tr>
+                        <td style="font-weight:bolder;font-size:13px;">SGST</td>
+                    <td style="text-align:right;color:black;font-weight:bolder;">{{ number_format($totalSgst,2) }}</td>
+                </tr>
+                    @endif
+                    @if($totalIgst > 0)
+                <tr>
+                    <td style="font-weight:bolder;font-size:13px;">IGST</td>
+                    <td style="text-align:right;color:black;font-weight:bolder;">{{ number_format($totalIgst,2) }}</td>
+                </tr>
+                    @endif
+                     @if($totalCess > 0)
+                <tr>
+                    <td style="font-weight:bolder;font-size:13px;">CESS</td>
+                    <td style="text-align:right;color:black;font-weight:bolder;">{{ number_format($totalCess,2) }}</td>
+                </tr>
+                    @endif
+                <tr>
+                    <td style="font-weight:bolder;font-size:13px;">Sub Total</td>
+                    <td style="text-align:right;color:black;font-weight:bolder;">{{ number_format($subTotal,2) }}</td>
+                </tr>
+                <tr style="background-color:#1250b7;">
+                    <td style="font-weight:bolder;color:white;">Grand Total</td>
+                    <td style="text-align:right;color:white;font-weight:bolder;"><b>{{ number_format($subTotal + $totalCgst + $totalSgst + $totalIgst + $totalCess, 2) }}</b></td>
+                </tr>
+            </tbody>
+        </table>
+    </td>
+</tr>
    </table>
 </div>
 </div>
+
 </body>
 </html>
 <?php
@@ -265,3 +380,8 @@ function numToWordsRec($number) {
            ' million ' . numToWordsRec($number % 1000000);
 }
 ?>
+@php
+    // Get party and company state for GST logic
+    $companyState = (int)($company->state ?? 0);
+    $partyState   = (int)($customer[0]->stock_state ?? 0);
+@endphp

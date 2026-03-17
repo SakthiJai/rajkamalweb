@@ -81,7 +81,7 @@
                         :validateStatus="rules.date ? 'error' : null"
                         class="required"
                     >
-                    <div ref="dateWrapper" >
+                    <div ref="dateWrapper" @keydown="handleDateKeydown">
                         <DateTimePicker
                             ref="dateRef"
                             :dateTime="newFormData.date"
@@ -321,47 +321,65 @@ export default defineComponent({
                 amountInputRef.value?.focus();
             });
         };
+        const handleDateKeydown = (event) => {
+            const hasDate = !!newFormData.value.date;
+        
+            if (event.key === "Enter") {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const input = dateWrapper.value?.querySelector("input");
+
+                if (input) {
+                    input.focus();
+                    input.click();
+                }
+                return;
+            }
+        
+            if (event.key === "Tab") {
+                if (!hasDate) {
+                    event.preventDefault();
+                    return;
+                }
+
+                event.preventDefault();
+                focusPaymentMode();
+            }
+        };
         const handleEnterNavigation = (event) => {
-            if (event.key !== "Enter") return;
+            if (event.key !== "Enter" && event.key !== "Tab") return;
 
             event.preventDefault();
             event.stopPropagation();
 
-            const name = event.target.getAttribute("name");
+            const target = event.target;
+        
+            if (firstInputRef.value?.$el?.contains(target)) {
+                if (!newFormData.value.user_id) return;
 
-            let isValid = true;
-
-            switch (name) {
-                case "user_id":
-                    isValid = !!newFormData.value.user_id;
-                    break;
-
-                case "amount":
-                    isValid = !!newFormData.value.amount && Number(newFormData.value.amount) > 0;
-                    break;
-
-                case "notes":
-                    isValid = true; 
-                    break;
-
-                default:
-                    isValid = event.target.value?.trim();
-            }
-
-            if (!isValid) return; 
-
-            const inputs = document.querySelectorAll(
-                ".ant-drawer input:not([disabled]), .ant-drawer textarea:not([disabled])"
-            );
-
-            const index = Array.from(inputs).indexOf(event.target);
-
-            if (index !== -1 && index < inputs.length - 1) {
-                inputs[index + 1].focus();
+                if (props.addEditType === "add") {
+                    amountInputRef.value?.focus?.();
+                } else {
+                    focusDate();
+                }
                 return;
             }
+        
+            if (props.addEditType === "add" &&
+                amountInputRef.value?.$el?.contains(target)) {
 
-            submitBtnRef.value?.focus?.();
+                const amount = newFormData.value.amount;
+                if (!amount || Number(amount) <= 0) return;
+
+                focusDate();
+                return;
+            }
+        
+            if (notesRef.value?.$el?.contains(target)) {
+                focusSubmit();
+                return;
+            }
         };
         onMounted(async () => {
             try {
@@ -375,50 +393,51 @@ export default defineComponent({
                 console.error("Error fetching users or payment modes:", error);
             }
         });
-        const onSubmit = () => {
-            const invoices = [];
+const onSubmit = () => {
+    const invoices = [];
 
-            if (
-                props.addEditType == "add" &&
-                settleInvoiceRef.value &&
-                settleInvoiceRef.value.invoices
-            ) {
-                forEach(settleInvoiceRef.value.invoices, (invoice) => {
-                    invoices.push({
-                        order_id: invoice.xid,
-                        amount: invoice.paying_amount,
-                    });
-                });
-            }
-                        let finalUrl = props.url;
-
-            if (props.addEditType === "add" || !finalUrl) {
-                finalUrl = "payment-in";
-            }
-
-            addEditRequestAdmin({
-                url: finalUrl,
-                method: props.addEditType === "edit" ? "put" : "post",
-                data: { ...newFormData.value, invoices },
-                successMessage: props.successMessage,
-                success: (res) => {
-                    emit("addEditSuccess", res.xid);
-                },
+    if (
+        props.addEditType === "add" &&
+        settleInvoiceRef.value?.invoices
+    ) {
+        forEach(settleInvoiceRef.value.invoices, (invoice) => {
+            invoices.push({
+                order_id: invoice.xid,
+                amount: invoice.paying_amount,
             });
-        };
+        });
+    }
+
+    if (!props.url) {
+        console.error("URL is undefined!");
+        return;
+    }
+
+addEditRequestAdmin({
+    url:
+        props.addEditType === "edit"
+            ? `${props.url}/${props.data.xid}` 
+            : props.url,
+    method: props.addEditType === "edit" ? "put" : "post",
+    data: { ...newFormData.value, invoices },
+    successMessage: props.successMessage,
+    success: (res) => {
+        emit("addEditSuccess", res.xid);
+    },
+});
+};
         const onAfterOpenChange = (open) => {
-            if (!open) return;
-
-            nextTick(() => {
-                setTimeout(() => { 
-                    firstInputRef.value?.focus?.();
- 
-                    const input =
-                        firstInputRef.value?.$el?.querySelector("input");
-
-                    input?.focus();
-                }, 150);  
-            });
+            if (open) {
+                 nextTick(() => {
+                    setTimeout(() => {
+                        const input =
+                            firstInputRef.value?.$el?.querySelector("input");
+                        input?.focus();
+                    }, 150);
+                });
+            } else {
+                emit("drawerClosedFully");
+            }
         };
         const paymentModeAdded = () => {
             axiosAdmin.get("payment-modes?limit=10000").then((response) => {
@@ -500,7 +519,7 @@ export default defineComponent({
             handlePaymentModeEnter,
             handleUserEnter,
             handleEnterNavigation,
-
+            handleDateKeydown,
             drawerWidth: window.innerWidth <= 991 ? "90%" : "45%",
 
             newFormData,

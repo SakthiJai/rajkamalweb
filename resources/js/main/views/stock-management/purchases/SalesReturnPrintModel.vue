@@ -203,6 +203,7 @@ export default defineComponent({
         "successMessage",
         "onClose",
         "onSubmit",
+        "items", // Add items prop to receive from SalesReturn.vue
     ],
     components: {
         PlusOutlined,
@@ -376,16 +377,26 @@ export default defineComponent({
         printpdf() {
             console.log("PDF click Sales Return");
             this.loading = true;
+            // Use items prop if available, otherwise fallback to formData.items
+            const itemSource = Array.isArray(this.items) ? this.items : this.formData.items;
+            console.log('Items for PDF (raw):', itemSource);
+            // Filter items to ensure item_id and return_qty are present and valid
+            const filteredItems = Array.isArray(itemSource)
+                ? itemSource.filter(item => item && item.item_id && item.return_qty)
+                : [];
+            console.log('Items for PDF (filtered):', filteredItems);
             const payload = {
-                party_id: this.formData.party_id,
-                invoice_number: this.formData.invoice_number,
-                items: Array.isArray(this.formData.items)
-                    ? this.formData.items.filter(item => item.item_id && item.return_qty)
-                    : []
+                party_id: this.formData.party_id || document.getElementById('form_item_party_id')?.value,
+                invoice: this.formData.invoice_number || this.formData.bill_number || document.getElementById('form_item_bill_number')?.value,
+                items: filteredItems
             };
+            if (!payload.invoice || !payload.items.length) {
+                message.error('Cannot print: Sales return items or invoice number missing.');
+                return;
+            }
             console.log('Print PDF payload:', payload);
             axiosAdmin
-                .post("sales-return/getSalesReturnPdf", payload)
+                .post("/sales-return/getSalesReturnPdf", payload)
                 .then(response => {
                     this.$emit('closed');
                     let w = window.open(response, '_blank');

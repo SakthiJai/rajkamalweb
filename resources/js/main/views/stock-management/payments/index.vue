@@ -133,6 +133,7 @@
             :data="viewData"
             :pageTitle="pageTitle"
             :successMessage="successMessage"
+            @drawerClosedFully="focusSearchAfterDrawer"
         />
         <a-row>
             <a-col :span="24">
@@ -265,29 +266,29 @@ export default {
         const searchColumnRef = ref(null);
         const userSelectRef = ref(null);
         const crudVariables = crud();
-        const onCloseAddEdit = () => {
-            crudVariables.addEditVisible.value = false; 
-            focusSearchInput();
+        const focusSearchAfterDrawer = () => {
+    nextTick(() => {
+        searchInputRef.value?.focus?.();
+        searchInputRef.value?.select?.();
+    });
+};
+        const focusSearchInput = () => {
+            nextTick(() => {
+                setTimeout(() => {
+                    const input = searchInputRef.value?.$el?.querySelector("input");
+                    input?.focus();
+                }, 150);
+            });
         };
+        const onCloseAddEdit = () => {
+            crudVariables.addEditVisible.value = false;
+        };
+
         const addEditSuccess = async () => {
             crudVariables.addEditVisible.value = false;
             await crudVariables.fetch({ page: 1 });
-            focusSearchInput(); 
         };
-        const focusSearchInput = () => { 
-            if (crudVariables.addEditVisible.value) return;
 
-            const tryFocus = () => {
-                const input = searchInputRef.value?.$el?.querySelector('input');
-                if (input) {
-                    input.focus();
-                } else { 
-                    setTimeout(tryFocus, 50);
-                }
-            };
-
-            nextTick(tryFocus);
-        };
         const focusUserSelect = () => {
             nextTick(() => {
                 const el = userSelectRef.value?.$el?.querySelector("input");
@@ -435,6 +436,18 @@ export default {
                 totalAmount,
             };
         });
+        watch(
+            () => crudVariables.addEditVisible.value,
+            (visible) => {
+                if (!visible) { 
+                    setTimeout(() => {
+                        const input = searchInputRef.value?.$el?.querySelector("input");
+                        input?.focus();
+                        input?.select();  
+                    }, 350);  
+                }
+            }
+        );
 
         watch(selectedWarehouse, (newVal, oldVal) => {
             setUrlData();
@@ -460,6 +473,7 @@ export default {
         return {
             columns,
             ...crudVariables,
+            addEditUrl, 
             onCloseAddEdit,
             permsArray,
             formatAmountCurrency,

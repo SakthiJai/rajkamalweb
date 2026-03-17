@@ -12,6 +12,7 @@
               <!-- Print modal-->
             <SalesReturnPrintModel v-if="isPrintModalVisible" :visible="isPrintModalVisible" :formData="formData"
             :url="url" :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
+            :items="formData.items"
             @addEditSuccess="handleSuccess"  @closed="handleClosePrint"
         />
         <!-- print modal-->
@@ -270,9 +271,10 @@
                                             <!-- amount -->
                                             <td style="width:10%">
                                                 <input
-                                                disabled=true :id="`item_product_amount_${index}`"
+                                                disabled=true :id="`item_product_amount_${index}_${formData.items[index].unique}`"
+                                                v-model="formData.items[index].amount"
                                                 name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
-                                                ></input>
+                                                />
                                             </td>
                                         </tr>
 
@@ -444,7 +446,7 @@
                                     <tbody>
                                         <tr :id="item.name" v-for="(item, index) in additems" :key="index" :class="{ highlight: index === selectedIndex }">
                                             <td style="font-weight:bolder;font-size: 13px;width:40%">&nbsp;{{ item.name }}</td>
-                                         <td style="text-align:right;font-weight:bolder;width:10%">{{ item.location }}</td>
+                                         <!-- <td style="text-align:right;font-weight:bolder;width:10%">{{ item.location }}</td> -->
                                             <td>
                                                 <input readonly tabindex="-1"   class="ant-input css-dev-only-do-not-override-wosfq4" :id="`igst_amount_${index}`"  style="text-align:right;color:black;font-weight:bolder;" name="table_total_amount[]"></input>
                                             </td>
@@ -1027,8 +1029,8 @@ const company = appSetting.value;
             addEditType: 'add',
             pageTitle: 'Select Party',
             successMessage: 'Operation successful!',
-            headers: ['Product', 'Invoice', 'Previous Qty',"Return Qty", "Return Reason",'Rate(per qty)',"Discount Rate(per qty)",'Tax %', '₹ Amount'],
-            addtionaldetalisheader:['Additional Details', '%', '₹ Amount'],
+            headers: ['Product', 'Invoice', 'Previous Qty',"Return Qty", "Return Reason",'Rate (per qty)',"Discount (per qty)",'Tax %', '₹ Amount'],
+            addtionaldetalisheader:['Additional Details', '₹ Amount'],
         };
     },
 
@@ -1041,15 +1043,13 @@ const company = appSetting.value;
         const billElMount = document.getElementById("form_item_bill_number");
         if (billElMount) billElMount.value = this.formData.bill_number;
     }
-
+console.log("selectedInvoice", this.formData.selectedInvoice);  
     },
     beforeDestroy() {
-       // document.removeEventListener('keydown', this.handleKeyDown);
     },
 
 
     methods: {
-
     updateDiscount(index,event)
         {
 
@@ -1103,6 +1103,7 @@ const company = appSetting.value;
             packing: null,
             cgst: null,
             sgst: null,
+            cess: null,
             unique:Math.random().toString(36).substring(2,7)
         });
         this.formData.items.forEach((items,listindex)=>{
@@ -1142,25 +1143,222 @@ const company = appSetting.value;
 
 
 
-getInvoiceDetails(){
-    console.log("selectedInvoice inside method", this.selectedInvoice);
-    
-    // Check if selectedInvoice exists and is not "null"
-    if(!this.selectedInvoice || this.selectedInvoice === "null" || this.selectedInvoice === undefined) {
+getInvoiceDetails() {
+
+    console.log("selectedInvoice inside method", this.formData.selectedInvoice);
+
+    if (!this.formData.selectedInvoice || this.formData.selectedInvoice === "null") {
         console.warn("No selected invoice available");
-        return; // Exit early if no invoice selected
+        return;
     }
-    
-    this.formData.bill_number = this.selectedInvoice;
+
+    this.formData.bill_number = this.formData.selectedInvoice;
     this.spinning = true;
+
     axiosAdmin
-        .get("sales/getReturnInvoiceDetails/" + this.selectedInvoice)
+        .get("sales/getReturnInvoiceDetails/" + this.formData.selectedInvoice)
         .then(response => {
-            // ...existing code...
-        })
-        .catch(errorResponse => {
+
+            const data = response.data;
+
+            if (!data) {
+                this.spinning = false;
+                return;
+            }
+
+            console.log("Invoice details response", data);
+ 
+
+            this.formData.party_id = data.invoiceData?.party_id || data.partyDetails?.id || '';
+            this.formData.party_name = data.partyDetails?.party_name || data.invoiceData?.party_name || '';
+            this.formData.party_customer_id = data.invoiceData?.party_customer_id || data.customerData?.id || '';
+            this.formData.customer_name = data.customerData?.cus_name || '';
+            this.formData.party_customer_mobile = data.customerData?.mobile_number || '';
+            this.formData.address = data.customerData?.address || data.partyDetails?.Address || '';
+ // Map stock_state from partyDetails
+            this.formData.stock_state = data.partyDetails?.stock_state || '';
+ 
+
+            this.formData.order_date = data.invoiceData?.order_date
+                ? data.invoiceData.order_date.split(' ')[0]
+                : '';
+
+            this.formData.tax_amount = data.invoiceData?.tax_amount || '';
+            this.formData.discount = data.invoiceData?.total_discount || '';
+            this.formData.subtotal = data.invoiceData?.total_amount || '';
+            this.formData.due_amount = data.invoiceData?.due_amount || '';
+            this.formData.order_status = data.invoiceData?.order_status || '';
+            this.formData.total_items = data.invoiceData?.total_items || '';
+
+            this.formData.total_quantity =
+                Array.isArray(data.invoiceItems)
+                    ? data.invoiceItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+                    : '';
+
+            this.formData.bill_number = data.invoiceData?.cr_number || '';
+            this.formData.invoice_number = data.invoiceData?.order_id || '';
+ 
+
+            this.formData.items = Array.isArray(data.invoiceItems)
+                ? data.invoiceItems.map((item, idx) => {
+
+                    const discValue = item.disc_value || 0;
+                    const discountedPrice =
+                        item.single_unit_price - ((item.single_unit_price / 100) * discValue);
+
+                    // User calculation logic (consistent with getQuantity)
+                    const max_single_unit_price = discountedPrice;
+                    const cgst = parseFloat(item.cgst || 0);
+                    const sgst = parseFloat(item.sgst || 0);
+                    const return_qty = item.return_qty || 0;
+                    // 1) Subtotal calculation
+                    const subtotal = max_single_unit_price * return_qty;
+                    // 2) Tax calculation
+                    const tax = (max_single_unit_price / 100) * (cgst + sgst);
+                    // 3) Total amount calculation
+                    const totalamount = subtotal + tax;
+
+                    return {
+                        item_id: item.product_id,
+                        item_name: item.product_name,
+                        unit_id: '',
+                        quantity: item.quantity,
+                        mrp: item.mrp,
+                        single_unit_price: item.single_unit_price,
+                        discount_rate: item.discount_rate || discValue,
+                        amount: totalamount,
+                        maxquantity: item.stock,
+                        return_qty: item.return_qty,
+                        return_reason_code: item.return_reason_code != null ? String(item.return_reason_code) : '',
+                        disc_type: item.disc_type,
+                        disc_value: discValue,
+                        totalTaxRate: parseFloat(item.cgst || 0) + parseFloat(item.sgst || 0),
+                        freeQty: item.freeQty || 0,
+                        remQty: item.quantity - (item.freeQty || 0),
+                        max_single_unit_price: max_single_unit_price,
+                        packing: item.pack,
+                        cgst: item.cgst,
+                        sgst: item.sgst,
+                        cess: item.cess,
+                        discount_type_id: item.discount_type_id,
+                        hsnCode: item.hsnCode,
+                        qtyUnit: item.qtyUnit,
+                        index: idx + 1,
+                        unique: Math.random().toString(36).substring(2, 7),
+                        calculated_tax: tax,
+                        calculated_subtotal: subtotal,
+                        calculated_totalamount: totalamount
+                    };
+
+                })
+                : [];
+
+            console.log("Formatted items data", this.formData.items);
+ 
+
+            let totalcgst = this.getTotalAmount ? this.getTotalAmount('cgst', null) : 0;
+            let totalsgst = this.getTotalAmount ? this.getTotalAmount('sgst', null) : 0;
+            let cessAmount = this.getTotalAmount ? this.getTotalAmount('cess', null) : 0;
+
+            let grand_total = 0;
+
+            if (this.formData.items.length > 0) {
+                this.formData.items.forEach(item => {
+                    grand_total += Number(item.amount) || 0;
+                });
+            }
+
+            this.formData.total = grand_total + cessAmount;
+ 
+
+            if (document.getElementById('total_goods_value'))
+                document.getElementById('total_goods_value').value =
+                    this.formatCurrency ? this.formatCurrency(grand_total) : grand_total;
+
+            if (document.getElementById('igst_amount_0'))
+                document.getElementById('igst_amount_0').value =
+                    this.formatCurrency ? this.formatCurrency(totalcgst) : totalcgst;
+
+            if (document.getElementById('igst_amount_1'))
+                document.getElementById('igst_amount_1').value =
+                    this.formatCurrency ? this.formatCurrency(totalsgst) : totalsgst;
+
+            if (document.getElementById('igst_amount_2'))
+                document.getElementById('igst_amount_2').value =
+                    this.formatCurrency ? this.formatCurrency(totalcgst + totalsgst) : (totalcgst + totalsgst);
+
+            if (document.getElementById('igst_amount_3'))
+                document.getElementById('igst_amount_3').value =
+                    this.formatCurrency ? this.formatCurrency(cessAmount) : cessAmount;
+
+            if (document.getElementById('grand_total'))
+                document.getElementById('grand_total').innerHTML =
+                    this.formatCurrency
+                        ? this.formatCurrency(grand_total + cessAmount)
+                        : (grand_total + cessAmount);
+
+            if (document.getElementById('cgst_total_text'))
+                document.getElementById('cgst_total_text').innerHTML =
+                    this.formatCurrency
+                        ? this.formatCurrency(totalcgst > 0 ? totalcgst : 0)
+                        : (totalcgst > 0 ? totalcgst : 0);
+
+            if (document.getElementById('sgst_total_text'))
+                document.getElementById('sgst_total_text').innerHTML =
+                    this.formatCurrency
+                        ? this.formatCurrency(totalsgst > 0 ? totalsgst : 0)
+                        : (totalsgst > 0 ? totalsgst : 0);
+
+                        console.log("Company State:", this.company.state);
+                        console.log("Party State:", this.formData.stock_state);
+
+ 
+
+            if (this.formData.stock_state == this.company.state) {
+
+                if (document.getElementById("IGST"))
+                    document.getElementById("IGST").style.display = "none";
+
+                if (document.getElementById("CGST"))
+                    document.getElementById("CGST").style.display = "table-row";
+
+                if (document.getElementById("SGST"))
+                    document.getElementById("SGST").style.display = "table-row";
+
+            } else {
+
+                if (document.getElementById("IGST"))
+                    document.getElementById("IGST").style.display = "table-row";
+
+                if (document.getElementById("CGST"))
+                    document.getElementById("CGST").style.display = "none";
+
+                if (document.getElementById("SGST"))
+                    document.getElementById("SGST").style.display = "none";
+            }
+
+
+            this.returnTypes = Array.isArray(data.returnTypes)
+                ? data.returnTypes.map(rt => ({
+                    id: String(rt.id),
+                    reason: rt.reason
+                }))
+                : [];
+
             this.spinning = false;
+              // Focus the first return_qty input after data loads
+            this.$nextTick(() => {
+                const firstReturnQty = document.getElementById('item_product_return_qty_0');
+                if (firstReturnQty) firstReturnQty.focus();
+            });
+
         })
+        .catch(error => {
+
+            console.error("Invoice fetch error", error);
+            this.spinning = false;
+
+        });
 },
         formatNumber (num) {
        return parseFloat(num).toFixed(2)
@@ -1630,6 +1828,7 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
 
         updateParent(selectedParty) {
             console.log('selectedParty=>', selectedParty)
+            console.log("hello child" , this.company)
                 const balanceEl = document.getElementById("balance_amt");
                 if (balanceEl) balanceEl.innerHTML = 0.00;
                 const dueEl = document.getElementById("Due_amt");
@@ -1638,9 +1837,10 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
 
             this.formData.party_id = selectedParty.id.toString();
             this.formData.party_name = selectedParty.name;
-            console.log(this.formData.party_state+"=="+ this.company.state);
+
+            console.log("party_state", selectedParty.state,"company_state", this.company.state);
             this.formData.party_state = selectedParty.state;
-            if (this.formData.party_state == this.company.state) {
+            if (this.formData.party_state === this.company.state) {
                 document.getElementById("IGST").style.display = "none";
                 document.getElementById("CGST").style.display = "table-row";
                 document.getElementById("SGST").style.display = "table-row";
@@ -1765,7 +1965,6 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                         for (var i = 0; i < keys.length; i++) {
                             // Escape dot that comes with error in array fields
                             var key = keys[i].replace(".", "\\.");
-
                             errorRules[key] = {
                                 required: true,
                                 message: err.error.details[keys[i]][0],
@@ -1874,49 +2073,59 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                 }
                 if (!this.formData.items[writeIdx]) break;
 
-                // populate form row from selected invoice/product object (robust mapping)
-                const row = this.formData.items[writeIdx] || {};
-                // determine price
-                const priceCandidates = [inv.single_unit_price, inv.product && inv.product.sale_rate, inv.sale_rate, inv.price, inv.rate];
-                const price = priceCandidates.find(v => v !== undefined && v !== null) || 0;
-                const discountCandidates = [inv.discount, inv.discount_rate, inv.product && inv.product.discount, inv.max_single_unit_price];
-                const discount = discountCandidates.find(v => v !== undefined && v !== null) || 0;
-                const quantity = (inv.quantity || inv.qty || inv.return_qty || 0);
+                                // populate form row from selected invoice/product object (robust mapping)
+                                const row = this.formData.items[writeIdx] || {};
+                                // determine price
+                                const priceCandidates = [inv.single_unit_price, inv.product && inv.product.sale_rate, inv.sale_rate, inv.price, inv.rate];
+                                const price = priceCandidates.find(v => v !== undefined && v !== null) || 0;
+                                // Always map discount_rate from API if present
+                                const discountRate = (typeof inv.discount_rate !== 'undefined' && inv.discount_rate !== null)
+                                    ? Number(inv.discount_rate)
+                                    : (inv.product && typeof inv.product.discount_rate !== 'undefined' ? Number(inv.product.discount_rate) : 0);
+                                // For max_single_unit_price, use the discount amount per quantity if discount_rate is present
+                                const discountAmount = price * (discountRate / 100);
+                                const quantity = (inv.quantity || inv.qty || inv.return_qty || 0);
+                                const sub_amount = (price - discountAmount);
+                                console.log("Calculated sub_amount", sub_amount, "from price", price, "and discountAmount", discountAmount,"discountRate",discountRate);
 
-                row.index = writeIdx + 1;
-                row.selected = true;
-                row.item_id = inv.product_id || inv.id || inv.product && inv.product.id || row.item_id;
-                row.item_name = inv.product_name || (inv.product && inv.product.name) || inv.name || row.item_name;
-                row.packing = inv.packing || (inv.product && inv.product.packing) || row.packing;
-                row.quantity = quantity;
-                row.maxquantity = inv.maxquantity || inv.quantity || inv.qty || 0;
-                row.single_unit_price = Number(price) || 0;
-                row.max_single_unit_price = Number(discount) || 0;
-                row.discount_type_id = inv.discount_type_id || row.discount_type_id || null;
-                row.cgst = inv.cgst || inv.product && inv.product.cgst || 0;
-                row.sgst = inv.sgst || inv.product && inv.product.sgst || 0;
-                row.cess = inv.cess || inv.product && inv.product.cess || 0;
-                row.hsnCode = inv.hsnCode || inv.product && inv.product.hsnCode || row.hsnCode;
-                // compute amount (basic): quantity * price - discount
-                const baseAmount = Number(row.quantity || 0) * Number(row.single_unit_price || 0);
-                const discountAmount = row.max_single_unit_price ? Number(row.max_single_unit_price) * Number(row.quantity || 0) : 0;
-                row.amount = +(baseAmount - discountAmount).toFixed(2);
+                                row.index = writeIdx + 1;
+                                row.selected = true;
+                                row.item_id = inv.product_id || inv.id || (inv.product && inv.product.id) || row.item_id;
+                                row.item_name = inv.product_name || (inv.product && inv.product.name) || inv.name || row.item_name;
+                                row.packing = inv.packing || (inv.product && inv.product.packing) || row.packing;
+                                row.quantity = quantity;
+                                row.maxquantity = inv.maxquantity || inv.quantity || inv.qty || 0;
+                                row.single_unit_price = Number(price) || 0;
+                                row.discount_rate = discountRate; // always set from API if present
+                                row.max_single_unit_price = sub_amount; // always calculated from discount_rate
+                                row.discount_type_id = inv.discount_type_id || row.discount_type_id || null;
+                                row.cgst = inv.product && inv.product.cgst ? inv.product.cgst : (inv.cgst || 0);
+                                row.sgst = inv.product && inv.product.sgst ? inv.product.sgst : (inv.sgst || 0);
+                                row.cess = inv.product && inv.product.cess ? inv.product.cess : (inv.cess || 0);
+                                row.hsnCode = inv.hsnCode || (inv.product && inv.product.hsnCode) || row.hsnCode;
+                                row.amount = 0;
 
-                // ensure reactive assignment
-                this.$set ? this.$set(this.formData.items, writeIdx, row) : (this.formData.items[writeIdx] = row);
-
-                console.log('after map rows[', writeIdx, ']=', JSON.parse(JSON.stringify(this.formData.items[writeIdx])));
-                if (firstFilledIdx === null) firstFilledIdx = writeIdx;
-                lastFilledIdx = writeIdx;
-                writeIdx++;
+                                // ensure reactive assignment
+                                this.$set ? this.$set(this.formData.items, writeIdx, row) : (this.formData.items[writeIdx] = row);
+                                console.log(" row.cgst", row.cgst, "row.sgst", row.sgst, "row.cess", row.cess);
+                                console.log('after map rows[', writeIdx, ']=', JSON.parse(JSON.stringify(this.formData.items[writeIdx])));
+                                if (firstFilledIdx === null) firstFilledIdx = writeIdx;
+                                lastFilledIdx = writeIdx;
+                                writeIdx++;
             }
 
             this.$nextTick(() => {
                 const setIf = (id, value, inner = false) => {
                     const el = document.getElementById(id);
                     if (!el) return;
-                    if (inner) el.innerHTML = value;
-                    else el.value = value;
+                    // Always use innerHTML for the tax field
+                    if (id.startsWith('item_product_tax_')) {
+                        el.innerHTML = value;
+                    } else if (inner) {
+                        el.innerHTML = value;
+                    } else {
+                        el.value = value;
+                    }
                 };
 
                 for (let i = 0; i < this.formData.items.length; i++) {
@@ -1927,14 +2136,24 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                     setIf(`item_product_packing_${i}`, it.packing || "");
                     setIf(`item_product_id_${i}`, it.item_id || "");
                     // rate per qty field
-                    setIf(`item_product_max_price_${i}`, it.single_unit_price || "");
+                    setIf(`items product amount${i}`, it.single_unit_price || "");
                     // discount rate field
                     setIf(`item_product_price_${i}`, it.max_single_unit_price || "");
                     setIf(`item_product_quantity_${i}`, it.quantity || "");
-                    setIf(`item_product_amount_${i}`, it.amount != null ? this.formatNumber(it.amount) : "0.00");
+                      // calculate amount
+                    let amount = (Number(it.max_single_unit_price) || 0) * (Number(it.quantity) || 0);
+                    setIf(`item_product_amount_${i}`, amount, true);
                     setIf(`cgst_tax_${i}`, it.cgst || "");
                     setIf(`sgst_tax_${i}`, it.sgst || "");
-                    setIf(`item_product_tax_${i}`, `${(it.cgst || 0) + (it.sgst || 0)}%`, true);
+                    let totalTaxRate = (Number(it.cgst) || 0) + (Number(it.sgst) || 0);
+                    let taxAmount = (Number(it.max_single_unit_price) || 0) * totalTaxRate / 100;
+                    setIf(`item_product_tax_${i}`, taxAmount, true);
+                    console.log("it.cgst", it.cgst, "it.sgst", it.sgst);   
+                    console.log("totalTaxRate =>", totalTaxRate);
+                    console.log("items product amount single_unit_price ", it.single_unit_price);
+                    console.log("items product amount max_single_unit_price ", it.max_single_unit_price);
+                    console.log("taxAmount =>", taxAmount);
+
                 }
 
                 this.updateTotalProd(lastFilledIdx ?? 0);
@@ -1966,11 +2185,16 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
             document.getElementById("form_item_mobile_number").value = this.formData.party_customer_mobile;
         },
         updateProduct(selectedParty) {
+                             // Apply user calculation: max_single_unit_price = single_unit_price * (discount_rate / 100)
+                             const price = this.formData.items[this.selectedItermIndex].single_unit_price;
+                             const discountRate = this.formData.items[this.selectedItermIndex].discount_rate || 0;
+                             this.formData.items[this.selectedItermIndex].max_single_unit_price = price * (discountRate / 100);
+                             console.log("Calculated max_single_unit_price", this.formData.items[this.selectedItermIndex].max_single_unit_price);
+                             console.log("price", price, "discountRate", discountRate);
             //console.log('Cgst Tax',selectedParty);
             this.formData.items[this.selectedItermIndex].item_id= selectedParty.id
                  this.formData.items[this.selectedItermIndex].item_name= selectedParty.name
-                 this.formData.items[this.selectedItermIndex].max_single_unit_price= selectedParty.discount;
-                 this.formData.items[this.selectedItermIndex].single_unit_price= (selectedParty.single_unit_price - selectedParty.discount);
+                 // User will provide their own logic for max_single_unit_price and single_unit_price
 
                  this.formData.items[this.selectedItermIndex].quantity= 0;
                  this.formData.items[this.selectedItermIndex].maxquantity= selectedParty.quantity;
@@ -1984,13 +2208,15 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                  document.getElementById("item_product_name_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].item_name;
                  document.getElementById("item_product_packing_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].packing;
                  document.getElementById("item_product_id_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].item_id;
-                 document.getElementById("item_product_price_"+this.selectedItermIndex).value = this.formatNumber(this.formData.items[this.selectedItermIndex].single_unit_price);
+                 // User will provide their own calculation for item_product_price_X
                  document.getElementById("item_product_quantity_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].quantity;
                  document.getElementById("item_product_amount_"+this.selectedItermIndex).value =0.0
                  document.getElementById("cgst_tax_"+this.selectedItermIndex).value =this.formData.items[this.selectedItermIndex].cgst;
                  document.getElementById("sgst_tax_"+this.selectedItermIndex).value =this.formData.items[this.selectedItermIndex].sgst;
                  document.getElementById("item_product_tax_"+ this.selectedItermIndex).innerHTML=selectedParty.lgst;
                  document.getElementById("item_product_quantity_"+this.selectedItermIndex).focus();
+                  console.log(" selectedParty.cgst", selectedParty.cgst)
+                  console.log("item_product_price_", this.formatNumber(this.formData.items[this.selectedItermIndex].single_unit_price))
         },
 
         showProductModal(event,index) {
@@ -2195,131 +2421,174 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
         },
 
 
-        getTotalAmount(type)
-        {
+getTotalAmount(type) {
+    let total = 0;
 
-            let total       =   0;
-            let sgst        =   0;
-            let cgst        =   0;
-            let cess        =   0;
-            let discount = 0;
-            let totalProducts = 0;
-            let sgstAmount = 0;
-            let cgstAmount = 0;
-            let cessAmount = 0;
-            let singleItemTotal = 0;
-            this.formData.items.forEach((element)=>{
-                console.log(element);
-                let singlePrice = Number(element.single_unit_price) || 0;
-                let maxPrice = Number(element.max_single_unit_price) || 0;
-                let priceToUse = element.discount_type_id==0?singlePrice  : maxPrice;
+    this.formData.items.forEach(item => {
 
-                if (element.item_id > 0 && priceToUse > 0 && element.return_qty > 0) 
-                 {
-                    //singleItemTotal = Number(element.single_unit_price) * Number(element.return_qty);
-                    singleItemTotal = Number(priceToUse) * Number(element.return_qty);
-                   // total = total + Number(element.single_unit_price) * Number(element.return_qty);
-                   if(element.amount>0)
-                   {
-                   total = total+element.amount;
-                    totalProducts = totalProducts + 1;
-                    }
-                }
+        if (!item || !item.item_id) return;
 
-                if (element.item_id > 0 && element.sgst > 0) { sgstAmount += ((element.sgst/100) * singleItemTotal);   sgst=sgst+element.sgst;  }
-                if(element.item_id>0 && element.cgst>0){    cgstAmount += ((element.cgst/100) * singleItemTotal);cgst=cgst+element.cgst; }
-                if (element.item_id > 0 && element.cess > 0) {  cessAmount += (element.cess / 100) * singleItemTotal;cess = cess + element.cess;}
-                
-                if (element.item_id > 0 && element.discount_rate >= 0) {
-                    if (element.discount_type_id == 2) {
-                        const baseTotal = Number(priceToUse) * Number(element.return_qty); //price te use
-                        discount += Number((element.discount_rate / 100) * baseTotal);
-                        element.discount_value= Number((element.discount_rate / 100) * baseTotal)
-                    }
-                    if (element.discount_type_id == 3) {
-                        discount += Number(element.discount_rate);
-                        element.discount_value= Number(element.discount_rate)
-                    }
-                    if (element.discount_type_id == 4) {
-                        const baseTotal = Number(element.discount_rate) * Number(element.return_qty);
-                        element.discount_value= baseTotal
-                        discount += (baseTotal);
-                    }
+        if (type === 'total') {
+            total += Number(item.return_qty || 0) * Number(item.single_unit_price || 0);
+        }
 
-                }
+        if (type === 'sgst') {
+            total += Number(item.sgst_amount || 0);
+        }
 
-            });
-            console.log("total", total)
-            console.log("sgst", sgst,sgstAmount)
-            console.log("cgst", cgst)
-           console.log("totalProducts",totalProducts)
-            if (type == "sgst") { return sgstAmount; }
-            else if (type == "cgst") { return cgstAmount; }
-            else if (type == "cess") { return cessAmount; }
-            else if(type=="discount"){
-                return discount;
-            }
-           else
-           {
-                return total;
-           }
+        if (type === 'cgst') {
+            total += Number(item.cgst_amount || 0);
+        }
 
-       },
+        if (type === 'cess') {
+            total += Number(item.cess_amount || 0);
+        }
+
+        if (type === 'discount') {
+            total += Number(item.discount_value || 0);
+        }
+
+    });
+
+    return total;
+},
 
         getQuantity(index,event) {
-            console.log("items=>",this.formData.items[index]);
-            let quantity = Number(this.formData.items[index].return_qty) || 0;
-            let price = Number(this.formData.items[index].single_unit_price) || 0;
-            const cgst_tax_percentage  = Number(this.formData.items[index].cgst);
-            const sgst_tax_percentage  = Number( this.formData.items[index].sgst);
-            const cess_tax_percentage = Number(this.formData.items[index].cess); 
-
-            if(quantity==undefined || quantity=="" || quantity<0){quantity=0}
-            if(price==undefined || price=="" || price<0){price=0}
-
-            let singlePrice = Number(this.formData.items[index].single_unit_price) || 0; 
+            // Update additems table values instantly at the start
+            let totalCgst = 0;
+                        // Update additems table and summary fields instantly
+                        // Remove duplicate declaration
+                        let totalSgst = 0;
+                        let totalIgst = 0;
+                        let totalCess = 0;
+                        let grandTotal = 0;
+                        let totalGoodsValue = 0;
+                        let totalTax = 0;
+                        let totalDiscount = 0;
+                        let totalItems = 0;
+                        // totalCgst already declared above, remove duplicate
+                        for (let i = 0; i < this.formData.items.length; i++) {
+                            const item = this.formData.items[i];
+                            if (!item || !item.item_id) continue;
+                            totalItems++;
+                            // Calculate discount value
+                            let price = Number(item.single_unit_price) || 0;
+                            let maxprice = Number(item.max_single_unit_price) || 0;
+                            let quantity = Number(item.return_qty) || 0;
+                            let returnqty = Number(item.return_qty) || 0;
+                            let discountRate = Number(item.discount_rate) || 0;
+                            let discountType = Number(item.discount_type_id) || 0;
+                            // Map cgst and sgst from the item (API response)
+                            let cgst = Number(item.cgst) || 0;
+                            let sgst = Number(item.sgst) || 0;
+                            let cess = Number(item.cess) || 0;
+                            let discountValue = 0;
+                            if (discountType === 2) {
+                                discountValue = (discountRate / 100) * (price * quantity);
+                            } else if (discountType === 3) {
+                                discountValue = discountRate;
+                            } else if (discountType === 4) {
+                                discountValue = discountRate * quantity;
+                            }
+                            let taxableAmount = (maxprice * quantity);
+                            if (taxableAmount < 0) taxableAmount = 0;
+                            let sgstAmount = (sgst / 100) * taxableAmount;
+                            let cgstAmount = (cgst / 100) * taxableAmount;
+                            let cessAmount = (cess / 100) * taxableAmount;
+                            let totalAmount = taxableAmount + sgstAmount + cgstAmount;
+                            item.discount_value = discountValue;
+                            item.sgst_amount = sgstAmount;
+                            item.cgst_amount = cgstAmount;
+                            item.cess_amount = cessAmount;
+                            item.amount = totalAmount;
+                            totalCgst += cgstAmount;
+                            totalSgst += sgstAmount;
+                            totalCess += cessAmount;
+                            grandTotal += totalAmount;
+                            totalGoodsValue += totalAmount;
+                            totalTax += (taxableAmount / 100) * (cgst + sgst);
+                            console.log("cgst", cgst, "sgst", sgst, "taxableAmount", taxableAmount,"totalTax =>", totalTax);
+                            totalDiscount += discountValue;
+                            // Vue reactivity will update the amount input automatically
+                            console.log("totalAmount",totalAmount,"totalCgst", totalCgst, "totalSgst", totalSgst, "totalCess", totalCess);
+                        }
+                        totalIgst = totalCgst + totalSgst;
+                        // Update additems table values
+                        const igst0 = document.getElementById("igst_amount_0");
+                            if (igst0) {
+                                igst0.value = this.formatCurrency(totalSgst);
+                            }
+                        const igst1 = document.getElementById("igst_amount_1");
+                            if (igst1) {
+                                igst1.value = this.formatCurrency(totalCgst);
+                            }
+                        const igst2 = document.getElementById("igst_amount_2");
+                            if (igst2) {
+                                igst2.value = this.formatCurrency(totalIgst);
+                            }
+                        const igst3 = document.getElementById("igst_amount_3");
+                            if (igst3) {
+                                igst3.value = this.formatCurrency(totalCess);
+                            }
+                            // Add igst_amount_4 as sum of igst_amount_0+1+2+3
+                            const igst4 = document.getElementById("igst_amount_4");
+                            if (igst4) {
+                                let sum = 0;
+                                // If both SGST and CGST are present (non-zero), use only those and CESS
+                                if (totalSgst > 0 && totalCgst > 0) {
+                                    sum += totalSgst;
+                                    sum += totalCgst;
+                                    sum += totalCess;
+                                } else {
+                                    // Otherwise, use IGST and CESS
+                                    sum += totalIgst;
+                                    sum += totalCess;
+                                }
+                                igst4.value = this.formatCurrency(sum);
+                            }
+                        // Update summary fields instantly
+                        const grandTotalSpan = document.getElementById("grand_total");
+                        if (grandTotalSpan) grandTotalSpan.innerHTML = this.formatCurrency(grandTotal + totalCess);
+                        const goodsValueInput = document.getElementById("total_goods_value");
+                        if (goodsValueInput) goodsValueInput.value = this.formatCurrency(totalGoodsValue);
+                        const discountTextSpan = document.getElementById("total_discount_text");
+                        if (discountTextSpan) discountTextSpan.innerHTML = this.formatCurrency(totalTax);
+                        const discountInfoAmount = document.getElementById("discount_info_amount");
+                        if (discountInfoAmount) discountInfoAmount.innerHTML = this.formatCurrency(totalItems);
+                        const cgstTotalText = document.getElementById("cgst_total_text");
+                        if (cgstTotalText) cgstTotalText.innerHTML = this.formatCurrency(totalCgst);
+                        const sgstTotalText = document.getElementById("sgst_total_text");
+                        if (sgstTotalText) sgstTotalText.innerHTML = this.formatCurrency(totalSgst);
+                        // Force Vue reactivity for totals
+                        this.formData.items = [...this.formData.items];
+                        // ...existing code...
             let maxPrice = Number(this.formData.items[index].max_single_unit_price) || 0;
-            let priceToUse = this.formData.items[index].discount_type_id==0 ? singlePrice : maxPrice;
+            let quantity = Number(this.formData.items[index].return_qty) || 0;
+            let cgst = Number(this.formData.items[index].cgst) || 0;
+            let sgst = Number(this.formData.items[index].sgst) || 0;
+            // User formula for totalamount
+            let subtotal = maxPrice * quantity;
+            let tax = (subtotal / 100) * (cgst + sgst);
+            let totalAmount = subtotal + tax;
+            this.formData.items[index].amount = totalAmount;
+            console.log("getQuantity - index", index, "quantity", quantity, "maxPrice", maxPrice, "cgst", cgst, "sgst", sgst, "subtotal", subtotal, "tax", tax, "totalAmount", totalAmount);
 
-          //  let priceToUse = singlePrice > 0 ? singlePrice : maxPrice; 
-           
-            if (priceToUse === 0) {
-                 priceToUse = Number(price) || 0;  
-                }
+            // Update DOM instantly for UI
+            const amountInput = document.getElementById("item_product_amount_" + index + "_" + (this.formData.items[index].unique || index));
+            if (amountInput) amountInput.value = this.formatCurrency(totalAmount);
 
-    
-            const singleItemTotal = Number(quantity * priceToUse);
-                
-            const totalDisc = (((cgst_tax_percentage + sgst_tax_percentage) / 100) * singleItemTotal);
-            this.formData.items[index].amount = this.formatNumber(singleItemTotal + totalDisc);
-            this.formData.items[index].amount= singleItemTotal+totalDisc;
-             const taxvalueStr = (cgst_tax_percentage + sgst_tax_percentage) + ",(" + (((cgst_tax_percentage + sgst_tax_percentage) / 100) * singleItemTotal).toFixed(2)+")";
-            document.getElementById("item_product_tax_" + index).innerHTML = taxvalueStr;
-            this.formData.items[index].single_unit_price = price;
-            //this.formData.items[index].discount_rate    =   discount;
-            this.formData.items[index].single_unit_price    =   price;
-            const totalAmount = this.getTotalAmount('total');
-            this.totalAmount  =  totalAmount;
+            // Update tax display using requested formula
+            let totalTaxRate = cgst + sgst;
+            let totaltaxamt = (quantity * maxPrice);
+            let taxAmount = (totaltaxamt / 100) * totalTaxRate;
+            const taxStr = totalTaxRate + ",(" + taxAmount.toFixed(2) + ")";
+            const taxEl = document.getElementById("item_product_tax_" + index);
+            if (taxEl) taxEl.innerHTML = taxStr;
 
-            console.log(Number((sgst_tax_percentage/100))*Number(this.totalAmount));
-
-            const totalSgstAmount   =   this.getTotalAmount('sgst');
-            const totalCgstAmount   =   this.getTotalAmount('cgst');
-            const totalDiscount     = this.getTotalAmount('discount');
-            const cessAmount = this.getTotalAmount('cess');
-            console.log("totalDiscount=>",totalDiscount);    
-            document.getElementById("igst_amount_0").value       =  this.formatCurrency(totalSgstAmount);
-            document.getElementById("igst_amount_1").value       =  this.formatCurrency(totalCgstAmount);
-            document.getElementById("igst_amount_2").value = this.formatCurrency(totalSgstAmount + totalCgstAmount);
-            document.getElementById('total_discount_text').innerHTML = this.formatCurrency(totalSgstAmount + totalCgstAmount)
-            document.getElementById("igst_amount_3").value = this.formatCurrency(cessAmount);
-             document.getElementById("igst_amount_4").value = this.formatCurrency(cessAmount+totalSgstAmount+ totalCgstAmount);
-         this.formData.tax_amount                             =  totalSgstAmount+ totalCgstAmount;
-            this.formData.subtotal                               =  totalAmount;
-            this.formData.total                                   = (totalAmount+cessAmount);             
-            //document.getElementById('total_discount_text').innerHTML = this.formatCurrency(totalDiscount)
-           // this.formData.discount                                   =   totalDiscount;
-           this.updateAgg();
+            // Update totals
+            this.updateAgg();
+            this.updateTotalProd(index);
+            this.showGstDetails(index);
         },
 
         getDiscount(index,event)
@@ -2524,7 +2793,7 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                 return true;
             }
 
-        },
+        }, 
         saveSalesReturnEntry(event)
         {
             console.log('submit',event);
@@ -2532,6 +2801,15 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                 this.spinning= true;
                 
                 // Build clean payload - filter out empty items and unnecessary fields
+                // Calculate correct values for payload
+                const total_items = this.formData.items.filter(item => item.item_id && item.return_qty).length;
+                const total_quantity = this.formData.items.reduce((sum, item) => sum + (Number(item.return_qty) || 0), 0);
+                const subtotal = this.formData.items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+                const total_discount = this.formData.items.reduce((sum, item) => sum + (Number(item.discount_value) || 0), 0);
+                const tax_amount = this.formData.items.reduce((sum, item) => sum + (Number(item.cgst_amount || 0) + Number(item.sgst_amount || 0) + Number(item.cess_amount || 0)), 0);
+                const totalCess = this.formData.items.reduce((sum, item) => sum + (Number(item.cess_amount) || 0), 0);
+                const total = subtotal + totalCess;
+
                 const payload = {
                     order_date: this.formData.order_date,
                     party_id: this.formData.party_id,
@@ -2540,18 +2818,19 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                     bill_number: this.formData.bill_number,
                     invoice_number: this.formData.invoice_number,
                     order_status: this.formData.order_status,
-                    total_items: this.formData.total_items,
-                    total_quantity: this.formData.total_quantity,
-                    subtotal: this.formData.subtotal,
-                    discount: this.formData.discount,
-                    tax_amount: this.formData.tax_amount,
-                    total: this.formData.total,
+                    total_items,
+                    total_quantity,
+                    subtotal,
+                    discount: total_discount,
+                    tax_amount,
+                    total,
+                    selectedInvoice: this.formData.selectedInvoice,
                     items: this.formData.items
                         .filter(item => item.item_id && item.return_qty) // Only items with product and return quantity
                         .map(item => ({
-                            product_id: item.item_id,
+                            item_id: item.item_id,
                             return_qty: item.return_qty,
-                            return_reason_code: item.return_reason_code,
+                            return_reason_code : item.return_reason_code,
                             quantity: item.quantity,
                             invoice_number: this.formData.invoice_number,
                             mrp: item.mrp,
@@ -2560,6 +2839,8 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                             discount_rate: item.discount_rate,
                             cgst: item.cgst,
                             sgst: item.sgst,
+                            cess: item.cess,
+                            igst: item.igst,
                             amount: item.amount
                         }))
                 };

@@ -35,13 +35,41 @@ class SalesReturnsController extends ApiBaseController
 	{
 		$documentFileName = "sales_return_".$request->invoice.".pdf";
 
-		$invoice_details 	= SalesReturn::where('cr_number',$request->invoice)->first();
-		$customerDetails 	= LedgerModel::where('id',$invoice_details->party_id)->get();
-		
-		$partyDetails 		= LedgerCustomerModel::where('id',$invoice_details->party_customer_id)->get();
-		
-		$products 			= DB::select("SELECT A.quantity,A.single_unit_price,B.mrp,B.sale_rate,A.discount_rate,A.subtotal,B.hsn_sac,B.name,C.cgst as cgst_amount,C.sgst as sgst_amount FROM `sales_return_items` A left join products B on B.id=A.product_id left join tax_catagories C on C.id=B.tax_category WHERE order_id=".$invoice_details->id);
-		
+		$invoice_details  = SalesReturn::where('cr_number',$request->invoice)->first();
+		if (!$invoice_details) {
+			// Return error response or handle gracefully
+			return response()->json(['error' => 'Sales Return not found'], 404);
+		}
+		$customerDetails  = LedgerModel::where('id',$invoice_details->party_id)->get();
+		$partyDetails     = LedgerCustomerModel::where('id',$invoice_details->party_customer_id)->get();
+		$company = \App\Models\Company::first(); 
+		// Use items from payload if present, otherwise fallback to DB
+		$products = [];
+		if ($request->has('items') && is_array($request->items) && count($request->items) > 0) {
+			foreach ($request->items as $item) {
+				$products[] = (object) $item;
+			}
+		} else {
+			$products = DB::select("
+				SELECT 
+				A.quantity,
+				A.single_unit_price,
+				A.discount_rate,
+				A.subtotal,
+				A.return_qty,
+				B.mrp,
+				B.hsn_sac,
+				B.name,
+				H.cgst as cgst,
+				H.sgst as sgst,
+				H.lgst as igst,
+				H.cess as cess
+				FROM sales_return_items A
+				LEFT JOIN products B ON B.id = A.product_id
+				LEFT JOIN hsc_sac H ON H.id = B.hsn_sac
+				WHERE A.order_id = ".$invoice_details->id
+			);
+		}
 	   // Create the mPDF document
 	   $document = new PDF( [
 		   'mode' => 'utf-8',
@@ -50,8 +78,6 @@ class SalesReturnsController extends ApiBaseController
 		   'margin_top' => '10',
 		   'margin_bottom' => '20',
 		   'margin_footer' => '2',
-		   
-		   
 	   ]);     
 	   $document->showWatermarkText = true;
 	   $document->watermark_font = 'DejaVuSansCondensed';
@@ -61,24 +87,30 @@ class SalesReturnsController extends ApiBaseController
 		   'Content-Type' => 'application/pdf',
 		   'Content-Disposition' => 'inline; filename="'.$documentFileName.'"'
 	   ];
-	   $document->SetWatermarkText($partyDetails[0]->name, 3);
+	   if (isset($partyDetails[0])) {
+		   $document->SetWatermarkText($partyDetails[0]->name, 3);
+	   }
 	   // Write some simple Content
-	   $document->WriteHTML(view('salesReturnInvoice',[
+	   $document->WriteHTML(view('salesReturnInvoice', [
 		   'invoice_details' => $invoice_details,
-		   'customer'=>$customerDetails,
-		   'party'=>$partyDetails,
-		   "products"=> $products
+		   'customer' => $customerDetails,
+		   'party' => $partyDetails,
+		   'products' => $products,
+		   'company' => [$company], // Pass as array for Blade compatibility
 	   ]));
-	  // $document->WriteHTML('<p>Write something, just for fun!</p>');
-		
+	  // $document->WriteHTML('<p>Write something, just for fun!');
+
 	   // Save PDF on your public storage 
 	   Storage::disk('file')->put($documentFileName, $document->Output($documentFileName, "S"));
-		
+
 	   // Get file back from storage with the give header informations
 		Storage::disk('file')->download($documentFileName, 'Request', $header);
 
 		$invoice_details->invoice_path = config('app.url') .'/'.$documentFileName;
 		$invoice_details->save();
 		echo config('app.url') .'/'.$documentFileName;
+
+		// Fetch company info from DB
+
 	}
 }

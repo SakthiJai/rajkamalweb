@@ -162,6 +162,13 @@ class SalesController extends ApiBaseController
 							'discount_type_id'      => $item['discount_type_id'] ?? 0,
 							'subtotal'           => $amount
 						]);
+
+						// Reduce stock in ProductDetails
+						$productDetails = \App\Models\ProductDetails::where('product_id', $item['item_id'])->first();
+						if ($productDetails) {
+							$productDetails->current_stock = max(0, $productDetails->current_stock - $quantity);
+							$productDetails->save();
+						}
 					}
 				}
 			}
@@ -239,6 +246,13 @@ class SalesController extends ApiBaseController
 							'discount_type_id'   => $item['discount_type_id'] ,
 							'subtotal'           => $amount
 						]);
+
+						// Reduce stock in ProductDetails
+						$productDetails = \App\Models\ProductDetails::where('product_id', $item['item_id'])->first();
+						if ($productDetails) {
+							$productDetails->current_stock = max(0, $productDetails->current_stock - $quantity);
+							$productDetails->save();
+						}
 					}
 				}
 			}
@@ -417,10 +431,10 @@ public function createReciept($payment)
 
 		 $partyDetails 		= LedgerCustomerModel::where('id', $invoice_details->party_customer_id)->get();
 		 $customerDetails 	= LedgerModel::where('id',$invoice_details->ledger_id)->get();
+		$company = \App\Models\Company::first(); 
 
 
-		 $products 			= DB::select("SELECT A.quantity,B.mrp,B.sale_rate,A.discount_rate,A.subtotal,B.hsn_sac,B.name,C.cgst as cgst_amount,C.sgst as sgst_amount FROM `order_items` A left join products B on B.id=A.product_id left join tax_catagories C on C.id=B.tax_category WHERE order_id=".$invoice_details->id);
-
+		 $products 			= DB::select("SELECT A.quantity,A.freeqty,B.mrp,B.sale_rate,A.discount_rate,A.subtotal,B.hsn_sac,B.name,H.cgst as cgst, H.sgst as sgst, H.lgst as igst, H.cess as cess FROM `order_items` A left join products B on B.id=A.product_id left join hsc_sac H on H.id=B.hsn_sac WHERE order_id=".$invoice_details->id);
         // Create the mPDF document
         $document = new PDF( [
             'mode' => 'utf-8',
@@ -438,12 +452,13 @@ public function createReciept($payment)
         ];
 		$document->watermark("your watermark text", 20, 10, 0.2);
         // Write some simple Content
-        $document->WriteHTML(view('invoice',[
-			'invoice_details' => $invoice_details,
-			'customer'=>$customerDetails,
-			'party'=>$partyDetails,
-			"products"=> $products
-		]));
+        $document->WriteHTML(view('invoice', [
+            'invoice_details' => $invoice_details,
+            'customer'=>$customerDetails,
+            'party'=>$partyDetails,
+            'products'=> $products,
+			'company'=>$company
+        ]));
        // $document->WriteHTML('<p>Write something, just for fun!</p>');
 
         // Save PDF on your public storage
@@ -454,6 +469,11 @@ public function createReciept($payment)
 		 $invoice_details->invoice_path = config('app.url') .'/'.$documentFileName;
 		 $invoice_details->save();
 		 echo config('app.url') .'/'.$documentFileName;
+	\Log::info('company', ['company' => $company]);
+	// \Log::info('invoice_details', ['invoice_details' => $invoice_details]);
+	// \Log::info('partyDetails', ['partyDetails' => $partyDetails]);
+	// \Log::info('customerDetails', ['customerDetails' => $customerDetails]);
+
 
 
 	}
@@ -601,14 +621,17 @@ public function createReciept($payment)
 							'tax_rate'           => 2,
 							'disc_value'      	=> $item['discount_rate'] ?? 0,
 							'subtotal'           => $amount,
-							'return_invoice'           => $item['invoice'],
-							'disc_type'			=> $item['discount_type_id'],
+							'return_invoice'           => $item['invoice'] ?? 0,
+							'disc_type'         => $item['discount_type_id'] ?? 0,
 							'return_reason_code'=> $item['return_reason_code'],
-							'invoice_date'=>date('d-m-Y',strtotime($item['invoice_date']))
+							'invoice_date' => isset($item['invoice_date']) ? date('d-m-Y', strtotime($item['invoice_date'])) : null,
+							'cgst' => $item['cgst'] ?? 0,
+							'sgst' => $item['sgst'] ?? 0,
+							'igst' => $item['igst'] ?? 0,
+							'cess' => $item['cess'] ?? 0
 						]))
 						{
 							$total = $total+$amount;
-
 						}
 						else{
 							echo 'issue2';
@@ -701,10 +724,14 @@ public function createReciept($payment)
 							'tax_rate'           => 2,
 							'disc_value'      	=> $item['discount_rate'] ?? 0,
 							'subtotal'           => $amount,
-							'disc_type'			=> $item['discount_type_id'],
+							'disc_type'         => $item['discount_type_id'] ?? 0,
 							'return_reason_code'=> $item['return_reason_code'],
-							'return_invoice'           => $item['invoice'],
-							'invoice_date'=>date('d-m-Y',strtotime($item['invoice_date']))
+							'return_invoice'           => $item['invoice'] ?? 0,
+							'invoice_date' => !empty($item['invoice_date']) ? date('d-m-Y', strtotime($item['invoice_date'])) : null,
+							'cgst' => $item['cgst'] ?? 0,
+							'sgst' => $item['sgst'] ?? 0,
+							'igst' => $item['igst'] ?? 0,
+							'cess' => $item['cess'] ?? 0
 						]))
 						{
 							$total = $total+$amount;

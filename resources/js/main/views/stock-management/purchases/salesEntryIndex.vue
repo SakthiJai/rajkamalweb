@@ -227,33 +227,38 @@ export default {
                 if(this.selectedRange=="This Week")
                 {
                     this.selectedRange ="Yesterday";
-                    document.getElementById("Yesterday").focus({focusVisible: true});
+                    const el = document.getElementById("Yesterday");
+                    if (el) el.focus({focusVisible: true});
                     event.preventDefault();
                 }
                else if(this.selectedRange=="This Month")
                 {
                      this.selectedRange ="Last 7 days";
-                    document.getElementById("last_7_days").focus({ focusVisible: true });
+                    const el = document.getElementById("last_7_days");
+                    if (el) el.focus({ focusVisible: true });
                     event.preventDefault();
                 }
 
                 else if(this.selectedRange=="Yesterday")
                 {
                  this.selectedRange ="Today";
-                    document.getElementById("today").focus({ focusVisible: true });
+                    const el = document.getElementById("today");
+                    if (el) el.focus({ focusVisible: true });
                     event.preventDefault();
                 }
                 else if(this.selectedRange=="Last 7 days")
                 {
 
                     this.selectedRange ="This Week";
-                    document.getElementById("this-week").focus({focusVisible: true});
+                    const el = document.getElementById("this-week");
+                    if (el) el.focus({focusVisible: true});
                     event.preventDefault();
                 }
                 else if(event.target.id=="Previous month")
                 {
                     this.selectedRange ="This Month";
-                    document.getElementById("this_month").focus({focusVisible: true});
+                    const el = document.getElementById("this_month");
+                    if (el) el.focus({focusVisible: true});
                     event.preventDefault();
                 }
                 else if(event.target.id=="365 Days")
@@ -538,15 +543,23 @@ export default {
         // },
 
         updateselect(value){ console.log('value',value)
-        //this.$refs.SalesReturnOrderTable.test(event);
-        //this.$globalVar=123;
-
-            localStorage.setItem("cr_number", value);
-        localStorage.setItem("selectedInvoice", value);
-
-        this.$router.push({
-        name: `admin.stock.${this.orderPageObject.type}.create`
-      });
+                // Call API to get invoice details
+                axiosAdmin.get(`sales/getReturnInvoiceDetails/${value}`)
+                    .then(response => {
+                        // Store the data in localStorage
+                        localStorage.setItem("salesReturnData", JSON.stringify(response.data.data));
+                        localStorage.setItem("cr_number", value);
+                        localStorage.setItem("selectedInvoice", value);
+                        // Route to create page, pass id param if editing
+                        this.$router.push({
+                            name: `admin.stock.${this.orderPageObject.type}.create`,
+                            params: value ? { id: value, username: 'eduardo' } : { username: 'eduardo' }
+                        });
+                    })
+                    .catch(error => {
+                        // Handle error
+                        console.error("Failed to fetch invoice details", error);
+                    });
 
         },
         test(event)
