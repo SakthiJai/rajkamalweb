@@ -271,7 +271,7 @@ use Examyou\RestAPI\Facades\ApiRoute;
 
         ApiRoute::get('sales/getpurchaseInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'PurchaseReturnController@getPurchaseInvoiceDetails']);
 
-        ApiRoute::get('sales/getbillInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@getBillInvoiceDetails']);
+        ApiRoute::get('purchase/getbillInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'PurchaseBillController@getBillInvoiceDetails']);
 
 
         ApiRoute::get('expense/getexpenseInvoiceDetails/{invoice}', ['as' => 'api.sales.store', 'uses' => 'ExpensesItemController@getExpensenvoiceDetails']);

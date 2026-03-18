@@ -66,7 +66,7 @@
         <a-card class="page-content-container mt-5 mb-5">
             <a-form layout="vertical">
                <a-row :gutter="16">
-					<a-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <a-col :xs="24" :sm="24" :md="12" :lg="12">
                         <a-form-item :label="$t('stock.party_name')" name="party_name" ref="input"
                             :help="rules.party_name ? rules.party_name.message : null"
                             :validateStatus="rules.party_name ? 'error' : null" class="required">
@@ -113,7 +113,7 @@
                         </a-form-item>
 
                       </a-col>
-                </a-row>    
+                </a-row>
                 <!-- sales modal number -->
                 <SalesNumberModel v-if="isNumberVisible" :visible="isNumberVisible" :form-party="formData.party_id" :url="url"
                     :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage" @closed="handlenumberModel"
@@ -144,7 +144,7 @@
                             />
                         </a-form-item>
                  </a-col>
-				<a-col :xs="24" :sm="24" :md="12" :lg="12">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12">
                    <a-form-item :label="$t('stock.invoice_date')" name="Invoice date"
                         :help="rules.invoice_date ? rules.invoice_date.message : null"
                         :validateStatus="rules.invoice_date ? 'error' : null">
@@ -187,7 +187,7 @@
                                                 <input  hidden autocomplete="off" tabindex="-1" :id="`sgst_tax_${index}`" v-model="formData.items[index].sgst">
                                             </td>
                                              <td style="width:8%">
-                                                
+
                                                 <input autocomplete="off" tabindex="-1"
                                                 :id="`item_product_packing_${index}`"
                                                 v-model="formData.items[index].packing"
@@ -197,7 +197,7 @@
 
                                             </td>
                                             <td style="width:6%">
-                                                <input autocomplete="off" 
+                                                <input autocomplete="off"
                                                 v-model="formData.items[index].single_unit_price" @focus="focusinputvalue($event)"
                                                 :ref="`input-${index}`" @input="getQuantity(index,$event)"
                                                 :id="`item_product_price_${index}`"
@@ -235,23 +235,23 @@
                                             </td>
                                             <td style="width:5%">
                                                 <input autocomplete="off"
-                                                  readonly  
+                                                  readonly
                                                 :id="`item_product_remQty_${index}`"
-                                                v-model="formData.items[index].remQty"  
+                                                v-model="formData.items[index].remQty"
                                                 name="remQty[]" @blur="updateAgg(),checkMaxQuantity(index,$event)"
                                                 style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4" >
                                             </td>
                                             <td style="width:8%">
                                                 <input autocomplete="off"
-                                                  readonly  
+                                                  readonly
                                                 :id="`item_product_withoutDisc_${index}`"
-                                                v-model="formData.items[index].withoutDisc"  
+                                                v-model="formData.items[index].withoutDisc"
                                                 name="withoutDisc[]"
                                                 style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4">
                                             </td>
 
-                                           
-                                            
+
+
                                             <td style="width:8%">
 
                                                 <select class="ant-input css-dev-only-do-not-override-wosfq4 mobilenumbering" v-model="formData.items[index].discount_type_id" :id="`item_product_disc_type_${index}`"placeholder="Discount" :allowClear="false" optionFilterProp="title" show-search @change="updateDiscount(index,$event)">
@@ -288,7 +288,7 @@
                                             </td>
                                             <td style="text-align:right;width:7%">
                                                <b style="font-size:11px;" :id="`item_product_tax_${index}`"></b>&nbsp;&nbsp;
-                                               
+
                                             </td>
 
                                             <td style="width:12%">
@@ -317,7 +317,7 @@
                                             </td>
 
                                             <td style="width:6%">
-                                                <input  
+                                                <input
                                                 value="0.00"
                                                 disabled=true
                                                 name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
@@ -350,20 +350,20 @@
                                             </td>
 
                                             <td style="width:8%;text-align:right">
-                                               
-                                               <input 
+
+                                               <input
 
                                                 disabled=true
                                                 name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
                                                 ></input>
                                             </td>
                                              <td style="width:8%;text-align:right">
-                                               
-                                                
+
+
                                             </td>
                                              <td style="width:5%;text-align:right">
-                                               
-                                                
+
+
                                             </td>
                                              <td style="width:8%;text-align:right">
                                                <input id="total_disc_amount"
@@ -371,7 +371,7 @@
                                                 disabled=true
                                                 name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
                                                 ></input>
-                                                
+
                                             </td>
                                              <td style="width:8%;text-align:right">
                                                <input id="total_with_disc_details"
@@ -379,10 +379,10 @@
                                                 disabled=true
                                                 name="table_total_amount[]" style="color:black;font-weight:bolder;text-align-last:right;" class="ant-input css-dev-only-do-not-override-wosfq4"
                                                 ></input>
-                                               
+
                                             </td>
                                              <td style="width:7%;text-align:right">
-                                               
+
                                                 <b><span id="total_discount_text1">0.00</span></b>&nbsp;
                                             </td>
 
@@ -474,7 +474,7 @@
                         </a-row>
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="12" :lg="12">
-                        
+
                         <a-row :gutter="16" class="mt-5">
                             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                                 <table class="responsive-table">
@@ -545,6 +545,12 @@
                             <a-button  class="draft"  block @click="saveSalesEntryDraft()">
                                 Save As Draft
                               </a-button>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="3" :lg="3">
+                            <a-button class="printbtn" @click="printpdf()" block>
+                                Print PDF
+                            </a-button>
                         </a-col>
 
 
@@ -647,7 +653,7 @@
             </a-row>
         </a-form>
         <template #footer>
-            <a-button key="submit" type="primary" :loading="addEditFormSubmitting" @click="onAddEditSubmit">
+            <a-button key="submit" type="primary" :loading="addEditFormSubmitting" @click="onAddEditSubmit" >
                 <span  class="shortcut ng-star-inserted"><code>F8</code></span>
                 <template #icon>
                     <SaveOutlined />
@@ -805,6 +811,7 @@ export default {
                 party_customer_mobile:null,
                 bill_number:"",
                 invoice_number:"",
+                original_bill_number:"",
                 tax_amount:0,
                 discount:0,
                 total:0,
@@ -1075,7 +1082,7 @@ console.log("formData",formData.selectedInvoice)
             deleteConfirmationPopup:false,
             stockDateColor: '',
          addressField: '',
-			isNumberVisible:false,
+            isNumberVisible:false,
             isPrintModalVisible: false,
             showDeletePopup: false,
             selectedItemIndex: null,
@@ -1183,7 +1190,7 @@ deleteItem()
         })
         console.log(this.formData.items[8].unique);
         var T = document.getElementById('itemtable');
-        let rows = T.rows;          
+        let rows = T.rows;
         let lastRow = rows[rows.length - 2];
         var R = lastRow;
         var C = R.cloneNode(true);
@@ -1194,7 +1201,7 @@ deleteItem()
         this.deleteConfirmationPopup = false; // Hide the delete confirmation popup
         var that = this;
         setTimeout(function () { that.getQuantity(0, null); }, 1000)
-        setTimeout(function(){ that.updateAgg();},1000)     
+        setTimeout(function(){ that.updateAgg();},1000)
 
 
     }
@@ -1218,26 +1225,64 @@ deleteItem()
         if(this.selectedInvoice!="null")
         {
             this.formData.bill_number=this.selectedInvoice;
+            this.formData.original_bill_number=this.selectedInvoice;
             this.spinning = true;
             axiosAdmin
-            .get("sales/getInvoiceDetails/"+this.selectedInvoice)
-            .then(response => {  console.log(response)
+            .get("purchase/getbillInvoiceDetails/"+this.selectedInvoice)
+            .then(response => {  console.log("Response=>",response)
                 // Toastr Notificaiton
-                this.formData.party_id=response.data.partyDetails.id;
-                console.log(this.formData);
-                this.formData.party_name                =   response.data.partyDetails.party_name,
-                this.formData.party_customer_id         =   response.data.customerData.id,
-                this.formData.customer_name             =   response.data.customerData.cus_name,
-                this.formData.party_shippingaddress_id  =   response.data.shipppingaddressData.id,
-            
-                this.formData.shipping_address          =   response.data.shipppingaddressData.shipping_address,
-                this.formData.party_customer_mobile     =   response.data.customerData.mobile_number,
-                this.formData.order_date                =   response.data.invoiceData.order_date.split('T')[0];
+                this.formData.party_id=response.data.invoiceData.party_id;
+                console.log("partyyyyy=>",this.formData);
+
+                this.formData.party_name                =   response.data.invoiceData.party_name,
+                
+                // Fetch party state separately since it's not in invoiceData
+                axiosAdmin.get("store-ledger/" + this.formData.party_id).then(partyResponse => {
+                    console.log("Party response:", partyResponse);
+                    this.formData.party_state = partyResponse.data.stock_state ;
+                    console.log("Fetched party_state=>", this.formData.party_state);
+                    console.log( "ttttttttts=>",this.formData.party_state);
+                    console.log("vvvvvvvvvvv=>",this.company.state);
+                    if (this.formData.party_state == this.company.state) {
+                        document.getElementById("IGST").style.display = "none";
+                        document.getElementById("CGST").style.display = "table-row";
+                        document.getElementById("SGST").style.display = "table-row";
+                    } else {
+                        document.getElementById("IGST").style.display = "table-row";
+                        document.getElementById("CGST").style.display = "none";
+                        document.getElementById("SGST").style.display = "none";
+                    }
+                }).catch(error => {
+                    console.error("Error fetching party state:", error);
+                    // Fallback: set to company state if fetch fails
+                    this.formData.party_state = this.company.state;
+                    if (this.formData.party_state == this.company.state) {
+                        document.getElementById("IGST").style.display = "none";
+                        document.getElementById("CGST").style.display = "table-row";
+                        document.getElementById("SGST").style.display = "table-row";
+                    } else {
+                        document.getElementById("IGST").style.display = "table-row";
+                        document.getElementById("CGST").style.display = "none";
+                        document.getElementById("SGST").style.display = "none";
+                    }
+                });
+                
+                // this.formData.party_customer_id         =   response.data.customerData.id || 0,
+               
+                // this.formData.customer_name             =   response.data.customerData.cus_name || 0,
+              
+                // this.formData.party_shippingaddress_id  =   response.data.shipppingaddressData.id || 0,
+
+                // this.formData.shipping_address          =   response.data.shipppingaddressData.shipping_address || 0,
+                // this.formData.party_customer_mobile     =   response.data.customerData.mobile_number || 0,
+                this.formData.order_date                =   response.data.invoiceData.order_date.split('T')[0] || "";
+                this.formData.invoice_date              =   response.data.invoiceData.invoice_date.split('T')[0] || "";
 
                 this.spinning = false;
-               
-                if(response.data.invoiceItems && response.data.invoiceItems.length>0)
-                {
+console.log("invoice itemscc=>",this.formData.party_state);
+                // if(response.data.invoiceItems && response.data.invoiceItems.length>0)
+                // {
+
                     let finalIndex  =   0;
                     let grand_total =   0;
                     let total_disc  =   0;
@@ -1247,6 +1292,7 @@ deleteItem()
                         var quantity = 0; var price = 0;
 
                         this.formData.items[index].item_id                  = data.product_id;
+                        console.log("data.product_name=>", data);
                         this.formData.items[index].item_name                = data.product_name;
                         this.formData.items[index].unit_id                  = "";
                         this.formData.items[index].quantity                 = this.formatNumber(data.quantity);
@@ -1257,8 +1303,9 @@ deleteItem()
                         this.formData.items[index].discount_rate            = data.discount_rate;
                         this.formData.items[index].amount                   = this.formatNumber(data.subtotal);
                         this.formData.items[index].maxquantity              = this.formatNumber(data.stock);
-                        this.formData.items[index].freeQty                  = this.formatNumber(data.freeQty);
-                        this.formData.items[index].remQty                   = this.formatNumber(data.quantity - data.freeQty);
+                        let freeQty = data.freeQty ?? data.free ?? 0;
+                        this.formData.items[index].freeQty                  = this.formatNumber(data.free);
+                        this.formData.items[index].remQty                   = this.formatNumber(data.quantity - data.free);
                         this.formData.items[index].max_single_unit_price    = this.formatNumber(data.mrp);
                         this.formData.items[index].packing                  = data.pack;
                         this.formData.items[index].cgst                     = (data.product.cgst>=0?data.product.cgst:0);
@@ -1268,11 +1315,11 @@ deleteItem()
                         this.formData.items[index].hsnCode                  = (data.hsnCode);
                         this.formData.items[index].qtyUnit                  = (data.qtyUnit);
 
-                       
+
                         total_disc                                          =  total_disc+Number(data.discount_rate);
                         totalcgst                                           =  totalcgst+ (data.product.cgst>=0?data.product.cgst:0);
-                        totalsgst                                           =  totalsgst+ (data.product.sgst>=0?data.product.sgst:0);                     
-                        
+                        totalsgst                                           =  totalsgst+ (data.product.sgst>=0?data.product.sgst:0);
+
                         document.getElementById('item_product_disc_'+index).value=this.formatNumber(data.discount_rate)
                         document.getElementById('item_discount_total_'+index).value=data.discount_rate;
 
@@ -1284,41 +1331,48 @@ deleteItem()
                         if (price == undefined || price == "" || price < 0) { price = 0 }
                         // if(discount==undefined || discount=="" || discount<0){discount=0}
                         const singleItemTotal = Number(quantity * price);
-                        document.getElementById("item_product_amount_" + index).value = this.formatCurrency(singleItemTotal);                           
-                        
+                        document.getElementById("item_product_amount_" + index).value = this.formatCurrency(singleItemTotal);
+
                         document.getElementById("item_product_withoutDisc_" + index).value = (this.formData.items[index].remQty * data.single_unit_price);
                         this.formData.items[index].withoutDisc = this.formatCurrency((this.formData.items[index].remQty * data.single_unit_price));
 
                         const totalDiscountByItem = this.getTotalAmount('discount', index);
-                        const afterDisc = Number(this.formData.items[index].withoutDisc.replace(/,/g,'')) - Number(totalDiscountByItem); 
+                        document.getElementById(`item_product_disc_value_${index}`).value = this.formatNumber(totalDiscountByItem);
+
+                        const afterDisc = Number(this.formData.items[index].withoutDisc.replace(/,/g,'')) - Number(totalDiscountByItem);
+                       
                         //item_product_withDisc_0
+                     
                         document.getElementById("item_product_withDisc_" + index).innerHTML = afterDisc;
-                       
-                       
-                        const totalTaxValue = (((cgst_tax_percentage + sgst_tax_percentage) / 100) * afterDisc); 
+
+
+                        const totalTaxValue = (((cgst_tax_percentage + sgst_tax_percentage) / 100) * afterDisc);
                         this.formData.items[index].discount_value = totalTaxValue;
-                        console.log("totalTaxValue=>",this.formData.items[index].discount_value)  
+                        console.log("totalTaxValue=>",this.formData.items[index].discount_value)
                          const taxvalueStr = (cgst_tax_percentage + sgst_tax_percentage) + ",(" + totalTaxValue.toFixed(2) + ")"; console.log("taxvalueStr",taxvalueStr)
                         document.getElementById("item_product_tax_" + index).innerHTML = taxvalueStr;
-                        document.getElementById('item_product_amount_' + index).value = this.formatNumber(afterDisc + totalTaxValue)  
-                        grand_total = grand_total + Number(afterDisc+totalTaxValue);        
-                        
+                        document.getElementById('item_product_amount_' + index).value = this.formatNumber(afterDisc + totalTaxValue)
+                        grand_total = grand_total + Number(afterDisc+totalTaxValue);
+
                     })
-                   
+
                     total_disc = this.getTotalAmount('discount',null);
                     totalcgst = this.getTotalAmount("cgst",null);
                     totalsgst = this.getTotalAmount("sgst",null);
                     const cessAmount = this.getTotalAmount('cess', null);
-                   console.log("cess =>",this.formatCurrency(cessAmount)) 
+                   console.log("cess =>",this.formatCurrency(cessAmount))
                     document.getElementById('total_goods_value').value          =    this.formatCurrency(grand_total);
                     console.log("edit grand total 1",totalcgst,totalsgst,total_disc);
-                 
+
                     document.getElementById('igst_amount_0').value =   this.formatCurrency(totalcgst);
                     document.getElementById('igst_amount_1').value = this.formatCurrency(totalsgst);
                     document.getElementById("igst_amount_2").value = this.formatCurrency(totalcgst+totalsgst);
                     document.getElementById('igst_amount_3').value = this.formatCurrency(cessAmount);
+                   const total = Number(totalcgst || 0) + Number(totalsgst || 0) + Number(cessAmount || 0);
+
+                     document.getElementById("igst_amount_4").value = this.formatCurrency(total);
                     console.log("edit grand total 2",  grand_total,totalcgst,totalsgst,cessAmount,total_disc);
-                   
+
                     document.getElementById('grand_total').innerHTML = this.formatCurrency((grand_total + (cessAmount)));
                     this.formData.total =   (grand_total + (cessAmount));
                     console.log("this.formData.total", this.formData.total)
@@ -1326,24 +1380,11 @@ deleteItem()
                     this.selectedItermIndex = (finalIndex);
                     document.getElementById('cgst_total_text').innerHTML        =    this.formatCurrency(totalcgst>0?totalcgst:0)
                     document.getElementById('sgst_total_text').innerHTML = this.formatCurrency(totalsgst > 0 ? totalsgst : 0);
-                   
-                     if (this.formData.party_state == this.company.state) {
-                    document.getElementById("IGST").style.display = "none";
-                    document.getElementById("CGST").style.display = "table-row";
-                    document.getElementById("SGST").style.display = "table-row";
 
-                }
-                else
-                {
-                    document.getElementById("IGST").style.display = "table-row";
-                    document.getElementById("CGST").style.display = "none";
-                    document.getElementById("SGST").style.display = "none";
-                }
-
-                }
+                // }
                 console.log(this.formData.items)
                 this.updateAgg();
-                
+
             })
             .catch(errorResponse => {
                 this.spinning= false;
@@ -1351,6 +1392,153 @@ deleteItem()
         }
 
       },
+
+//          getInvoiceDetails(){
+//         console.log("selectedInvoice inside method",this.formData.selectedInvoice);
+//         if(this.selectedInvoice!="null")
+//         {
+//             this.formData.bill_number=this.selectedInvoice;
+//             this.spinning = true;
+//             axiosAdmin
+//             .get("purchase/getbillInvoiceDetails/"+this.selectedInvoice)
+//             .then(response => {  console.log("Response=>",response)
+//                 // Toastr Notificaiton
+//                 this.formData.party_id=response.data.invoiceData.id;
+//                 console.log("partyyyyy=>",this.formData);
+
+//                 this.formData.party_name                =   response.data.invoiceData.party_name,
+                
+//                 this.formData.party_customer_id         =   response.data.customerData.id || 0,
+               
+//                 this.formData.customer_name             =   response.data.customerData.cus_name || 0,
+              
+//                 this.formData.party_shippingaddress_id  =   response.data.shipppingaddressData.id || 0,
+
+//                 this.formData.shipping_address          =   response.data.shipppingaddressData.shipping_address || 0,
+//                 this.formData.party_customer_mobile     =   response.data.customerData.mobile_number || 0,
+//                 this.formData.order_date                =   response.data.invoiceData.order_date.split('T')[0] || "";
+//                 this.formData.invoice_date              =   response.data.invoiceData.invoice_date.split('T')[0] || "";
+
+//                 this.spinning = false;
+// console.log("invoice itemscc=>");
+//                 // if(response.data.invoiceItems && response.data.invoiceItems.length>0)
+//                 // {
+
+//                     let finalIndex  =   0;
+//                     let grand_total =   0;
+//                     let total_disc  =   0;
+//                     let totalcgst   =   0;
+//                     let totalsgst   =   0;
+//                     response.data.invoiceItems.forEach((data,index)=>{
+//                         var quantity = 0; var price = 0;
+
+//                         this.formData.items[index].item_id                  = data.product_id;
+//                         console.log("data.product_name=>",data.product_name);
+//                         this.formData.items[index].item_name                = data.product_name;
+//                         this.formData.items[index].unit_id                  = "";
+//                         this.formData.items[index].quantity                 = this.formatNumber(data.quantity);
+//                         quantity = this.formatNumber(data.quantity);
+//                         this.formData.items[index].mrp                      = this.formatNumber(data.mrp);
+//                         this.formData.items[index].single_unit_price        = this.formatNumber(data.single_unit_price);
+//                         price = this.formatNumber(data.single_unit_price);
+//                         this.formData.items[index].discount_rate            = data.discount_rate;
+//                         this.formData.items[index].amount                   = this.formatNumber(data.subtotal);
+//                         this.formData.items[index].maxquantity              = this.formatNumber(data.stock);
+//                         let freeQty = data.freeQty ?? data.free ?? 0;
+//                         this.formData.items[index].freeQty                  = this.formatNumber(freeQty);
+//                         this.formData.items[index].remQty                   = this.formatNumber(data.quantity - freeQty);
+//                         this.formData.items[index].max_single_unit_price    = this.formatNumber(data.mrp);
+//                         this.formData.items[index].packing                  = data.pack;
+//                         this.formData.items[index].cgst                     = (data.product.cgst>=0?data.product.cgst:0);
+//                         this.formData.items[index].sgst                     = (data.product.sgst>=0?data.product.sgst:0);
+//                         this.formData.items[index].cess                     = (data.product.cess>=0?data.product.cess:0);
+//                         this.formData.items[index].discount_type_id         = (data.discount_type_id);
+//                         this.formData.items[index].hsnCode                  = (data.hsnCode);
+//                         this.formData.items[index].qtyUnit                  = (data.qtyUnit);
+
+
+//                         total_disc                                          =  total_disc+Number(data.discount_rate);
+//                         totalcgst                                           =  totalcgst+ (data.product.cgst>=0?data.product.cgst:0);
+//                         totalsgst                                           =  totalsgst+ (data.product.sgst>=0?data.product.sgst:0);
+
+//                         document.getElementById('item_product_disc_'+index).value=this.formatNumber(data.discount_rate)
+//                         document.getElementById('item_discount_total_'+index).value=data.discount_rate;
+
+//                         finalIndex = index;
+
+//                         const cgst_tax_percentage = Number(this.formData.items[index].cgst);
+//                         const sgst_tax_percentage = Number(this.formData.items[index].sgst);
+//                         if (quantity == undefined || quantity == "" || quantity < 0) { quantity = 0 }
+//                         if (price == undefined || price == "" || price < 0) { price = 0 }
+//                         // if(discount==undefined || discount=="" || discount<0){discount=0}
+//                         const singleItemTotal = Number(quantity * price);
+//                         document.getElementById("item_product_amount_" + index).value = this.formatCurrency(singleItemTotal);
+
+//                         document.getElementById("item_product_withoutDisc_" + index).value = (this.formData.items[index].remQty * data.single_unit_price);
+//                         this.formData.items[index].withoutDisc = this.formatCurrency((this.formData.items[index].remQty * data.single_unit_price));
+
+//                         const totalDiscountByItem = this.getTotalAmount('discount', index);
+//                         const afterDisc = Number(this.formData.items[index].withoutDisc.replace(/,/g,'')) - Number(totalDiscountByItem);
+//                         //item_product_withDisc_0
+//                         document.getElementById("item_product_withDisc_" + index).innerHTML = afterDisc;
+
+
+//                         const totalTaxValue = (((cgst_tax_percentage + sgst_tax_percentage) / 100) * afterDisc);
+//                         this.formData.items[index].discount_value = totalTaxValue;
+//                         console.log("totalTaxValue=>",this.formData.items[index].discount_value)
+//                          const taxvalueStr = (cgst_tax_percentage + sgst_tax_percentage) + ",(" + totalTaxValue.toFixed(2) + ")"; console.log("taxvalueStr",taxvalueStr)
+//                         document.getElementById("item_product_tax_" + index).innerHTML = taxvalueStr;
+//                         document.getElementById('item_product_amount_' + index).value = this.formatNumber(afterDisc + totalTaxValue)
+//                         grand_total = grand_total + Number(afterDisc+totalTaxValue);
+
+//                     })
+
+//                     total_disc = this.getTotalAmount('discount',null);
+//                     totalcgst = this.getTotalAmount("cgst",null);
+//                     totalsgst = this.getTotalAmount("sgst",null);
+//                     const cessAmount = this.getTotalAmount('cess', null);
+//                    console.log("cess =>",this.formatCurrency(cessAmount))
+//                     document.getElementById('total_goods_value').value          =    this.formatCurrency(grand_total);
+//                     console.log("edit grand total 1",totalcgst,totalsgst,total_disc);
+
+//                     document.getElementById('igst_amount_0').value =   this.formatCurrency(totalcgst);
+//                     document.getElementById('igst_amount_1').value = this.formatCurrency(totalsgst);
+//                     document.getElementById("igst_amount_2").value = this.formatCurrency(totalcgst+totalsgst);
+//                     document.getElementById('igst_amount_3').value = this.formatCurrency(cessAmount);
+//                     console.log("edit grand total 2",  grand_total,totalcgst,totalsgst,cessAmount,total_disc);
+
+//                     document.getElementById('grand_total').innerHTML = this.formatCurrency((grand_total + (cessAmount)));
+//                     this.formData.total =   (grand_total + (cessAmount));
+//                     console.log("this.formData.total", this.formData.total)
+//                     //console.log("grand_total=>",this.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0));
+//                     this.selectedItermIndex = (finalIndex);
+//                     document.getElementById('cgst_total_text').innerHTML        =    this.formatCurrency(totalcgst>0?totalcgst:0)
+//                     document.getElementById('sgst_total_text').innerHTML = this.formatCurrency(totalsgst > 0 ? totalsgst : 0);
+
+//                      if (this.formData.party_state == this.company.state) {
+//                     document.getElementById("IGST").style.display = "none";
+//                     document.getElementById("CGST").style.display = "table-row";
+//                     document.getElementById("SGST").style.display = "table-row";
+
+//                 }
+//                 else
+//                 {
+//                     document.getElementById("IGST").style.display = "table-row";
+//                     document.getElementById("CGST").style.display = "none";
+//                     document.getElementById("SGST").style.display = "none";
+//                 }
+
+//                 // }
+//                 console.log(this.formData.items)
+//                 this.updateAgg();
+
+//             })
+//             .catch(errorResponse => {
+//                 this.spinning= false;
+//             })
+//         }
+
+//       },
 
         formatNumber (num)
         {
@@ -1694,7 +1882,7 @@ adjustDate(event) {
 hasValidInput(target) {
     return target.value && target.value.trim() !== '';
 },
-      
+
 
         handleSalesNumber() {
             ////console.log("close Model",this.selectedItermIndex);
@@ -1800,13 +1988,15 @@ hasValidInput(target) {
            // document.getElementById("balance_amt").innerHTML = 0.00;
            // document.getElementById("Due_amt").innerHTML = 0.00;
             document.getElementById("party_state").value = selectedParty.state;
-            
+
 
 
             this.formData.party_id = selectedParty.id.toString();
             this.formData.party_name = selectedParty.name;
             this.formData.party_state = selectedParty.state;
-            console.log(this.formData.party_state ,"==", this.company.state)
+
+           console.log( "rrrrrrrr=>",this.formData.party_state);    
+            console.log("eeeeeee=>",this.company.state);
             if (this.formData.party_state == this.company.state) {
                 document.getElementById("IGST").style.display = "none";
                 document.getElementById("CGST").style.display = "table-row";
@@ -1874,12 +2064,12 @@ hasValidInput(target) {
             this.formData.party_customer_id = selectedParty.id;
             this.formData.party_customer_name = selectedParty.name;
             this.formData.party_customer_mobile = selectedParty.mobile_number;
-            ///this.formData.address               =   selectedParty.address
-            ////console.log("hello child" + this.formData)
+            this.formData.address               =   selectedParty.address
+            console.log("hello child" + this.formData.address)
             document.getElementById("party_customer_id").value = this.formData.party_customer_id;
             document.getElementById("form_item_customer_name").value = this.formData.party_customer_name;
             document.getElementById("form_item_mobile_number").value = this.formData.party_customer_mobile;
-            //document.getElementById("form_item_address").value = this.formData.address;
+            document.getElementById("form_item_address").value = this.formData.address;
         },
 
         //shippingaddress//
@@ -1910,7 +2100,7 @@ hasValidInput(target) {
     console.log('Cgst Tax', selectedParty);
     this.formData.items[this.selectedItermIndex].item_name = selectedParty.name;
     this.formData.items[this.selectedItermIndex].item_id = selectedParty.id;
-    this.formData.items[this.selectedItermIndex].single_unit_price = 0;
+    this.formData.items[this.selectedItermIndex].single_unit_price = selectedParty.single_unit_price;
     this.formData.items[this.selectedItermIndex].max_single_unit_price = 0;
     this.formData.items[this.selectedItermIndex].quantity = 0;
     this.formData.items[this.selectedItermIndex].maxquantity = selectedParty.quantity;
@@ -1936,6 +2126,7 @@ hasValidInput(target) {
     document.getElementById("item_product_tax_" + this.selectedItermIndex).innerHTML = selectedParty.lgst;
     document.getElementById("item_product_price_" + this.selectedItermIndex).focus();
     //this.$emit("closedbyclose");
+    console.log("ranjithformdata=>",this.selectedItermIndex);
 },
 
         showProductModal(event,index) {
@@ -2233,22 +2424,22 @@ hasValidInput(target) {
             {
                 let element = index != null ? this.formData.items[index] : this.formData.items[i];
                 //this.formData.items.forEach((element) => {
-                  
+
                 let tempQuantity = element.quantity;
                 if(element.item_id>0 && element.single_unit_price>0 && element.quantity>0 )
                 {
                     if (element.freeQty > 0) {
                         tempQuantity = tempQuantity - parseInt(element.freeQty);
-                    }  
+                    }
                     singleItemTotal = Number(element.single_unit_price) * Number(tempQuantity);
                     if (element.amount > 0) {
-                        
+
                         total = total + Number(element.amount);
                     }
                     totalProducts = totalProducts + 1;
                 }
-                
-               
+
+
                 if (element.item_id > 0 && element.discount_rate >= 0) {
                     if (element.discount_type_id == 2) {
                         const baseTotal = Number(element.single_unit_price) * Number(tempQuantity);
@@ -2264,15 +2455,15 @@ hasValidInput(target) {
                         element.discount_value= baseTotal
                         discount += (baseTotal);
                     }
-                    
+
 
                 }
                  if (element.item_id > 0 && element.sgst > 0) { sgstAmount += ((element.sgst/100) * (singleItemTotal-element.discount_value));   sgst=sgst+element.sgst;  }
                 if (element.item_id > 0 && element.cgst > 0) { cgstAmount += ((element.cgst / 100) * (singleItemTotal - element.discount_value)); cgst = cgst + element.cgst; }
-               if(element.item_id>0 && element.cess>0){    cessAmount += ((element.cess/100) * (singleItemTotal - element.discount_value)); }  
+               if(element.item_id>0 && element.cess>0){    cessAmount += ((element.cess/100) * (singleItemTotal - element.discount_value)); }
                 if (index != null) { break; }
                 // });
-            }     
+            }
 
             if (type == "sgst") { return sgstAmount; }
             else if (type == "cgst") { return cgstAmount; }
@@ -2296,7 +2487,7 @@ hasValidInput(target) {
             const cgst_tax_percentage  = Number(this.formData.items[index].cgst);
             const sgst_tax_percentage  = Number( this.formData.items[index].sgst);
 
-            if (quantity == undefined || quantity == "" || quantity <= 0) { 
+            if (quantity == undefined || quantity == "" || quantity <= 0) {
                 quantity = 0;
                 console.log("item_product_tax_1")
                 document.getElementById("item_product_tax_" + index).innerHTML = "";
@@ -2305,57 +2496,58 @@ hasValidInput(target) {
 
 
             }
-            if(freeQuantity==undefined || freeQuantity=="" || freeQuantity<0){freeQuantity=0}            
+            if(freeQuantity==undefined || freeQuantity=="" || freeQuantity<0){freeQuantity=0}
             if(price==undefined || price=="" || price<0){price=0}
             if (discount == undefined || discount == "" || discount < 0) { discount = 0 }
             console.log(freeQuantity + '>=' + quantity)
-            
+
             if (parseInt(freeQuantity) >= parseInt(quantity)) {
                 this.formData.items[index].freeQty = 0;
                 this.formData.items[index].remQty = 0;
                 document.getElementById("item_product_freeQty_" + index).value = 0;
                 document.getElementById("item_product_remQty_" + index).value = (quantity);
                 freeQuantity = 0;
-            }   
+            }
             if(freeQuantity>0 && quantity>0)
             {
                 document.getElementById("item_product_remQty_"+index).value=(quantity - freeQuantity)
                 quantity = quantity - freeQuantity;
                   this.formData.items[index].freeQty = freeQuantity;
                 this.formData.items[index].remQty = quantity;
-                
-            } 
+
+            }
             else if(freeQuantity==null || freeQuantity==undefined || freeQuantity==0)
             {
                   document.getElementById("item_product_remQty_"+index).value=(quantity)
                 quantity = quantity ;
-            }           
+            }
             const singleItemTotal = Number(quantity*price);
-            
-            document.getElementById("item_product_withoutDisc_" + index).value = this.formatCurrency(singleItemTotal); 
-            document.getElementById("item_product_withDisc_" + index).innerHTML = this.formatCurrency(singleItemTotal);  
+
+            document.getElementById("item_product_withoutDisc_" + index).value = this.formatCurrency(singleItemTotal);
+            document.getElementById("item_product_withDisc_" + index).innerHTML = this.formatCurrency(singleItemTotal);
             this.formData.items[index].withoutDisc = this.formatCurrency(singleItemTotal);
-            this.formData.items[index].withDisc = this.formatCurrency(singleItemTotal);       
+            this.formData.items[index].withDisc = this.formatCurrency(singleItemTotal);
             const taxvalueStr1 = (cgst_tax_percentage + sgst_tax_percentage) + ",(" + (((cgst_tax_percentage + sgst_tax_percentage) / 100) * singleItemTotal).toFixed(2)+")";
             if (singleItemTotal > 0 && quantity > 0) {
-             console.log("item_product_tax_2")   
+             console.log("item_product_tax_2")
                 document.getElementById("item_product_tax_" + index).innerHTML = taxvalueStr1;
             }
             this.formData.items[index].discount_rate    =   discount;
             this.formData.items[index].single_unit_price    =   price;
 
-           
+
              if (this.formData.party_state == this.company.state) {
                 document.getElementById("sgst_total_text").innerHTML = this.formatCurrency(Number((sgst_tax_percentage / 100)) * Number(this.totalAmount));
             }
             if (this.formData.party_state == this.company.state) {
                 document.getElementById("cgst_total_text").innerHTML = this.formatCurrency(Number((cgst_tax_percentage / 100)) * Number(this.totalAmount));
-            }         
+            }
 
             const totalSgstAmount   =   this.getTotalAmount('sgst',null);
             const totalCgstAmount   =   this.getTotalAmount('cgst',null);
             const totalDiscount = this.getTotalAmount('discount', null);;
             const totalDiscountByItem = this.getTotalAmount('discount', index)
+            console.log("totalDiscountByItemfff=>", totalDiscountByItem);
 
            // const totalAmount = this.getTotalAmount('total',null);
            // this.totalAmount = totalAmount;
@@ -2366,14 +2558,14 @@ hasValidInput(target) {
                 const withoutDisc = document.getElementById("item_product_withoutDisc_" + index).value;
                 console.log("withoutDisc->",withoutDisc,withoutDisc.replace(/,/g,''),totalDiscount);
                 let withDisc = parseFloat(withoutDisc.replace(/,/g,'')) - totalDiscountByItem;
-                document.getElementById("item_product_withDisc_" + index).innerHTML = withDisc.toFixed(2); 
-               
+                document.getElementById("item_product_withDisc_" + index).innerHTML = withDisc.toFixed(2);
+
                 const totalDiscValue = (((cgst_tax_percentage + sgst_tax_percentage) / 100) * (singleItemTotal - totalDiscountByItem)).toFixed(2);
                // console.log("totalAmount->",this.totalAmount , Number(totalDiscValue));
               //  this.totalAmount = this.totalAmount + Number(totalDiscValue)
                 const taxvalueStr = (cgst_tax_percentage + sgst_tax_percentage) + ",(" + totalDiscValue +")";
                 if (singleItemTotal >0 && quantity>0) {
-                   
+
                     document.getElementById("item_product_tax_" + index).innerHTML = taxvalueStr;
                     this.formData.items[index].discount_value =totalDiscValue;
                 }
@@ -2510,10 +2702,10 @@ hasValidInput(target) {
                 this.showconfirm(event);
             }
             else if (event.key == "Delete") {
-                event.preventDefault();  
+                event.preventDefault();
                 this.deleteConfirmation(index);
-                
-            }  
+
+            }
             this.showGstDetails(index);
 
         },
@@ -2542,7 +2734,7 @@ hasValidInput(target) {
             }
             else if (event.key === "Delete")
             {
-                 event.preventDefault(); 
+                 event.preventDefault();
                 this.deleteConfirmation(index);
             }
             this.getQuantity(index,event);
@@ -2552,16 +2744,22 @@ hasValidInput(target) {
 
         success(response)
         {
-            this.formData.selectedInvoice = this.formData.bill_number;
-            localStorage.setItem("selectedInvoice", this.formData.selectedInvoice);
+            let invoiceNumber = this.formData.bill_number;
+            this.formData.selectedInvoice = invoiceNumber;
+            localStorage.setItem("selectedInvoice", invoiceNumber);
             this.loading= false;
             notification.success({
                         placement:  "bottomRight",
                         message: "Purchase bill saved successfully !    ",
                         description: response.message
                     });
+            // Print PDF after successful save
+            setTimeout(() => {
+                this.printpdf(invoiceNumber);
+            }, 500);
             this.resetFormData();
-            this.isPaymentsModalVisible = true;
+            // Route to the purchases bill index page
+            this.$router.push({ name: `admin.stock.purchases.Billindex` });
         },
         successDraft(response)
         {
@@ -2584,7 +2782,7 @@ hasValidInput(target) {
 
                         return false;
             }
-            
+
             else
             {
                 let itemAvailable =false;
@@ -2741,8 +2939,8 @@ hasValidInput(target) {
             console.log("updateAgg");
             let count =0;
             let quantity = 0;
-            let freequantity = 0; 
-            let remQty = 0;  
+            let freequantity = 0;
+            let remQty = 0;
             let total_without_disc_details = 0;
             let total_with_disc_details = 0;
             let discount_value = 0;
@@ -2768,17 +2966,18 @@ hasValidInput(target) {
                     //count =count+1;
                     total_without_disc_details = total_without_disc_details+Number(elem.withoutDisc);
                 }
-                
+
                 if(elem.discount_value!=undefined && elem.discount_value!=null && Number(elem.discount_value)>0)
                 {
-                    
+
                     discount_value = discount_value+Number(elem.discount_value);
                 }
                 total_with_disc_details = total_with_disc_details+Number(document.getElementById("item_product_withDisc_"+index).innerHTML);
                 let discValue = Number(document.getElementById("item_product_disc_value_"+index).value);
                 total_disc = total_disc + (discValue >= 0 ? discValue : 0);
+                console.log("total_disc=>",total_with_disc_details);
             })
-            console.log("total_disc=>",total_disc);
+            
            // document.getElementById("total_prod_count").value="Total : "+count+" Product";
             document.getElementById("total_quantity_details").value = quantity.toFixed(0);
             document.getElementById("total_free_quantity_details").value = freequantity.toFixed(0);
@@ -2786,9 +2985,9 @@ hasValidInput(target) {
             document.getElementById("total_with_disc_details").value = total_with_disc_details.toFixed(2);
             // document.getElementById("total_discount_text1").innerHTML = discount_value.toFixed(2);
             document.getElementById("total_disc_amount").value = total_disc.toFixed(2);
-            
-            
-            
+
+
+
         },
         updateTotalProd(index){
             let count =0;
@@ -2847,7 +3046,7 @@ hasValidInput(target) {
         {
             console.log(event.target.id)
             if (event.which == 9 ||  event.key == "Tab") { event.preventDefault(); }
-            
+
             if (event.target.id == 'item_product_quantity_' + index && (event.keyCode == 13 || event.keyCode == 9) && Number(this.formData.items[index].quantity) > 0) {
                 console.log("Enter key pressed")
                 document.getElementById('item_product_freeQty_' + index).focus();
@@ -2869,14 +3068,16 @@ hasValidInput(target) {
                 this.showconfirm(event);
             }
             else if (event.key == "Delete") {
-                event.preventDefault(); 
+                event.preventDefault();
                 this.deleteConfirmation(index);
 
-            }  
+            }
         },
         addressEvent(event)
         {
             console.log("Address field key code =", event.keyCode)
+
+            console.log("ranjith formdata=>", this.formData.party_id);
 
             if((event.keyCode==119 || event.keyCode==13)&& (this.formData.address!=undefined  && this.formData.address!=null && this.formData.address!="" ))
             {
@@ -2885,13 +3086,13 @@ hasValidInput(target) {
             }
             else if((event.keyCode==119 || event.keyCode==13)&& this.formData.address==undefined )
             {
-
+               console.log("entered into date=>",this.formData.party_id)
                 if(this.formData.party_id==0 || this.formData.party_id=="")
                 {
 
                     document.getElementById('invoice_date').focus();
                 }
-                
+
             }
             else if(event.keyCode==27)
             {
@@ -2959,7 +3160,7 @@ hasValidInput(target) {
                 });
             });
         },
-        
+
         deleteConfirmation(index)
         {
             this.deleteIndex = index;
@@ -2992,7 +3193,7 @@ hasValidInput(target) {
 
             this.getQuantity(index,event);
         },
-        
+
 
 resetFormData() {
     let cgstTotal = 0;
@@ -3084,11 +3285,25 @@ resetFormData() {
         input.value = (0).toFixed(2);  // Reset the value of each IGST input
     });
 },
-    computed: {
-        grandTotal() {
-            return this.formData.items.reduce((total, item) => total + Number(item.amount), 0);
-        }
-    }
+    // printpdf() {
+    //     console.log("PDF click");
+    //     axiosAdmin
+    //         .post("sales-bill/getPurchaseBillPdf", {
+    //             invoice: document.getElementById("form_item_bill_number").value,
+    //         })
+    //         .then((response) => {
+    //             let w = window.open(response, "_blank");
+    //             w.print();
+    //         })
+    //         .catch((errorResponse) => {
+    //             console.error("Error printing PDF:", errorResponse);
+    //         });
+    // },
+    // computed: {
+    //     grandTotal() {
+    //         return this.formData.items.reduce((total, item) => total + Number(item.amount), 0);
+    //     }
+    // }
 }
 };
 </script>
@@ -3275,7 +3490,7 @@ border: solid 1px #00000033;
   }
 
 select {
-	appearance: none;
+    appearance: none;
 }
 .breadcrumb-header .page-content-sub-header{ padding:2Px !important}
 .ant-layout-header{ line-height:0px !important; }

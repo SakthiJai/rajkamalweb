@@ -354,13 +354,22 @@
         console.log("PDF click");
         this.loading = true;
         axiosAdmin
-          .post("sales-bill/getPurchaseBillPdf", {
-           
-          })
+          .post(
+            "sales-bill/getPurchaseBillPdf",
+            {
+              invoice: document.getElementById("form_item_bill_number").value,
+            },
+            { responseType: "blob" }
+          )
           .then((response) => {
             this.$emit("closed");
-            let w = window.open(response, "_blank");
-            w.print();
+            const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(pdfBlob);
+            const w = window.open(url, "_blank");
+            if (w) {
+              w.focus();
+              w.print();
+            }
             var that = this;
             setTimeout(function () {
               that.$router.push({
