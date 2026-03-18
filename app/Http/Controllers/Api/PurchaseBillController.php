@@ -80,7 +80,7 @@ public function billNumber()
 		DB::beginTransaction();
 		try{
 		$issue = false;
-		$invoiceData = Order::where("invoice_number", $request->invoice_number)->first();
+		//$invoiceData = Order::where("invoice_number", $request->invoice_number)->first();
 			$order = new PurchaseBillDetail();
 			
 			$order->invoice_number    	= $request->bill_number;
@@ -165,15 +165,23 @@ public function billNumber()
 
 	public function geBillInvoicePdf(Request $request)
 	{
-		$documentFileName = "purchase_bill_".$request->invoice.".pdf";
+		$invoice = trim((string) ($request->input('invoice') ?? $request->input('bill_number') ?? $request->input('invoice_number') ?? ''));
+		if ($invoice === '') {
+			return response()->json(['message' => 'Invoice value is required'], 422);
+		}
 
-		// $invoice_details 	= PurchaseBillDetail::where('invoice_number',$request->invoice)->first();
-		// $customerDetails 	= LedgerModel::where('id',$invoice_details->party_id)->get();
-		
-		// $partyDetails 		= LedgerCustomerModel::where('id',$invoice_details->party_customer_id)->get();
-		
-		// $products 			= DB::select("SELECT A.quantity,A.single_unit_price,B.mrp,B.sale_rate,A.discount_rate,A.subtotal,B.hsn_sac,B.name,C.cgst as cgst_amount,C.sgst as sgst_amount FROM `purchase_bill_items_details` A left join products B on B.id=A.product_id left join tax_catagories C on C.id=B.tax_category WHERE order_id=".$invoice_details->id);
-		
+		$documentFileName = "purchase_bill_".$invoice.".pdf";
+
+		$invoice_details = PurchaseBillDetail::where('invoice_number', $invoice)->first();
+		if (!$invoice_details) {
+			return response()->json(['message' => 'Invoice not found'], 404);
+		}
+
+		$customerDetails = LedgerModel::where('id', $invoice_details->party_id)->get();
+		$partyDetails = LedgerCustomerModel::where('id', $invoice_details->party_customer_id)->get();
+
+		$products = DB::select("SELECT A.quantity, A.single_unit_price, B.mrp, B.sale_rate, A.discount_rate, A.subtotal, B.hsn_sac, B.name, C.cgst as cgst_amount, C.sgst as sgst_amount, C.igst as igst, C.cess as cess FROM `purchase_bill_items_details` A left join products B on B.id=A.product_id left join tax_catagories C on C.id=B.tax_category WHERE order_id=".$invoice_details->id);
+
 	   // Create the mPDF document
 	   $document = new PDF( [
 		   'mode' => 'utf-8',
@@ -201,17 +209,21 @@ public function billNumber()
 	// 	//    'party'=>$partyDetails,
 	// 	//    "products"=> $products
 	//    ]));
-	   $document->WriteHTML('<p>Write something, just for fun!</p>');
-		
-	   // Save PDF on your public storage 
-	   Storage::disk('file')->put($documentFileName, $document->Output($documentFileName, "S"));
-		
-	   // Get file back from storage with the give header informations
-		Storage::disk('file')->download($documentFileName, 'Request', $header);
+		try {
+			$html = view('salesReturnInvoice', [
+				'invoice_details' => $invoice_details,
+				'customer' => $customerDetails,
+				'party' => $partyDetails,
+				'products' => $products,
+			])->render();
 
-		// $invoice_details->invoice_path = config('app.url') .'/'.$documentFileName;
-		// $invoice_details->save();
-		echo config('app.url') .'/'.$documentFileName;
+			$document->WriteHTML($html);
+		} catch (\Exception $e) {
+			return response()->json(['message' => 'Error generating PDF: ' . $e->getMessage()], 400);
+		}
+		
+	   // Return the generated PDF directly
+		return response($document->Output($documentFileName, 'S'), 200, $header);
 	}
 
 
@@ -223,7 +235,7 @@ public function billNumber()
 		$invoiceData 	=	PurchaseBillDetail::where("invoice_number",$request->invoice)->first();
 		$invoiceItems	=	PurchaseBillItemsDetail::where('order_id',$invoiceData->id)->get();
 		return response()->json([
-			'message' => 'Data retrived successfullt',
+			'message' => 'Data retrived successfully',
 			'data'=>["invoiceData"=>$invoiceData,"invoiceItems"=>$invoiceItems]
 		], 200);
 		}
@@ -265,9 +277,19 @@ public function updatebill($request)
 		DB::beginTransaction();
 		try{
 		$issue = false;
-		$invoiceData = Order::where("invoice_number", $request->invoice_number)->first();
-			$order = new PurchaseBillDetail();
-			
+		// $invoiceData = Order::where("invoice_number", $request->invoice_number)->first();
+			$original_invoice = $request->original_bill_number ?? $request->bill_number;
+			$order = PurchaseBillDetail::where('invoice_number', $original_invoice)->first();
+			if (!$order) {
+				$order = new PurchaseBillDetail();
+			}
+			// Check if new invoice_number already exists and is different
+			if ($order->exists && $request->bill_number != $original_invoice) {
+				$existing = PurchaseBillDetail::where('invoice_number', $request->bill_number)->where('id', '!=', $order->id)->first();
+				if ($existing) {
+					return response()->json(['message' => 'Invoice number already exists.'], 422);
+				}
+			}
 			$order->invoice_number    	= $request->bill_number;
 			//$order->order_id     		=	$invoiceData->id;
 			$order->order_date        	= $request->order_date;
@@ -285,10 +307,13 @@ public function updatebill($request)
 
 			}
 			else{ 
-				echo $issue= true; 
+				$issue= true; 
 			}	
 			$sql = "update settings set recent_bill_number = '".($request->bill_number+1)."'  where setting_type = 'cr_number'";
 				DB::update($sql);
+
+			// Delete existing items
+			PurchaseBillItemsDetail::where('order_id', $order->id)->delete();
 
 			// Get the items from the request
 			$orderItems = $request->input('items');
@@ -310,17 +335,19 @@ public function updatebill($request)
 							'order_id'           => $order->id,
 							'product_id'        => (int)$item['item_id'],
 							'quantity'           => $quantity,
-							'free'               => isset($item['free']) ? $item['free'] : 0,
+							'free'               => $item['freeQty']==""?0:$item['freeQty'],
 							'unit_price'         => $item['single_unit_price'],
 							'single_unit_price'  => $item['single_unit_price'],
+							'discount_type_id'   => $item['discount_type_id'] ?? 0,
 							'discount_rate'      => $item['discount_rate'] ?? 0,
+							'discount_value'     => $item['discount_value'] ?? 0,
 							'subtotal'           => $amount
 						]))
 						{
 							$total = $total+$amount;
 						}
 						else{
-							echo 'issue2'; 
+							$issue = true;
 						}
 					}
 				}
@@ -330,22 +357,16 @@ public function updatebill($request)
 			DB::commit();
 			return $issue;
 		}
-		catch(\Illuminate\Database\QueryException $ex){  echo '333';
+		catch(\Illuminate\Database\QueryException $ex){ 
 			//dd($ex->getMessage()); 
 			DB::rollback();
-			echo  response()->json(['message' => $ex->getMessage()], 500);
+			return response()->json(['message' => $ex->getMessage()], 500);
 			// Note any method of class PDOException can be called on $ex.
 		  }
 		catch (\Exception $e) {
 			DB::rollBack();
 
-            echo  response()->json(['message' =>  $e->getMessage()], 500);
-		
-			Log::error('Error storing order: ' . $e->getMessage(), [
-				'file' => $e->getFile(),
-				'line' => $e->getLine(),
-				'trace' => $e->getTraceAsString(),
-			]);
+            return response()->json(['message' =>  $e->getMessage()], 500);
 
 			return response()->json(['message' => 'Error storing order, please try again.'], 500);
 		}
