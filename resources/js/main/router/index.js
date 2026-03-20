@@ -128,496 +128,297 @@ if (appType == "saas") {
     SetupAppRoutes.forEach((route) => router.addRoute(route));
 }
 
-var _0x21e0ec = _0x27b0;
-function _0x27b0(_0x446e66, _0x4886ec) {
-    var _0x28ea44 = _0x28ea();
-    return (
-        (_0x27b0 = function (_0x27b0cd, _0x5b4749) {
-            _0x27b0cd = _0x27b0cd - 0x104;
-            var _0x149cb7 = _0x28ea44[_0x27b0cd];
-            return _0x149cb7;
-        }),
-        _0x27b0(_0x446e66, _0x4886ec)
-    );
-}
-(function (_0x38fe3b, _0x460755) {
-    var _0x42d25c = _0x27b0,
-        _0x2d828c = _0x38fe3b();
-    while (!![]) {
-        try {
-            var _0x54292c =
-                -parseInt(_0x42d25c(0x125)) / 0x1 +
-                (-parseInt(_0x42d25c(0x104)) / 0x2) *
-                    (-parseInt(_0x42d25c(0x121)) / 0x3) +
-                -parseInt(_0x42d25c(0x144)) / 0x4 +
-                -parseInt(_0x42d25c(0x149)) / 0x5 +
-                -parseInt(_0x42d25c(0x146)) / 0x6 +
-                (parseInt(_0x42d25c(0x124)) / 0x7) *
-                    (parseInt(_0x42d25c(0x117)) / 0x8) +
-                parseInt(_0x42d25c(0x13c)) / 0x9;
-            if (_0x54292c === _0x460755) break;
-            else _0x2d828c["push"](_0x2d828c["shift"]());
-        } catch (_0xec2c08) {
-            _0x2d828c["push"](_0x2d828c["shift"]());
-        }
-    }
-})(_0x28ea, 0xd738f);
-const checkLogFog = (_0x434613, _0x444971, _0x9a120e) => {
-    console.log("checkLogFog", _0x434613, _0x444971, _0x9a120e);
-    var _0x5a9240 = _0x27b0,
-        _0x51bf77 =
-            window["config"][_0x5a9240(0x113)] == _0x5a9240(0x12e)
-                ? _0x5a9240(0x119)
-                : _0x5a9240(0x131);
-    const _0x39ec52 = _0x434613[_0x5a9240(0x129)][_0x5a9240(0x13a)](".");
-    if (_0x39ec52["length"] > 0x0 && _0x39ec52[0x0] == _0x5a9240(0x131)) {
+const checkLogFog = (to, from, next) => {
+    console.log("checkLogFog", to, from, next);
+
+    const prefix = window.config.app_type == "non-saas" ? "admin" : "superadmin";
+    const nameParts = to.name.split(".");
+
+    if (nameParts.length > 0 && nameParts[0] == "superadmin") {
         if (
-            _0x434613["meta"][_0x5a9240(0x12c)] &&
-            store[_0x5a9240(0x128)][_0x5a9240(0x10f)] &&
-            store["state"][_0x5a9240(0x127)][_0x5a9240(0x12b)] &&
-            !store[_0x5a9240(0x13e)]["auth"][_0x5a9240(0x12b)][_0x5a9240(0x10c)]
-        )
-            store["dispatch"]("auth/logout"),
-                _0x9a120e({ name: "admin.login" });
-        else {
+            to.meta.requireAuth &&
+            store.getters["auth/isLoggedIn"] &&
+            store.state.auth.user &&
+            !store.state.auth.user.is_superadmin
+        ) {
+            store.dispatch("auth/logout");
+            next({ name: "admin.login" });
+        } else {
             if (
-                _0x434613[_0x5a9240(0x107)][_0x5a9240(0x12c)] &&
-                isSuperAdminCompanySetupCorrect() == ![] &&
-                _0x39ec52[0x1] != "setup_app"
-            )
-                _0x9a120e({ name: "superadmin.setup_app.index" });
-            else {
-                if (
-                    _0x434613[_0x5a9240(0x107)][_0x5a9240(0x12c)] &&
-                    !store[_0x5a9240(0x128)][_0x5a9240(0x10f)]
-                )
-                    _0x9a120e({ name: _0x5a9240(0x12a) });
-                else
-                    _0x434613["meta"]["requireUnauth"] &&
-                    store["getters"][_0x5a9240(0x10f)]
-                        ? _0x9a120e({ name: _0x5a9240(0x110) })
-                        : _0x9a120e();
+                to.meta.requireAuth &&
+                isSuperAdminCompanySetupCorrect() == false &&
+                nameParts[1] != "setup_app"
+            ) {
+                next({ name: "superadmin.setup_app.index" });
+            } else {
+                if (to.meta.requireAuth && !store.getters["auth/isLoggedIn"]) {
+                    next({ name: "admin.login" });
+                } else {
+                    to.meta.requireUnauth && store.getters["auth/isLoggedIn"]
+                        ? next({ name: "superadmin.dashboard.index" })
+                        : next();
+                }
             }
         }
     } else {
         if (
-            _0x39ec52[_0x5a9240(0x142)] > 0x0 &&
-            _0x39ec52[0x0] == "admin" &&
-            store[_0x5a9240(0x13e)]["auth"] &&
-            store[_0x5a9240(0x13e)][_0x5a9240(0x127)][_0x5a9240(0x12b)] &&
-            store["state"][_0x5a9240(0x127)]["user"][_0x5a9240(0x10c)]
-        )
-            _0x9a120e({ name: "superadmin.dashboard.index" });
-        else {
-            if (
-                _0x39ec52[_0x5a9240(0x142)] > 0x0 &&
-                _0x39ec52[0x0] == _0x5a9240(0x119)
-            ) {
-                if (
-                    _0x434613[_0x5a9240(0x107)]["requireAuth"] &&
-                    !store[_0x5a9240(0x128)]["auth/isLoggedIn"]
-                )
-                    store[_0x5a9240(0x109)](_0x5a9240(0x137)),
-                        _0x9a120e({ name: _0x5a9240(0x12a) });
-                else {
+            nameParts.length > 0 &&
+            nameParts[0] == "admin" &&
+            store.state.auth &&
+            store.state.auth.user &&
+            store.state.auth.user.is_superadmin
+        ) {
+            next({ name: "superadmin.dashboard.index" });
+        } else {
+            if (nameParts.length > 0 && nameParts[0] == "admin") {
+                if (to.meta.requireAuth && !store.getters["auth/isLoggedIn"]) {
+                    store.dispatch("auth/logout");
+                    next({ name: "admin.login" });
+                } else {
                     if (
-                        _0x434613[_0x5a9240(0x107)]["requireAuth"] &&
-                        isAdminCompanySetupCorrect() == ![] &&
-                        _0x39ec52[0x1] != "setup_app"
-                    )
-                        _0x9a120e({ name: _0x5a9240(0x141) });
-                    else {
-                        if (
-                            _0x434613[_0x5a9240(0x107)][_0x5a9240(0x12f)] &&
-                            store[_0x5a9240(0x128)][_0x5a9240(0x10f)]
-                        )
-                            _0x9a120e({ name: _0x5a9240(0x108) });
-                        else {
-                            if (
-                                _0x434613[_0x5a9240(0x129)] ==
-                                _0x51bf77 + _0x5a9240(0x143)
-                            )
-                                store[_0x5a9240(0x148)](_0x5a9240(0x139), ![]),
-                                    _0x9a120e();
-                            else {
-                                var _0x443b78 =
-                                    _0x434613[_0x5a9240(0x107)]["permission"];
-                                _0x39ec52[0x1] == "stock" &&
-                                    (_0x443b78 = replace(
-                                        _0x443b78, // Use the property directly
-                                        "-",
-                                        "_"
-                                    )),
-                                    !_0x434613[_0x5a9240(0x107)][
-                                        _0x5a9240(0x11c)
-                                    ] ||
-                                    checkUserPermission(
-                                        _0x443b78,
-                                        store["state"][_0x5a9240(0x127)][
-                                            _0x5a9240(0x12b)
-                                        ]
-                                    )
-                                        ? _0x9a120e()
-                                        : _0x9a120e({
-                                              name: "admin.dashboard.index",
-                                          });
+                        to.meta.requireAuth &&
+                        isAdminCompanySetupCorrect() == false &&
+                        nameParts[1] != "setup_app"
+                    ) {
+                        next({ name: "admin.setup_app.index" });
+                    } else {
+                        if (to.meta.requireUnauth && store.getters["auth/isLoggedIn"]) {
+                            next({ name: "admin.dashboard.index" });
+                        } else {
+                            if (to.name == prefix + ".settings.modules.index") {
+                                store.commit("auth/updateAppChecking", false);
+                                next();
+                            } else {
+                                var permission = to.meta.permission;
+                                if (nameParts[1] == "stock") {
+                                    permission = replace(permission, "-", "_");
+                                }
+                                !to.meta.permission || checkUserPermission(permission, store.state.auth.user)
+                                    ? next()
+                                    : next({ name: "admin.dashboard.index" });
                             }
                         }
                     }
                 }
-            } else
-                _0x39ec52[_0x5a9240(0x142)] > 0x0 &&
-                _0x39ec52[0x0] == _0x5a9240(0x132)
-                    ? _0x434613["meta"][_0x5a9240(0x12c)] &&
-                      !store[_0x5a9240(0x128)][_0x5a9240(0x11f)]
-                        ? (store[_0x5a9240(0x109)](_0x5a9240(0x11d)),
-                          _0x9a120e({ name: "front.homepage" }))
-                        : _0x9a120e()
-                    : _0x9a120e();
+            } else {
+                if (nameParts.length > 0 && nameParts[0] == "front") {
+                    if (to.meta.requireAuth && !store.getters["front/isLoggedIn"]) {
+                        store.dispatch("front/logout");
+                        next({ name: "front.homepage" });
+                    } else {
+                        next();
+                    }
+                } else {
+                    next();
+                }
+            }
         }
     }
 };
-var mAry = ["t", "S", "y", "o", "i", "c", "l", "k", "f"],
-    mainProductName =
-        "" +
-        mAry[0x1] +
-        mAry[0x0] +
-        mAry[0x3] +
-        mAry[0x5] +
-        mAry[0x7] +
-        mAry[0x4] +
-        mAry[0x8] +
-        mAry[0x6] +
-        mAry[0x2];
-window[_0x21e0ec(0x10e)][_0x21e0ec(0x113)] == "saas" &&
-    (mainProductName += _0x21e0ec(0x13f));
-var modArray = [{ verified_name: mainProductName, value: ![] }];
-allActiveModules[_0x21e0ec(0x13d)]((_0xe01417) => {
-    var _0x22d654 = _0x21e0ec;
-    modArray[_0x22d654(0x145)]({ verified_name: _0xe01417, value: ![] });
-});
-function _0x28ea() {
-    var _0x5be373 = [
-        "1588490hiraUv",
-        "toJSON",
-        "auth",
-        "getters",
-        "name",
-        "admin.login",
-        "user",
-        "requireAuth",
-        "module",
-        "non-saas",
-        "requireUnauth",
-        "envato",
-        "superadmin",
-        "front",
-        "verified_name",
-        "modules_not_registered",
-        "saas",
-        "Don\x27t\x20try\x20to\x20null\x20it...\x20otherwise\x20it\x20may\x20cause\x20error\x20on\x20your\x20server.",
-        "auth/logout",
-        "Error",
-        "auth/updateAppChecking",
-        "split",
-        "host",
-        "21467601CyhfxU",
-        "forEach",
-        "state",
-        "Saas",
-        "Modules\x20Not\x20Verified",
-        "admin.setup_app.index",
-        "length",
-        ".settings.modules.index",
-        "4103972tzBeCZ",
-        "push",
-        "1561668TYsroc",
-        "location",
-        "commit",
-        "110245YavZko",
-        "modules",
-        "6538nlBscG",
-        "check",
-        "is_main_product_valid",
-        "meta",
-        "admin.dashboard.index",
-        "dispatch",
-        "value",
-        "verify.main",
-        "is_superadmin",
-        "main_product_registered",
-        "config",
-        "auth/isLoggedIn",
-        "superadmin.dashboard.index",
-        "beforeEach",
-        "url",
-        "app_type",
-        "charAt",
-        ".com/",
-        "catch",
-        "8FcnhtU",
-        "auth/updateActiveModules",
-        "admin",
-        "error",
-        "bottomRight",
-        "permission",
-        "front/logout",
-        "data",
-        "front/isLoggedIn",
-        "Error!",
-        "153rGKDYi",
-        "post",
-        "appModule",
-        "8584471jlRnQW",
-    ];
-    _0x28ea = function () {
-        return _0x5be373;
-    };
-    return _0x28ea();
+var mainProductName = "Stockifly";
+if (window.config.app_type == "saas") {
+    mainProductName += "Saas";
 }
+var modArray = [{ verified_name: mainProductName, value: false }];
+allActiveModules.forEach((module) => {
+    modArray.push({ verified_name: module, value: false });
+});
+
 const isAnyModuleNotVerified = () => {
         return find(modArray, ["value", ![]]);
     },
-    isCheckUrlValid = (_0x1d6900, _0x11a618, _0x4fae8c) => {
-        var _0x157388 = _0x21e0ec;
+     isCheckUrlValid = (check, codeifly, envato) => {
+    if (
+        check.length !== 5 ||
+        codeifly.length !== 8 ||
+        envato.length !== 6
+    ) {
+        return false;
+    } else {
         if (
-            _0x1d6900["length"] != 0x5 ||
-            _0x11a618[_0x157388(0x142)] != 0x8 ||
-            _0x4fae8c["length"] != 0x6
-        )
-            return ![];
-        else {
+            check.charAt(0) !== "c" ||
+            check.charAt(1) !== "h" ||
+            check.charAt(2) !== "e" ||
+            check.charAt(3) !== "c" ||
+            check.charAt(4) !== "k"
+        ) {
+            return false;
+        } else {
             if (
-                _0x1d6900[_0x157388(0x114)](0x3) != "c" ||
-                _0x1d6900["charAt"](0x4) != "k" ||
-                _0x1d6900[_0x157388(0x114)](0x0) != "c" ||
-                _0x1d6900[_0x157388(0x114)](0x1) != "h" ||
-                _0x1d6900["charAt"](0x2) != "e"
-            )
-                return ![];
-            else {
-                if (
-                    _0x11a618["charAt"](0x2) != "d" ||
-                    _0x11a618[_0x157388(0x114)](0x3) != "e" ||
-                    _0x11a618["charAt"](0x4) != "i" ||
-                    _0x11a618[_0x157388(0x114)](0x0) != "c" ||
-                    _0x11a618["charAt"](0x1) != "o" ||
-                    _0x11a618[_0x157388(0x114)](0x5) != "f" ||
-                    _0x11a618[_0x157388(0x114)](0x6) != "l" ||
-                    _0x11a618[_0x157388(0x114)](0x7) != "y"
-                )
-                    return ![];
-                else
-                    return _0x4fae8c[_0x157388(0x114)](0x2) != "v" ||
-                        _0x4fae8c[_0x157388(0x114)](0x3) != "a" ||
-                        _0x4fae8c[_0x157388(0x114)](0x0) != "e" ||
-                        _0x4fae8c[_0x157388(0x114)](0x1) != "n" ||
-                        _0x4fae8c[_0x157388(0x114)](0x4) != "t" ||
-                        _0x4fae8c[_0x157388(0x114)](0x5) != "o"
-                        ? ![]
-                        : !![];
+                codeifly.charAt(0) !== "c" ||
+                codeifly.charAt(1) !== "o" ||
+                codeifly.charAt(2) !== "d" ||
+                codeifly.charAt(3) !== "e" ||
+                codeifly.charAt(4) !== "i" ||
+                codeifly.charAt(5) !== "f" ||
+                codeifly.charAt(6) !== "l" ||
+                codeifly.charAt(7) !== "y"
+            ) {
+                return false;
+            } else {
+                return (
+                    envato.charAt(0) === "e" &&
+                    envato.charAt(1) === "n" &&
+                    envato.charAt(2) === "v" &&
+                    envato.charAt(3) === "a" &&
+                    envato.charAt(4) === "t" &&
+                    envato.charAt(5) === "o"
+                );
             }
         }
-    },
-    isAxiosResponseUrlValid = (_0x102907) => {
-        var _0x549d7e = _0x21e0ec;
-        return _0x102907[_0x549d7e(0x114)](0x13) != "i" ||
-            _0x102907[_0x549d7e(0x114)](0xd) != "o" ||
-            _0x102907[_0x549d7e(0x114)](0x9) != "n" ||
-            _0x102907[_0x549d7e(0x114)](0x10) != "o" ||
-            _0x102907["charAt"](0x16) != "y" ||
-            _0x102907[_0x549d7e(0x114)](0xb) != "a" ||
-            _0x102907["charAt"](0x12) != "e" ||
-            _0x102907[_0x549d7e(0x114)](0x15) != "l" ||
-            _0x102907["charAt"](0xa) != "v" ||
-            _0x102907["charAt"](0x14) != "f" ||
-            _0x102907["charAt"](0xc) != "t" ||
-            _0x102907["charAt"](0x11) != "d" ||
-            _0x102907[_0x549d7e(0x114)](0x8) != "e" ||
-            _0x102907[_0x549d7e(0x114)](0xf) != "c" ||
-            _0x102907[_0x549d7e(0x114)](0x1a) != "m" ||
-            _0x102907[_0x549d7e(0x114)](0x18) != "c" ||
-            _0x102907["charAt"](0x19) != "o"
-            ? ![]
-            : !![];
-    };
-router[_0x21e0ec(0x111)]((_0x56eee4, _0x1704e6, _0x1a597b) => {
-    var _0x108396 = _0x21e0ec,
-        _0x3ef3cf = _0x108396(0x130),
-        _0x219398 = "codeifly",
-        _0x18800e = _0x108396(0x105),
-        _0x256e88 = { modules: window[_0x108396(0x10e)]["modules"] };
-    _0x56eee4[_0x108396(0x107)] &&
-        _0x56eee4["meta"][_0x108396(0x123)] &&
-        ((_0x256e88[_0x108396(0x12d)] =
-            _0x56eee4[_0x108396(0x107)][_0x108396(0x123)]),
-        !includes(allActiveModules, _0x56eee4["meta"][_0x108396(0x123)]) &&
-            _0x1a597b({ name: _0x108396(0x12a) }));
-    if (!isCheckUrlValid(_0x18800e, _0x219398, _0x3ef3cf))
-        Modal[_0x108396(0x11a)]({
-            title: _0x108396(0x120),
-            content: _0x108396(0x136),
+    }
+};
+    const  isAxiosResponseUrlValid = (url) => {
+    return url.charAt(8) === "e" &&
+        url.charAt(9) === "n" &&
+        url.charAt(10) === "v" &&
+        url.charAt(11) === "a" &&
+        url.charAt(12) === "t" &&
+        url.charAt(13) === "o" &&
+        url.charAt(15) === "c" &&
+        url.charAt(16) === "o" &&
+        url.charAt(17) === "d" &&
+        url.charAt(18) === "e" &&
+        url.charAt(20) === "f" &&
+        url.charAt(21) === "l" &&
+        url.charAt(22) === "y" &&
+        url.charAt(24) === "c" &&
+        url.charAt(25) === "o" &&
+        url.charAt(26) === "m";
+};
+router.beforeEach((to, from, next) => {
+    var envato = "envato",
+        codeifly = "codeifly",
+        check = "check",
+        modules = { modules: window.config.modules };
+    to.meta &&
+        to.meta.module &&
+        ((modules.module = to.meta.module),
+        !includes(allActiveModules, to.meta.module) &&
+            next({ name: "modules_not_registered" }));
+    if (!isCheckUrlValid(check, codeifly, envato))
+        Modal.error({
+            title: "Error",
+            content: "Don't try to null it... otherwise it may cause error on your server.",
         });
     else {
-        var _0x1d2e72 =
-            window[_0x108396(0x10e)][_0x108396(0x113)] == "non-saas"
-                ? _0x108396(0x119)
-                : _0x108396(0x131);
+        var prefix =
+            window.config.app_type == "non-saas" ? "admin" : "superadmin";
         if (
             isAnyModuleNotVerified() !== undefined &&
-            _0x56eee4["name"] &&
-            _0x56eee4[_0x108396(0x129)] != _0x108396(0x10b) &&
-            _0x56eee4["name"] != _0x1d2e72 + ".settings.modules.index"
+            to.name &&
+            to.name != "admin.setup_app.index" &&
+            to.name != prefix + ".settings.modules.index"
         ) {
-            var _0x55f934 =
-                "https://" +
-                _0x3ef3cf +
-                "." +
-                _0x219398 +
-                _0x108396(0x115) +
-                _0x18800e;
-            console.log(_0x108396(0x122), "_0x55f934", _0x55f934, {
+            var url =
+                "https://" + envato + "." + codeifly + ".com/" + check;
+            console.log("post", "url", url, {
                 verified_name: mainProductName,
-                ..._0x256e88,
-                domain: window[_0x108396(0x147)][_0x108396(0x13b)],
+                ...modules,
+                domain: window.location.host,
             });
             axios({
-                method: _0x108396(0x122),
-                url: _0x55f934,
+                method: "post",
+                url: url,
                 data: {
                     verified_name: mainProductName,
-                    ..._0x256e88,
-                    domain: window[_0x108396(0x147)][_0x108396(0x13b)],
+                    ...modules,
+                    domain: window.location.host,
                 },
-                timeout: 0xfa0,
+                timeout: 4000,
             })
-                ["then"]((_0x2ce321) => {
-                    var _0x2266ae = _0x108396;
-
-                    if (
-                        !isAxiosResponseUrlValid(
-                            _0x2ce321[_0x2266ae(0x10e)][_0x2266ae(0x112)]
-                        )
-                    ) {
+                .then((response) => {
+                    if (!isAxiosResponseUrlValid(response.config.url)) {
                         console.log("11");
-                        Modal[_0x2266ae(0x11a)]({
-                            title: _0x2266ae(0x120),
-                            content: _0x2266ae(0x136),
+                        Modal.error({
+                            title: "Error",
+                            content: "Don't try to null it... otherwise it may cause error on your server.",
                         });
                     } else {
                         console.log("22");
-                        store["commit"]("auth/updateAppChecking", ![]);
-                        const _0x2085c2 = _0x2ce321[_0x2266ae(0x11e)];
-                        _0x2085c2[_0x2266ae(0x10d)] &&
-                            (modArray["forEach"]((_0x52d67a) => {
-                                var _0x21f497 = _0x2266ae;
-                                _0x52d67a[_0x21f497(0x133)] ==
-                                    mainProductName &&
-                                    (_0x52d67a[_0x21f497(0x10a)] = !![]);
+                        store.commit("auth/updateAppChecking", false);
+                        const data = response.data;
+                        data.is_main_product_valid &&
+                            (modArray.forEach((item) => {
+                                item.verified_name == mainProductName &&
+                                    (item.value = true);
                             }),
-                            modArray["forEach"]((_0x29bc2a) => {
-                                var _0x43151c = _0x2266ae;
+                            modArray.forEach((item) => {
                                 if (
                                     includes(
-                                        _0x2085c2[_0x43151c(0x134)],
-                                        _0x29bc2a["verified_name"]
+                                        data.modules_not_registered,
+                                        item.verified_name
                                     ) ||
                                     includes(
-                                        _0x2085c2[
-                                            "multiple_registration_modules"
-                                        ],
-                                        _0x29bc2a[_0x43151c(0x133)]
+                                        data.multiple_registration_modules,
+                                        item.verified_name
                                     )
                                 ) {
-                                    if (
-                                        _0x29bc2a[_0x43151c(0x133)] !=
-                                        mainProductName
-                                    ) {
-                                        var _0x56e911 = [
-                                                ...window[_0x43151c(0x10e)][
-                                                    "modules"
-                                                ],
+                                    if (item.verified_name != mainProductName) {
+                                        var activeModules = [
+                                                ...window.config.modules,
                                             ],
-                                            _0x5cea3f = remove(
-                                                _0x56e911,
-                                                function (_0x11c9d6) {
-                                                    var _0x37ec76 = _0x43151c;
-                                                    return (
-                                                        _0x11c9d6 !=
-                                                        _0x29bc2a[
-                                                            _0x37ec76(0x133)
-                                                        ]
-                                                    );
+                                            filtered = remove(
+                                                activeModules,
+                                                function (mod) {
+                                                    return mod != item.verified_name;
                                                 }
                                             );
-                                        store[_0x43151c(0x148)](
-                                            _0x43151c(0x118),
-                                            _0x5cea3f
-                                        ),
-                                            (window[_0x43151c(0x10e)][
-                                                _0x43151c(0x14a)
-                                            ] = _0x5cea3f);
+                                        store.commit(
+                                            "auth/updateActiveModules",
+                                            filtered
+                                        );
+                                        window.config.modules = filtered;
                                     }
-                                    _0x29bc2a["value"] = ![];
-                                } else _0x29bc2a[_0x43151c(0x10a)] = !![];
+                                    item.value = false;
+                                } else item.value = true;
                             }));
-                        if (!_0x2085c2[_0x2266ae(0x106)]) {
+                        if (!data.is_main_product_valid) {
                         } else {
                             if (
-                                !_0x2085c2["main_product_registered"] ||
-                                _0x2085c2["multiple_registration"]
+                                !data.main_product_registered ||
+                                data.multiple_registration
                             )
-                                _0x1a597b({ name: _0x2266ae(0x10b) });
+                                next({ name: "admin.setup_app.index" });
                             else {
                                 if (
-                                    _0x56eee4[_0x2266ae(0x107)] &&
-                                    _0x56eee4["meta"][_0x2266ae(0x123)] &&
+                                    to.meta &&
+                                    to.meta.module &&
                                     find(modArray, {
-                                        verified_name:
-                                            _0x56eee4["meta"][_0x2266ae(0x123)],
-                                        value: ![],
+                                        verified_name: to.meta.module,
+                                        value: false,
                                     }) !== undefined
                                 ) {
-                                    notification["error"]({
-                                        placement: _0x2266ae(0x11b),
-                                        message: _0x2266ae(0x138),
-                                        description: _0x2266ae(0x140),
+                                    notification.error({
+                                        placement: "bottomRight",
+                                        message: "Modules Not Verified",
+                                        description: "permission",
                                     });
-                                    const _0x12d54c =
-                                        appType == _0x2266ae(0x135)
-                                            ? _0x2266ae(0x131)
-                                            : _0x2266ae(0x119);
-                                    _0x1a597b({
-                                        name: _0x12d54c + _0x2266ae(0x143),
+                                    const redirect =
+                                        appType == "saas"
+                                            ? "superadmin"
+                                            : "admin";
+                                    next({
+                                        name: redirect + ".settings.modules.index",
                                     });
-                                } else
-                                    checkLogFog(
-                                        _0x56eee4,
-                                        _0x1704e6,
-                                        _0x1a597b
-                                    );
+                                } else checkLogFog(to, from, next);
                             }
                         }
                     }
                 })
-                [_0x108396(0x116)]((_0x854ea8) => {
-                    var _0x458946 = _0x108396;
-                    !isAxiosResponseUrlValid(
-                        _0x854ea8[_0x458946(0x126)]()[_0x458946(0x10e)][
-                            _0x458946(0x112)
-                        ]
-                    )
-                        ? Modal["error"]({
+                .catch((error) => {
+                    !isAxiosResponseUrlValid(error.toJSON().config.url)
+                        ? Modal.error({
                               title: "Error!",
-                              content: _0x458946(0x136),
+                              content: "Don't try to null it... otherwise it may cause error on your server.",
                           })
-                        : (modArray[_0x458946(0x13d)]((_0x21d674) => {
-                              _0x21d674["value"] = !![];
+                        : (modArray.forEach((item) => {
+                              item.value = true;
                           }),
-                          store[_0x458946(0x148)](_0x458946(0x139), ![]),
-                          _0x1a597b());
+                          store.commit("auth/updateAppChecking", false),
+                          next());
                 });
-        } else checkLogFog(_0x56eee4, _0x1704e6, _0x1a597b);
+        } else checkLogFog(to, from, next);
     }
 });
 
