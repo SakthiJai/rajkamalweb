@@ -173,7 +173,7 @@
                                                 v-model="formData.items[index].item_name"
                                                 :ref="`input-${index}`"
                                                 :id="`item_product_name_${index}`"
-                                                @focus="updateTotalProd(index)"
+                                                @focus="updateTotalProd(index),updateFree()"
                                                 name="party_name" class="ant-input css-dev-only-do-not-override-wosfq4"
                                                 @keydown="showProductModal($event,index)" style="color:black;font-weight:bolder;"
                                                 >
@@ -196,7 +196,7 @@
                                                 <input  autocomplete="off"
                                                 :id="`item_product_quantity_${index}`"
                                                 v-model="formData.items[index].quantity"  @keyup="gotoNext(index,$event)"
-                                                @input="getQuantity(index,$event)" @focus="getQuantity(index,$event),focusinputvalue($event)"
+                                                @input="getQuantity(index,$event)" @focus="getQuantity(index,$event),updateFree(),focusinputvalue($event)"
                                                 name="quantity[]" @blur="updateAgg(),checkMaxQuantity(index,$event)" style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4"
 
                                                 @keypress="onlyForCurrency"
@@ -207,7 +207,7 @@
                                                 <input  autocomplete="off"
                                                 :id="`item_product_free_${index}`"
                                                 v-model="formData.items[index].free"  @keyup="gotoNext(index,$event)"
-                                                @input="getQuantity(index,$event)" @focus="getQuantity(index,$event),focusinputvalue($event)"
+                                                @input="getQuantity(index,$event)" @focus="getQuantity(index,$event),updateFree(),focusinputvalue($event)"
                                                 name="free[]" @blur="updateFree(),checkMaxQuantity(index,$event)" style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4"
 
                                                 @keypress="onlyForCurrency"
@@ -217,9 +217,9 @@
 
                                             <td style="width:15%">
                                                 <input  autocomplete="off"
-                                                v-model="formData.items[index].single_unit_price" @focus="focusinputvalue($event)"
+                                                v-model="formData.items[index].single_unit_price" @focus="updateFree(),focusinputvalue($event)"
                                                 :ref="`input-${index}`" @input="getQuantity(index,$event)"
-                                                :id="`item_product_price_${index}`" @keydowned="checkSingleItemPrice(index,$event)"
+                                                :id="`item_product_price_${index}`" @keydown="checkSingleItemPrice(index,$event)"
 
                                                 name="single_unit_price"class="ant-input css-dev-only-do-not-override-wosfq4"
                                                  style="color:black;font-weight:bolder;text-align-last:right;"
@@ -232,7 +232,8 @@
                                                 <input readonly  autocomplete="off"
                                                 :id="`item_product_disc_${index}`"
                                                 @input="getDiscount(index,$event)"
-                                                @keydowned="checkDisc(index,$event)"
+                                                @focus="updateFree(),focusinputvalue($event)"
+                                                @keydown="checkDisc(index,$event)"
                                                 v-model="formData.items[index].discount_rate"
                                                 class="ant-input css-dev-only-do-not-override-wosfq4"
                                                 name="party_name" style="color:black;font-weight:bolder;text-align-last:right;"
@@ -1008,6 +1009,23 @@ export default {
 
     methods: {
 
+        focusQuantityInput(index = 0) {
+            this.$nextTick(() => {
+                const quantityInput = document.getElementById(`item_product_quantity_${index}`);
+                if (!quantityInput) {
+                    return;
+                }
+
+                quantityInput.focus();
+
+                setTimeout(() => {
+                    this.getQuantity(index, { target: quantityInput });
+                    this.updateFree();
+                    this.focusinputvalue({ target: quantityInput });
+                }, 0);
+            });
+        },
+
         deleteItem()
 {
     console.log(this.selectedItermIndex);
@@ -1122,11 +1140,10 @@ export default {
                         this.formData.items[index].item_name                = data.product_name;
                         this.formData.items[index].unit_id                  = "";
                         this.formData.items[index].quantity                 = this.formatNumber(data.quantity);
-                        this.formData.items[index].free                     = this.formatNumber(data.free);
+                        this.formData.items[index].free                 = this.formatNumber(data.free);
                         this.formData.items[index].mrp                      = this.formatNumber(data.mrp);
-                        this.formData.items[index].rate                     = this.formatNumber(data.single_unit_price); // Map to rate
-                        this.formData.items[index].single_unit_price        = this.formData.items[index].rate; // Sync for input
-                        console.log("rate",this.formData.items[index].rate);
+                        this.formData.items[index].single_unit_price        = this.formatNumber(data.single_unit_price);
+                        console.log("single_unit_price",this.formData.items[index].single_unit_price);
                         this.formData.items[index].discount_rate            = data.discount_rate;
                         this.formData.items[index].amount                   = this.formatNumber(data.subtotal);
                         this.formData.items[index].maxquantity              = this.formatNumber(data.stock);
@@ -1144,6 +1161,7 @@ export default {
                         totalsgst                                           =  totalsgst+ (data.sgst >= 0 ? data.
                         sgst : 0);
                         console.log("cgst",totalcgst,"sgst",totalsgst)
+                        document.getElementById('item_product_price_'+index).value=this.formatNumber(data.single_unit_price)
                         document.getElementById('item_product_amount_'+index).value=this.formatNumber(data.subtotal)
 
                         document.getElementById('item_product_disc_'+index).value=this.formatNumber(data.discount_rate)
@@ -1155,49 +1173,33 @@ export default {
 
                     total_disc = total_disc>0?(total_disc/100)*grand_total:0;
 
-                    // Calculate Invoice Value as sum of all item_product_amount_X and igst_amount_X
-                    let totalAmount = 0;
-                    let index = 0;
-                    while (true) {
-                        const amountInput = document.getElementById('item_product_amount_' + index);
-                        const igstInput = document.getElementById('igst_amount_' + index);
-                        if (!amountInput && !igstInput) break;
-                        if (amountInput) {
-                            const val = parseFloat((amountInput.value || '0').replace(/,/g, ''));
-                            if (!isNaN(val)) totalAmount += val;
-                        }
-                        if (igstInput) {
-                            const val = parseFloat((igstInput.value || '0').replace(/,/g, ''));
-                            if (!isNaN(val)) totalAmount += val;
-                        }
-                        index++;
-                    }
+                    const subtotalElem = document.getElementById('total_goods_value');
+                    const igstAmount0Elem = document.getElementById('igst_amount_0');
+                    const igstAmount1Elem = document.getElementById('igst_amount_1');
                     const grandTotalElem = document.getElementById('grand_total');
-                    if (grandTotalElem) {
-                        grandTotalElem.innerHTML = this.formatCurrency(totalAmount);
+                    if (subtotalElem && igstAmount0Elem && igstAmount1Elem && grandTotalElem) {
+                        // Parse values, removing commas and converting to numbers
+                        const subtotal = parseFloat((subtotalElem.value || '0').replace(/,/g, ''));
+                        const igst0 = parseFloat((igstAmount0Elem.value || '0').replace(/,/g, ''));
+                        const igst1 = parseFloat((igstAmount1Elem.value || '0').replace(/,/g, ''));
+                        const grandTotal = subtotal + igst0 + igst1;
+                        grandTotalElem.innerHTML = this.formatCurrency(isNaN(grandTotal) ? 0 : grandTotal);
                     }
 
                     console.log("grand_total=>",this.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0));
                     this.selectedItermIndex=(finalIndex);
 
                     console.log(this.formData.items)
-                    document.getElementById('item_product_quantity_0').focus()
+                    this.$nextTick(() => {
+                        response.data.invoiceItems.forEach((item, itemIndex) => {
+                            this.getQuantity(itemIndex, null);
+                        });
+
+                        this.focusQuantityInput(0);
+                    });
 
 
                 }
-                this.$nextTick(() => {
-                    const firstQtyInput = document.getElementById('item_product_quantity_0');
-                    if (firstQtyInput) {
-                        firstQtyInput.focus();
-                        // Call getQuantity with index 0 and a synthetic event
-                        const event = new Event('input', { bubbles: true });
-                        firstQtyInput.dispatchEvent(event);
-                        // Or directly call the method if needed:
-                        if (typeof this.getQuantity === 'function') {
-                            this.getQuantity(0, { target: firstQtyInput });
-                        }
-                    }
-                });
 
             })
             .catch(errorResponse => {
@@ -1602,6 +1604,7 @@ export default {
                     let total_sgst = 0;
                     let total_cgst  = 0 ;
                     let total_gst   = 0;
+                    let sub_total_amount = 0;
                     this.invoiceData.invoiceItems.forEach((data,index)=>{
                         console.log(data.product_id,list.indexOf(data.product_id));
                         if(list.indexOf(data.product_id)!=-1 && this.formData.items[index].selected==false){
@@ -1615,6 +1618,7 @@ export default {
                         document.getElementById('item_product_free_'+index).value=data.free;
                         this.formData.items[index].mrp                      = this.formatNumber(data.mrp);
                         this.formData.items[index].single_unit_price        = this.formatNumber(data.single_unit_price);
+                        console.log("this.formatNumber(data.single_unit_price)",this.formatNumber(data.single_unit_price));
                         document.getElementById('item_product_price_'+index).value=this.formatNumber(data.single_unit_price)
                         this.formData.items[index].discount_rate            = data.discount_rate;
                         this.formData.items[index].amount                   = this.formatNumber(data.subtotal);
@@ -1631,6 +1635,7 @@ export default {
                         total_sgst     =    (Number(data.subtotal) / 100) * totalsgst ;
                         total_gst      =  total_cgst + total_sgst ;
                         console.log("total_gst", total_gst)
+                        sub_total_amount      = Number(data.subtotal);
                         grand_total                                         = Number(data.subtotal) + total_gst ;
                         console.log("totalcgst",totalcgst,"sgst",totalsgst)
 
@@ -1649,9 +1654,10 @@ export default {
                     let temp = this;
                     setTimeout(function()
                     {
-                        const totalGstAmount = (totalcgst>0?((totalcgst)/100)*grand_total:0) + (totalsgst>0?((totalsgst)/100)*grand_total:0)
+                        const totalGstAmount = (totalcgst>0?((totalcgst)/100)*sub_total_amount:0) + (totalsgst>0?((totalsgst)/100)*sub_total_amount:0)
+                        console.log("totalgstamount" , totalGstAmount)
                         document.getElementById('total_goods_value').value          =    temp.formatCurrency(grand_total);
-                        document.getElementById('grand_total').innerHTML            =   temp.formatCurrency((grand_total-total_disc)+(totalGstAmount));
+                        document.getElementById('grand_total').innerHTML            =   temp.formatCurrency((grand_total)+(totalGstAmount));
                         temp.formData.total                 =   grand_total;
                         temp.formData.tax_amount            =   totalGstAmount;
                         temp.formData.total_discount        =   total_disc;
@@ -1672,7 +1678,7 @@ export default {
                     this.selectedItermIndex=(finalIndex);
 
                     console.log(this.formData.items)
-                    document.getElementById('item_product_quantity_0').focus()
+                    this.focusQuantityInput(0)
 
 
                 }
@@ -1680,7 +1686,7 @@ export default {
 
         focusproductEelment()
         {
-            document.getElementById("item_product_quantity_0").focus();
+            this.focusQuantityInput(0);
         },
 
 
@@ -1712,6 +1718,7 @@ export default {
                  document.getElementById("item_product_packing_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].packing;
                  document.getElementById("item_product_id_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].item_id;
                  document.getElementById("item_product_price_"+this.selectedItermIndex).value = this.formatNumber(this.formData.items[this.selectedItermIndex].single_unit_price);
+                 console.log("this.formatNumber(data.single_unit_price)",this.formatNumber(this.formData.items[this.selectedItermIndex].single_unit_price))
                 document.getElementById("item_product_quantity_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].quantity;
                 document.getElementById("item_product_free_"+this.selectedItermIndex).value = this.formData.items[this.selectedItermIndex].free;
                 document.getElementById("item_product_amount_"+this.selectedItermIndex).value =0.0
@@ -2077,7 +2084,7 @@ export default {
             const totalSgstAmount = (sgst / 100) * this.totalAmount;
             const totalCgstAmount = (cgst / 100) * this.totalAmount;
             let totalDiscount = this.formData.items.reduce((sum, el) => sum + ((el.amount && el.discount_rate) ? ((el.amount / 100) * el.discount_rate) : 0), 0);
-            let invoiceValue = (this.totalAmount + totalSgstAmount + totalCgstAmount) - Number(totalDiscount);
+            let invoiceValue = (this.totalAmount + totalSgstAmount + totalCgstAmount);
             if (isNaN(totalDiscount) || totalDiscount === undefined || totalDiscount === null) totalDiscount = 0;
             if (isNaN(invoiceValue) || invoiceValue === undefined || invoiceValue === null) invoiceValue = 0;
 
@@ -2168,7 +2175,7 @@ export default {
             else if((event.key=="Tab" || event.key=="Enter"))
             {
 
-                document.getElementById("item_product_price_"+this.selectedItermIndex).focus();
+                document.getElementById("item_product_quantity_"+this.selectedItermIndex).focus();
                 event.preventDefault()
                 return false;
             }
@@ -2427,7 +2434,7 @@ export default {
             if(event.keyCode==13 && Number(this.formData.items[index].quantity)>0)
             {
                 console.log("Enter key pressed")
-                document.getElementById('item_product_price_'+index).focus();
+                document.getElementById('item_product_quantity_'+index).focus();
                 event.preventDefault();
                 return false;
 
