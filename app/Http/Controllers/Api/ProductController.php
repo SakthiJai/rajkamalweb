@@ -76,6 +76,7 @@ class ProductController extends ApiBaseController
             $product->packing         = $request->packing;
             $product->god_owns         = $request->god_owns;
             $product->opening_stock         = $request->opening_stock;
+                        $product->current_stock         = $request->opening_stock;
             $product->as_on_date         = $request->as_on_date;
             $product->category_field         = $request->category_field;
             $product->low_stock         = $request->low_stock;
@@ -97,6 +98,8 @@ class ProductController extends ApiBaseController
                 $productDetails->mrp            = $product->mrp;
                 $productDetails->purchase_price = $product->purchase_rate;
                 $productDetails->sales_price    = $product->sale_rate;
+                $productDetails->opening_stock  = $product->opening_stock;
+                $productDetails->current_stock  = $product->opening_stock;
 
                 $productDetails->save();
             }

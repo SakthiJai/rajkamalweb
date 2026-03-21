@@ -30,7 +30,7 @@
                             {{ record.packing }}
                         </template>
                         <template v-if="column.dataIndex === 'stock'">
-                            {{ record.stock }}
+                            {{ record.current_stock }}
                         </template>
                         <template v-if="column.dataIndex === 'unit_name'">
                             {{ record.unit_name }}
@@ -503,7 +503,7 @@ export default {
 
             datatableVariables.tableUrl.value = {
                 url:
-                    `${props.orderType}?fields=xid,id,name,packing,short_code,product_id,margin,hsn,free_scheme_1,free_scheme_2,mfr_name,w_o_free,deal_free,stock,cgst,lgst,sgst,hsn_sac,company_name,unit_name,sale_rate,unit_1st,unit,mrp,purchase_rate,cost,gst,company_id&searchBy=` +
+                    `${props.orderType}?fields=xid,id,name,packing,short_code,product_id,margin,hsn,free_scheme_1,free_scheme_2,mfr_name,w_o_free,deal_free,stock,current_stock,cgst,lgst,sgst,hsn_sac,company_name,unit_name,sale_rate,unit_1st,unit,mrp,purchase_rate,cost,gst,company_id&searchBy=` +
                     filterString,
                 filters: {
                     user_id: tableFilter.user_id

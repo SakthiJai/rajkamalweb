@@ -229,7 +229,7 @@
                                             </td>
 
                                             <td style="width:15%">
-                                                <input  autocomplete="off"
+                                                <input readonly  autocomplete="off"
                                                 :id="`item_product_disc_${index}`"
                                                 @input="getDiscount(index,$event)"
                                                 @keydowned="checkDisc(index,$event)"
@@ -975,7 +975,7 @@ export default {
             isOpensave: false,
 
             dropsitems: [
-        { text: "Save & SMS", icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M256 448h512v128h-512zM256 256h512v128h-512zM960 0h-896c-35.376 0-64 28.624-64 64v704c0 35.376 28.624 64 64 64h128v192l288-192h480c35.376 0 64-28.624 64-64v-704c0-35.376-28.624-64-64-64zM896 704h-416l-160 96v-96h-192v-576h768v576z"></path></svg>`, isSvg: true },
+        { text: "Save & SMS", icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M256 448h512v128h-512zM256 256h512v128h-512zM960 0h-896c-35.376 0-64 28.624-64 64v704c0 35.376 28.658 64 64 64h128v192l288-192h480c35.376 0 64-28.624 64-64v-704c0-35.376-28.658-64-64.002-64zM896 704h-416l-160 96v-96h-192v-576h768v576z"></path></svg>`, isSvg: true },
         { text: "Save & Email",icon: `<svg height="14" viewBox="0 0 1024 1024"><path fill="currentColor" d="M959.998 128h-895.998c-35.342 0-64 28.624-64 64v640c0 35.376 28.658 64 64 64h895.998c35.344 0 64.002-28.624 64.002-64v-640c0-35.376-28.658-64-64.002-64zM832 256l-320 256-320-256h640zM896 768h-768v-448l384 320 384-320v448z"></path></svg>`,
         isSvg: true },
         { text: "Save & Print", icon:`<svg height="14" viewBox="0 0 135.57 125.14"><path fill="currentColor" d="M131,56.75a15.06,15.06,0,0,0-11-4.6h-5.21V31.28a18.81,18.81,0,0,0-1.63-7.17,18.94,18.94,0,0,0-3.91-6.19L96.79,5.54A19,19,0,0,0,90.6,1.63,18.81,18.81,0,0,0,83.43,0H28.68a7.54,7.54,0,0,0-5.54,2.28,7.54,7.54,0,0,0-2.28,5.54V52.14H15.64a15.06,15.06,0,0,0-11,4.6,15.06,15.06,0,0,0-4.6,11v33.89a2.51,2.51,0,0,0,.77,1.83,2.51,2.51,0,0,0,1.83.77H20.86v13a7.79,7.79,0,0,0,7.82,7.82h78.21a7.79,7.79,0,0,0,7.82-7.82v-13H133a2.64,2.64,0,0,0,2.6-2.61V67.78A15.05,15.05,0,0,0,131,56.75Zm-26.68,58h-73V93.86h73Zm0-52.14h-73V10.43H83.43v13a7.79,7.79,0,0,0,7.82,7.82h13Zm19.31,8.88a5.11,5.11,0,1,1,1.55-3.67A5,5,0,0,1,123.59,71.45Z"></path></svg>`,
@@ -1113,28 +1113,37 @@ export default {
                     let total_disc  =   0;
                     let totalcgst   =   0;
                     let totalsgst   =   0;
+                    let total_gst    =   0;
+                    let total_cgst   = 0;
+                    let total_sgst   = 0 ;
                     response.data.invoiceItems.forEach((data,index)=>{
 
                         this.formData.items[index].item_id                  = data.product_id;
                         this.formData.items[index].item_name                = data.product_name;
                         this.formData.items[index].unit_id                  = "";
                         this.formData.items[index].quantity                 = this.formatNumber(data.quantity);
-                        this.formData.items[index].free                 = this.formatNumber(data.free);
+                        this.formData.items[index].free                     = this.formatNumber(data.free);
                         this.formData.items[index].mrp                      = this.formatNumber(data.mrp);
-                        this.formData.items[index].single_unit_price        = this.formatNumber(data.single_unit_price);
+                        this.formData.items[index].rate                     = this.formatNumber(data.single_unit_price); // Map to rate
+                        this.formData.items[index].single_unit_price        = this.formData.items[index].rate; // Sync for input
+                        console.log("rate",this.formData.items[index].rate);
                         this.formData.items[index].discount_rate            = data.discount_rate;
                         this.formData.items[index].amount                   = this.formatNumber(data.subtotal);
                         this.formData.items[index].maxquantity              = this.formatNumber(data.stock);
                         this.formData.items[index].max_single_unit_price    = this.formatNumber(data.mrp);
                         this.formData.items[index].packing                  = data.pack;
-                        this.formData.items[index].cgst                     = (data.cgst>=0?data.cgst:0);
-                        this.formData.items[index].sgst                     = (data.sgst>=0?data.sgst:0);
+                        this.formData.items[index].cgst                     =  (data.cgst >= 0 ? data.cgst : 0);
+                        this.formData.items[index].sgst                     =  (data.sgst >= 0 ? data.sgst : 0);
+                        total_cgst                                           = (Number(data.subtotal)/100) * (data.cgst >= 0 ? data.cgst : 0);
+                        total_sgst                                           = (Number(data.subtotal)/100) * (data.sgst >= 0 ? data.sgst : 0);
+                        total_gst                          = total_cgst + total_sgst;
 
-                        grand_total                                         = grand_total+Number(data.subtotal);
+                        grand_total                                         = grand_total+Number(data.subtotal) + total_gst;
                         total_disc                                          =  total_disc+Number(data.discount_rate);
-                        totalcgst                                           =  totalcgst+ (data.cgst>=0?data.cgst:0);
-                        totalsgst                                           =  totalsgst+ (data.sgst>=0?data.sgst:0);
-
+                        totalcgst                                           = totalcgst+ (data.cgst >= 0 ? data.cgst : 0);
+                        totalsgst                                           =  totalsgst+ (data.sgst >= 0 ? data.
+                        sgst : 0);
+                        console.log("cgst",totalcgst,"sgst",totalsgst)
                         document.getElementById('item_product_amount_'+index).value=this.formatNumber(data.subtotal)
 
                         document.getElementById('item_product_disc_'+index).value=this.formatNumber(data.discount_rate)
@@ -1146,21 +1155,49 @@ export default {
 
                     total_disc = total_disc>0?(total_disc/100)*grand_total:0;
 
-                    document.getElementById('total_goods_value').value          =    this.formatCurrency(grand_total);
-                    document.getElementById('grand_total').innerHTML            =   this.formatCurrency((grand_total-total_disc)+(totalsgst>0?((totalsgst/2)/100)*grand_total:0));
-                    document.getElementById('total_discount_text').innerHTML    =   this.formatCurrency(total_disc);
-                    document.getElementById('cgst_total_text').innerHTML        =    this.formatCurrency(totalcgst>0?((totalcgst/2)/100)*grand_total:0)
-                    document.getElementById('sgst_total_text').innerHTML        =    this.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0)
+                    // Calculate Invoice Value as sum of all item_product_amount_X and igst_amount_X
+                    let totalAmount = 0;
+                    let index = 0;
+                    while (true) {
+                        const amountInput = document.getElementById('item_product_amount_' + index);
+                        const igstInput = document.getElementById('igst_amount_' + index);
+                        if (!amountInput && !igstInput) break;
+                        if (amountInput) {
+                            const val = parseFloat((amountInput.value || '0').replace(/,/g, ''));
+                            if (!isNaN(val)) totalAmount += val;
+                        }
+                        if (igstInput) {
+                            const val = parseFloat((igstInput.value || '0').replace(/,/g, ''));
+                            if (!isNaN(val)) totalAmount += val;
+                        }
+                        index++;
+                    }
+                    const grandTotalElem = document.getElementById('grand_total');
+                    if (grandTotalElem) {
+                        grandTotalElem.innerHTML = this.formatCurrency(totalAmount);
+                    }
 
-                    document.getElementById('igst_amount_0').value              =   this.formatCurrency(totalcgst>0?((totalcgst/2)/100)*grand_total:0);
-                    document.getElementById('igst_amount_1').value              =   this.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0);
+                    console.log("grand_total=>",this.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0));
+                    this.selectedItermIndex=(finalIndex);
 
-
-                    //console.log("grand_total=>",this.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0));
-                    this.selectedItermIndex=(finalIndex+1);
+                    console.log(this.formData.items)
+                    document.getElementById('item_product_quantity_0').focus()
 
 
                 }
+                this.$nextTick(() => {
+                    const firstQtyInput = document.getElementById('item_product_quantity_0');
+                    if (firstQtyInput) {
+                        firstQtyInput.focus();
+                        // Call getQuantity with index 0 and a synthetic event
+                        const event = new Event('input', { bubbles: true });
+                        firstQtyInput.dispatchEvent(event);
+                        // Or directly call the method if needed:
+                        if (typeof this.getQuantity === 'function') {
+                            this.getQuantity(0, { target: firstQtyInput });
+                        }
+                    }
+                });
 
             })
             .catch(errorResponse => {
@@ -1562,6 +1599,9 @@ export default {
                     let total_disc  =   0;
                     let totalcgst   =   0;
                     let totalsgst   =   0;
+                    let total_sgst = 0;
+                    let total_cgst  = 0 ;
+                    let total_gst   = 0;
                     this.invoiceData.invoiceItems.forEach((data,index)=>{
                         console.log(data.product_id,list.indexOf(data.product_id));
                         if(list.indexOf(data.product_id)!=-1 && this.formData.items[index].selected==false){
@@ -1581,15 +1621,18 @@ export default {
                         this.formData.items[index].maxquantity              = this.formatNumber(data.stock);
                         this.formData.items[index].max_single_unit_price    = this.formatNumber(data.mrp);
                         this.formData.items[index].packing                  = data.pack;
-                        this.formData.items[index].cgst                     = (data.cgst>=0?data.cgst:0);
-                        this.formData.items[index].sgst                     = (data.sgst>=0?data.sgst:0);
+                        this.formData.items[index].cgst                     = (data.product?.cgst >= 0 ? data.product.cgst : 0);
+                        this.formData.items[index].sgst                     = (data.product?.sgst >= 0 ? data.product.sgst : 0);
                         this.formData.items[index].selected                 = true;
-
-
-                        grand_total                                         = grand_total+Number(data.subtotal);
                         total_disc                                          =  total_disc+Number(data.discount_rate);
-                        totalcgst                                           =  totalcgst+ (data.cgst>=0?data.cgst:0);
-                        totalsgst                                           =  totalsgst+ (data.sgst>=0?data.sgst:0);
+                        totalcgst                                           =  totalcgst+ (data.product?.cgst >= 0 ? data.product.cgst : 0);
+                        totalsgst                                           =  totalsgst+ (data.product?.sgst >= 0 ? data.product.sgst : 0);
+                        total_cgst     =   (Number(data.subtotal) / 100 ) * totalcgst;
+                        total_sgst     =    (Number(data.subtotal) / 100) * totalsgst ;
+                        total_gst      =  total_cgst + total_sgst ;
+                        console.log("total_gst", total_gst)
+                        grand_total                                         = Number(data.subtotal) + total_gst ;
+                        console.log("totalcgst",totalcgst,"sgst",totalsgst)
 
                         document.getElementById('item_product_amount_'+index).value=this.formatNumber(data.subtotal)
                         document.getElementById('item_product_packing_'+index).value=data.pack
@@ -1606,7 +1649,7 @@ export default {
                     let temp = this;
                     setTimeout(function()
                     {
-                        const totalGstAmount = (totalcgst>0?((totalcgst/2)/100)*grand_total:0) + (totalsgst>0?((totalsgst/2)/100)*grand_total:0)
+                        const totalGstAmount = (totalcgst>0?((totalcgst)/100)*grand_total:0) + (totalsgst>0?((totalsgst)/100)*grand_total:0)
                         document.getElementById('total_goods_value').value          =    temp.formatCurrency(grand_total);
                         document.getElementById('grand_total').innerHTML            =   temp.formatCurrency((grand_total-total_disc)+(totalGstAmount));
                         temp.formData.total                 =   grand_total;
@@ -1618,8 +1661,8 @@ export default {
                         document.getElementById('cgst_total_text').innerHTML        =    temp.formatCurrency(totalcgst>0?((totalcgst/2)/100)*grand_total:0)
                         document.getElementById('sgst_total_text').innerHTML        =    temp.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0)
 
-                        document.getElementById('igst_amount_0').value              =   temp.formatCurrency(totalcgst>0?((totalcgst/2)/100)*grand_total:0);
-                        document.getElementById('igst_amount_1').value              =   temp.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0);
+                        document.getElementById('igst_amount_0').value              =   temp.formatCurrency(totalcgst>0?((totalcgst)/100)*grand_total:0);
+                        document.getElementById('igst_amount_1').value              =   temp.formatCurrency(totalsgst>0?((totalsgst)/100)*grand_total:0);
                         temp.spinning= false;
 
                     },2000);
@@ -1968,40 +2011,86 @@ export default {
 
         },
         getQuantity(index,event) {
+            // Guard against undefined item
+            if (!this.formData.items[index]) {
+                return;
+            }
 
-            let  quantity              = document.getElementById("item_product_quantity_"+index).value;
-            let  price                 = document.getElementById("item_product_price_"+index).value;
-            let  discount              = document.getElementById("item_product_disc_"+index).value;
-            const cgst_tax_percentage  = Number(this.formData.items[index].cgst);
-            const sgst_tax_percentage  = Number( this.formData.items[index].sgst);
+            // Get values
+            let quantity = Number(document.getElementById("item_product_quantity_" + index).value) || 0;
+            let freeQty = Number(document.getElementById("item_product_free_" + index)?.value) || 0;
+            let price = Number(document.getElementById("item_product_price_" + index).value) || 0;
+            let discount = Number(document.getElementById("item_product_disc_" + index).value) || 0;
 
-            if(quantity==undefined || quantity=="" || quantity<0){quantity=0}
-            if(price==undefined || price=="" || price<0){price=0}
-            if(discount==undefined || discount=="" || discount<0){discount=0}
-            const singleItemTotal = Number(quantity*price);
-            document.getElementById("item_product_amount_"+index).value =this.formatCurrency(singleItemTotal);
+            // Always use CGST/SGST from product object only, fallback to previous values if missing
+            let cgst = 0;
+            let sgst = 0;
+            const item = this.formData.items[index];
+            if (item.product && typeof item.product === 'object' && item.product.cgst !== undefined && item.product.sgst !== undefined) {
+                cgst = Number(item.product.cgst) || 0;
+                sgst = Number(item.product.sgst) || 0;
+                console.log("CGST/SGST from product", index, cgst, sgst);
+            } else {
+                // Fallback: preserve previous CGST/SGST if product is missing
+                cgst = Number(item.cgst) || 0;
+                sgst = Number(item.sgst) || 0;
+                console.warn("Product CGST/SGST missing, fallback to previous", index, cgst, sgst);
+            }
+            this.formData.items[index].cgst = cgst;
+            this.formData.items[index].sgst = sgst;
+            console.log("cgst", cgst , "sgst", sgst);
 
-            this.formData.items[index].discount_rate    =   discount;
-            this.formData.items[index].single_unit_price    =   price;
+            // Calculation
+            let effectiveQty = quantity - freeQty;
+            if (effectiveQty < 0) effectiveQty = 0;
+            const subtotal = effectiveQty * price;
+            const discount_amount = (subtotal / 100) * discount;
+            const final_amount = subtotal - discount_amount;
 
-            const totalAmount = this.getTotalAmount('total');
-            this.totalAmount  =  totalAmount;
-            console.log(Number((sgst_tax_percentage/100))*Number(this.totalAmount));
-            document.getElementById("sgst_total_text").innerHTML = this.formatCurrency(Number((sgst_tax_percentage/100))*Number(this.totalAmount));
-            document.getElementById("cgst_total_text").innerHTML = this.formatCurrency(Number((cgst_tax_percentage/100))*Number(this.totalAmount));
+            // Update item
+            this.formData.items[index].discount_rate = discount;
+            this.formData.items[index].single_unit_price = price;
+            this.formData.items[index].amount = isNaN(final_amount) ? 0 : final_amount;
 
-            const totalSgstAmount   =   this.getTotalAmount('sgst');
-            const totalCgstAmount   =   this.getTotalAmount('cgst');
-            const totalDiscount     =   this.getTotalAmount('discount');
+            // Update UI
+            const amountElem = document.getElementById("item_product_amount_" + index);
+            if (amountElem) amountElem.value = this.formatCurrency(isNaN(final_amount) ? 0 : final_amount);
 
-            document.getElementById("igst_amount_0").value       =  this.formatCurrency(totalSgstAmount);
-            document.getElementById("igst_amount_1").value       =  this.formatCurrency(totalCgstAmount);
-            this.formData.tax_amount                             =  totalSgstAmount+ totalCgstAmount;
-            document.getElementById("total_goods_value").value   =  this.formatCurrency(totalAmount);
-            this.formData.subtotal                               =  totalAmount;
-            document.getElementById("grand_total").innerHTML     =  this.formatCurrency((totalAmount+totalSgstAmount+totalCgstAmount)-Number(totalDiscount));
-            document.getElementById('total_discount_text').innerHTML = this.formatCurrency(totalDiscount)
-            this.formData.discount                                   =   totalDiscount;
+            // Totals
+            const totalAmount = this.formData.items.reduce((sum, el) => sum + (Number(el.amount) || 0), 0);
+            this.totalAmount = isNaN(totalAmount) ? 0 : totalAmount;
+
+            const sgstElem = document.getElementById("sgst_total_text");
+            if (sgstElem) {
+                const sgstValue = this.formatCurrency((sgst / 100) * this.totalAmount);
+                sgstElem.innerHTML = sgstValue;
+                const igstAmount1Elem = document.getElementById('igst_amount_1');
+                if (igstAmount1Elem) igstAmount1Elem.value = sgstValue;
+            }
+            const cgstElem = document.getElementById("cgst_total_text");
+            if (cgstElem) {
+                const cgstValue = this.formatCurrency((cgst / 100) * this.totalAmount);
+                cgstElem.innerHTML = cgstValue;
+                const igstAmount0Elem = document.getElementById('igst_amount_0');
+                if (igstAmount0Elem) igstAmount0Elem.value = cgstValue;
+            }
+            const totalSgstAmount = (sgst / 100) * this.totalAmount;
+            const totalCgstAmount = (cgst / 100) * this.totalAmount;
+            let totalDiscount = this.formData.items.reduce((sum, el) => sum + ((el.amount && el.discount_rate) ? ((el.amount / 100) * el.discount_rate) : 0), 0);
+            let invoiceValue = (this.totalAmount + totalSgstAmount + totalCgstAmount) - Number(totalDiscount);
+            if (isNaN(totalDiscount) || totalDiscount === undefined || totalDiscount === null) totalDiscount = 0;
+            if (isNaN(invoiceValue) || invoiceValue === undefined || invoiceValue === null) invoiceValue = 0;
+
+            const grandTotalElem = document.getElementById('grand_total');
+            if (grandTotalElem) grandTotalElem.innerHTML = this.formatCurrency(invoiceValue);
+            const totalDiscountElem = document.getElementById('total_discount_text');
+            if (totalDiscountElem) totalDiscountElem.innerHTML = this.formatCurrency(totalDiscount);
+            const totalGoodsElem = document.getElementById('total_goods_value');
+            if (totalGoodsElem) totalGoodsElem.value = this.formatCurrency(totalAmount);
+
+            this.formData.total = this.totalAmount;
+            this.formData.tax_amount = (isNaN(totalSgstAmount) ? 0 : totalSgstAmount) + (isNaN(totalCgstAmount) ? 0 : totalCgstAmount);
+            this.formData.total_discount = totalDiscount;
 
 
         },

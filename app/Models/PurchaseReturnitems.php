@@ -12,14 +12,14 @@ class PurchaseReturnitems extends BaseModel
     
     protected $table = 'purchase_return_item_details';
 
-    protected $default = ['xid','product_name','stock','pack','cgst','sgst'];
+    protected $default = ['xid','product_name','stock','pack'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
 
     protected $hidden = ['purchase_id', 'user_id', 'order_id'];
 
-    protected $appends = ['xid', 'purchase_id', 'x_user_id',  'x_product_id', 'x_unit_id','product_name','stock','pack','cgst','sgst'];
+    protected $appends = ['xid', 'purchase_id', 'x_user_id',  'x_product_id', 'x_unit_id','product_name','stock','pack'];
     protected $filterable = ['id', 'product_id'];
 
 
@@ -88,23 +88,6 @@ class PurchaseReturnitems extends BaseModel
          return $product ? $product->packing : 0; 
      }
 
-     public function getCgstAttribute()
-     {
-         $product = Product::find($this->product_id);
-         if ($product && $product->taxCategory) {
-             return $product->taxCategory->cgst ?? 0;
-         }
-         return 0;
-     }
-
-     public function getSgstAttribute()
-     {
-         $product = Product::find($this->product_id);
-         if ($product && $product->taxCategory) {
-             return $product->taxCategory->sgst ?? 0;
-         }
-         return 0;
-     }
 
      public function product()
      {

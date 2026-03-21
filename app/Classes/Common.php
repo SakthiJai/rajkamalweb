@@ -456,6 +456,11 @@ class Common
             $productDetails = self::createProductDetailsForWarehouseIfNotExists($warehouseId, $productId);
         }
 
+        // Ensure opening_stock in product_details matches products table
+        $product = \App\Models\Product::find($productId);
+        if ($product && $productDetails->opening_stock != $product->opening_stock) {
+            $productDetails->opening_stock = $product->opening_stock;
+        }
         $currentStock = $newStockQuantity + $productDetails->opening_stock;
         $productDetails->current_stock = $currentStock;
 
@@ -466,6 +471,14 @@ class Common
         }
 
         $productDetails->save();
+
+        // Update current_stock in products table as the sum of all product_details current_stock for this product
+        $totalCurrentStock = ProductDetails::where('product_id', $productId)->sum('current_stock');
+        $product = \App\Models\Product::find($productId);
+        if ($product) {
+            $product->current_stock = $totalCurrentStock;
+            $product->save();
+        }
     }
 
     public static function createProductDetailsForWarehouseIfNotExists($warehouseId, $productId)

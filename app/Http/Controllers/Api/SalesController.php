@@ -164,12 +164,19 @@ class SalesController extends ApiBaseController
 						]);
 
 						// Reduce stock in ProductDetails
-						$productDetails = \App\Models\ProductDetails::where('product_id', $item['item_id'])->first();
-						if ($productDetails) {
+						$productDetailsList = \App\Models\ProductDetails::where('product_id', $item['item_id'])->get();
+						foreach ($productDetailsList as $productDetails) {
 							$productDetails->current_stock = max(0, $productDetails->current_stock - $quantity);
 							$productDetails->save();
 						}
-					}
+						// Always recalculate products.current_stock as sum of all product_details.current_stock
+						$totalCurrentStock = \App\Models\ProductDetails::where('product_id', $item['item_id'])->sum('current_stock');
+						$product = \App\Models\Product::find($item['item_id']);
+						if ($product) {
+							$product->current_stock = $totalCurrentStock;
+							$product->save();
+						}
+					}	
 				}
 			}
 			if($type=="sales"){
@@ -619,7 +626,7 @@ public function createReciept($payment)
 							'unit_price'         => $item['single_unit_price'],
 							'single_unit_price'  => $item['single_unit_price'],
 							'tax_rate'           => 2,
-							'disc_value'      	=> $item['discount_rate'] ?? 0,
+							'disc_value'        => $item['discount_rate'] ?? 0,
 							'subtotal'           => $amount,
 							'return_invoice'           => $item['invoice'] ?? 0,
 							'disc_type'         => $item['discount_type_id'] ?? 0,
@@ -632,14 +639,26 @@ public function createReciept($payment)
 						]))
 						{
 							$total = $total+$amount;
+							// Update current_stock in ProductDetails
+							$productDetails = \App\Models\ProductDetails::where('product_id', (int)$item['item_id'])->first();
+							$productDetailsList = \App\Models\ProductDetails::where('product_id', (int)$item['item_id'])->get();
+							foreach ($productDetailsList as $productDetails) {
+								$productDetails->current_stock += $item['return_qty'] ?? $quantity;
+								$productDetails->save();
+							}
+							// Always recalculate products.current_stock as sum of all product_details.current_stock
+							$totalCurrentStock = \App\Models\ProductDetails::where('product_id', (int)$item['item_id'])->sum('current_stock');
+							$product = \App\Models\Product::find((int)$item['item_id']);
+							if ($product) {
+								$product->current_stock = $totalCurrentStock;
+								$product->save();
+							}
 						}
 						else{
 							echo 'issue2';
 						}
 					}
 				}
-
-
 			}
 			DB::commit();
 			return $issue;
@@ -722,7 +741,7 @@ public function createReciept($payment)
 							'unit_price'         => $item['single_unit_price'],
 							'single_unit_price'  => $item['single_unit_price'],
 							'tax_rate'           => 2,
-							'disc_value'      	=> $item['discount_rate'] ?? 0,
+							'disc_value'        => $item['discount_rate'] ?? 0,
 							'subtotal'           => $amount,
 							'disc_type'         => $item['discount_type_id'] ?? 0,
 							'return_reason_code'=> $item['return_reason_code'],
@@ -735,14 +754,25 @@ public function createReciept($payment)
 						]))
 						{
 							$total = $total+$amount;
+							// Update current_stock in ProductDetails
+							$productDetails = \App\Models\ProductDetails::where('product_id', (int)$item['item_id'])->first();
+							if ($productDetails) {
+								$productDetails->current_stock += $quantity;
+								$productDetails->save();
+								// Update products.current_stock as sum of all product_details.current_stock
+								$totalCurrentStock = \App\Models\ProductDetails::where('product_id', (int)$item['item_id'])->sum('current_stock');
+								$product = \App\Models\Product::find((int)$item['item_id']);
+								if ($product) {
+									$product->current_stock = $totalCurrentStock;
+									$product->save();
+								}
+							}
 						}
 						else{
 							echo 'issue2';
 						}
 					}
 				}
-
-
 			}
 			DB::commit();
 			return $issue;

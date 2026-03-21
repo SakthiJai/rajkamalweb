@@ -116,14 +116,16 @@ class PurchaseReturnController extends ApiBaseController
 						if(PurchaseReturnitems::create([
 							'user_id'            => auth('api')->user()->id,
 							'order_id'           => $order->id,
-							'product_id'        => (int)$item['item_id'],
+							'product_id'         => (int)$item['item_id'],
 							'quantity'           => $quantity,
-							'free'           => $free,
+							'free'               => $free,
 							'unit_price'         => $item['single_unit_price'],
 							'single_unit_price'  => $item['single_unit_price'],
 							'tax_rate'           => 2,
 							'discount_rate'      => $item['discount_rate'] ?? 0,
-							'subtotal'           => $amount
+							'subtotal'           => $amount,
+							'cgst'               => isset($item['cgst']) ? $item['cgst'] : 0,
+							'sgst'               => isset($item['sgst']) ? $item['sgst'] : 0
 						]))
 						{
 							$total = $total+$amount;
@@ -170,8 +172,8 @@ class PurchaseReturnController extends ApiBaseController
 		
 		$partyDetails 		= LedgerCustomerModel::where('id',$invoice_details->party_customer_id)->get();
 		
-		$products 			= DB::select("SELECT A.quantity,A.single_unit_price,B.mrp,B.sale_rate,A.discount_rate,A.subtotal,B.hsn_sac,B.name,C.cgst as cgst_amount,C.sgst as sgst_amount FROM `purchase_return_item_details` A left join products B on B.id=A.product_id left join tax_catagories C on C.id=B.tax_category WHERE order_id=".$invoice_details->id);
-		
+		$products 			= DB::select("SELECT A.quantity, A.single_unit_price, B.mrp, B.sale_rate, A.discount_rate, A.subtotal, B.hsn_sac, B.name, A.free , A.cgst as cgst_amount, A.sgst as sgst_amount FROM `purchase_return_item_details` A left join products B on B.id=A.product_id WHERE A.order_id=".$invoice_details->id);
+			\Log::info('products', ['products' => $products]);
 	   // Create the mPDF document
 	   $document = new PDF( [
 		   'mode' => 'utf-8',
@@ -220,6 +222,12 @@ class PurchaseReturnController extends ApiBaseController
 		//print_r($invoiceData);
 		$customerData 	=	LedgerCustomerModel::where("id",$invoiceData->party_customer_id)->first();
 		$invoiceItems	=	PurchaseReturnitems::where('order_id',$invoiceData->id)->get();
+		// Ensure CGST and SGST are included and not zero if present in DB
+		$invoiceItems = $invoiceItems->map(function($item) {
+			$item->cgst = isset($item->cgst) ? (float)$item->cgst : 0;
+			$item->sgst = isset($item->sgst) ? (float)$item->sgst : 0;
+			return $item;
+		});
 		return response()->json([
 			'message' => 'Data retrived successfulliedddd',
 			'data'=>["invoiceData"=>$invoiceData,"customerData"=>$customerData,"invoiceItems"=>$invoiceItems]

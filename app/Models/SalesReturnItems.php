@@ -9,6 +9,15 @@ use Vinkla\Hashids\Facades\Hashids;
 
 class SalesReturnItems extends BaseModel
 {
+        public function getCurrentStockAttribute()
+    {
+        // If return_qty is empty, show current stock from ProductDetails
+        if (empty($this->return_qty)) {
+            $productDetails = \App\Models\ProductDetails::where('product_id', $this->product_id)->first();
+            return $productDetails ? $productDetails->current_stock : 0;
+        }
+        return null;
+    }
     // Mutators for saving cgst, sgst, igst, cess from payload
     public function setCgstAttribute($value)
     {
@@ -133,6 +142,7 @@ class SalesReturnItems extends BaseModel
         $array['sgst'] = $this->sgst;
         $array['igst'] = $this->igst;
         $array['cess'] = $this->cess;
+        $array['current_stock'] = $this->current_stock;
         return $array;
     }
 }

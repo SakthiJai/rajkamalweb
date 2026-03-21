@@ -1947,7 +1947,7 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
             this.spinning= true;
             axiosAdmin
             .get("sales/getInvoiceItems/"+selectedInvoice, )
-            .then(response => {  console.log(response)
+            .then(response => {  console.log("response", response);
                 // Toastr Notificaiton
 
                 this.openProduct(response.data);
