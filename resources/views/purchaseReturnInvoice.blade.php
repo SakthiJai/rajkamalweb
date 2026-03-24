@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
-        
+
 
         body {
             font-family: 'Heebo', sans-serif;
@@ -32,20 +32,20 @@
             width: 100%;
         }
 
-        
-        
+
+
 
         .text-right {
             text-align: right;
         }
 
-        
+
         .tableheading{
     background-color:#1250b7 !important;
     color:white;
 }
 .invoicenumbers{
-    background-color: #edf2fa; 
+    background-color: #edf2fa;
     height:20px;
 }
 .salebill{
@@ -84,13 +84,13 @@ th {
     font-size: 14px;
     font-weight:bold;
       color:black;
-      text-decoration: underline; 
+      text-decoration: underline;
 }
 
 .subheading{
     font-weight:bold;
     font-size:14px;
-    color:blue; 
+    color:blue;
 }
 
 
@@ -104,36 +104,36 @@ th {
 
 <div id="headerimage"></div>
 <div id="invoice" class="effect2">
-    
+
     <table  class="maintabing">
         <tr class="invoicenumbers">
         <td colspan="10" style="text-align:center;">
                 <h1 class="salebill" style="">PURCHASE RETURN BILL</h1>
-            </td>  
+            </td>
         </tr>
         <tr>
             <td colspan="9">
-                <b>{{ $customer[0]->party_name }},</b><br>
-                <span>{{ $customer[0]->Address }} -{{$customer[0]->stock_pincode}}</span><br>
-                Phone: {{ $customer[0]->mobile_number }}<br>
-                <p style="color:blue">E-mail Id: {{ $customer[0]->customer_email }}<p>
+                <b>{{ $customer->party_name ?? '' }},</b><br>
+                <span>{{ $customer->Address ?? '' }} -{{ $customer->stock_pincode ?? '' }}</span><br>
+                Phone: {{ $customer->mobile_number ?? '' }}<br>
+                <p style="color:blue">E-mail Id: {{ $customer->customer_email ?? '' }}<p>
             </td>
             <td colspan="1">
-                <div style="height:20px;">Party Name : <b>{{ $party[0]->cus_name }}</b><br></div>
-                Party Add. :<b>{{ $party[0]->address }}</b><br>
-                Phone No. : <b></b>{{ $party[0]->mobile_number }}<b><br>
+                <div style="height:20px;">Party Name : <b>{{ $party->cus_name ?? '' }}</b><br></div>
+                Party Add. :<b>{{ $party->address ?? '' }}</b><br>
+                Phone No. : <b></b>{{ $party->mobile_number ?? '' }}<b><br>
                 GSTIN :<br>
                 DL No. :<br>
             </td>
         </tr>
         <tr class="invoicenumbers"  >
-            <td colspan="6" ><b>GSTIN: {{ $customer[0]->gst_number }}</b></td>
+            <td colspan="6" ><b>GSTIN: {{ $customer->gst_number ?? '' }}</b></td>
             <td colspan="2" style="text-align:right"><b>Invoice No: {{ $invoice_details->dr_number }}</b></td>
             <td colspan="2"  style="text-align:right"><b>Invoice Date : {{ date("d-m-Y", strtotime($invoice_details->order_date)) }}</b></td>
         </tr>
     </table>
     <table  class="maintabing">
-        
+
         <tr class="tableheading">
             <th style="width:5%">#</th>
             <th style="width:7%">Qty</th>
@@ -183,7 +183,7 @@ th {
                                     {{ number_format($netSubtotal, 2, '.', ',') }}
                                 </td>
             </tr>
-            
+
           @endforeach
         <tr style="height:4px !important;" >
             <td colspan="7" style="padding:23px 12px;"><b></b></td>
@@ -294,7 +294,7 @@ function numToWordsRec($number) {
         3 => 'three', 4 => 'four', 5 => 'five',
         6 => 'six', 7 => 'seven', 8 => 'eight',
         9 => 'nine', 10 => 'ten', 11 => 'eleven',
-        12 => 'twelve', 13 => 'thirteen', 
+        12 => 'twelve', 13 => 'thirteen',
         14 => 'fourteen', 15 => 'fifteen',
         16 => 'sixteen', 17 => 'seventeen', 18 => 'eighteen',
         19 => 'nineteen', 20 => 'twenty', 30 => 'thirty',
@@ -313,7 +313,7 @@ function numToWordsRec($number) {
     }
 
     if ($number < 1000) {
-        return $words[floor($number / 100)] . ' hundred ' 
+        return $words[floor($number / 100)] . ' hundred '
                . numToWordsRec($number % 100);
     }
 

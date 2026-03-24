@@ -408,6 +408,9 @@ export default {
 
 
         handleEnterKey() {
+            if (this.PurchaseReturnOrderTableRef && this.PurchaseReturnOrderTableRef.focus !== null) {
+                return;
+            }
             console.log("dropfownwww");
            this.isDropdownOpen= false;
            this.$nextTick(() => {
@@ -450,7 +453,7 @@ export default {
             }
 
         },
-  
+
         autoFocusInput() {
             this.$nextTick(() => {
                 this.$refs.searchInput.focus();  // Automatically focus the input
@@ -581,6 +584,9 @@ export default {
                 this.PurchaseReturnOrderTableRef.test(event);
             }
             else if (event.keyCode == 40 || event.keyCode == 38) { this.PurchaseReturnOrderTableRef.test(event); }
+            else if (event.keyCode == 13 && this.PurchaseReturnOrderTableRef && this.PurchaseReturnOrderTableRef.focus !== null) {
+                this.PurchaseReturnOrderTableRef.test(event);
+            }
 
         },
 

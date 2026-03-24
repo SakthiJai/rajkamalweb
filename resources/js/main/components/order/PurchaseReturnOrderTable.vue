@@ -1,8 +1,8 @@
 <template>
     <a-row>
         <a-col :span="24">
-            <div class="table-responsive"> 
-                
+            <div class="table-responsive">
+
                 <a-table :columns="purchaseReturnColumns" :row-key="(record) => record.id" :data-source="table.data"
                     :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
                     :rowSelection="{
@@ -28,13 +28,13 @@
                                 {{ record.party_name }}
                             </a-typography-link>
                         </template>
-                       
+
                         <template v-if="column.dataIndex === 'total'">
                             <a-typography-link @click="viewItem(record)"  style="color: black;">
                                 {{ record.total_amount }}
                             </a-typography-link>
                         </template>
-                        
+
                         <template v-if="column.dataIndex === 'action'">
                             <a-button
                                 @click="editReturn(record.dr_number)"
@@ -90,7 +90,7 @@
         </a-col>
     </a-row>
 
-    
+
 </template>
 
 <script>
@@ -684,7 +684,7 @@ let selectedRowKeysValue = [];
             addEditVisible.value = false;
             editItemAmount.value = 0;
         };
-       
+
 
         const totals = computed(() => {
             let totalAmount = 0;
@@ -773,7 +773,7 @@ let selectedRowKeysValue = [];
     },
 
     mounted() {
-      
+
         document.addEventListener('keyup', this.handleKeyDown);
         setTimeout(function () { this.selectedRowKeysValue = [] }, 2000);
     },
@@ -782,7 +782,7 @@ let selectedRowKeysValue = [];
     },
 
     methods: {
-        
+
         customRow(record) {
             return {
 
@@ -832,29 +832,29 @@ let selectedRowKeysValue = [];
                     if(selectedRowKeysValue!=undefined && selectedRowKeysValue.length>0)
                     {
                         this.$emit('child-select',this.selectedInvoice);
-                    } 
+                    }
                     else
                     {
 
                         this.focus = 0;
                         this.updateSelection();
                         var that = this;
-                        setTimeout(function(){that.$emit('child-select',this.selectedInvoice);},1500)
-                    }   
-                }   
-                    break;    
+                        setTimeout(function(){that.$emit('child-select',that.selectedInvoice);},1500)
+                    }
+                }
+                    break;
             }
         },
 
-         updateSelection(event) { 
+         updateSelection(event) {
             const currentRadioInput = document.getElementsByClassName('ant-radio-input')[this.focus];
             currentRadioInput.click();
             const currentRow = currentRadioInput.closest('tr');
             const selectedRowKey = currentRow.getAttribute('data-row-key');
-            console.log('Selected Row Key:', selectedRowKey); 
+            console.log('Selected Row Key:', selectedRowKey);
             selectedRowKeysValue=[selectedRowKey]
             this.selectedInvoice = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
-           
+
             //this.$emit('child-select');*/
             //console.log(this.table.data);
         },

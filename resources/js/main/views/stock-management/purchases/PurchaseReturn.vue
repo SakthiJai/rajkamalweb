@@ -1521,7 +1521,7 @@ export default {
         window.addEventListener("keydown", handleKeydown);
         },
         focusSearchInput() {
-            this.$refs.searchInput.focus(); 
+            this.$refs.searchInput.focus();
         },
 
         showCustomerModal() {
