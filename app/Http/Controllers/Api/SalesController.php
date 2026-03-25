@@ -163,10 +163,14 @@ class SalesController extends ApiBaseController
 							'subtotal'           => $amount
 						]);
 
-						// Reduce stock in ProductDetails
+						// Reduce stock in ProductDetails for sales, increase for returns
 						$productDetailsList = \App\Models\ProductDetails::where('product_id', $item['item_id'])->get();
 						foreach ($productDetailsList as $productDetails) {
-							$productDetails->current_stock = max(0, $productDetails->current_stock - $quantity);
+							if ($type === 'sales') {
+								$productDetails->current_stock = max(0, $productDetails->current_stock - $quantity);
+							} else {
+								$productDetails->current_stock += $quantity;
+							}
 							$productDetails->save();
 						}
 						// Always recalculate products.current_stock as sum of all product_details.current_stock

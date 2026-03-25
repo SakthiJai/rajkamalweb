@@ -196,7 +196,7 @@
                                                 <input  autocomplete="off"
                                                 :id="`item_product_quantity_${index}`"
                                                 v-model="formData.items[index].quantity"  @keyup="gotoNext(index,$event)"
-                                                @input="getQuantity(index,$event)" @focus="getQuantity(index,$event),updateFree(),focusinputvalue($event)"
+                                                @input="getQuantity(index,$event)" @focus="updateFree(),focusinputvalue($event)"
                                                 name="quantity[]" @blur="updateAgg(),checkMaxQuantity(index,$event)" style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4"
 
                                                 @keypress="onlyForCurrency"
@@ -207,7 +207,7 @@
                                                 <input  autocomplete="off"
                                                 :id="`item_product_free_${index}`"
                                                 v-model="formData.items[index].free"  @keyup="gotoNext(index,$event)"
-                                                @input="getQuantity(index,$event)" @focus="getQuantity(index,$event),updateFree(),focusinputvalue($event)"
+                                                @input="getQuantity(index,$event)" @focus="updateFree(),focusinputvalue($event)"
                                                 name="free[]" @blur="updateFree(),checkMaxQuantity(index,$event)" style="color:black;font-weight:bolder;text-align-last:right;"class="ant-input css-dev-only-do-not-override-wosfq4"
 
                                                 @keypress="onlyForCurrency"
@@ -443,10 +443,10 @@
                 <a-row :gutter="16" class="mt-20 mb-20">
                     <a-col :xs="24" :sm="24" :md="9" :lg="9"></a-col>
                     <a-col :xs="24" :sm="24" :md="4" :lg="4">
-                            <a-button type="button" id="saveF10" class="backgrounds" :loading="loading" @click="saveSalesReturnEntry($event)" block>
-                                <span class="shortcut" id="shortcut">
-                                    <code>F10 / End</code>
-                                  </span>
+                                                        <a-button type="button" id="saveF8" class="backgrounds" :loading="loading" @click="saveSalesReturnEntry($event)" block>
+                                                                <span class="shortcut" id="shortcut">
+                                                                        <code>F8 / End</code>
+                                                                    </span>
                                 <span class="savebutton">{{ $t("common.save") }}  <SaveOutlined />
                                 </span>
                               </a-button>
@@ -565,7 +565,7 @@
         </a-form>
         <template #footer>
             <a-button key="submit" type="primary" :loading="addEditFormSubmitting" @click="onAddEditSubmit">
-                <span  class="shortcut ng-star-inserted"><code>F10</code></span>
+                <span  class="shortcut ng-star-inserted"><code>F8</code></span>
                 <template #icon>
                     <SaveOutlined />
                 </template>
@@ -1076,7 +1076,10 @@ export default {
 
         this.deleteConfirmationPopup = false; // Hide the delete confirmation popup
         var that = this;
-        setTimeout(function(){ that.getQuantity(0,null);},1000)
+        setTimeout(function(){
+            console.log("[DEBUG] setTimeout (deleteItem) calling getQuantity(0,null)");
+            that.getQuantity(0,null);
+        },1000)
 
 
     }
@@ -1101,6 +1104,11 @@ export default {
             if (event.key === "Escape") {
                 event.preventDefault();
                 this.showconfirmReturn();
+            }
+            // Save on F8
+            if (event.key === "F8" || event.keyCode === 119) {
+                event.preventDefault();
+                this.saveSalesReturnEntry();
             }
         },
 
@@ -1309,7 +1317,7 @@ export default {
     //      this.isModalVisible = false;
     //      this.autoFocusInput();
     //   }
-    //   else if (event.key === 'F10') {
+    //   else if (event.key === 'F8') {
     //     this.saveSalesReturnEntry();
     //   }
     //   else if ((event.keyCode === 13 || event.keyCode === 9) && this.formData.party_id>0) {
@@ -1614,8 +1622,8 @@ export default {
                         this.formData.items[index].unit_id                  = "";
                         this.formData.items[index].quantity                 = this.formatNumber(data.quantity);
                         document.getElementById('item_product_quantity_'+index).value=data.quantity;
-                        this.formData.items[index].free                 = "0.00";
-                        document.getElementById('item_product_free_'+index).value=data.free;
+                        this.formData.items[index].free = (typeof data.free === 'undefined' || data.free === null) ? 0.00 : data.free;
+                        document.getElementById('item_product_free_' + index).value = (typeof data.free === 'undefined' || data.free === null) ? 0.00 : data.free;
                         this.formData.items[index].mrp                      = this.formatNumber(data.mrp);
                         this.formData.items[index].single_unit_price        = this.formatNumber(data.single_unit_price);
                         console.log("this.formatNumber(data.single_unit_price)",this.formatNumber(data.single_unit_price));
@@ -1650,28 +1658,24 @@ export default {
 
                     })
 
-                    total_disc = total_disc>0?(total_disc/100)*grand_total:0;
-                    let temp = this;
-                    setTimeout(function()
-                    {
-                        const totalGstAmount = (totalcgst>0?((totalcgst)/100)*sub_total_amount:0) + (totalsgst>0?((totalsgst)/100)*sub_total_amount:0)
-                        console.log("totalgstamount" , totalGstAmount)
-                        document.getElementById('total_goods_value').value          =    temp.formatCurrency(grand_total);
-                        document.getElementById('grand_total').innerHTML            =   temp.formatCurrency((grand_total)+(totalGstAmount));
-                        temp.formData.total                 =   grand_total;
-                        temp.formData.tax_amount            =   totalGstAmount;
-                        temp.formData.total_discount        =   total_disc;
-                        temp.formData.total_items           =   finalIndex+1;
 
-                        document.getElementById('total_discount_text').innerHTML    =   temp.formatCurrency(total_disc);
-                        document.getElementById('cgst_total_text').innerHTML        =    temp.formatCurrency(totalcgst>0?((totalcgst/2)/100)*grand_total:0)
-                        document.getElementById('sgst_total_text').innerHTML        =    temp.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0)
+                    total_disc = total_disc > 0 ? (total_disc / 100) * grand_total : 0;
+                    const totalGstAmount = (totalcgst > 0 ? ((totalcgst) / 100) * sub_total_amount : 0) + (totalsgst > 0 ? ((totalsgst) / 100) * sub_total_amount : 0);
+                    console.log("totalgstamount", totalGstAmount);
+                    document.getElementById('total_goods_value').value = this.formatCurrency(grand_total);
+                    document.getElementById('grand_total').innerHTML = this.formatCurrency((grand_total) + (totalGstAmount));
+                    this.formData.total = grand_total;
+                    this.formData.tax_amount = totalGstAmount;
+                    this.formData.total_discount = total_disc;
+                    this.formData.total_items = finalIndex + 1;
 
-                        document.getElementById('igst_amount_0').value              =   temp.formatCurrency(totalcgst>0?((totalcgst)/100)*grand_total:0);
-                        document.getElementById('igst_amount_1').value              =   temp.formatCurrency(totalsgst>0?((totalsgst)/100)*grand_total:0);
-                        temp.spinning= false;
+                    document.getElementById('total_discount_text').innerHTML = this.formatCurrency(total_disc);
+                    document.getElementById('cgst_total_text').innerHTML = this.formatCurrency(totalcgst > 0 ? ((totalcgst / 2) / 100) * grand_total : 0);
+                    document.getElementById('sgst_total_text').innerHTML = this.formatCurrency(totalsgst > 0 ? ((totalsgst / 2) / 100) * grand_total : 0);
 
-                    },2000);
+                    document.getElementById('igst_amount_0').value = this.formatCurrency(totalcgst > 0 ? ((totalcgst) / 100) * grand_total : 0);
+                    document.getElementById('igst_amount_1').value = this.formatCurrency(totalsgst > 0 ? ((totalsgst) / 100) * grand_total : 0);
+                    this.spinning = false;
 
                     console.log("<>",this.formatCurrency((grand_total-total_disc)+(totalsgst>0?((totalsgst/2)/100)*grand_total:0)));
 
@@ -1733,7 +1737,7 @@ export default {
             this.selectedItermIndex = index;
             console.log('=>', index,event.key,event.keyCode ,this.formData.items[index].item_id)
 
-            if(event.keyCode==121)
+            if(event.keyCode==119)
                 {
                     this.saveSalesReturnEntry();
                 }
@@ -1802,7 +1806,7 @@ export default {
 
 
                 }
-                else if(this.formData.party_name!="" && index==0 && event.key!="F10")
+                else if(this.formData.party_name!="" && index==0 && event.key!="F8")
                 {
 
                     this.selectedItermIndex =  index;
@@ -1830,7 +1834,7 @@ export default {
 
 
                 }
-                else if(this.formData.party_name!="" && index>0 && (event.keyCode !== 9 && event.keyCode!=121 && event.key!="F10")  )
+                else if(this.formData.party_name!="" && index>0 && (event.keyCode !== 9 && event.keyCode!=119 && event.key!="F8")  )
                 { ////console.log("POP Pay 2");
                     this.selectedItermIndex =  index;
                     this.isProuctsModalVisible = true;
@@ -1840,7 +1844,7 @@ export default {
                     return false;
 
                 }
-                else if(this.formData.party_name!="" && index>0 && (event.keyCode !== 9 && event.keyCode!=121) )
+                else if(this.formData.party_name!="" && index>0 && (event.keyCode !== 9 && event.keyCode!=119) )
                 {
 
                     if(this.formData.party_customer_mobile==undefined || this.formData.party_customer_mobile=="" || this.formData.party_customer_mobile.trim()==""){
@@ -1853,9 +1857,9 @@ export default {
                     this.saveSalesReturnEntry();
                     }
                 }
-                else if(this.formData.party_name!="" && index>0 &&  event.keyCode==121 )
+                else if(this.formData.party_name!="" && index>0 &&  event.keyCode==119 )
                 {
-                    console.log("F10 focus");
+                    console.log("F8 focus");
                     this.saveSalesReturnEntry();
 
                 }
@@ -1906,9 +1910,9 @@ export default {
                     console.log("Close 2w",this.selectedItermIndex,prodName);
                     const cindex =this.selectedItermIndex;
                     setTimeout(function(){
+                        console.log("[DEBUG] setTimeout (handleClose) focusing item_product_quantity_"+cindex);
                         document.getElementById("item_product_quantity_"+cindex).focus();
                     },500)
-
                 }
                 this.updateTotalProd();
             }
@@ -1958,15 +1962,14 @@ export default {
             if(cf==0)
             {
                 setTimeout(function(){
-
+                    console.log("[DEBUG] setTimeout (focusProductList) focusing shortcut");
                     document.getElementById("shortcut").focus();
-
                 },500)
-
             }
             else
             {
                 setTimeout(function(){
+                    console.log("[DEBUG] setTimeout (focusProductList) focusing item_product_name_"+cf);
                     document.getElementById("item_product_name_"+cf).focus();
                 },500)
             }
@@ -2045,7 +2048,14 @@ export default {
             }
             this.formData.items[index].cgst = cgst;
             this.formData.items[index].sgst = sgst;
-            console.log("cgst", cgst , "sgst", sgst);
+            console.log("[DEBUG getQuantity] index:", index, {
+                quantity,
+                freeQty,
+                price,
+                discount,
+                cgst,
+                sgst
+            });
 
             // Calculation
             let effectiveQty = quantity - freeQty;
@@ -2088,6 +2098,8 @@ export default {
             if (isNaN(totalDiscount) || totalDiscount === undefined || totalDiscount === null) totalDiscount = 0;
             if (isNaN(invoiceValue) || invoiceValue === undefined || invoiceValue === null) invoiceValue = 0;
 
+            console.log("[DEBUG getQuantity] totalAmount:", this.totalAmount, "totalSgstAmount:", totalSgstAmount, "totalCgstAmount:", totalCgstAmount, "invoiceValue:", invoiceValue, "totalDiscount:", totalDiscount);
+
             const grandTotalElem = document.getElementById('grand_total');
             if (grandTotalElem) grandTotalElem.innerHTML = this.formatCurrency(invoiceValue);
             const totalDiscountElem = document.getElementById('total_discount_text');
@@ -2098,8 +2110,6 @@ export default {
             this.formData.total = this.totalAmount;
             this.formData.tax_amount = (isNaN(totalSgstAmount) ? 0 : totalSgstAmount) + (isNaN(totalCgstAmount) ? 0 : totalCgstAmount);
             this.formData.total_discount = totalDiscount;
-
-
         },
         getDiscount(index,event)
         {
@@ -2435,11 +2445,11 @@ export default {
             {
                 console.log("Enter key pressed")
                 document.getElementById('item_product_quantity_'+index).focus();
+                this.getQuantity(index, event);
                 event.preventDefault();
                 return false;
-
             }
-            if(event.keyCode==121 && Number(this.formData.items[index].quantity)>0)
+            if(event.keyCode==119 && Number(this.formData.items[index].quantity)>0)
             {
                 this.saveSalesReturnEntry();
             }

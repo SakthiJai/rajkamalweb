@@ -113,4 +113,36 @@ class SalesReturnsController extends ApiBaseController
 		// Fetch company info from DB
 
 	}
+	/**
+	 * Store a newly created sales return in storage and update product stock.
+	 */
+	public function store(Request $request)
+	{
+		// Call parent logic or your existing logic to save the sales return first
+		$salesReturn = SalesReturn::create($request->all());
+
+		// If items are present in the request, update stock for each
+		if ($request->has('items') && is_array($request->items)) {
+			foreach ($request->items as $item) {
+				$productId = isset($item['product_id']) ? $item['product_id'] : (isset($item['item_id']) ? $item['item_id'] : null);
+				$returnQty = isset($item['return_qty']) ? $item['return_qty'] : 0;
+				if ($productId && $returnQty > 0) {
+					// Update ProductDetails stock
+					$productDetailsList = \App\Models\ProductDetails::where('product_id', $productId)->get();
+					foreach ($productDetailsList as $productDetails) {
+						$productDetails->current_stock += $returnQty;
+						$productDetails->save();
+					}
+					// Update main products table stock as sum of all product_details
+					$totalCurrentStock = \App\Models\ProductDetails::where('product_id', $productId)->sum('current_stock');
+					$product = \App\Models\Product::find($productId);
+					if ($product) {
+						$product->current_stock = $totalCurrentStock;
+						$product->save();
+					}
+				}
+			}
+		}
+		return response()->json(['success' => true, 'sales_return' => $salesReturn]);
+	}
 }
