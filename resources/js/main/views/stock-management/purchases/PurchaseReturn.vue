@@ -1236,6 +1236,7 @@ export default {
 
         handleClosePurchasePrint(){
             this.isPurchaseReturnModalVisible = false;
+            this.$router.push({ name: "admin.stock.purchases.Returnindex" });
         },
 
     handleEnterKey(event) {

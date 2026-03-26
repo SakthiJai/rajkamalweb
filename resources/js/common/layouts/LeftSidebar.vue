@@ -694,7 +694,7 @@
                         <span>{{ $t("menu.stock_adjustment") }}</span>
                     </a-menu-item>
                         </a-sub-menu>
-                   
+
 
                     <a-menu-item
                         v-if="

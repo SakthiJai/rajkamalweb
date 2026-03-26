@@ -224,7 +224,7 @@ export default {
         });
       }
         },
-      
+
 
         handleEnterKey() {
             console.log("dropfownwww");
@@ -238,9 +238,9 @@ export default {
             var that= this;
             setTimeout(() => {
                 document.getElementById("today").focus({focusVisible: true});
-    
+
             }, 500);
-    
+
             },
         DeleteRow(that,event)
         {

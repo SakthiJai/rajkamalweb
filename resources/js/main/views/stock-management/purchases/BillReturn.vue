@@ -1235,7 +1235,7 @@ deleteItem()
                 console.log("partyyyyy=>",this.formData);
 
                 this.formData.party_name                =   response.data.invoiceData.party_name,
-                
+
                 // Fetch party state separately since it's not in invoiceData
                 axiosAdmin.get("store-ledger/" + this.formData.party_id).then(partyResponse => {
                     console.log("Party response:", partyResponse);
@@ -1266,11 +1266,11 @@ deleteItem()
                         document.getElementById("SGST").style.display = "none";
                     }
                 });
-                
+
                 // this.formData.party_customer_id         =   response.data.customerData.id || 0,
-               
+
                 // this.formData.customer_name             =   response.data.customerData.cus_name || 0,
-              
+
                 // this.formData.party_shippingaddress_id  =   response.data.shipppingaddressData.id || 0,
 
                 // this.formData.shipping_address          =   response.data.shipppingaddressData.shipping_address || 0,
@@ -1340,9 +1340,9 @@ console.log("invoice itemscc=>",this.formData.party_state);
                         document.getElementById(`item_product_disc_value_${index}`).value = this.formatNumber(totalDiscountByItem);
 
                         const afterDisc = Number(this.formData.items[index].withoutDisc.replace(/,/g,'')) - Number(totalDiscountByItem);
-                       
+
                         //item_product_withDisc_0
-                     
+
                         document.getElementById("item_product_withDisc_" + index).innerHTML = afterDisc;
 
 
@@ -1407,11 +1407,11 @@ console.log("invoice itemscc=>",this.formData.party_state);
 //                 console.log("partyyyyy=>",this.formData);
 
 //                 this.formData.party_name                =   response.data.invoiceData.party_name,
-                
+
 //                 this.formData.party_customer_id         =   response.data.customerData.id || 0,
-               
+
 //                 this.formData.customer_name             =   response.data.customerData.cus_name || 0,
-              
+
 //                 this.formData.party_shippingaddress_id  =   response.data.shipppingaddressData.id || 0,
 
 //                 this.formData.shipping_address          =   response.data.shipppingaddressData.shipping_address || 0,
@@ -1995,7 +1995,7 @@ hasValidInput(target) {
             this.formData.party_name = selectedParty.name;
             this.formData.party_state = selectedParty.state;
 
-           console.log( "rrrrrrrr=>",this.formData.party_state);    
+           console.log( "rrrrrrrr=>",this.formData.party_state);
             console.log("eeeeeee=>",this.company.state);
             if (this.formData.party_state == this.company.state) {
                 document.getElementById("IGST").style.display = "none";
@@ -2744,22 +2744,24 @@ hasValidInput(target) {
 
         success(response)
         {
-            let invoiceNumber = this.formData.bill_number;
-            this.formData.selectedInvoice = invoiceNumber;
-            localStorage.setItem("selectedInvoice", invoiceNumber);
+            this.formData.selectedInvoice = this.formData.bill_number;
             this.loading= false;
             notification.success({
                         placement:  "bottomRight",
                         message: "Purchase bill saved successfully !    ",
                         description: response.message
                     });
-            // Print PDF after successful save
+            this.selectedInvoice = "null";
+            this.formData.selectedInvoice = "null";
+            localStorage.setItem("selectedInvoice", null);
+            const billIndexRoute = { name: "admin.stock.purchases.Billindex" };
+            this.$router.replace(billIndexRoute);
             setTimeout(() => {
-                this.printpdf(invoiceNumber);
-            }, 500);
-            this.resetFormData();
-            // Route to the purchases bill index page
-            this.$router.push({ name: `admin.stock.purchases.Billindex` });
+                if (this.$route.name !== "admin.stock.purchases.Billindex") {
+                    const resolvedRoute = this.$router.resolve(billIndexRoute);
+                    window.location.assign(resolvedRoute.href);
+                }
+            }, 100);
         },
         successDraft(response)
         {
@@ -2837,7 +2839,6 @@ hasValidInput(target) {
                         return false;
                     }
                     this.success(response);
-                    this.isModalVisible = true;
                 })
                 .catch(errorResponse => {
                     this.spinning = false;
@@ -2977,7 +2978,7 @@ hasValidInput(target) {
                 total_disc = total_disc + (discValue >= 0 ? discValue : 0);
                 console.log("total_disc=>",total_with_disc_details);
             })
-            
+
            // document.getElementById("total_prod_count").value="Total : "+count+" Product";
             document.getElementById("total_quantity_details").value = quantity.toFixed(0);
             document.getElementById("total_free_quantity_details").value = freequantity.toFixed(0);
