@@ -3,7 +3,7 @@
         <template #header>
             <a-page-header :title="$t(`menu.stock_alert`)" class="p-0">
                 <template #extra>
-                    <ExprotTable
+                    <ExportTable
                         exportType="stock_alert_reports"
                         tableName="stock-alert-reports-table"
                         :title="`${$t('menu.stock_alert')} ${$t(
@@ -128,13 +128,13 @@ import common from "../../../../common/composable/common";
 import datatable from "../../../../common/composable/datatable";
 import fields from "./fields";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
-import ExprotTable from "../../../components/report-exports/ExportTable.vue";
+import ExportTable from "../../../components/report-exports/ExportTable.vue";
 
 export default {
     components: {
         ProductSearchInput,
         AdminPageHeader,
-        ExprotTable,
+        ExportTable,
     },
     setup() {
         const {
@@ -188,9 +188,7 @@ export default {
         const totals = computed(() => {
             let totalCurrentStock = 0;
             datatableVariables.table.data.forEach((tableRowData) => {
-                {
-                    totalCurrentStock += tableRowData.details.current_stock;
-                }
+                totalCurrentStock += tableRowData.details?.current_stock ?? 0;
             });
             return {
                 totalCurrentStock,

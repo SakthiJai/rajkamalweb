@@ -116,14 +116,15 @@ class SalesReturnsController extends ApiBaseController
 	/**
 	 * Store a newly created sales return in storage and update product stock.
 	 */
-	public function store(Request $request)
+	public function store()
 	{
 		// Call parent logic or your existing logic to save the sales return first
-		$salesReturn = SalesReturn::create($request->all());
+		$salesReturn = SalesReturn::create(request()->all());
 
 		// If items are present in the request, update stock for each
-		if ($request->has('items') && is_array($request->items)) {
-			foreach ($request->items as $item) {
+		$items = request()->input('items', []);
+		if (is_array($items)) {
+			foreach ($items as $item) {
 				$productId = isset($item['product_id']) ? $item['product_id'] : (isset($item['item_id']) ? $item['item_id'] : null);
 				$returnQty = isset($item['return_qty']) ? $item['return_qty'] : 0;
 				if ($productId && $returnQty > 0) {

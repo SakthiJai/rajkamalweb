@@ -67,6 +67,11 @@ export default defineComponent({
 							} else {
 								productStatus.value = "success";
 							}
+						})
+						.catch((error) => {
+							productStatus.value = "error";
+							// Optionally, log or show a notification
+							console.error("Product check failed:", error);
 						});
 				});
 			}

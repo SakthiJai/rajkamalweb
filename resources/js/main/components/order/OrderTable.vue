@@ -484,7 +484,10 @@ export default {
       });
       //datatableVariables.fetch();
       setTimeout(function () {
-        document.getElementById("searchInput").focus();
+        var searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+          searchInput.focus();
+        }
       }, 1000);
     };
 
