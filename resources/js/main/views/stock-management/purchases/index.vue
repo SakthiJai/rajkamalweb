@@ -235,16 +235,16 @@ export default {
             setTimeout(function(){document.getElementById('searchInput').focus();},600)
            // this.fetchUsers(this.selectedRange);
         },
-        createNewSalesEntry()
-        {
-           console.log(this.orderPageObject.type);
-            localStorage.setItem("selectedInvoice", null);
-                 // Perform route navigation
-        this.$router.push({
-          name: `admin.stock.${this.orderPageObject.type}.create`,
-          params: { username: 'eduardo' }
-        });
-        },
+                createNewSalesEntry()
+                {
+                     console.log(this.orderPageObject.type);
+                        localStorage.setItem("selectedInvoice", null);
+                        // Pass 'from' param as query for reliability
+                        this.$router.push({
+                            name: `admin.stock.${this.orderPageObject.type}.create`,
+                            query: { from: 'purchases' }
+                        });
+                },
 
 
         handleKeydown(event) {

@@ -53,14 +53,15 @@
             </template>
 
             <template v-if="column.dataIndex === 'action'">
-              <a-button
-                @click="editReturn(record.invoice_number)"
-                style="margin-left: 4px"
+              <router-link
+                :to="{ name: 'admin.stock.stock-transfers.create' }"
               >
-                <template #icon>
-                  <EditOutlined />
-                </template>
-              </a-button>
+                <a-button style="margin-left: 4px">
+                  <template #icon>
+                    <EditOutlined />
+                  </template>
+                </a-button>
+              </router-link>
               <a-button
                 v-if="
                   permsArray.includes('expense_categories_delete') ||
@@ -149,12 +150,7 @@
                 <a-typography-text strong> </a-typography-text>
               </a-table-summary-cell>
 
-              <a-table-summary-cell :col-span="1">
-                <a-typography-text strong>
-                  {{ $t("common.total") }}:
-                  <span style="float: right"> ₹{{ totals.totalAmount.toFixed(2) }} </span>
-                </a-typography-text>
-              </a-table-summary-cell>
+              
               <a-table-summary-cell :col-span="1">
                 <a-typography-text strong>
                   <a-typography-text strong>
@@ -164,6 +160,12 @@
                       </a-typography-text>
                     </a-tooltip>
                   </a-typography-text>
+                </a-typography-text>
+              </a-table-summary-cell>
+              <a-table-summary-cell :col-span="2">
+                <a-typography-text strong >
+                  {{ $t("common.total") }}:
+                  <span style="float: right"> ₹{{ totals.totalAmount.toFixed(2) }} </span>
                 </a-typography-text>
               </a-table-summary-cell>
             </a-table-summary-row>
