@@ -293,18 +293,21 @@
                                     v-if="
                                         productType == 'single' &&
                                         record &&
-                                        record.details
+                                        record.details &&
+                                        typeof record.details.current_stock !== 'undefined' &&
+                                        record.unit &&
+                                        typeof record.unit.short_name !== 'undefined'
                                     "
                                 >
                                     {{
-                                        `${record.details.current_stock} ${record.unit.short_name}`
+                                        `${record.details && typeof record.details.current_stock !== 'undefined' && record.details.current_stock !== null ? record.details.current_stock : '-'} ${record.unit && typeof record.unit.short_name !== 'undefined' ? record.unit.short_name : ''}`
                                     }}
                                 </a-typography-link>
                                 <a-typography-link
                                     type="primary"
                                     @click="openProductDetails(record)"
                                     style="margin-left: 4px"
-                                    v-else-if="productType == 'variable'"
+                                    v-else-if="productType == 'variable' && record && record.variations && Array.isArray(record.variations)"
                                 >
                                     {{ getVariableProductStockSum(record) }}
                                 </a-typography-link>
@@ -387,11 +390,13 @@
                                         v-if="
                                             column.dataIndex === 'current_stock' &&
                                             record &&
-                                            record.details
+                                            record.details &&
+                                            typeof record.details.current_stock !== 'undefined' &&
+                                            productData && productData.record && productData.record.unit && typeof productData.record.unit.short_name !== 'undefined'
                                         "
                                     >
                                         {{
-                                            `${record.details.current_stock} ${productData.record.unit.short_name}`
+                                            `${record.details && typeof record.details.current_stock !== 'undefined' && record.details.current_stock !== null ? record.details.current_stock : '-'} ${productData.record.unit && typeof productData.record.unit.short_name !== 'undefined' ? productData.record.unit.short_name : ''}`
                                         }}
                                     </template>
                                     <template v-if="column.dataIndex === 'action'">
@@ -651,20 +656,39 @@ export default {
             );
         };
 
-        const getVariableProductSalePrice = (record) => {
-            var priceString = "";
-            const minRecord = minBy(record.variations, (o) => {
-                return o.details.sales_price;
-            });
-            const maxRecord = maxBy(record.variations, (o) => {
-                return o.details.sales_price;
-            });
+        const getValidVariations = (record) => {
+            if (!record || !Array.isArray(record.variations)) {
+                return [];
+            }
 
-            if (minRecord && minRecord.details.sales_price) {
+            return record.variations.filter((variation) => variation && variation.details);
+        };
+
+        const getVariableProductSalePrice = (record) => {
+            let priceString = "";
+            const variations = getValidVariations(record);
+            const minRecord = minBy(variations, (o) => o.details?.sales_price ?? Infinity);
+            const maxRecord = maxBy(
+                variations,
+                (o) => o.details?.sales_price ?? -Infinity
+            );
+
+            if (
+                minRecord &&
+                minRecord.details &&
+                minRecord.details.sales_price !== null &&
+                typeof minRecord.details.sales_price !== "undefined"
+            ) {
                 priceString += formatAmountCurrency(minRecord.details.sales_price);
             }
 
-            if (maxRecord && maxRecord.details.sales_price) {
+            if (
+                maxRecord &&
+                maxRecord.details &&
+                maxRecord.details.sales_price !== null &&
+                typeof maxRecord.details.sales_price !== "undefined" &&
+                maxRecord !== minRecord
+            ) {
                 priceString +=
                     " - " + formatAmountCurrency(maxRecord.details.sales_price);
             }
@@ -673,19 +697,35 @@ export default {
         };
 
         const getVariableProductPurchasePrice = (record) => {
-            var priceString = "";
-            const minRecord = minBy(record.variations, (o) => {
-                return o.details.purchase_price;
-            });
-            const maxRecord = maxBy(record.variations, (o) => {
-                return o.details.purchase_price;
-            });
+            let priceString = "";
+            const variations = getValidVariations(record);
+            const minRecord = minBy(
+                variations,
+                (o) => o.details?.purchase_price ?? Infinity
+            );
+            const maxRecord = maxBy(
+                variations,
+                (o) => o.details?.purchase_price ?? -Infinity
+            );
 
-            if (minRecord && minRecord.details.sales_price) {
-                priceString += formatAmountCurrency(minRecord.details.purchase_price);
+            if (
+                minRecord &&
+                minRecord.details &&
+                minRecord.details.purchase_price !== null &&
+                typeof minRecord.details.purchase_price !== "undefined"
+            ) {
+                priceString += formatAmountCurrency(
+                    minRecord.details.purchase_price
+                );
             }
 
-            if (maxRecord && maxRecord.details.sales_price) {
+            if (
+                maxRecord &&
+                maxRecord.details &&
+                maxRecord.details.purchase_price !== null &&
+                typeof maxRecord.details.purchase_price !== "undefined" &&
+                maxRecord !== minRecord
+            ) {
                 priceString +=
                     " - " + formatAmountCurrency(maxRecord.details.purchase_price);
             }
@@ -694,8 +734,11 @@ export default {
         };
 
         const getVariableProductStockSum = (record) => {
-            return sumBy(record.variations, (o) => {
-                return o.details.current_stock;
+            return sumBy(getValidVariations(record), (o) => {
+                return typeof o.details.current_stock !== "undefined" &&
+                    o.details.current_stock !== null
+                    ? o.details.current_stock
+                    : 0;
             });
         };
 
@@ -705,13 +748,25 @@ export default {
 
         const totals = computed(() => {
             let totalCurrentStock = 0;
-            crudVariables.table.data.forEach((tableRowData) => {
-                if (productType.value == "variable" && tableRowData.variations) {
+            const tableData = Array.isArray(crudVariables.table.data)
+                ? crudVariables.table.data
+                : [];
+
+            tableData.forEach((tableRowData) => {
+                if (!tableRowData) {
+                    return;
+                }
+
+                if (
+                    productType.value == "variable" &&
+                    Array.isArray(tableRowData.variations)
+                ) {
                     totalCurrentStock += getVariableProductStockSum(tableRowData);
                 } else if (
                     productType.value == "single" &&
                     tableRowData.details &&
-                    tableRowData.details.current_stock
+                    typeof tableRowData.details.current_stock !== 'undefined' &&
+                    tableRowData.details.current_stock !== null
                 ) {
                     totalCurrentStock += tableRowData.details.current_stock;
                 }

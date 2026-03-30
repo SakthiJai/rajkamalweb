@@ -10,7 +10,7 @@
           :loading="table.loading"
           @change="handleTableChange"
           :rowSelection="{
-            selectedRowKeys: selectedRowKeysValue,
+           selectedRowKeys: selectedRowKeysValue,
             onChange: onSelectChange,
             hideDefaultSelections: true,
             selections: true,
@@ -53,15 +53,11 @@
             </template>
 
             <template v-if="column.dataIndex === 'action'">
-              <router-link
-                :to="{ name: 'admin.stock.stock-transfers.create' }"
-              >
-                <a-button style="margin-left: 4px">
-                  <template #icon>
-                    <EditOutlined />
-                  </template>
-                </a-button>
-              </router-link>
+             <a-button @click="editRow(record)">
+  <template #icon>
+    <EditOutlined />
+  </template>
+</a-button>
               <a-button
                 v-if="
                   permsArray.includes('expense_categories_delete') ||
@@ -223,7 +219,7 @@
 </template>
 
 <script>
-import { onMounted, watch, ref, createVNode, computed } from "vue";
+import { onMounted, watch, ref, createVNode, computed,defineExpose } from "vue";
 import {
   EyeOutlined,
   PlusOutlined,
@@ -263,6 +259,7 @@ import Payments from "../../views/stock-management/purchases/payments.vue";
 import View from "../../views/users/View.vue";
 import crud from "../../../common/composable/crud";
 
+
 export default {
   props: {
     selectable: {
@@ -285,7 +282,7 @@ export default {
     },
     perPageItems: Number,
   },
-  emits: ["onRowSelection"],
+  emits: ["onRowSelection", "child-select", "row-select", "mouse-select"],
   components: {
     EyeOutlined,
     PlusOutlined,
@@ -316,6 +313,10 @@ export default {
     View,
   },
   setup(props, { emit }) {
+        // Edit row handler for action button
+        const editRow = (record) => {
+          emit("onEditRow", record);
+        };
     const store = useStore();
     const {
       columns,
@@ -392,13 +393,19 @@ export default {
       datatableVariables.table.data.forEach((data) => {
         if (data.id == changableRowKeys[0]) {
           emit("mouse-select", data.invoice_number);
+          // Store selected invoice in localStorage
+          if (data.xid) {
+            localStorage.setItem("selectedInvoice", data.invoice_number);
+          } else if (data.id) {
+            localStorage.setItem("selectedInvoice", data.invoice_number);
+          }
         }
       });
       // this.$emit("row-select", this.selectedInvoice);
-      selectedRowKeysValue = [changableRowKeys];
+      selectedRowKeysValue.value = changableRowKeys;
     };
 
-    let selectedRowKeysValue = [];
+    const selectedRowKeysValue = ref([]);
 
     const getCheckboxProps = (record) => {
       var isDeleteable = true;
@@ -800,7 +807,11 @@ export default {
         totalAmount,
       };
     });
-
+defineExpose({
+  selectedRowKeysValue,
+  table: datatableVariables.table,
+  editRow
+});
     return {
       newcolumns,
       columns,
@@ -869,6 +880,7 @@ export default {
       salesType,
       printInvoicePDF,
       onSelectChange,
+      editRow,
     };
   },
   data() {
@@ -905,6 +917,9 @@ export default {
         },
       };
     },
+editRow(record) {
+  this.$emit("onEditRow", record); // ✅ send full record to parent
+},
 
     /// sorter//
 
@@ -968,35 +983,29 @@ export default {
           this.autoFocusInput();
           this.showPopupModal();
           break;
-        case 13:
-          console.log(
-            "event from order list",
-            event.keyCode,
-            event.searchString,
-            this.table.data.length
-          );
+      case 13: // Enter
+    if (this.table.data.length > 0) {
 
-          if (event.searchString != null && event.searchString !== "") {
-            console.log("<dd>", this.selectedInvoice);
-            console.log("testing");
-            this.searchBy = event.selectedRange;
-            this.setUrlData();
-          } else if (this.table.data.length > 0) {
-            console.log("<>", this.selectedInvoice);
+        let selectedData = null;
 
-            if (selectedRowKeysValue != undefined && selectedRowKeysValue.length > 0) {
-              this.$emit("child-select", this.selectedInvoice);
-            } else {
-              this.focus = 0;
-              this.updateSelection();
+        if (this.selectedRowKeysValue.length > 0) {
+            const selectedKey = this.selectedRowKeysValue[0];
 
-              // Use an arrow function to preserve the 'this' context
-              setTimeout(() => {
-                this.$emit("child-select", this.selectedInvoice);
-              }, 1500);
-            }
-          }
-          break;
+            selectedData = this.table.data.find(
+                item => item.id == selectedKey
+            );
+        } else if (this.focus !== null) {
+            selectedData = this.table.data[this.focus];
+        }
+
+        if (selectedData) {
+            this.selectedInvoice = selectedData.invoice_number;
+
+            // 🔥 THIS IS KEY
+            this.$emit("child-select", selectedData.invoice_number);
+        }
+    }
+    break;
         default:
           var that = this;
           if (this.salesList.length == 0) {
@@ -1034,25 +1043,30 @@ export default {
         row.classList.remove("ant-table-row-selected");
       });
     },
-    updateSelection(event) {
-      this.removeClass();
-      const currentRadioInput = document.getElementsByClassName("ant-radio-input")[
-        this.focus
-      ];
-      //currentRadioInput.click();
-      currentRadioInput.checked = true;
-      const currentRow = currentRadioInput.closest("tr");
-      const selectedRowKey = currentRow.getAttribute("data-row-key");
-      currentRow.classList.add("ant-table-row-selected");
-      console.log("Selected Row Key:", selectedRowKey);
-      selectedRowKeysValue = [selectedRowKey];
-      this.selectedInvoice = currentRow
-        .getElementsByTagName("td")[2]
-        .innerHTML.replace(/<[^>]*>?/gm, "");
+   updateSelection() {
+  this.removeClass();
 
-      this.$emit("row-select", this.selectedInvoice);
-      //console.log(this.table.data);
-    },
+  const currentRadioInput = document.getElementsByClassName("ant-radio-input")[this.focus];
+
+  currentRadioInput.checked = true;
+
+  const currentRow = currentRadioInput.closest("tr");
+  const selectedRowKey = currentRow.getAttribute("data-row-key");
+
+  const selectedData = this.table.data.find(item => item.id == selectedRowKey);
+
+if (selectedData) {
+    this.selectedInvoice = selectedData.invoice_number;
+
+    this.selectedRowKeysValue = [selectedData.id];
+
+    localStorage.setItem("selectedInvoice", selectedData.invoice_number);
+
+    this.$emit("row-select", selectedData.invoice_number);
+}
+
+  currentRow.classList.add("ant-table-row-selected");
+},
   },
 };
 </script>

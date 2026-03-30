@@ -2979,64 +2979,74 @@ hasValidInput(target) {
             }
         },
 
-    showconfirm() {
+        showconfirm() {
             console.log("Esc called");
             let that = this;
-            const modal = Modal.confirm({
+            let handleKeydown;
+            const cleanup = () => {
+                if (handleKeydown) {
+                    document.removeEventListener("keydown", handleKeydown);
+                    handleKeydown = null;
+                }
+            };
+
+            Modal.confirm({
                 title: "Confirmation",
                 icon: createVNode(ExclamationCircleOutlined),
                 content:
                     "Transaction data will be lost. Are you sure you want to close?",
+                afterClose: cleanup,
                 onOk() {
+                    cleanup();
                     localStorage.setItem("selectedInvoice", null);
                     that.$router.push({
                         name: `admin.stock.sales.index`,
                     });
                 },
                 onCancel() {
+                    cleanup();
                     that.$refs.partyinput && that.$refs.partyinput.focus();
                 },
                 okText: "OK",
                 cancelText: "Cancel",
-                autoFocusButton: "cancel",
+                autoFocusButton: "ok",
             });
 
-            this.$nextTick(() => {
-                const handleKeydown = (e) => {
-                    if (
-                        modal &&
-                        (e.key === "ArrowLeft" || e.key === "ArrowRight")
-                    ) {
-                        e.preventDefault();
-                        const buttons = document.querySelectorAll(
-                            ".ant-modal-confirm .ant-btn"
-                        );
-                        const cancelBtn = Array.from(buttons).find((btn) =>
-                            btn.classList.contains("ant-btn-default")
-                        );
-                        const okBtn = Array.from(buttons).find((btn) =>
-                            btn.classList.contains("ant-btn-primary")
-                        );
+            requestAnimationFrame(() => {
+                cleanup();
+                handleKeydown = (e) => {
 
-                        const focusedElement = document.activeElement;
+                // ✅ ADD THIS BLOCK
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    const okBtn = document.querySelector(".ant-modal-confirm .ant-btn-primary");
+                    if (okBtn) okBtn.click();
+                }
 
-                        if (e.key === "ArrowRight") {
-                            if (okBtn) {
-                                okBtn.focus();
-                            }
-                        } else if (e.key === "ArrowLeft") {
-                            if (cancelBtn) {
-                                cancelBtn.focus();
-                            }
-                        }
+                // existing logic
+                if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                    e.preventDefault();
+                    const buttons = document.querySelectorAll(
+                        ".ant-modal-confirm .ant-btn"
+                    );
+
+                    const cancelBtn = Array.from(buttons).find((btn) =>
+                        btn.classList.contains("ant-btn-default")
+                    );
+
+                    const okBtn = Array.from(buttons).find((btn) =>
+                        btn.classList.contains("ant-btn-primary")
+                    );
+
+                    if (e.key === "ArrowRight") {
+                        if (okBtn) okBtn.focus();
+                    } else if (e.key === "ArrowLeft") {
+                        if (cancelBtn) cancelBtn.focus();
                     }
-                };
+                }
+            };
 
                 document.addEventListener("keydown", handleKeydown);
-
-                modal.afterClose(() => {
-                    document.removeEventListener("keydown", handleKeydown);
-                });
             });
         },
         
@@ -3073,11 +3083,6 @@ hasValidInput(target) {
             this.getQuantity(index,event);
         },
 
-
-        // dublicateentery//
-
-
-        // end dublicate//
     },
     computed: {
         grandTotal() {
