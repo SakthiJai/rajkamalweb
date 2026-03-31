@@ -128,16 +128,6 @@
             @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)"
             @onEditRow="handleEditRow"
         />
-            // Handle edit row event from OrderTable
-            const handleEditRow = (row) => {
-                if (row && row.xid) {
-                    localStorage.setItem("selectedInvoice", row.xid || "");
-                    router.push({
-                        name: "admin.stock.stock-transfers.create",
-                        params: { id: row.xid },
-                    });
-                }
-            };
     </admin-page-table-content>
 </template>
 
@@ -287,6 +277,10 @@ const handleEnterEdit = (invoiceNumber) => {
                 searchInputRef.value?.focus?.();
                 searchInputRef.value?.$el?.querySelector("input")?.focus();
             }, 150);
+        });
+
+        onBeforeUnmount(() => {
+            window.removeEventListener("keydown", handleKeyDown);
         });
 
         watch(selectedWarehouse, (newVal, oldVal) => {
