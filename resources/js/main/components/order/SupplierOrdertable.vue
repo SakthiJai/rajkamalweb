@@ -536,7 +536,7 @@ export default {
         okType: "danger",
         cancelText: t("common.no"),
         onOk() {
-          axiosAdmin.delete(`${props.orderType}/${id}`).then(() => {
+          axiosAdmin.delete(`store-ledger/${id}`).then(() => {
             // Update Visible Subscription Modules
             updateSubscriptionModules();
             setUrlData();
@@ -564,7 +564,7 @@ export default {
         onOk() {
           const allDeletePromise = [];
           forEach(datatableVariables.table.selectedRowKeys, (selectedRow) => {
-            allDeletePromise.push(axiosAdmin.delete(`${props.orderType}/${selectedRow}`));
+            allDeletePromise.push(axiosAdmin.delete(`store-ledger/${selectedRow}`));
           });
           Promise.all(allDeletePromise).then((successResponse) => {
             updateSubscriptionModules();
