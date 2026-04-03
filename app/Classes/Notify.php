@@ -35,11 +35,17 @@ class Notify
             $data['staff_member'] = $sendData;
         } else if (in_array($sendFor, [
             'purchases_create', 'purchases_update', 'purchases_delete',
+            'purchase_create', 'purchase_update', 'purchase_delete',
             'purchase_returns_create', 'purchase_returns_update', 'purchase_returns_delete',
+            'purchase_return_create', 'purchase_return_update', 'purchase_return_delete',
             'sales_create', 'sales_update', 'sales_delete',
+            'sale_create', 'sale_update', 'sale_delete',
             'quotations_create', 'quotations_update', 'quotations_delete',
+            'quotation_create', 'quotation_update', 'quotation_delete',
             'sales_returns_create', 'sales_returns_update', 'sales_returns_delete',
+            'sales_return_create', 'sales_return_update', 'sales_return_delete',
             'stock_transfers_create', 'stock_transfers_update', 'stock_transfers_delete',
+            'stock_transfer_create', 'stock_transfer_update', 'stock_transfer_delete',
         ])) {
             $warehouse = Warehouse::find($sendData->warehouse_id);
             $staffMember = StaffMember::find($sendData->staff_user_id);
