@@ -145,6 +145,12 @@
               <a-table-summary-cell :col-span="1">
                 <a-typography-text strong> </a-typography-text>
               </a-table-summary-cell>
+              <a-table-summary-cell :col-span="2">
+                <a-typography-text strong >
+                  {{ $t("common.total") }}:
+                  <span style="float: right"> ₹{{ totals.totalAmount.toFixed(2) }} </span>
+                </a-typography-text>
+              </a-table-summary-cell>
 
               
               <a-table-summary-cell :col-span="1">
@@ -158,12 +164,7 @@
                   </a-typography-text>
                 </a-typography-text>
               </a-table-summary-cell>
-              <a-table-summary-cell :col-span="2">
-                <a-typography-text strong >
-                  {{ $t("common.total") }}:
-                  <span style="float: right"> ₹{{ totals.totalAmount.toFixed(2) }} </span>
-                </a-typography-text>
-              </a-table-summary-cell>
+              
             </a-table-summary-row>
           </template>
         </a-table>

@@ -50,6 +50,7 @@
                                 </a-select-option>
                             </a-select>
                             <a-input-search
+                                ref="userSearchInputRef"
                                 style="width: 65%"
                                 v-model:value="table.searchString"
                                 show-search
@@ -340,6 +341,7 @@ export default {
         const selectedUser = ref({});
         const activeOrderType = ref("sales");
         const router = useRouter();
+        const userSearchInputRef = ref(null);
 
         onBeforeMount(() => {
             if (
@@ -368,6 +370,15 @@ export default {
 
         onMounted(() => {
             setUrlData();
+
+            // Auto-focus the user search input after mount
+            setTimeout(() => {
+                if (userSearchInputRef.value?.focus) {
+                    userSearchInputRef.value.focus();
+                } else {
+                    userSearchInputRef.value?.$el?.querySelector('input')?.focus();
+                }
+            }, 0);
         });
 
         const setUrlData = () => {
@@ -429,6 +440,7 @@ export default {
             selectedUser,
             activeOrderType,
             totals,
+            userSearchInputRef,
         };
     },
 };

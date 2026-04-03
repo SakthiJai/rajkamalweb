@@ -35,6 +35,7 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                         <ProductSearchInput
+                            ref="productSearchInputRef"
                             @valueChanged="
                                 (productId) => {
                                     filters.product_id = productId;
@@ -52,7 +53,7 @@
     </admin-page-table-content>
 </template>
 <script>
-import { onBeforeMount, reactive } from "vue";
+import { onBeforeMount, onMounted, ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import table from "../../../../common/composable/datatable";
 import common from "../../../../common/composable/common";
@@ -75,6 +76,7 @@ export default {
         const filters = reactive({
             product_id: undefined,
         });
+        const productSearchInputRef = ref(null);
 
         onBeforeMount(() => {
             if (
@@ -88,10 +90,22 @@ export default {
             }
         });
 
+        onMounted(() => {
+            // Try focus() first, fallback to input inside ProductSearchInput
+            setTimeout(() => {
+                if (productSearchInputRef.value?.focus) {
+                    productSearchInputRef.value.focus();
+                } else {
+                    productSearchInputRef.value?.$el?.querySelector('input')?.focus();
+                }
+            }, 0);
+        });
+
         return {
             ...datatable,
             permsArray,
             filters,
+            productSearchInputRef,
         };
     },
 };

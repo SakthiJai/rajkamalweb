@@ -37,6 +37,7 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                         <ProductSearchInput
+                            ref="productSearchInputRef"
                             @valueChanged="
                                 (productId) => {
                                     filters.product_id = productId;
@@ -118,6 +119,7 @@ export default {
             dates: [],
         });
         const categories = ref([]);
+        const productSearchInputRef = ref(null);
 
         onBeforeMount(() => {
             if (
@@ -137,6 +139,15 @@ export default {
             Promise.all([categoriesPromise]).then(([categoriesResponse]) => {
                 categories.value = getRecursiveCategories(categoriesResponse);
             });
+
+            // Auto-focus the product search input after mount
+            setTimeout(() => {
+                if (productSearchInputRef.value?.focus) {
+                    productSearchInputRef.value.focus();
+                } else {
+                    productSearchInputRef.value?.$el?.querySelector('input')?.focus();
+                }
+            }, 0);
         });
 
         return {
@@ -145,6 +156,7 @@ export default {
             filters,
             filterTreeNode,
             categories,
+            productSearchInputRef,
         };
     },
 };

@@ -35,6 +35,7 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
                         <a-select
+                            ref="userSelectRef"
                             v-model:value="filters.user_id"
                             :placeholder="
                                 $t('common.select_default_text', [
@@ -75,7 +76,7 @@
     </admin-page-table-content>
 </template>
 <script>
-import { onMounted, onBeforeMount, ref, reactive } from "vue";
+import { onMounted, onBeforeMount, ref, reactive, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import table from "../../../../common/composable/datatable";
 import common from "../../../../common/composable/common";
@@ -101,6 +102,7 @@ export default {
             payment_mode_id: undefined,
             dates: [],
         });
+        const userSelectRef = ref(null);
         const users = ref({});
         const router = useRouter();
 
@@ -122,12 +124,17 @@ export default {
             Promise.all([usersPromise]).then(([usersResponse]) => {
                 users.value = usersResponse.data;
             });
+
+            nextTick(() => {
+                userSelectRef.value?.focus?.();
+            });
         });
 
         return {
             ...datatable,
             filters,
             users,
+            userSelectRef,
             permsArray,
         };
     },

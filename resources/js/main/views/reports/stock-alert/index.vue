@@ -37,6 +37,7 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="12" :lg="10" :xl="6">
                         <ProductSearchInput
+                            ref="productSearchInputRef"
                             @valueChanged="
                                 (productId) => {
                                     searchProductId = productId;
@@ -145,6 +146,7 @@ export default {
         } = common();
         const { url, stockAlertColumns, stockAlertHashableColumns } = fields();
         const searchProductId = ref(undefined);
+        const productSearchInputRef = ref(null);
         const router = useRouter();
         const datatableVariables = datatable();
 
@@ -162,6 +164,15 @@ export default {
 
         onMounted(() => {
             getTableData();
+
+            // Auto-focus the product search input after mount
+            setTimeout(() => {
+                if (productSearchInputRef.value?.focus) {
+                    productSearchInputRef.value.focus();
+                } else {
+                    productSearchInputRef.value?.$el?.querySelector('input')?.focus();
+                }
+            }, 0);
         });
 
         const getTableData = () => {
@@ -208,6 +219,7 @@ export default {
             permsArray,
             totals,
             formatAmountCurrency,
+            productSearchInputRef,
         };
     },
 };

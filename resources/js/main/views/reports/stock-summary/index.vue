@@ -35,6 +35,7 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
                         <a-tree-select
+                            ref="categoryTreeSelectRef"
                             v-model:value="filters.category_id"
                             show-search
                             style="width: 100%"
@@ -110,6 +111,7 @@ export default {
         const categories = ref([]);
         const brands = ref([]);
         const router = useRouter();
+        const categoryTreeSelectRef = ref(null);
 
         onBeforeMount(() => {
             if (
@@ -125,6 +127,15 @@ export default {
 
         onMounted(() => {
             getInitialData();
+            // Auto-focus the category tree select input after mount
+            setTimeout(() => {
+                // Try focus() first, fallback to input inside a-tree-select
+                if (categoryTreeSelectRef.value?.focus) {
+                    categoryTreeSelectRef.value.focus();
+                } else {
+                    categoryTreeSelectRef.value?.$el?.querySelector('input')?.focus();
+                }
+            }, 0);
         });
 
         const getInitialData = () => {
@@ -146,6 +157,7 @@ export default {
             brands,
             permsArray,
             filterTreeNode,
+            categoryTreeSelectRef,
         };
     },
 };

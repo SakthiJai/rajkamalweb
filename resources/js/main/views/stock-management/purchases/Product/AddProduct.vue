@@ -1915,14 +1915,25 @@ export default defineComponent({
     showconfirm() {
       console.log("Esc called");
       let that = this;
-      const modal = Modal.confirm({
+      let handleKeydown;
+      const cleanup = () => {
+        if (handleKeydown) {
+          document.removeEventListener("keydown", handleKeydown);
+          handleKeydown = null;
+        }
+      };
+
+      Modal.confirm({
         title: "Confirmation",
         icon: createVNode(ExclamationCircleOutlined),
         content: "Transaction data will be lost. Are you sure you want to close?",
+        afterClose: cleanup,
         onOk() {
+          cleanup();
           that.$emit("closed");
         },
         onCancel() {
+          cleanup();
           that.$refs.ProductInput && that.$refs.ProductInput.focus();
         },
         okText: "OK",
@@ -1930,8 +1941,9 @@ export default defineComponent({
         autoFocusButton: "cancel",
       });
 
-      this.$nextTick(() => {
-        const handleKeydown = (e) => {
+      requestAnimationFrame(() => {
+        cleanup();
+        handleKeydown = (e) => {
           if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
             e.preventDefault();
 
@@ -1961,9 +1973,6 @@ export default defineComponent({
           }
         };
         document.addEventListener("keydown", handleKeydown);
-        modal.afterClose(() => {
-          document.removeEventListener("keydown", handleKeydown);
-        });
       });
     },
 

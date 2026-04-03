@@ -44,6 +44,7 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                         <DateRangePicker
+                            ref="dateRangePickerRef"
                             @dateTimeChanged="
                                 (changedDateTime) => {
                                     filters.dates = changedDateTime;
@@ -323,6 +324,7 @@ export default {
             dates: [],
             active_report_type: "daily_income",
         });
+        const dateRangePickerRef = ref(null);
         const reportData = ref([]);
         const store = useStore();
         const selectedTab = ref("by_order");
@@ -346,6 +348,15 @@ export default {
 
         onMounted(() => {
             getData(filters);
+
+            // Auto-focus the date range picker after mount
+            setTimeout(() => {
+                if (dateRangePickerRef.value?.focus) {
+                    dateRangePickerRef.value.focus();
+                } else {
+                    dateRangePickerRef.value?.$el?.querySelector('input')?.focus();
+                }
+            }, 0);
         });
 
         const getData = (filterDate) => {
@@ -396,6 +407,7 @@ export default {
             dateWiseReportResults,
 
             selectedTab,
+            dateRangePickerRef,
         };
     },
 };

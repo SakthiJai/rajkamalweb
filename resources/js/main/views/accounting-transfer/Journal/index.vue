@@ -27,7 +27,7 @@
                     ">
 
 
-                            <a-button type="primary" class="creating">
+                            <a-button type="primary" class="creating" @click="handleCreateClick">
                                 <PlusOutlined />
                                 Create F2
                             </a-button>
@@ -203,6 +203,10 @@ export default {
     document.removeEventListener('keydown', this.handleKeydown);
   },
     methods: {
+        handleCreateClick() {
+            // Simulate F2 key event to reuse the same logic
+            this.handleKeydown({ key: 'F2' });
+        },
         selectDateRange(range) {
             this.selectedRange = range.trim();
             this.buttonLabel = range.trim();

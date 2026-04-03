@@ -35,6 +35,7 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
                         <a-select
+                            ref="expenseCategorySelectRef"
                             v-model:value="filters.expense_category_id"
                             show-search
                             style="width: 100%"
@@ -179,6 +180,7 @@ export default {
             expense_category_id: undefined,
             user_id: undefined,
         });
+        const expenseCategorySelectRef = ref(null);
         const expenseCategories = ref([]);
         const staffMembers = ref([]);
         const extraFilters = ref({
@@ -211,6 +213,15 @@ export default {
             );
 
             getTableData();
+
+            // Auto-focus the expense category select after mount
+            setTimeout(() => {
+                if (expenseCategorySelectRef.value?.focus) {
+                    expenseCategorySelectRef.value.focus();
+                } else {
+                    expenseCategorySelectRef.value?.$el?.querySelector('input')?.focus();
+                }
+            }, 0);
         });
 
         const getTableData = () => {
@@ -260,6 +271,7 @@ export default {
             formatDate,
 
             totals,
+            expenseCategorySelectRef,
         };
     },
 };

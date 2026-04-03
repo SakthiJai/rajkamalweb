@@ -35,9 +35,10 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="7" :lg="6" :xl="6">
                         <a-select
+                            ref="userSelectRef"
                             v-model:value="filters.user_id"
                             :placeholder="
-                                $t('common.select_default_text', [$t(`user.user`)])
+                                $t('common.select_default_text', [$t(`user.user`)] )
                             "
                             :allowClear="true"
                             style="width: 100%"
@@ -103,6 +104,7 @@ export default {
         });
         const users = ref({});
         const router = useRouter();
+        const userSelectRef = ref(null);
 
         onBeforeMount(() => {
             if (
@@ -126,6 +128,16 @@ export default {
             Promise.all([usersPromise]).then(([usersResponse]) => {
                 users.value = usersResponse.data;
             });
+
+            // Auto-focus the user select input after mount
+            setTimeout(() => {
+                // Try focus() first, fallback to input inside a-select
+                if (userSelectRef.value?.focus) {
+                    userSelectRef.value.focus();
+                } else {
+                    userSelectRef.value?.$el?.querySelector('input')?.focus();
+                }
+            }, 0);
         });
 
         return {
@@ -133,6 +145,7 @@ export default {
             filters,
             users,
             permsArray,
+            userSelectRef,
         };
     },
 };
