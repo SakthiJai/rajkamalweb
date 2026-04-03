@@ -58,6 +58,7 @@
                 <a-row :gutter="[16, 16]" justify="end">
                     <a-col :xs="24" :sm="24" :md="12" :lg="6" :xl="6">
                         <a-input-search
+                            ref="searchInputRef"
                             style="width: 100%"
                             v-model:value="filters.searchString"
                             show-search
@@ -131,7 +132,7 @@
 </template>
 
 <script>
-import { onMounted, watch, ref } from "vue";
+import { onMounted, watch, ref, nextTick } from "vue";
 import { PlusOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import common from "../../../../common/composable/common";
@@ -162,6 +163,7 @@ export default {
 
         const users = ref([]);
         const serachDateRangePicker = ref(null);
+        const searchInputRef = ref(null);
 
         const filters = ref({
             payment_status: "all",
@@ -174,6 +176,10 @@ export default {
         onMounted(() => {
             generateStorePath();
             const usersPromise = axiosAdmin.get(orderPageObject.value.userType);
+
+            nextTick(() => {
+                searchInputRef.value?.focus?.();
+            });
 
             Promise.all([usersPromise]).then(([usersResponse]) => {
                 users.value = usersResponse.data;
@@ -214,6 +220,7 @@ export default {
             filters,
             orderType,
             serachDateRangePicker,
+            searchInputRef,
 
             selectedWarehouse,
             storeUrl,
