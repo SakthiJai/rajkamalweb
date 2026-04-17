@@ -56,7 +56,7 @@
             <a-form layout="vertical">
                 <a-row :gutter="16">
             <a-col :xs="24" :sm="24" :md="8" :lg="8">
-                        <a-form-item :label="$t('stock.party_name1')" name="party_name" ref="input"
+                        <a-form-item :label="$t('stock.party_name')" name="party_name" ref="input"
                             :help="rules.party_name ? rules.party_name.message : null"
                             :validateStatus="rules.party_name ? 'error' : null" class="required">
                             <a-input  v-model:value="formData.party_name" autocomplete="off"

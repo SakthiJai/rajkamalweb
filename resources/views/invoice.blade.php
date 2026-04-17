@@ -183,9 +183,22 @@ th {
                 }
                 $qty = $qty - $freeQty;
                 $rate = (float) ($product->sale_rate ?? 0);
-                $discountPercent = (float) ($product->discount_rate ?? 0);
+
+                // Discount logic: percent for type 1/2, per-unit for type 3
+                $discountTypeId = (int)($product->discount_type_id ?? 1);
                 $basicAmount = $qty * $rate;
-                $discountValue = ($basicAmount * $discountPercent) / 100;
+                if ($discountTypeId === 3) {
+                   $discountPercent = 0;
+                    $discountValue = ($product->discount_rate ?? 0);
+                } elseif ($discountTypeId === 4) {
+                    
+                     $discountPercent = $product->discount_rate ?? 0;
+                    $discountValue = ($qty * $discountPercent);
+                }else {
+                    // Percent discount
+                    $discountPercent = (float) ($product->discount_rate ?? 0);
+                    $discountValue = ($basicAmount * $discountPercent) / 100;
+                }
                 $taxableAmount = $basicAmount - $discountValue;
 
                 $cgstPercent = (float) ($product->cgst ?? 0);
@@ -238,7 +251,7 @@ th {
                 <td>{{ $key+1 }}</td>
                 <td>{{ $product->quantity }}</td>
                 <td>{{ $product->name }}</td>
-                <td>{{ $freeQty }}</td>
+                <td>{{ $product->freeqty }}</td>
                 <td>{{ $product->hsn_sac }}</td>
                 <td>{{ $product->mrp ?? 0.00 }}</td>
                 <td>{{ $rate }}</td>

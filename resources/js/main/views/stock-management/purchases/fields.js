@@ -270,33 +270,36 @@ const fields = () => {
     });
 
     const setupTableColumns = () => {
+
         var allColumns = [
             {
                 title: t(`stock.bill_no`),
                 dataIndex: "invoice_number",
                 sorter: true,
             },
-            // {
-            //     title: t(`stock.bill_no`),
-            //     dataIndex: "invoice_number",
-            //     sorter:true
-            // }
         ];
 
+        // For stock-transfers, show a single warehouse column as 'From → To'
         if (pageObject.value.type == "stock-transfers") {
             allColumns.push({
-                title: t("stock_transfer.warehouse"),
-                dataIndex: "warehouse",
-                sorter: true,
-                sorter_field: "orders.warehouse_id",
-            });
-        }
-        if (pageObject.value.type == "stock-transfers") {
-            allColumns.push({
-                title: t("stock_transfer.warehouse"),
-                dataIndex: "stock",
-                sorter: true,
-                sorter_field: "orders.party_customer_id",
+                title: "Warehouses",
+                dataIndex: "transfer_warehouses",
+                customRender: ({ record }) => {
+                    // Try both possible field names for from/to warehouse
+                    const from = record.fromWarehouse?.name || record.warehouse?.name || '';
+                    const to = record.warehouse?.name || record.stock?.name || '';
+                    // If from and to are the same, just show one
+                    if (from && to && from !== to) {
+                        return `${from} → ${to}`;
+                    } else if (from) {
+                        return from;
+                    } else if (to) {
+                        return to;
+                    } else {
+                        return '';
+                    }
+                },
+                sorter: false,
             });
         }
 
@@ -311,7 +314,7 @@ const fields = () => {
         columns.value = [
             ...allColumns,
             {
-                title: t(`${pageObject.value.langKey}.user`),
+                title: t(`stock.user`),
                 dataIndex: ["customer", "cus_name"],
                 sorter: true,
                 //sorter_field:"orders.user_id"

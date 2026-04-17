@@ -445,7 +445,7 @@ public function createReciept($payment)
 		$company = \App\Models\Company::first(); 
 
 
-		 $products 			= DB::select("SELECT A.quantity,A.freeqty,B.mrp,B.sale_rate,A.discount_rate,A.subtotal,B.hsn_sac,B.name,H.cgst as cgst, H.sgst as sgst, H.lgst as igst, H.cess as cess FROM `order_items` A left join products B on B.id=A.product_id left join hsc_sac H on H.id=B.hsn_sac WHERE order_id=".$invoice_details->id);
+		 $products 			= DB::select("SELECT A.quantity,A.freeqty,B.mrp,B.sale_rate,A.discount_rate,A.discount_type_id,A.subtotal,B.hsn_sac,B.name,H.cgst as cgst, H.sgst as sgst, H.lgst as igst, H.cess as cess FROM `order_items` A left join products B on B.id=A.product_id left join hsc_sac H on H.id=B.hsn_sac WHERE order_id=".$invoice_details->id);
         // Create the mPDF document
         $document = new PDF( [
             'mode' => 'utf-8',
@@ -480,10 +480,10 @@ public function createReciept($payment)
 		 $invoice_details->invoice_path = config('app.url') .'/'.$documentFileName;
 		 $invoice_details->save();
 		 echo config('app.url') .'/'.$documentFileName;
-	\Log::info('company', ['company' => $company]);
-	// \Log::info('invoice_details', ['invoice_details' => $invoice_details]);
-	// \Log::info('partyDetails', ['partyDetails' => $partyDetails]);
-	// \Log::info('customerDetails', ['customerDetails' => $customerDetails]);
+	\Log::info('products', ['products' => $products]);
+	//  \Log::info('invoice_details', ['invoice_details' => $invoice_details]);
+	//  \Log::info('partyDetails', ['partyDetails' => $partyDetails]);
+	//  \Log::info('customerDetails', ['customerDetails' => $customerDetails]);
 
 
 
