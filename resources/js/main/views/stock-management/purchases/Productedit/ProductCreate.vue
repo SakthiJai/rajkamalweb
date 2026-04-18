@@ -142,21 +142,22 @@
                 <a-row :gutter="24">
                   <a-col :xs="24" :sm="24" :md="5" :lg="5">
                     <a-form-item
-                      :label="$t('Short Code')"
-                      name="short_code"
-                      :help="rules.short_code ? rules.short_code.message : null"
-                      :validateStatus="rules.short_code ? 'error' : null"
+                      :label="$t('Item Code')"
+                      name="item_code"
+                      :help="rules.item_code ? rules.item_code.message : null"
+                      :validateStatus="rules.item_code ? 'error' : null"
+                        
                     >
                     </a-form-item>
                   </a-col>
                   <a-col :xs="24" :sm="24" :md="14" :lg="14">
                     <a-input
-                      name="short_code"
-                      id="short_code"
-                      v-model:value="formDataLedger.short_code"
-                      value=""
-                      @input="onInputShortCode"
-                      maxlength="10"
+                      name="item_code"
+                      id="item_code"
+                      v-model:value="formDataLedger.item_code"
+                      :minlength="6"
+                      :maxlength="10"
+                      @input="validateItemCode"
                       @keyup.enter="focusNext"
                       autocomplete="off"
                     >
@@ -1728,7 +1729,6 @@ export default defineComponent({
       },
     });
   },
-
   methods: {
     validateInput() {
       let isValid = true;
@@ -1776,6 +1776,17 @@ export default defineComponent({
       });
 
       return isValid;
+    },
+      validateItemCode(e) {
+      const val = e.target.value;
+      if (val.length < 6) {
+        this.$set(this.rules, 'item_code', { message: 'Item code must be at least 6 characters.' });
+      } else if (val.length > 10) {
+        this.$set(this.rules, 'item_code', { message: 'Item code must be at most 10 characters.' });
+      } else {
+        this.$delete(this.rules, 'item_code');
+      }
+      this.formDataLedger.item_code = val;
     },
 
     //for productname clear
@@ -2206,7 +2217,7 @@ export default defineComponent({
       if (value.length > 10) {
         value = value.slice(0, 10);
       }
-      this.formDataLedger.short_code = value;
+      this.formDataLedger.item_code = value;
     },
 
     onInputProductId(event) {
@@ -2562,7 +2573,7 @@ export default defineComponent({
           this.formDataLedger.category_field != ""
         ) {
           formElements[currentIndex + 1].focus();
-        } else if (e.target.id == "short_code") {
+        } else if (e.target.id == "item_code") {
           formElements[currentIndex + 1].focus();
         } else if (e.target.id == "product_id") {
           formElements[currentIndex + 1].focus();

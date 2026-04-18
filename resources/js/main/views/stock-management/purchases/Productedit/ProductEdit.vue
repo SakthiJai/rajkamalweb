@@ -138,26 +138,27 @@
                 </a-row>
                 <!-- accountsgroup-->
 
-                <!-- short name  -->
+                <!-- item code  -->
 
                 <a-row :gutter="24">
                   <a-col :xs="24" :sm="24" :md="8" :lg="5">
                     <a-form-item
-                      :label="$t('Short Code')"
-                      name="short_code"
-                      :help="rules.short_code ? rules.short_code.message : null"
-                      :validateStatus="rules.short_code ? 'error' : null"
+                      :label="$t('Item Code')"
+                      name="item_code"
+                      :help="rules.item_code ? rules.item_code.message : null"
+                      :validateStatus="rules.item_code ? 'error' : null"
+                      
                     >
                     </a-form-item>
                   </a-col>
                   <a-col :xs="24" :sm="24" :md="12" :lg="14">
                     <a-input
-                      name="short_code"
-                      id="short_code"
-                      v-model:value="formDataLedger.short_code"
-                      value=""
-                      @input="onInputShortCode"
-                      maxlength="10"
+                      name="item_code"
+                      id="item_code"
+                      v-model:value="formDataLedger.item_code"
+                      :minlength="6"
+                      :maxlength="10"
+                      @input="validateItemCode"
                       @keyup.enter="focusNext"
                     >
                     </a-input>
@@ -1771,7 +1772,7 @@ export default defineComponent({
           this.formDataLedger.visibility = response.data.visibility;
           this.formDataLedger.mfr_name = response.data.mfr_name;
           this.formDataLedger.product_id = response.data.product_id;
-          this.formDataLedger.short_code = response.data.short_code;
+          this.formDataLedger.item_code = response.data.item_code;
           this.formDataLedger.brand_name = response.data.brand_name;
           this.formDataLedger.as_on_date = response.data.as_on_date;
              this.formDataLedger.gst = response.data.gst;
@@ -2255,7 +2256,7 @@ export default defineComponent({
       if (value.length > 10) {
         value = value.slice(0, 10);
       }
-      this.formDataLedger.short_code = value;
+      this.formDataLedger.item_code = value;
     },
 
     onInputProductId(event) {

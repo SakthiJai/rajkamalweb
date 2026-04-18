@@ -23,7 +23,7 @@
             <a-form layout="vertical">
                 <a-row :gutter="16" class="mb-20">
                     <a-col :xs="24" :sm="24" :md="12" :lg="24" :xl="24">
-                        <ProductSearchInput @valueChanged="productSelected" />
+                        <ProductSearchInput ref="productSearchInput" @valueChanged="productSelected" />
                     </a-col>
                 </a-row>
 
@@ -218,6 +218,7 @@ export default {
         const { appSetting, permsArray, formatAmountCurrency } = common();
         const { t } = useI18n();
         const selectedProducts = ref([]);
+        const productSearchInput = ref(null);
 
         const perSheetBarcode = ref(40);
         const a4SheetClassName = ref("");
@@ -491,6 +492,17 @@ export default {
             printFrame.contentWindow.print(); // Trigger print dialog
         };
 
+        onMounted(() => {
+            // Try to focus the input inside ProductSearchInput
+            nextTick(() => {
+                if (productSearchInput.value && productSearchInput.value.$el) {
+                    // Try to find an input element inside the component
+                    const input = productSearchInput.value.$el.querySelector('input');
+                    if (input) input.focus();
+                }
+            });
+        });
+
         return {
             appSetting,
             formatAmountCurrency,
@@ -502,6 +514,7 @@ export default {
             quantityChanged,
 
             productSelected,
+            productSearchInput,
 
             barcodePerSheetSelected,
             perSheetBarcode,

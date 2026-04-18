@@ -76,13 +76,13 @@ class ProductController extends ApiBaseController
             $product->packing         = $request->packing;
             $product->god_owns         = $request->god_owns;
             $product->opening_stock         = $request->opening_stock;
-                        $product->current_stock         = $request->opening_stock;
+            $product->current_stock         = $request->opening_stock;
             $product->as_on_date         = $request->as_on_date;
             $product->category_field         = $request->category_field;
             $product->low_stock         = $request->low_stock;
             $product->company         = $request->company;
             $product->product_id         = $request->product_id;
-            $product->short_code         = $request->short_code;
+            $product->item_code         = $request->item_code;
             $product->image_url         = $request->image_url;
             $product->brand_name         = $request->brand_name;
             $product->manufacturer       = $request->manufacturer;

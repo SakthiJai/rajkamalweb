@@ -29,11 +29,12 @@ class StoreRequest extends FormRequest
         $loggedUser = auth('api')->user();
 
         $rules = [
-
-            //'name'         =>'required',
-            //'unit_1st'     =>'required',
-            //'hsn_sac'      =>'required',
-            //'tax_category' =>'required',
+            // ...other rules
+            'item_code' => ['required', 'string', 'min:6', 'max:10'],
+            // 'name'         =>'required',
+            // 'unit_1st'     =>'required',
+            // 'hsn_sac'      =>'required',
+            // 'tax_category' =>'required',
         ];
 
         return $rules;
