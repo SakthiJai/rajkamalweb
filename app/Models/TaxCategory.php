@@ -10,13 +10,13 @@ class TaxCategory extends BaseModel
 {
     protected $table = 'tax_catagories';
 
-    protected $default = ['xid', 'sales_type', 'local', 'central','igst','cgst','sgst','cess','nature_of_transaction','tax_ability','igst_ledger','cgst_ledger','sgst_ledger','cess_ledger'];
+    protected $default = ['xid', 'sales_type', 'local', 'central','cgst','sgst','cess','nature_of_transaction','tax_ability','cgst_ledger','sgst_ledger','cess_ledger'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $filterable = ['sales_type','local'];
 
-    protected $appends = ['xid'];
+    protected $appends = ['xid', 'igst', 'igst_ledger'];
 
     protected $casts = [
         'is_deletable' => 'integer',
@@ -28,5 +28,14 @@ class TaxCategory extends BaseModel
 
         static::addGlobalScope(new CompanyScope);
     }
+    public function getIgstAttribute()
+{
+    return $this->lgst;
+}
+
+public function getIgstLedgerAttribute()
+{
+    return $this->lgst_ledger;
+}
 
 }
