@@ -979,7 +979,7 @@ const company = appSetting.value;
     },
     data() {
         return {
-            spinning:false,
+            spinning: !!localStorage.getItem("selectedInvoice"),
             //selectedInvoice:localStorage.getItem("cr_number"),
             additems: [
                 {id:"CGST" ,name: 'CGST', location: '', value: '' },
@@ -1037,6 +1037,7 @@ const company = appSetting.value;
     mounted() {
         document.getElementById("salesreturnvue").addEventListener('keydown', this.handleKeyDown);
         this.autoFocusInput();
+        this.spinning = !!this.formData.selectedInvoice;
         this.getInvoiceDetails();
     if (this.formData.selectedInvoice) {
         this.formData.bill_number = this.formData.selectedInvoice;
@@ -1149,6 +1150,7 @@ getInvoiceDetails() {
 
     if (!this.formData.selectedInvoice || this.formData.selectedInvoice === "null") {
         console.warn("No selected invoice available");
+        this.spinning = false;
         return;
     }
 

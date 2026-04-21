@@ -108,7 +108,7 @@
     </AdminPageHeader>
   </AdminPageHeader>
 
-  <a-spin :spinning="false">
+  <a-spin :spinning="spinning">
     <admin-page-table-content>
       <a-card class="page-content-container mt-5 mb-5">
         <!-- party table -->
@@ -1832,6 +1832,7 @@ export default defineComponent({
         ],
       },
 
+      spinning: false,
       inputColor: "",
       partyNameColor: "",
       accountGroupColor: "",
@@ -1891,6 +1892,7 @@ export default defineComponent({
 
   methods: {
     async getCustomerData(id) {
+      this.spinning = true;
       try {
         if (id > 0) {
           const response = await axiosAdmin.get(`fetch-ledger/${id}`);
@@ -1961,6 +1963,8 @@ export default defineComponent({
         console.log("<>", response.ledger);
       } catch (error) {
         console.error("Error fetching product data:", error);
+      } finally {
+        this.spinning = false;
       }
     },
 
