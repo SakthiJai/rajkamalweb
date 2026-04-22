@@ -25,6 +25,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends ApiBaseController
 {
@@ -34,6 +35,102 @@ class ProductController extends ApiBaseController
     protected $storeRequest = StoreRequest::class;
     protected $updateRequest = UpdateRequest::class;
     protected $deleteRequest = DeleteRequest::class;
+
+   public function index()
+    {
+        $request = request();
+
+        $cacheKey = 'products_list_' . md5(json_encode([
+            $request->all(),
+            warehouse()->id ?? null
+        ]));
+
+        return Cache::remember($cacheKey, 30, function () {
+            if ($this->shouldUseOptimizedIndex()) {
+                return $this->optimizedIndex();
+            }
+
+            return parent::index();
+        });
+    }
+
+    protected function shouldUseOptimizedIndex(): bool
+    {
+        $order = strtolower(trim((string) request('order', 'id desc')));
+        $hasCustomSorter = request()->filled('custom_sorter');
+        $hasRelationFields = str_contains((string) request('fields', ''), '{');
+
+        return !$hasCustomSorter
+            && !$hasRelationFields
+            && in_array($order, ['id desc', 'products.id desc', 'id asc', 'products.id asc'], true);
+    }
+
+    protected function optimizedIndex()
+    {
+        $this->validate();
+
+        $this->parseRequest()
+            ->addIncludes()
+            ->addFilters()
+            ->addOrdering();
+
+        $baseQuery = clone $this->getQuery();
+        $lastId = request()->filled('last_id') ? (int) request('last_id') : null;
+
+        $limit = (int) request('limit', config('api.defaultLimit'));
+        $offset = $lastId ? 0 : max((int) request('offset', 0), 0);
+        $order = strtolower(trim((string) request('order', 'id desc')));
+        $direction = str_contains($order, 'asc') ? 'asc' : 'desc';
+
+        if ($lastId) {
+            $operator = $direction === 'asc' ? '>' : '<';
+            $baseQuery->where('products.id', $operator, $lastId);
+        }
+
+        $pageIdsQuery = (clone $baseQuery)
+            ->select('products.id')
+            ->skip($offset)
+            ->take($limit);
+
+        $resultsQuery = Product::query();
+
+        if (!empty($baseQuery->getEagerLoads())) {
+            $resultsQuery->setEagerLoads($baseQuery->getEagerLoads());
+        }
+
+        $resultsQuery
+            ->joinSub($pageIdsQuery->toBase(), 'paged_products', function ($join) {
+                $join->on('products.id', '=', 'paged_products.id');
+            })
+            ->orderBy('products.id', $direction);
+
+        $this->setQuery($resultsQuery);
+
+        $results = $this->getResults()->toArray();
+        $totalRecords = (clone $baseQuery)->count('products.id');
+
+        $meta = [
+            'paging' => [
+                'total' => $totalRecords,
+                'links' => [],
+            ],
+        ];
+
+        if (($offset + $limit) < $totalRecords) {
+            $meta['paging']['links']['next'] = true;
+        }
+
+        if (!$lastId && $offset >= $limit) {
+            $meta['paging']['links']['previous'] = true;
+        }
+
+        if (!empty($results)) {
+            $lastRecord = end($results);
+            $meta['paging']['last_id'] = $lastRecord['id'] ?? null;
+        }
+
+        return ApiResponse::make(null, $results, $meta);
+    }
 
     public function productStore(StoreRequest $request)
     {
@@ -103,7 +200,7 @@ class ProductController extends ApiBaseController
 
                 $productDetails->save();
             }
-
+            Cache::tags(['products'])->flush();
             return response()->json(['message' => 'Successfully stored product'], 200);
 
         } catch (\Exception $e) {
@@ -123,22 +220,27 @@ class ProductController extends ApiBaseController
     {
         $request = request();
         $warehouse = warehouse();
-
+        if ($request->has('last_id') && $request->last_id != '') {
+            $query->where('products.id', '<', $request->last_id);
+        }
         if ($warehouse->products_visibility == 'warehouse') {
-            $query->where('products.warehouse_id', '=', $warehouse->id);
+          //  $query->where('products.warehouse_id', '=', $warehouse->id);
         }
 
         if ($request->has('product_type') && $request->product_type == 'variable') {
             $query = $query->whereNull('products.parent_id')
                 ->where('products.product_type', 'variable');
         } else if ($request->has('product_type') && $request->product_type == 'single') {
-            $query = $query->join('product_details', 'product_details.product_id', '=', 'products.id')
-                ->where('product_details.warehouse_id', $warehouse->id)
-                ->whereNull('products.parent_id')
-                ->where('products.product_type', 'single');
-        } else {
-            $query = $query->join('product_details', 'product_details.product_id', '=', 'products.id')
-                ->where('product_details.warehouse_id', $warehouse->id);
+
+            $query = $query->leftJoin('product_details', function ($join) {
+                $join->on('product_details.product_id', '=', 'products.id');
+            })
+            ->whereNull('products.parent_id')
+            ->where('products.product_type', 'single');
+        }else {
+                $query = $query->leftJoin('product_details', function ($join) {
+                    $join->on('product_details.product_id', '=', 'products.id');
+                });
         }
 
         if ($request->has('product_type') && $request->product_type == 'service') {
@@ -155,6 +257,14 @@ class ProductController extends ApiBaseController
         if ($request->has('x_id') && $request->x_id != '') {
             $query = $query->where('products.id', $this->getIdFromHash($request->x_id));
         };
+
+        $request = request();
+        $query->select(
+            'products.id',
+            'products.name',
+            'products.item_code',
+            'products.product_type'
+        );
 
         return $query;
     }
@@ -356,7 +466,7 @@ class ProductController extends ApiBaseController
                         $productDetails->warehouse_id = $allWarehouse->id;
                         $productDetails->product_id = $newVariantProduct->id;
 
-                        $productDetails->$packing=$allVariation['packing'];
+                        $productDetails->packing = $allVariation['packing'];
 
                         $productDetails->tax_id = isset($allVariation['tax_id']) && $allVariation['tax_id'] != '' ? $allVariation['tax_id'] : null;
                         $productDetails->mrp = $allVariation['mrp'];
@@ -452,12 +562,11 @@ class ProductController extends ApiBaseController
         $searchTerm = trim(strtolower($request->search_term));
         $orderType = $request->order_type;
         $warehouseId = $warehouse->id;
-
-        $products = Product::select('products.id', 'products.name', 'products.image', 'products.unit_id', 'products.product_type')
+        $products = Product::with(['details.tax','unit'])->select('products.id', 'products.name', 'products.image', 'products.unit_id', 'products.product_type')
             ->where(function ($query) use ($searchTerm) {
-                $query->where(DB::raw('LOWER(products.name)'), 'LIKE', "%$searchTerm%")
-                    ->orWhere(DB::raw('LOWER(products.item_code)'), 'LIKE', "%$searchTerm%")
-                    ->orWhere(DB::raw('LOWER(products.parent_item_code)'), 'LIKE', "%$searchTerm%");
+                $query->where('products.name', 'LIKE', "$searchTerm%")
+                    ->orWhere('products.item_code', 'LIKE', "$searchTerm%")
+                    ->orWhere('products.parent_item_code', 'LIKE', "$searchTerm%");
             });
 
         if ($warehouse->products_visibility == 'warehouse') {
@@ -494,7 +603,9 @@ class ProductController extends ApiBaseController
                 $productDetails = Common::createProductDetailsForWarehouseIfNotExists($warehouseId, $product->id);
             }
 
-            $tax = Tax::find($productDetails->tax_id);
+            $productDetails = $product->details;
+            $tax = $productDetails?->tax;
+            $unit = $product->unit;
 
             if ($orderType == 'purchases' || $orderType == 'quotations' || ($orderType == 'sales' && $productDetails->current_stock > 0) || ($orderType == 'sales-returns') || ($orderType == 'purchase-returns' && $productDetails->current_stock > 0) || ($orderType == 'stock-transfers' && $productDetails->current_stock > 0) || $product->product_type == 'service') {
                 $stockQuantity = $productDetails->current_stock;

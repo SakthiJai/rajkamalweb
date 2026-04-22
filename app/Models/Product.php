@@ -17,6 +17,11 @@ use Vinkla\Hashids\Facades\Hashids;
 class Product extends BaseModel
 {
     protected $table = 'products';
+    protected static $hsnCache = [];
+    protected static $taxCategoryCache = [];
+    protected static $companyCache = [];
+    protected static $unitCache = [];
+
     protected $default =[
                         'xid',
                          'id',
@@ -219,55 +224,115 @@ class Product extends BaseModel
 
     public function getCgstAttribute()
     {
-        $hsn  = HSN::find($this->hsn_sac);
+        $hsn = $this->getCachedHsn();
         return $hsn ? $hsn->cgst : 'Unknown';
     }
 
     public function getLgstAttribute()
     {
-        $hsn  = HSN::find($this->hsn_sac);
+        $hsn = $this->getCachedHsn();
         return $hsn ? $hsn->lgst : 'Unknown';
     }
     public function getSgstAttribute()
     {
-        $hsn  = HSN::find($this->hsn_sac);
+        $hsn = $this->getCachedHsn();
         return $hsn ? $hsn->sgst : 'Unknown';
     }
     public function getCessAttribute()
     {
-        $hsn  = HSN::find($this->hsn_sac);
+        $hsn = $this->getCachedHsn();
         return $hsn ? $hsn->cess : 0;
     }
 
     public function getSalesTypeAttribute()
     {
-        $taxCategory  = TaxCategory::find($this->tax_category);
+        $taxCategory = $this->getCachedTaxCategory();
         return $taxCategory ? $taxCategory->sales_type : 'Unknown';
     }
 
 
     public function getCompanyNameAttribute()
     {
-        $company  = ProductCompany::find($this->company_id);
+        $company = $this->getCachedCompany();
         return $company ? $company->name : 'Unknown';
     }
 
     public function getUnitNameAttribute()
     {
-        $unit  = Unit::find($this->unit_1st);
+        $unit = $this->getCachedUnit();
         return $unit ? $unit->name : 'Unknown';
+    }
+
+    protected function getCachedHsn()
+    {
+        $hsnId = $this->hsn_sac;
+
+        if (!$hsnId) {
+            return null;
+        }
+
+        if (!array_key_exists($hsnId, static::$hsnCache)) {
+            static::$hsnCache[$hsnId] = HSN::find($hsnId);
+        }
+
+        return static::$hsnCache[$hsnId];
+    }
+
+    protected function getCachedTaxCategory()
+    {
+        $taxCategoryId = $this->tax_category;
+
+        if (!$taxCategoryId) {
+            return null;
+        }
+
+        if (!array_key_exists($taxCategoryId, static::$taxCategoryCache)) {
+            static::$taxCategoryCache[$taxCategoryId] = TaxCategory::find($taxCategoryId);
+        }
+
+        return static::$taxCategoryCache[$taxCategoryId];
+    }
+
+    protected function getCachedCompany()
+    {
+        $companyId = $this->company_id;
+
+        if (!$companyId) {
+            return null;
+        }
+
+        if (!array_key_exists($companyId, static::$companyCache)) {
+            static::$companyCache[$companyId] = ProductCompany::find($companyId);
+        }
+
+        return static::$companyCache[$companyId];
+    }
+
+    protected function getCachedUnit()
+    {
+        $unitId = $this->unit_1st;
+
+        if (!$unitId) {
+            return null;
+        }
+
+        if (!array_key_exists($unitId, static::$unitCache)) {
+            static::$unitCache[$unitId] = Unit::find($unitId);
+        }
+
+        return static::$unitCache[$unitId];
     }
 
     public function getHsnAttribute()
     {
-        $unit  = HSN::find($this->hsn_sac);
-        return $unit ? $unit->code : 'Unknown';
+        $hsn = $this->getCachedHsn();
+        return $hsn ? $hsn->code : 'Unknown';
     }
 
     public function getCodeAttribute()
     {
-        $unit  = HSN::find($this->hsn_sac);
-        return $unit ? $unit->code : 'Unknown';
+        $hsn = $this->getCachedHsn();
+        return $hsn ? $hsn->code : 'Unknown';
     }
 
     public function getbrandnameAttribute()

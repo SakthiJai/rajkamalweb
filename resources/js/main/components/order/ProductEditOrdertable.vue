@@ -16,6 +16,8 @@
                         selections: false,
                         type: 'radio',
                     }"
+                    :sticky="{ offsetHeader: 60 }"
+                    :scroll="{ y: 400 }"
                     bordered
                     size="middle"
                     id="payment-reports-table"
@@ -1040,6 +1042,9 @@ export default {
             console.log("Selected Row Key:", selectedRowKey);
             selectedRowKeysValue = [selectedRowKey];
             this.selectedInvoice = selectedRowKey;
+
+            // Scroll the row into view
+            currentRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             // this.selectedInvoice = currentRow
             //   .getElementsByTagName("td")[1]
