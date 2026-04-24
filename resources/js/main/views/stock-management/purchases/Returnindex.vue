@@ -136,6 +136,8 @@
 
     <admin-page-table-content>
             <PurchaseReturnOrderTable ref="PurchaseReturnOrderTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
+            :perPageItems="100"
+            :scrollY="600"
             :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect" v-on:row-select="rowselect" v-on:mouse-select="mouseselect"/>
 
 

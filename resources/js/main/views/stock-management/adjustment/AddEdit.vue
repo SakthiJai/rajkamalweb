@@ -443,13 +443,18 @@ if (!isInput && (event.key === 'ArrowRight' || event.key === 'ArrowLeft')) {
 const onSubmit = () => {
     if (!validateForm()) return;
 
+    const parsedQuantity = Number(props.formData.quantity);
+    const normalizedQuantity = Math.abs(parsedQuantity);
+    const normalizedAdjustmentType =
+        parsedQuantity < 0 ? "subtract" : "add";
+
     const payload = {
         product_id: props.formData.product_id,
-        quantity: props.formData.quantity,
+        quantity: normalizedQuantity,
         reason: props.formData.reason,
         packaging: props.formData.packaging,
         value: props.formData.value,
-        adjustment_type: props.formData.adjustment_type || "add",
+        adjustment_type: normalizedAdjustmentType,
     };
 const httpMethod = props.addEditType === "add" ? "post" : "put";
 

@@ -9,6 +9,8 @@
                     :pagination="table.pagination"
                     :loading="table.loading"
                     @change="handleTableChange"
+                    :scroll="{ y: scrollY }"
+                    :sticky="{ offsetHeader: 60 }"
                     :rowSelection="{
                         selectedRowKeys: selectedRowKeysValue,
                         onChange: onSelectChange,
@@ -266,6 +268,10 @@ import View from "../../views/users/View.vue";
 
 export default {
     props: {
+        scrollY: {
+      type: Number,
+      default: 500
+    },
         selectable: {
             default: false,
         },
@@ -424,7 +430,7 @@ export default {
             orderType.value = props.orderType;
             if (props.perPageItems) {
                 datatableVariables.table.pagination.pageSize =
-                    props.perPageItems;
+                    props.perPageItems || 100;
             }
             datatableVariables.table.pagination.current = 1;
             datatableVariables.table.pagination.currentPage = 1;
@@ -1001,20 +1007,30 @@ export default {
             }
         },
 
-        updateSelection(event) {
-            const currentRadioInput =
-                document.getElementsByClassName("ant-radio-input")[this.focus];
+        updateSelection() {
+            const radios = document.getElementsByClassName("ant-radio-input");
+
+            if (!radios[this.focus]) return;
+
+            const currentRadioInput = radios[this.focus];
             currentRadioInput.click();
+
             const currentRow = currentRadioInput.closest("tr");
+
+            if (currentRow) {
+                // ✅ Scroll into view
+                currentRow.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+            }
+
             const selectedRowKey = currentRow.getAttribute("data-row-key");
-            console.log("Selected Row Key:", selectedRowKey);
             selectedRowKeysValue = [selectedRowKey];
+
             this.selectedInvoice = currentRow
                 .getElementsByTagName("td")[1]
-                .innerHTML.replace(/<[^>]*>?/gm, "");
-
-            //this.$emit('child-select');*/
-            //console.log(this.table.data);
+                .innerText;
         },
         editReturn(cr_number) {
             this.$emit("child-select", cr_number);

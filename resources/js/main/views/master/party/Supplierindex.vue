@@ -1,6 +1,6 @@
 <template>
   <div id="suppliercreate">
-    <AdminPageHeader>
+    <AdminPageHeader class="sticky-header">
       <template #breadcrumb>
         <a-breadcrumb separator="-" style="font-size: 12px">
           <a-breadcrumb-item>
@@ -40,7 +40,7 @@
       <template> </template>
     </AdminPageHeader>
 
-    <admin-page-filters>
+    <admin-page-filters class="sticky-filters">
       <a-row :gutter="16">
         <loading
           v-model:active="isLoading"
@@ -110,6 +110,7 @@
         tableSize="middle"
         :bordered="true"
         :selectable="true"
+        :perPageItems="100"
         :currentPath="$route.path"
         @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)"
         v-on:child-select="updateselect"
@@ -645,5 +646,21 @@ input[readonly] {
 }
 .ant-table-pagination.ant-pagination {
   margin: 5px 0 !important;
+}
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: white;
+}
+.sticky-filters {
+  position: sticky;
+  top: 60px;
+  z-index: 999;
+  background-color: white;
+}
+#suppliercreate .ant-table-thead > tr > th,
+#suppliercreate .ant-table-tbody > tr > td {
+  padding: 2px !important;
 }
 </style>

@@ -97,9 +97,7 @@
                     <a-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
                         <DateRangePicker
                             ref="datePickerRef"
-                            @dateTimeChanged="
-                                (changedDateTime) => (filters.dates = changedDateTime)
-                            "
+                            @dateTimeChanged="handleDateRangeChange"
                         />
                     </a-col>
                 </a-row>
@@ -116,7 +114,7 @@
                 </a-tabs>
             </a-col>
         </a-row>
-
+<div class="custom-table">
         <OrderTable
             ref="orderTableRef"
             :orderType="orderType"
@@ -127,7 +125,7 @@
              @child-select="handleEnterEdit" 
             @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)"
             @onEditRow="handleEditRow"
-        />
+        /></div>
     </admin-page-table-content>
 </template>
 
@@ -189,7 +187,7 @@ const handleEditRow = (row) => {
         console.log("Received invoice:", row.invoice_number);
     }
 };
-const handleEnterEdit = (invoiceNumber) => {
+        const handleEnterEdit = (invoiceNumber) => {
     console.log("ENTER received:", invoiceNumber);
 
     if (!invoiceNumber) return; // safety check
@@ -201,6 +199,19 @@ const handleEnterEdit = (invoiceNumber) => {
         query: { invoice_number: invoiceNumber }
     });
 };
+        const refreshTable = () => {
+            if (
+                orderTableRef.value &&
+                typeof orderTableRef.value.setUrlData === "function"
+            ) {
+                orderTableRef.value.setUrlData();
+            }
+        };
+
+        const handleDateRangeChange = (changedDateTime) => {
+            filters.value.dates = changedDateTime;
+            refreshTable();
+        };
         const handleKeyDown = (event) => {
 
             // LEFT / RIGHT for filter controls
@@ -310,6 +321,7 @@ const handleEnterEdit = (invoiceNumber) => {
             serachDateRangePicker,
             selectedRowIds,
             orderTableRef,
+            handleDateRangeChange,
             createNewStockTransfer,
             handleEditRow,
             handleEnterEdit,

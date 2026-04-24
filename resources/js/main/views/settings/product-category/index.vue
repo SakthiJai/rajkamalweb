@@ -1,4 +1,5 @@
 <template>
+    <div id="productcategoryindex">
     <AdminPageHeader>
         <template #header>
             <a-page-header :title="$t(`Product Category`)" class="p-0" />
@@ -73,6 +74,8 @@
                                 style="width: 75%"
                                 v-model:value="table.searchString"
                                 show-search
+                                @focus="isSearchFocused = true"
+                                @blur="isSearchFocused = false"
                                 @change="onTableSearch"
                                 @search="onTableSearch"
                                 :loading="table.filterLoading"
@@ -114,6 +117,7 @@
                         :data-source="table.data"
                         :pagination="table.pagination"
                         :loading="table.loading"
+                        :scroll="{ y: 500 }"
                         @change="handleTableChange"
                         bordered
                         size="middle"
@@ -153,6 +157,7 @@
             </a-col>
         </a-row>
     </admin-page-table-content>
+    </div>
 </template>
 <script>
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from "vue";
@@ -185,7 +190,48 @@ export default {
         const searchInputRef = ref(null);
         const isSearchFocused = ref(false);
 
+        const scrollSelectedRowIntoView = async () => {
+            await nextTick();
+
+            const tableBody = document.querySelector(
+                "#productcategoryindex .ant-table-body"
+            );
+            const selectedRow = document.querySelector(
+                "#productcategoryindex .ant-table-tbody > tr.ant-table-row-selected"
+            );
+
+            if (!tableBody || !selectedRow) {
+                return;
+            }
+
+            const rowTop = selectedRow.offsetTop;
+            const rowBottom = rowTop + selectedRow.offsetHeight;
+            const visibleTop = tableBody.scrollTop;
+            const visibleBottom = visibleTop + tableBody.clientHeight;
+
+            if (rowTop < visibleTop) {
+                tableBody.scrollTop = rowTop;
+            } else if (rowBottom > visibleBottom) {
+                tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+            }
+        };
+
+        const updateSelectedRow = async (row) => {
+            if (!row) {
+                return;
+            }
+
+            crudVariables.table.selectedRowKeys = [row.xid];
+            await scrollSelectedRowIntoView();
+        };
+
 onMounted(async () => {
+    crudVariables.table.pagination = {
+        ...crudVariables.table.pagination,
+        pageSize: 100,
+        current: 1,
+    };
+
     crudVariables.tableUrl.value = {
         url: "product-category?fields=id,xid,product_category_name",
     };
@@ -228,22 +274,26 @@ onBeforeUnmount(() => {
     if (event.key === "ArrowDown") {
         event.preventDefault();
         if (data.length === 0) return;
-        if (selectedRowIndex.value < data.length - 1) {
+        if (selectedRowIndex.value < 0) {
+            selectedRowIndex.value = 0;
+        } else if (selectedRowIndex.value < data.length - 1) {
             selectedRowIndex.value++;
         }
         const row = data[selectedRowIndex.value];
-        crudVariables.table.selectedRowKeys = [row.xid];
+        updateSelectedRow(row);
     }
 
     // Arrow Up
     if (event.key === "ArrowUp") {
         event.preventDefault();
         if (data.length === 0) return;
-        if (selectedRowIndex.value > 0) {
+        if (selectedRowIndex.value < 0) {
+            selectedRowIndex.value = 0;
+        } else if (selectedRowIndex.value > 0) {
             selectedRowIndex.value--;
         }
         const row = data[selectedRowIndex.value];
-        crudVariables.table.selectedRowKeys = [row.xid];
+        updateSelectedRow(row);
     }
 
     // Enter → Edit
@@ -271,6 +321,9 @@ const onRowSelectChange = (selectedKeys) => {
         selectedRowIndex.value = crudVariables.table.data.findIndex(
             (row) => row.xid === selectedKeys[0]
         );
+        scrollSelectedRowIntoView();
+    } else {
+        selectedRowIndex.value = -1;
     }
 };
 
@@ -286,3 +339,9 @@ return {
     },
 };
 </script>
+<style>
+#productcategoryindex .ant-table-thead > tr > th,
+#productcategoryindex .ant-table-tbody > tr > td {
+    padding: 3px !important;
+}
+</style>

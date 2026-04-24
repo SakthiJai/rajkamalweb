@@ -1,4 +1,5 @@
 <template>
+    <div id="stockalertindex">
     <AdminPageHeader>
         <template #header>
             <a-page-header :title="$t(`menu.stock_alert`)" class="p-0">
@@ -57,10 +58,20 @@
                 <div class="table-responsive">
                     <a-table
                         :columns="stockAlertColumns"
+                        :row-selection="{
+                            selectedRowKeys: table.selectedRowKeys,
+                            onChange: onRowSelectChange,
+                            getCheckboxProps: (record) => ({
+                                disabled: false,
+                                name: record.xid,
+                            }),
+                            type: 'radio',
+                        }"
                         :row-key="(record) => record.xid"
                         :data-source="table.data"
                         :pagination="table.pagination"
                         :loading="table.loading"
+                        :scroll="{ y: 500 }"
                         @change="handleTableChange"
                         id="stock-alert-reports-table"
                         bordered
@@ -120,9 +131,10 @@
             </a-col>
         </a-row>
     </admin-page-table-content>
+    </div>
 </template>
 <script>
-import { onMounted, ref, onBeforeMount, watch, computed } from "vue";
+import { onMounted, ref, onBeforeMount, watch, computed, nextTick, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import ProductSearchInput from "../../../../common/components/product/ProductSearchInput.vue";
 import common from "../../../../common/composable/common";
@@ -147,8 +159,96 @@ export default {
         const { url, stockAlertColumns, stockAlertHashableColumns } = fields();
         const searchProductId = ref(undefined);
         const productSearchInputRef = ref(null);
+        const selectedRowIndex = ref(-1);
         const router = useRouter();
         const datatableVariables = datatable();
+
+        const scrollSelectedRowIntoView = async () => {
+            await nextTick();
+
+            const tableBody = document.querySelector("#stockalertindex .ant-table-body");
+            const selectedRow = document.querySelector(
+                "#stockalertindex .ant-table-tbody > tr.ant-table-row-selected"
+            );
+
+            if (!tableBody || !selectedRow) {
+                return;
+            }
+
+            const rowTop = selectedRow.offsetTop;
+            const rowBottom = rowTop + selectedRow.offsetHeight;
+            const visibleTop = tableBody.scrollTop;
+            const visibleBottom = visibleTop + tableBody.clientHeight;
+
+            if (rowTop < visibleTop) {
+                tableBody.scrollTop = rowTop;
+            } else if (rowBottom > visibleBottom) {
+                tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+            }
+        };
+
+        const updateSelectedRow = async (row) => {
+            if (!row) {
+                return;
+            }
+
+            datatableVariables.table.selectedRowKeys = [row.xid];
+            await scrollSelectedRowIntoView();
+        };
+
+        const onRowSelectChange = (selectedKeys) => {
+            datatableVariables.table.selectedRowKeys = selectedKeys;
+
+            if (selectedKeys.length > 0) {
+                selectedRowIndex.value = datatableVariables.table.data.findIndex(
+                    (row) => row.xid === selectedKeys[0]
+                );
+                scrollSelectedRowIntoView();
+            } else {
+                selectedRowIndex.value = -1;
+            }
+        };
+
+        const handleKeyDown = (event) => {
+            const activeElement = document.activeElement;
+            const searchInput = productSearchInputRef.value?.$el?.querySelector("input");
+
+            if (
+                searchInput &&
+                activeElement === searchInput &&
+                !["ArrowUp", "ArrowDown", "Enter"].includes(event.key)
+            ) {
+                return;
+            }
+
+            const data = datatableVariables.table.data;
+
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                if (data.length === 0) return;
+
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value < data.length - 1) {
+                    selectedRowIndex.value++;
+                }
+
+                updateSelectedRow(data[selectedRowIndex.value]);
+            }
+
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+                if (data.length === 0) return;
+
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value > 0) {
+                    selectedRowIndex.value--;
+                }
+
+                updateSelectedRow(data[selectedRowIndex.value]);
+            }
+        };
 
         onBeforeMount(() => {
             if (
@@ -164,6 +264,7 @@ export default {
 
         onMounted(() => {
             getTableData();
+            window.addEventListener("keydown", handleKeyDown);
 
             // Auto-focus the product search input after mount
             setTimeout(() => {
@@ -175,7 +276,17 @@ export default {
             }, 0);
         });
 
+        onBeforeUnmount(() => {
+            window.removeEventListener("keydown", handleKeyDown);
+        });
+
         const getTableData = () => {
+            datatableVariables.table.pagination = {
+                ...datatableVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+            };
+
             datatableVariables.tableUrl.value = {
                 url,
                 filters: {
@@ -220,7 +331,14 @@ export default {
             totals,
             formatAmountCurrency,
             productSearchInputRef,
+            onRowSelectChange,
         };
     },
 };
 </script>
+<style>
+#stockalertindex .ant-table-thead > tr > th,
+#stockalertindex .ant-table-tbody > tr > td {
+    padding: 3px !important;
+}
+</style>

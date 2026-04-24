@@ -125,6 +125,8 @@
     <admin-page-table-content>
 
             <BillReturnOrderTable ref="BillReturnOrderTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
+            :perPageItems="100"
+            :scrollY="500"
             :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect" />
     </admin-page-table-content>
 </div>

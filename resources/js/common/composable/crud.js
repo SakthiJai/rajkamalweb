@@ -124,7 +124,7 @@ const crud = () => {
 
         fetch({
             page: addEditType.value == "add" ? 1 : currentPage.value,
-            limit: 10,
+            limit: table.pagination.pageSize,
         });
 
         if (submitType == "add-edit") {

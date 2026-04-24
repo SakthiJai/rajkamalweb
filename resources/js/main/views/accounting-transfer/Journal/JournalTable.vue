@@ -20,6 +20,7 @@
                     :data-source="table.data"
                     :pagination="table.pagination"
                     :loading="table.loading"
+                    :scroll="{ y: 500 }"
                     @change="handleTableChange"
                     :bordered="bordered"
                     :size="tableSize"
@@ -581,6 +582,10 @@ export default {
         },
         filters: {
             default: {},
+        },
+        scrollY: {
+            type: Number,
+            default: 500,
         },
         perPageItems: Number,
     },

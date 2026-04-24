@@ -1,10 +1,10 @@
 <template>
     <a-row>
         <a-col :span="24">
-            <div class="table-responsive">
+            <div class="table-responsiveof">
 
                 <a-table :columns="purchaseReturnColumns" :row-key="(record) => record.id" :data-source="table.data"
-                    :pagination="table.pagination" :loading="table.loading" @change="handleTableChange"
+                    :pagination="table.pagination" :loading="table.loading" :scroll="{ y: 500 }" @change="handleTableChange"
                     :rowSelection="{
                         selectedRowKeys: selectedRowKeysValue,
                         onChange: onSelectChange,
@@ -149,6 +149,10 @@ export default {
         },
         filters: {
             default: {},
+        },
+        scrollY: {
+            type: Number,
+            default: 600,
         },
         perPageItems: Number,
     },
@@ -854,6 +858,19 @@ let selectedRowKeysValue = [];
             console.log('Selected Row Key:', selectedRowKey);
             selectedRowKeysValue=[selectedRowKey]
             this.selectedInvoice = currentRow.getElementsByTagName('td')[1].innerHTML.replace(/<[^>]*>?/gm, '');
+            const tableBody = currentRow?.closest('.ant-table-container')?.querySelector('.ant-table-body');
+            if (tableBody) {
+                const rowTop = currentRow.offsetTop;
+                const rowBottom = rowTop + currentRow.offsetHeight;
+                const visibleTop = tableBody.scrollTop;
+                const visibleBottom = visibleTop + tableBody.clientHeight;
+
+                if (rowTop < visibleTop) {
+                    tableBody.scrollTop = rowTop;
+                } else if (rowBottom > visibleBottom) {
+                    tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+                }
+            }
 
             //this.$emit('child-select');*/
             //console.log(this.table.data);
@@ -929,6 +946,12 @@ let selectedRowKeysValue = [];
 };
 </script>
 <style>
+    
+.table-responsiveof .ant-table-body {
+    max-height: 500px !important;
+    overflow-y: auto !important;
+}
+
  .ant-table-tbody>tr.ant-table-row-selected>td {
     background-color: #ffd451 !important;
 }

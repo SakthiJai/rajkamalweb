@@ -130,6 +130,8 @@
     <admin-page-table-content>
 
         <ReceiptTable ref="BillReturnOrderTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
+        :perPageItems="100"
+        :scrollY="500"
         :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect"  v-on:row-select="rowselect" v-on:mouse-select="mouseselect"  />
     </admin-page-table-content>
 <!--

@@ -8,6 +8,7 @@
                     :data-source="table.data"
                     :pagination="table.pagination"
                     :loading="table.loading"
+                    :scroll="{ y: scrollY }"
                     @change="handleTableChange"
                     :rowSelection="{
                         selectedRowKeys: selectedRowKeysValue,
@@ -155,6 +156,10 @@ export default {
         },
         filters: {
             default: {},
+        },
+        scrollY: {
+            type: Number,
+            default: 600,
         },
         perPageItems: Number,
     },
@@ -921,6 +926,21 @@ export default {
         .innerHTML.replace(/<[^>]*>?/gm, "");
 
       this.$emit("row-select", this.selectedInvoice);
+      const tableBody = currentRow
+        ?.closest(".ant-table-container")
+        ?.querySelector(".ant-table-body");
+      if (tableBody) {
+        const rowTop = currentRow.offsetTop;
+        const rowBottom = rowTop + currentRow.offsetHeight;
+        const visibleTop = tableBody.scrollTop;
+        const visibleBottom = visibleTop + tableBody.clientHeight;
+
+        if (rowTop < visibleTop) {
+          tableBody.scrollTop = rowTop;
+        } else if (rowBottom > visibleBottom) {
+          tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+        }
+      }
       //console.log(this.table.data);
     },
         editReturn(voucher_number) {

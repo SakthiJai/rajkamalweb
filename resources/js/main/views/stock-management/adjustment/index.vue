@@ -163,6 +163,7 @@
                         :data-source="table.data"
                         :pagination="table.pagination"
                         :loading="table.loading"
+                        :scroll="{ y: 500 }"
                         :custom-row="(record, index) => {
                             return {
                                 onClick: (event) => {
@@ -348,7 +349,14 @@ mounted() {
         editItemnew(record) {
             console.log("Edit button clicked! Record:", record);
             const data = { ...toRaw(record) };
-            this.modalFormData = { ...this.initData, ...toRaw(record) };
+            this.modalFormData = {
+                ...this.initData,
+                ...toRaw(record),
+                quantity:
+                    record.adjustment_type === "subtract"
+                        ? -Math.abs(Number(record.quantity || 0))
+                        : Math.abs(Number(record.quantity || 0)),
+            };
             this.modalType = "edit";
             this.modalUrl = `stock-adjustments/${record.xid}`;
             this.modalPageTitle = "Edit Stock Adjustment";
@@ -554,6 +562,12 @@ mounted() {
         });
 
         const reFetchDatatable = () => {
+    crudVariables.table.pagination = {
+        ...crudVariables.table.pagination,
+        pageSize: 100,
+        current: 1,
+    };
+
     crudVariables.tableUrl.value = {
         url,
         filters,

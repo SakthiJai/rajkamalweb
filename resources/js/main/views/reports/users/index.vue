@@ -1,4 +1,5 @@
 <template>
+    <div id="userreportsindex">
     <AdminPageHeader>
         <template #header>
             <a-page-header :title="$t(`menu.users_reports`)" class="p-0">
@@ -54,6 +55,8 @@
                                 style="width: 65%"
                                 v-model:value="table.searchString"
                                 show-search
+                                @focus="isSearchFocused = true"
+                                @blur="isSearchFocused = false"
                                 @change="onTableSearch"
                                 @search="onTableSearch"
                                 :loading="table.filterLoading"
@@ -94,10 +97,20 @@
                 <div class="table-responsive">
                     <a-table
                         :columns="columns"
+                        :row-selection="{
+                            selectedRowKeys: table.selectedRowKeys,
+                            onChange: onRowSelectChange,
+                            getCheckboxProps: (record) => ({
+                                disabled: false,
+                                name: record.xid,
+                            }),
+                            type: 'radio',
+                        }"
                         :row-key="(record) => record.xid"
                         :data-source="table.data"
                         :pagination="table.pagination"
                         :loading="table.loading"
+                        :scroll="{ y: 350 }"
                         @change="handleTableChange"
                         id="users-reports-table"
                         bordered
@@ -120,10 +133,10 @@
                                     "
                                     @click="openUserReportDrawer('', record)"
                                 >
-                                    {{ record.details.purchase_order_count }}
+                                    {{ record.details?.purchase_order_count ?? 0 }}
                                 </a>
                                 <span v-else>{{
-                                    record.details.purchase_order_count
+                                    record.details?.purchase_order_count ?? 0
                                 }}</span>
                             </template>
                             <template
@@ -142,10 +155,10 @@
                                         openUserReportDrawer('returns', record)
                                     "
                                 >
-                                    {{ record.details.purchase_return_count }}
+                                    {{ record.details?.purchase_return_count ?? 0 }}
                                 </a>
                                 <span v-else>{{
-                                    record.details.purchase_return_count
+                                    record.details?.purchase_return_count ?? 0
                                 }}</span>
                             </template>
                             <template
@@ -161,10 +174,10 @@
                                     "
                                     @click="openUserReportDrawer('', record)"
                                 >
-                                    {{ record.details.sales_order_count }}
+                                    {{ record.details?.sales_order_count ?? 0 }}
                                 </a>
                                 <span v-else>{{
-                                    record.details.sales_order_count
+                                    record.details?.sales_order_count ?? 0
                                 }}</span>
                             </template>
                             <template
@@ -183,10 +196,10 @@
                                         openUserReportDrawer('returns', record)
                                     "
                                 >
-                                    {{ record.details.sales_return_count }}
+                                    {{ record.details?.sales_return_count ?? 0 }}
                                 </a>
                                 <span v-else>
-                                    {{ record.details.sales_return_count }}
+                                    {{ record.details?.sales_return_count ?? 0 }}
                                 </span>
                             </template>
                             <template
@@ -198,7 +211,7 @@
                                 {{
                                     formatAmountCurrency(
                                         convertToPositive(
-                                            record.details.total_amount
+                                            record.details?.total_amount ?? 0
                                         )
                                     )
                                 }}
@@ -212,7 +225,7 @@
                                 {{
                                     formatAmountCurrency(
                                         convertToPositive(
-                                            record.details.paid_amount
+                                            record.details?.paid_amount ?? 0
                                         )
                                     )
                                 }}
@@ -224,68 +237,70 @@
                                 "
                             >
                                 <UserBalance
-                                    :amount="record.details.due_amount"
+                                    :amount="record.details?.due_amount ?? 0"
                                 />
                             </template>
                         </template>
                         <template #summary>
-                            <a-table-summary-row>
-                                <a-table-summary-cell :col-span="4">
-                                </a-table-summary-cell>
-                                <a-table-summary-cell :col-span="1">
-                                    <a-typography-text strong>
-                                        {{ $t("common.total") }}
-                                    </a-typography-text>
-                                </a-table-summary-cell>
-                                <a-table-summary-cell :col-span="1">
-                                    <a-typography-text strong>
-                                        {{
-                                            formatAmountCurrency(
-                                                totals.totalAmount
-                                            )
-                                        }}
-                                    </a-typography-text>
-                                </a-table-summary-cell>
-                                <a-table-summary-cell :col-span="1">
-                                    <a-typography-text strong>
-                                        {{
-                                            formatAmountCurrency(
-                                                totals.paidAmount
-                                            )
-                                        }}
-                                    </a-typography-text>
-                                </a-table-summary-cell>
-                                <a-table-summary-cell :col-span="1">
-                                    <a-tooltip
-                                        v-if="totals.dueAmount < 0"
-                                        :title="$t('payments.you_will_pay')"
-                                    >
-                                        <ArrowUpOutlined
-                                            :style="{ color: 'red' }"
-                                        />
-                                        {{
-                                            formatAmountCurrency(
-                                                totals.dueAmount
-                                            )
-                                        }}
-                                    </a-tooltip>
-                                    <a-tooltip
-                                        v-else
-                                        :title="$t('payments.you_will_receive')"
-                                    >
-                                        <span v-if="totals.dueAmount > 0">
-                                            <ArrowDownOutlined
-                                                :style="{ color: 'green' }"
+                            <a-table-summary fixed>
+                                <a-table-summary-row>
+                                    <a-table-summary-cell :col-span="4">
+                                    </a-table-summary-cell>
+                                    <a-table-summary-cell :col-span="1">
+                                        <a-typography-text strong>
+                                            {{ $t("common.total") }}
+                                        </a-typography-text>
+                                    </a-table-summary-cell>
+                                    <a-table-summary-cell :col-span="1">
+                                        <a-typography-text strong>
+                                            {{
+                                                formatAmountCurrency(
+                                                    totals.totalAmount
+                                                )
+                                            }}
+                                        </a-typography-text>
+                                    </a-table-summary-cell>
+                                    <a-table-summary-cell :col-span="1">
+                                        <a-typography-text strong>
+                                            {{
+                                                formatAmountCurrency(
+                                                    totals.paidAmount
+                                                )
+                                            }}
+                                        </a-typography-text>
+                                    </a-table-summary-cell>
+                                    <a-table-summary-cell :col-span="1">
+                                        <a-tooltip
+                                            v-if="totals.dueAmount < 0"
+                                            :title="$t('payments.you_will_pay')"
+                                        >
+                                            <ArrowUpOutlined
+                                                :style="{ color: 'red' }"
                                             />
-                                        </span>
-                                        {{
-                                            formatAmountCurrency(
-                                                totals.dueAmount
-                                            )
-                                        }}
-                                    </a-tooltip>
-                                </a-table-summary-cell>
-                            </a-table-summary-row>
+                                            {{
+                                                formatAmountCurrency(
+                                                    totals.dueAmount
+                                                )
+                                            }}
+                                        </a-tooltip>
+                                        <a-tooltip
+                                            v-else
+                                            :title="$t('payments.you_will_receive')"
+                                        >
+                                            <span v-if="totals.dueAmount > 0">
+                                                <ArrowDownOutlined
+                                                    :style="{ color: 'green' }"
+                                                />
+                                            </span>
+                                            {{
+                                                formatAmountCurrency(
+                                                    totals.dueAmount
+                                                )
+                                            }}
+                                        </a-tooltip>
+                                    </a-table-summary-cell>
+                                </a-table-summary-row>
+                            </a-table-summary>
                         </template>
                     </a-table>
                 </div>
@@ -300,10 +315,19 @@
             :destroyOnClose="true"
         />
     </admin-page-table-content>
+    </div>
 </template>
 
 <script>
-import { onMounted, onBeforeMount, ref, watch, computed } from "vue";
+import {
+    onMounted,
+    onBeforeMount,
+    ref,
+    watch,
+    computed,
+    nextTick,
+    onBeforeUnmount,
+} from "vue";
 import { useRouter } from "vue-router";
 import crud from "../../../../common/composable/crud";
 import common from "../../../../common/composable/common";
@@ -342,6 +366,93 @@ export default {
         const activeOrderType = ref("sales");
         const router = useRouter();
         const userSearchInputRef = ref(null);
+        const selectedRowIndex = ref(-1);
+        const isSearchFocused = ref(false);
+
+        const scrollSelectedRowIntoView = async () => {
+            await nextTick();
+
+            const tableBody = document.querySelector(
+                "#userreportsindex .ant-table-body"
+            );
+            const selectedRow = document.querySelector(
+                "#userreportsindex .ant-table-tbody > tr.ant-table-row-selected"
+            );
+
+            if (!tableBody || !selectedRow) {
+                return;
+            }
+
+            const rowTop = selectedRow.offsetTop;
+            const rowBottom = rowTop + selectedRow.offsetHeight;
+            const visibleTop = tableBody.scrollTop;
+            const visibleBottom = visibleTop + tableBody.clientHeight;
+
+            if (rowTop < visibleTop) {
+                tableBody.scrollTop = rowTop;
+            } else if (rowBottom > visibleBottom) {
+                tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+            }
+        };
+
+        const updateSelectedRow = async (row) => {
+            if (!row) {
+                return;
+            }
+
+            crudVariables.table.selectedRowKeys = [row.xid];
+            await scrollSelectedRowIntoView();
+        };
+
+        const onRowSelectChange = (selectedKeys) => {
+            crudVariables.table.selectedRowKeys = selectedKeys;
+
+            if (selectedKeys.length > 0) {
+                selectedRowIndex.value = crudVariables.table.data.findIndex(
+                    (row) => row.xid === selectedKeys[0]
+                );
+                scrollSelectedRowIntoView();
+            } else {
+                selectedRowIndex.value = -1;
+            }
+        };
+
+        const handleKeyDown = (event) => {
+            if (
+                isSearchFocused.value &&
+                !["ArrowUp", "ArrowDown", "Enter"].includes(event.key)
+            ) {
+                return;
+            }
+
+            const data = crudVariables.table.data;
+
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                if (data.length === 0) return;
+
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value < data.length - 1) {
+                    selectedRowIndex.value++;
+                }
+
+                updateSelectedRow(data[selectedRowIndex.value]);
+            }
+
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+                if (data.length === 0) return;
+
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value > 0) {
+                    selectedRowIndex.value--;
+                }
+
+                updateSelectedRow(data[selectedRowIndex.value]);
+            }
+        };
 
         onBeforeMount(() => {
             if (
@@ -370,6 +481,7 @@ export default {
 
         onMounted(() => {
             setUrlData();
+            window.addEventListener("keydown", handleKeyDown);
 
             // Auto-focus the user search input after mount
             setTimeout(() => {
@@ -381,7 +493,17 @@ export default {
             }, 0);
         });
 
+        onBeforeUnmount(() => {
+            window.removeEventListener("keydown", handleKeyDown);
+        });
+
         const setUrlData = () => {
+            crudVariables.table.pagination = {
+                ...crudVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+            };
+
             crudVariables.tableUrl.value = {
                 url: `${userType.value}?fields=id,xid,user_type,name,email,profile_image,profile_image_url,phone,details{purchase_order_count,purchase_return_count,sales_order_count,sales_return_count,total_amount,paid_amount,due_amount}`,
                 filters: "",
@@ -412,9 +534,9 @@ export default {
             let dueAmount = 0;
             let paidAmount = 0;
             crudVariables.table.data.forEach((tableRowData) => {
-                totalAmount += tableRowData.details.total_amount;
-                dueAmount += tableRowData.details.due_amount;
-                paidAmount += tableRowData.details.paid_amount;
+                totalAmount += tableRowData.details?.total_amount ?? 0;
+                dueAmount += tableRowData.details?.due_amount ?? 0;
+                paidAmount += tableRowData.details?.paid_amount ?? 0;
             });
             return {
                 totalAmount,
@@ -441,7 +563,16 @@ export default {
             activeOrderType,
             totals,
             userSearchInputRef,
+            isSearchFocused,
+            onRowSelectChange,
         };
     },
 };
 </script>
+
+<style scoped>
+#userreportsindex :deep(.ant-table-thead > tr > th),
+#userreportsindex :deep(.ant-table-tbody > tr > td) {
+    padding: 5px !important;
+}
+</style>

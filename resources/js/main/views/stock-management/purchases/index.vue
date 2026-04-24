@@ -135,8 +135,20 @@
     </admin-page-filters>
 
     <admin-page-table-content>
-            <OrderTable ref="orderTableRef"  salesType="salestype=sales" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
-                :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect" v-on:row-select="rowselect" v-on:mouse-select="mouseselect" />
+            <OrderTable 
+            ref="orderTableRef"  
+            salesType="salestype=sales" 
+            :orderType="orderType" 
+            :filters="filters" 
+            tableSize="middle" 
+            :bordered="true"
+            :perPageItems="100"
+            :scrollY="500"
+                :selectable="true"
+                 @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" 
+                 v-on:child-select="updateselect" 
+                 v-on:row-select="rowselect" 
+                 v-on:mouse-select="mouseselect" />
         </admin-page-table-content>
         </div>
 </template>

@@ -617,5 +617,9 @@
     z-index: 999;
     background-color: white;
   }
+  #productcreate .ant-table-thead > tr > th,
+  #productcreate .ant-table-tbody > tr > td {
+    padding: 2px !important;
+  }
   </style>
   

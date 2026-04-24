@@ -150,7 +150,9 @@
 
     <admin-page-table-content>
         <ContraTable ref="orderTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
-            :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" />
+            :perPageItems="100"
+            :scrollY="600"
+            :selectable="true" @onRowSelection="handleRowSelection" />
     </admin-page-table-content>
 </template>
 <script>
@@ -192,6 +194,7 @@ export default {
                 top: '0px',
                 left: '0px'
             },
+            selectedRowIndex: -1,
         };
     },
     mounted() {
@@ -203,6 +206,43 @@ export default {
     document.removeEventListener('keydown', this.handleKeydown);
   },
     methods: {
+        syncSelectedRow(row) {
+            if (!row || !this.orderTableRef) {
+                return;
+            }
+
+            if (typeof this.orderTableRef.onRowSelectChange === 'function') {
+                this.orderTableRef.onRowSelectChange([row.xid]);
+            }
+
+            if (this.orderTableRef.table) {
+                this.orderTableRef.table.selectedRowKeys = [row.xid];
+            }
+
+            this.$nextTick(() => {
+                const tableBody = this.orderTableRef?.$el?.querySelector('.ant-table-body');
+                const selectedRow = this.orderTableRef?.$el?.querySelector(
+                    `.ant-table-tbody tr[data-row-key="${row.xid}"]`
+                );
+
+                if (!tableBody || !selectedRow) {
+                    return;
+                }
+
+                selectedRow.classList.add('ant-table-row-selected');
+
+                const rowTop = selectedRow.offsetTop;
+                const rowBottom = rowTop + selectedRow.offsetHeight;
+                const visibleTop = tableBody.scrollTop;
+                const visibleBottom = visibleTop + tableBody.clientHeight;
+
+                if (rowTop < visibleTop) {
+                    tableBody.scrollTop = rowTop;
+                } else if (rowBottom > visibleBottom) {
+                    tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+                }
+            });
+        },
         selectDateRange(range) {
             this.selectedRange = range.trim();
             this.buttonLabel = range.trim();
@@ -210,13 +250,46 @@ export default {
         },
 
         handleKeydown(event) {
-      if (event.key === 'F2') {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        const tableData = this.orderTableRef?.table?.data || [];
+        if (tableData.length === 0) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (event.key === 'ArrowDown') {
+            if (this.selectedRowIndex < 0) {
+                this.selectedRowIndex = 0;
+            } else if (this.selectedRowIndex < tableData.length - 1) {
+                this.selectedRowIndex++;
+            }
+        } else if (event.key === 'ArrowUp') {
+            if (this.selectedRowIndex < 0) {
+                this.selectedRowIndex = 0;
+            } else if (this.selectedRowIndex > 0) {
+                this.selectedRowIndex--;
+            }
+        }
+
+        const row = tableData[this.selectedRowIndex];
+        if (row) {
+            this.syncSelectedRow(row);
+        }
+      }
+      else if (event.key === 'F2') {
         // Perform route navigation
         this.$router.push({
           name: `admin.stock.${this.orderPageObject.type}.create`,
         });
       }
     },
+        handleRowSelection(selectedIds) {
+            this.selectedRowIds = selectedIds;
+            const selectedId = selectedIds?.[0];
+            const tableData = this.orderTableRef?.table?.data || [];
+            this.selectedRowIndex = tableData.findIndex((row) => row.xid === selectedId);
+        },
         autoFocusInput() {
             this.$nextTick(() => {
                 this.$refs.searchInput.focus();  // Automatically focus the input

@@ -35,6 +35,8 @@ class StockAdjustmentController extends ApiBaseController
 
 	public function storing(StockAdjustment $stockAdjustment)
 	{
+		$this->normalizeAdjustmentQuantity($stockAdjustment);
+
 		$warehouse = warehouse();
 		$stockAdjustment->created_by = auth('api')->user()->id;
 		$stockAdjustment->warehouse_id = $warehouse->id;
@@ -56,6 +58,8 @@ class StockAdjustmentController extends ApiBaseController
 
 	public function updating(StockAdjustment $stockAdjustment)
 	{
+		$this->normalizeAdjustmentQuantity($stockAdjustment);
+
 		$loggedUser = user();
 		$oldStockAdjustment = StockAdjustment::find($stockAdjustment->id);
 		$stockAdjustment->created_by = $loggedUser->id;
@@ -139,5 +143,18 @@ class StockAdjustmentController extends ApiBaseController
 
 		// Notifying to Warehouse
 		Notify::send('stock_adjustment_delete', $stockAdjustment);
+	}
+
+	private function normalizeAdjustmentQuantity(StockAdjustment $stockAdjustment): void
+	{
+		$quantity = (float) $stockAdjustment->quantity;
+
+		if ($quantity < 0) {
+			$stockAdjustment->adjustment_type = 'subtract';
+			$stockAdjustment->quantity = abs($quantity);
+		} else {
+			$stockAdjustment->quantity = abs($quantity);
+			$stockAdjustment->adjustment_type = $stockAdjustment->adjustment_type ?: 'add';
+		}
 	}
 }

@@ -1,4 +1,5 @@
 <template>
+    <div id="variationsindex">
     <AdminPageHeader>
         <template #header>
             <a-page-header :title="$t(`menu.variations`)" class="p-0" />
@@ -113,6 +114,7 @@
                         :data-source="table.data"
                         :pagination="table.pagination"
                         :loading="table.loading"
+                        :scroll="{ y: 500 }"
                         @change="handleTableChange"
                         bordered
                         size="middle"
@@ -171,6 +173,7 @@
             </a-col>
         </a-row>
     </admin-page-table-content>
+    </div>
 </template>
 <script>
 import { onMounted, nextTick, onBeforeUnmount, ref, watch } from "vue";
@@ -205,11 +208,53 @@ export default {
         const isSearchFocused = ref(false);
         const crudVariables = crud();
         const { permsArray } = common();
+
+        const scrollSelectedRowIntoView = async () => {
+            await nextTick();
+
+            const tableBody = document.querySelector(
+                "#variationsindex .ant-table-body"
+            );
+            const selectedRow = document.querySelector(
+                "#variationsindex .ant-table-tbody > tr.ant-table-row-selected"
+            );
+
+            if (!tableBody || !selectedRow) {
+                return;
+            }
+
+            const rowTop = selectedRow.offsetTop;
+            const rowBottom = rowTop + selectedRow.offsetHeight;
+            const visibleTop = tableBody.scrollTop;
+            const visibleBottom = visibleTop + tableBody.clientHeight;
+
+            if (rowTop < visibleTop) {
+                tableBody.scrollTop = rowTop;
+            } else if (rowBottom > visibleBottom) {
+                tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+            }
+        };
+
+        const updateSelectedRow = async (row) => {
+            if (!row) {
+                return;
+            }
+
+            crudVariables.table.selectedRowKeys = [row.xid];
+            await scrollSelectedRowIntoView();
+        };
+
         const onCloseAddEdit = () => {
             crudVariables.onCloseAddEdit();
         };
 
         const setUrlData = () => {
+            crudVariables.table.pagination = {
+                ...crudVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+            };
+
             const filterValue = encodeURIComponent("parent_id eq null");
 
             crudVariables.tableUrl.value = {
@@ -273,12 +318,14 @@ export default {
                 event.preventDefault();
                 if (data.length === 0) return;
 
-                if (selectedRowIndex.value < data.length - 1) {
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value < data.length - 1) {
                     selectedRowIndex.value++;
                 }
 
                 const row = data[selectedRowIndex.value];
-                crudVariables.table.selectedRowKeys = [row.xid];
+                updateSelectedRow(row);
             }
 
             // Arrow Up
@@ -286,12 +333,14 @@ export default {
                 event.preventDefault();
                 if (data.length === 0) return;
 
-                if (selectedRowIndex.value > 0) {
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value > 0) {
                     selectedRowIndex.value--;
                 }
 
                 const row = data[selectedRowIndex.value];
-                crudVariables.table.selectedRowKeys = [row.xid];
+                updateSelectedRow(row);
             }
 
             // Enter → Edit
@@ -320,6 +369,9 @@ export default {
                 selectedRowIndex.value = crudVariables.table.data.findIndex(
                     (row) => row.xid === selectedKeys[0]
                 );
+                scrollSelectedRowIntoView();
+            } else {
+                selectedRowIndex.value = -1;
             }
         };
 
@@ -336,3 +388,9 @@ export default {
     },
 };
 </script>
+<style>
+#variationsindex .ant-table-thead > tr > th,
+#variationsindex .ant-table-tbody > tr > td {
+    padding: 2px !important;
+}
+</style>

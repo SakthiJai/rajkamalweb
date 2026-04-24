@@ -8,6 +8,8 @@
           :data-source="table.data"
           :pagination="table.pagination"
           :loading="table.loading"
+          :sticky="{ offsetHeader: 60 }"
+          :scroll="{ y: 400 }"
           @change="handleTableChange"
           :rowSelection="{
             selectedRowKeys: selectedRowKeysValue,
@@ -1024,6 +1026,11 @@ export default {
       selectedRowKeysValue = [selectedRowKey];
       this.selectedInvoice = selectedRowKey;
       this.selectedPartyId.id = selectedRowKey;
+      currentRow.scrollIntoView({
+        behavior: "auto",
+        block: "nearest",
+        inline: "nearest",
+      });
       if (Array.isArray(this.table.data) && this.table.data.length > 0) {
         this.table.data.forEach((row) => {
           if (row.id === selectedRowKey || row.id == selectedRowKey) {
@@ -1057,6 +1064,8 @@ export default {
       var that = this;
       switch (event.keyCode) {
         case 38: // Arrow up
+          event.preventDefault();
+          event.stopPropagation();
           if (this.table.data.length > 0) {
             if (this.focus === null) {
               this.focus = 0;
@@ -1071,6 +1080,8 @@ export default {
           }
           break;
         case 40: // Arrow down
+          event.preventDefault();
+          event.stopPropagation();
           if (this.table.data.length > 0) {
             if (this.focus === null) {
               this.focus = 0;

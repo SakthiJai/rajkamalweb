@@ -131,8 +131,17 @@
     </admin-page-filters>
 
     <admin-page-table-content>
-        <SalesReturnOrderTable ref="SalesReturnOrderTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
-            :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect" />
+        <SalesReturnOrderTable
+         ref="SalesReturnOrderTableRef"
+         :perPageItems="100"
+         :scrollY="600"
+         :orderType="orderType" 
+         :filters="filters" 
+         tableSize="middle" 
+         :bordered="true"
+         :selectable="true" 
+         @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" 
+         v-on:child-select="updateselect" />
     </admin-page-table-content>
 </div>
 </template>
@@ -817,5 +826,9 @@ input[readonly] {
   cursor: pointer;
 }
 .ant-picker-focused:focus-within{background-color: yellow !important;}
+.ant-table-tbody > tr > td,
+.ant-table-thead > tr > th {
+    padding: 2px !important;
+}
 
 </style>

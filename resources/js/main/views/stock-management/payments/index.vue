@@ -1,4 +1,5 @@
 <template>
+    <div id="paymentsindex">
     <AdminPageHeader>
         <template #header>
             <a-page-header
@@ -152,6 +153,7 @@
                         :data-source="table.data"
                         :pagination="table.pagination"
                         :loading="table.loading"
+                        :scroll="{ y: 500 }"
                         @change="handleTableChange"
                         bordered
                         size="middle"
@@ -200,7 +202,7 @@
                             </template>
                         </template>
                         <template #summary>
-                            <a-table-summary-row>
+                            <a-table-summary-row class="table-footer">
                                 <a-table-summary-cell :col-span="3">
                                 </a-table-summary-cell>
                                 <a-table-summary-cell :col-span="1">
@@ -217,6 +219,8 @@
                                         }}
                                     </a-typography-text>
                                 </a-table-summary-cell>
+                                <a-table-summary-cell :col-span="1">
+                                </a-table-summary-cell>
                             </a-table-summary-row>
                         </template>
                     </a-table>
@@ -224,6 +228,7 @@
             </a-col>
         </a-row>
     </admin-page-table-content>
+    </div>
 </template>
 
 <script>
@@ -266,6 +271,40 @@ export default {
         const searchColumnRef = ref(null);
         const userSelectRef = ref(null);
         const crudVariables = crud();
+
+        const scrollSelectedRowIntoView = async () => {
+            await nextTick();
+
+            const tableBody = document.querySelector("#paymentsindex .ant-table-body");
+            const selectedRow = document.querySelector(
+                "#paymentsindex .ant-table-tbody > tr.ant-table-row-selected"
+            );
+
+            if (!tableBody || !selectedRow) {
+                return;
+            }
+
+            const rowTop = selectedRow.offsetTop;
+            const rowBottom = rowTop + selectedRow.offsetHeight;
+            const visibleTop = tableBody.scrollTop;
+            const visibleBottom = visibleTop + tableBody.clientHeight;
+
+            if (rowTop < visibleTop) {
+                tableBody.scrollTop = rowTop;
+            } else if (rowBottom > visibleBottom) {
+                tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+            }
+        };
+
+        const updateSelectedRow = async (row) => {
+            if (!row) {
+                return;
+            }
+
+            crudVariables.table.selectedRowKeys = [row.xid];
+            await scrollSelectedRowIntoView();
+        };
+
         const focusSearchAfterDrawer = () => {
     nextTick(() => {
         searchInputRef.value?.focus?.();
@@ -339,16 +378,24 @@ export default {
             if (event.key === "ArrowDown") {
                 event.preventDefault();
                 if (data.length === 0) return;
-                if (selectedRowIndex.value < data.length - 1) selectedRowIndex.value++;
-                crudVariables.table.selectedRowKeys = [data[selectedRowIndex.value].xid];
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value < data.length - 1) {
+                    selectedRowIndex.value++;
+                }
+                updateSelectedRow(data[selectedRowIndex.value]);
                 return;
             }
 
             if (event.key === "ArrowUp") {
                 event.preventDefault();
                 if (data.length === 0) return;
-                if (selectedRowIndex.value > 0) selectedRowIndex.value--;
-                crudVariables.table.selectedRowKeys = [data[selectedRowIndex.value].xid];
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value > 0) {
+                    selectedRowIndex.value--;
+                }
+                updateSelectedRow(data[selectedRowIndex.value]);
                 return;
             }
         
@@ -397,10 +444,19 @@ export default {
                 selectedRowIndex.value = crudVariables.table.data.findIndex(
                     (row) => row.xid === selectedKeys[0]
                 );
+                scrollSelectedRowIntoView();
+            } else {
+                selectedRowIndex.value = -1;
             }
         };
 
         const setUrlData = () => {
+            crudVariables.table.pagination = {
+                ...crudVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+            };
+
             crudVariables.tableUrl.value = {
                 url: `payment-${paymentType.value}?fields=id,xid,date,amount,notes,payment_mode_id,payment_number,payment_type,payment_mode_id,x_payment_mode_id,paymentMode{id,xid,name},user_id,x_user_id,user{id,xid,name,profile_image,profile_image_url,user_type}`,
                 filterString: `payment_type eq "${paymentType.value}"`,
@@ -494,3 +550,23 @@ export default {
     },
 };
 </script>
+<style>
+#paymentsindex .ant-table-thead > tr > th,
+#paymentsindex .ant-table-tbody > tr > td,
+#paymentsindex .ant-table-summary > tr > td {
+    padding: 3px !important;
+}
+.ant-table-summary {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: #fff;
+}
+.table-footer {
+    background-color: #ffffff;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+</style>

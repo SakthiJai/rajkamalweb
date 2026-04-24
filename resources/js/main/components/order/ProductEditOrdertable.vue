@@ -88,7 +88,7 @@
     </a-row>
 
     <!--- product edit-->
-    <a-row :gutter="16" style="margin-top: -13px">
+    <a-row :gutter="16" style="margin-top: 1px">
         <a-col :xs="24" :sm="24" :md="6" :lg="6">
             <fieldset style="height: 118px">
                 <legend class="font-style-in-prouct-model">
@@ -477,7 +477,7 @@ export default {
             orderType.value = props.orderType;
             if (props.perPageItems) {
                 datatableVariables.table.pagination.pageSize =
-                    props.perPageItems;
+                    props.perPageItems || 100;
             }
             datatableVariables.table.pagination.current = 1;
             datatableVariables.table.pagination.currentPage = 1;

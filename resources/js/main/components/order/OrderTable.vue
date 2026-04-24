@@ -8,6 +8,8 @@
           :data-source="table.data"
           :pagination="table.pagination"
           :loading="table.loading"
+          :scroll="{ y: 500 }"
+          :sticky="{ offsetHeader: 60 }"
           @change="handleTableChange"
           :rowSelection="{
            selectedRowKeys: selectedRowKeysValue,
@@ -137,7 +139,7 @@
             </a-table>
           </template>
           <template #summary>
-            <a-table-summary-row>
+            <a-table-summary-row class ="table-footer">
               <a-table-summary-cell
                 :col-span="selectable && orderType != 'online-orders' ? 6 : 7"
               >
@@ -145,7 +147,7 @@
               <a-table-summary-cell :col-span="1">
                 <a-typography-text strong> </a-typography-text>
               </a-table-summary-cell>
-              <a-table-summary-cell :col-span="2">
+              <a-table-summary-cell  :col-span="2">
                 <a-typography-text strong >
                   {{ $t("common.total") }}:
                   <span style="float: right"> ₹{{ totals.totalAmount.toFixed(2) }} </span>
@@ -263,6 +265,10 @@ import crud from "../../../common/composable/crud";
 
 export default {
   props: {
+    scrollY: {
+      type: Number,
+      default: 500
+    },
     selectable: {
       default: true,
     },
@@ -434,19 +440,16 @@ export default {
       };
     };
 
-    const initialSetup = () => {
-      orderType.value = props.orderType;
-      //salesType.value = props.salesType;
-      if (props.perPageItems) {
-        //datatableVariables.table.pagination.pageSize = props.perPageItems;
-      }
-      /* datatableVariables.table.pagination.current = 1;
-      datatableVariables.table.pagination.currentPage = 1;
-      datatableVariables.hashable.value = hashableColumns;*/
+const initialSetup = () => {
+  orderType.value = props.orderType;
 
-      setupTableColumns();
-      setUrlData();
-    };
+  if (props.perPageItems) {
+    datatableVariables.table.pagination.pageSize = props.perPageItems || 100 ;
+  }
+
+  setupTableColumns();
+  setUrlData();
+};
 
     const setUrlData = (searchBy) => {
       if (searchBy == undefined) {
@@ -1067,15 +1070,42 @@ if (selectedData) {
 }
 
   currentRow.classList.add("ant-table-row-selected");
+    const container = document.querySelector(".ant-table-body");
+  if (container && currentRow) {
+    const rowTop = currentRow.offsetTop;
+    const rowBottom = rowTop + currentRow.offsetHeight;
+
+    const containerScrollTop = container.scrollTop;
+    const containerHeight = container.clientHeight;
+
+    if (rowTop < containerScrollTop) {
+      container.scrollTop = rowTop;
+    } else if (rowBottom > containerScrollTop + containerHeight) {
+      container.scrollTop = rowBottom - containerHeight;
+    }
+  }
 },
   },
 };
 </script>
 <style>
+
+::v-deep(.ant-table-thead > tr > th),
+::v-deep(.ant-table-tbody > tr > td) {
+  padding: 3px !important;
+}
+
 .ant-table-tbody > tr.ant-table-row-selected > td {
   background-color: #ffd451 !important;
 }
 a-typography-link {
   color: black;
+}
+.table-footer {
+    background-color: #ffffff;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  width: 100%;
 }
 </style>
