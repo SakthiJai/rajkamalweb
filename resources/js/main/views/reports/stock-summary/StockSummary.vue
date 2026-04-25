@@ -8,6 +8,7 @@
                     :data-source="table.data"
                     :pagination="table.pagination"
                     :loading="table.loading"
+                    :scroll="{ y: 500 }"
                     @change="handleTableChange"
                     id="stock-summary-reports-table"
                     bordered
@@ -119,11 +120,23 @@ export default defineComponent({
         const datatableVariables = datatable();
 
         onMounted(() => {
+            datatableVariables.table.pagination = {
+                ...datatableVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+                currentPage: 1,
+            };
             const propsData = props;
             getData(propsData);
         });
 
         const getData = (propsData) => {
+            datatableVariables.table.pagination = {
+                ...datatableVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+                currentPage: 1,
+            };
             const filters = {};
 
             if (propsData.category_id && propsData.category_id != undefined) {

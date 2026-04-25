@@ -123,7 +123,7 @@
 
     <admin-page-table-content>
 
-            <ExpenseTable ref="expensesTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
+            <ExpenseTable ref="expensesTableRef" :orderType="orderType" :filters="filters" :perPageItems="100" tableSize="middle" :bordered="true"
             :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect" />
     </admin-page-table-content>
     </div>  

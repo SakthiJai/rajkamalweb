@@ -19,10 +19,13 @@ const fields = () => {
         {
             title: t("expense_category.description"),
             dataIndex: "description",
+            ellipsis: true,
+             
         },
         {
             title: t("common.action"),
             dataIndex: "action",
+            
         },
     ];
 

@@ -128,6 +128,7 @@
                                 :data-source="table.data"
                                 :pagination="table.pagination"
                                 :loading="table.loading"
+                                :scroll="{ y: 500 }"
                                 @change="handleTableChange"
                                 bordered
                                 size="middle"
@@ -207,6 +208,39 @@ export default {
         const { url, addEditUrl, initData, columns, filterableColumns } =
             fields();
         const crudVariables = crud();
+        const scrollSelectedRowIntoView = async () => {
+            await nextTick();
+
+            const tableBody = document.querySelector(".ant-table-body");
+            const selectedRow = document.querySelector(
+                ".ant-table-tbody > tr.ant-table-row-selected"
+            );
+
+            if (!tableBody || !selectedRow) {
+                return;
+            }
+
+            const rowTop = selectedRow.offsetTop;
+            const rowBottom = rowTop + selectedRow.offsetHeight;
+            const visibleTop = tableBody.scrollTop;
+            const visibleBottom = visibleTop + tableBody.clientHeight;
+
+            if (rowTop < visibleTop) {
+                tableBody.scrollTop = rowTop;
+            } else if (rowBottom > visibleBottom) {
+                tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+            }
+        };
+
+        const updateSelectedRow = async (row) => {
+            if (!row) {
+                return;
+            }
+
+            crudVariables.table.selectedRowKeys = [row.xid];
+            await scrollSelectedRowIntoView();
+        };
+
         const handleKeyDown = (event) => {
             if (crudVariables.addEditVisible.value) return;
 
@@ -235,12 +269,14 @@ export default {
                 event.preventDefault();
                 if (data.length === 0) return;
 
-                if (selectedRowIndex.value < data.length - 1) {
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value < data.length - 1) {
                     selectedRowIndex.value++;
                 }
 
                 const row = data[selectedRowIndex.value];
-                crudVariables.table.selectedRowKeys = [row.xid];
+                updateSelectedRow(row);
             }
 
             // Arrow Up
@@ -248,12 +284,14 @@ export default {
                 event.preventDefault();
                 if (data.length === 0) return;
 
-                if (selectedRowIndex.value > 0) {
+                if (selectedRowIndex.value < 0) {
+                    selectedRowIndex.value = 0;
+                } else if (selectedRowIndex.value > 0) {
                     selectedRowIndex.value--;
                 }
 
                 const row = data[selectedRowIndex.value];
-                crudVariables.table.selectedRowKeys = [row.xid];
+                updateSelectedRow(row);
             }
 
             // Enter → Edit
@@ -275,6 +313,12 @@ export default {
 };
 
         onMounted(async () => {
+            crudVariables.table.pagination = {
+                ...crudVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+                currentPage: 1,
+            };
             crudVariables.tableUrl.value = {
                 url: "receiptbank?fields=id,xid,bank_name,accountant_name,ifsc_code,account_number",
             };
@@ -305,6 +349,9 @@ const onRowSelectChange = (selectedKeys) => {
         selectedRowIndex.value = crudVariables.table.data.findIndex(
             (row) => row.xid === selectedKeys[0]
         );
+        scrollSelectedRowIntoView();
+    } else {
+        selectedRowIndex.value = -1;
     }
 };
 

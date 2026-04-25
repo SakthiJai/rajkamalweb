@@ -6,9 +6,11 @@
                     :columns="ReceiptPaymentColumns"
                     :row-key="(record) => record.id"
                     :data-source="table.data"
+                    :scroll="{ y: 500 }"
+                    :sticky="{ offsetHeader: 60 }"
                     :pagination="table.pagination"
                     :loading="table.loading"
-                    @change="handleTableChange"
+                    @change="handleTableChange"     
                     :rowSelection="{
                         selectedRowKeys: selectedRowKeysValue,
                         onChange: onSelectChange,
@@ -901,7 +903,7 @@ export default {
                 .getElementsByTagName("td")[1]
                 .innerHTML.replace(/<[^>]*>?/gm, "");
 
-            
+
         },
      
 
@@ -928,6 +930,21 @@ export default {
         .innerHTML.replace(/<[^>]*>?/gm, "");
 
       this.$emit("row-select", this.selectedInvoice);
+                   const tableBody = document.querySelector(".ant-table-body");
+
+  if (tableBody && currentRow) {
+    const rowTop = currentRow.offsetTop;
+    const rowBottom = rowTop + currentRow.offsetHeight;
+
+    const scrollTop = tableBody.scrollTop;
+    const containerHeight = tableBody.clientHeight;
+
+    if (rowTop < scrollTop) {
+      tableBody.scrollTop = rowTop;
+    } else if (rowBottom > scrollTop + containerHeight) {
+      tableBody.scrollTop = rowBottom - containerHeight;
+    }
+  }
       //console.log(this.table.data);
     },
         editReturn(voucher_number) {

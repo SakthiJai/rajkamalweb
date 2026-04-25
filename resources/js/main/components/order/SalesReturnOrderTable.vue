@@ -9,7 +9,7 @@
                     :pagination="table.pagination"
                     :loading="table.loading"
                     @change="handleTableChange"
-                    :scroll="{ y: scrollY }"
+                    :scroll="{ y: 500 }"
                     :sticky="{ offsetHeader: 60 }"
                     :rowSelection="{
                         selectedRowKeys: selectedRowKeysValue,

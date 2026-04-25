@@ -202,7 +202,7 @@
                             </template>
                         </template>
                         <template #summary>
-                            <a-table-summary-row class="table-footer">
+                            <a-table-summary-row >
                                 <a-table-summary-cell :col-span="3">
                                 </a-table-summary-cell>
                                 <a-table-summary-cell :col-span="1">

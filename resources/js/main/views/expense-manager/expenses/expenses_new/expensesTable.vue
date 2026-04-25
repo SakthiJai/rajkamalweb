@@ -8,6 +8,7 @@
                     :data-source="table.data"
                     :pagination="table.pagination"
                     :loading="table.loading"
+                    :scroll="{ y: 500 }"
                     @change="handleTableChange"
                     :rowSelection="{
                         selectedRowKeys: selectedRowKeysValue,
@@ -321,6 +322,12 @@ export default {
         let selectedRowKeysValue = [];
 
         const initialSetup = () => {
+            datatableVariables.table.pagination = {
+                ...datatableVariables.table.pagination,
+                pageSize: props.perPageItems || 100,
+                current: 1,
+                currentPage: 1,
+            };
             setupTableColumns();
             setUrlData();
         };
@@ -683,16 +690,31 @@ export default {
     },
 
     mounted() {
-        document.addEventListener("keyup", this.handleKeyDown);
-        setTimeout(function () {
-            this.selectedRowKeysValue = [];
-        }, 2000);
+        document.addEventListener("keydown", this.handleKeyDown);
     },
-    beforeDestroy() {
-        document.removeEventListener("keyup", this.handleKeyDown);
+    beforeUnmount() {
+        document.removeEventListener("keydown", this.handleKeyDown);
     },
 
     methods: {
+        handleKeyDown(event) {
+            const activeTag = document.activeElement?.tagName;
+            const isTypingInTextarea = activeTag === "TEXTAREA";
+
+            if (isTypingInTextarea) {
+                return;
+            }
+
+            if (
+                event.key === "ArrowUp" ||
+                event.key === "ArrowDown" ||
+                event.key === "Enter"
+            ) {
+                event.preventDefault();
+                this.test(event);
+            }
+        },
+
         customRow(record) {
             return {
                 onClick: (event) => {
@@ -836,10 +858,16 @@ export default {
             this.removeClass();
             const currentRadioInput =
                 document.getElementsByClassName("ant-radio-input")[this.focus];
+            if (!currentRadioInput) {
+                return;
+            }
             //currentRadioInput.click();
             currentRadioInput.checked = true;
             //console.log('currentRadioInput'+currentRadioInput.value);
             const currentRow = currentRadioInput.closest("tr");
+            if (!currentRow) {
+                return;
+            }
             const selectedRowKey = currentRow.getAttribute("data-row-key");
             currentRow.classList.add("ant-table-row-selected");
             //console.log("Selected Row Key:", selectedRowKey);
@@ -849,7 +877,20 @@ export default {
             //.innerHTML.replace(/<[^>]*>?/gm, "");
             this.selectedInvoice = selectedRowKey;
             this.$emit("row-select", this.selectedInvoice);
-            //console.log(this.table.data);
+
+            const tableBody = this.$el?.querySelector(".ant-table-body");
+            if (tableBody) {
+                const rowTop = currentRow.offsetTop;
+                const rowBottom = rowTop + currentRow.offsetHeight;
+                const visibleTop = tableBody.scrollTop;
+                const visibleBottom = visibleTop + tableBody.clientHeight;
+
+                if (rowTop < visibleTop) {
+                    tableBody.scrollTop = rowTop;
+                } else if (rowBottom > visibleBottom) {
+                    tableBody.scrollTop = rowBottom - tableBody.clientHeight;
+                }
+            }
         },
     },
 };

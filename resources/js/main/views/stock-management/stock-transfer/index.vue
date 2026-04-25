@@ -96,7 +96,7 @@
                     </a-col>
                     <a-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
                         <DateRangePicker
-                            ref="datePickerRef"
+                            ref="serachDateRangePicker"
                             @dateTimeChanged="handleDateRangeChange"
                         />
                     </a-col>
@@ -116,6 +116,8 @@
         </a-row>
 <div class="custom-table">
         <OrderTable
+        :scroll="{ y: 400 }"
+        :perPageItems="100"
             ref="orderTableRef"
             :orderType="orderType"
             :filters="filters"
@@ -305,6 +307,7 @@ const handleEditRow = (row) => {
             };
 
             serachDateRangePicker.value.resetPicker();
+            refreshTable();
         });
 
         return {

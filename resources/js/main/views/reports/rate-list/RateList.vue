@@ -8,6 +8,7 @@
                     :data-source="table.data"
                     :pagination="table.pagination"
                     :loading="table.loading"
+                    :scroll="{ y: 500 }"
                     @change="handleTableChange"
                     id="rate-list-reports-table"
                     bordered
@@ -77,11 +78,23 @@ export default defineComponent({
         const datatableVariables = datatable();
 
         onMounted(() => {
+            datatableVariables.table.pagination = {
+                ...datatableVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+                currentPage: 1,
+            };
             const propsData = props;
             getData(propsData);
         });
 
         const getData = (propsData) => {
+            datatableVariables.table.pagination = {
+                ...datatableVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+                currentPage: 1,
+            };
             const extraFilters = {};
 
             if (propsData.product_id && propsData.product_id != undefined) {

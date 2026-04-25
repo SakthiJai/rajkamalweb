@@ -8,6 +8,7 @@
                     :data-source="table.data"
                     :pagination="table.pagination"
                     :loading="table.loading"
+                    :scroll="{ y: 500 }"
                     @change="handleTableChange"
                     id="product-sales-summary-reports-table"
                     bordered
@@ -97,7 +98,10 @@ export default defineComponent({
         onMounted(() => {
             datatableVariables.table.default_sorter = defaultSorter;
             datatableVariables.table.pagination = {
-                pageSize: 10000,
+                ...datatableVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+                currentPage: 1,
                 showSizeChanger: false,
             };
 
@@ -106,6 +110,13 @@ export default defineComponent({
         });
 
         const getData = (propsData) => {
+            datatableVariables.table.pagination = {
+                ...datatableVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+                currentPage: 1,
+                showSizeChanger: false,
+            };
             const filters = {};
 
             if (propsData.product_id && propsData.product_id != undefined) {

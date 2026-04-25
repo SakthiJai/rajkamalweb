@@ -129,8 +129,14 @@
 
     <admin-page-table-content>
 
-        <ReceiptPaymentTable ref="BillReturnOrderTableRef" :orderType="orderType" :filters="filters" tableSize="middle" :bordered="true"
-        :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect"    v-on:row-select="rowselect" v-on:mouse-select="mouseselect" />
+        <ReceiptPaymentTable
+         ref="BillReturnOrderTableRef"
+         :orderType="orderType"
+         :perPageItems="100"
+         :filters="filters"
+         tableSize="middle"
+         :bordered="true"
+         :selectable="true" @onRowSelection="(selectedIds) => (selectedRowIds = selectedIds)" v-on:child-select="updateselect"    v-on:row-select="rowselect" v-on:mouse-select="mouseselect" />
     </admin-page-table-content>
 
     

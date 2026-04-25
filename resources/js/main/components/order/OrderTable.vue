@@ -8,7 +8,7 @@
           :data-source="table.data"
           :pagination="table.pagination"
           :loading="table.loading"
-          :scroll="{ y: 500 }"
+          :scroll="tableScroll"
           :sticky="{ offsetHeader: 60 }"
           @change="handleTableChange"
           :rowSelection="{
@@ -139,7 +139,7 @@
             </a-table>
           </template>
           <template #summary>
-            <a-table-summary-row class ="table-footer">
+            <a-table-summary-row >
               <a-table-summary-cell
                 :col-span="selectable && orderType != 'online-orders' ? 6 : 7"
               >
@@ -265,6 +265,10 @@ import crud from "../../../common/composable/crud";
 
 export default {
   props: {
+    scroll: {
+      type: Object,
+      default: null,
+    },
     scrollY: {
       type: Number,
       default: 500
@@ -320,6 +324,13 @@ export default {
     View,
   },
   setup(props, { emit }) {
+    const tableScroll = computed(() => {
+      if (props.scroll) {
+        return props.scroll;
+      }
+
+      return { y: props.scrollY };
+    });
         // Edit row handler for action button
         const editRow = (record) => {
           emit("onEditRow", record);
@@ -452,7 +463,10 @@ const initialSetup = () => {
 };
 
     const setUrlData = (searchBy) => {
-      if (searchBy == undefined) {
+      if (
+        searchBy == undefined &&
+        (!props.filters?.dates || props.filters.dates.length === 0)
+      ) {
         searchBy = "Today";
       }
       const tableFilter = props.filters;
@@ -470,7 +484,7 @@ const initialSetup = () => {
       datatableVariables.tableUrl.value = {
         url:
           `${props.orderType}?fields=id,total_items,invoice_number,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},party_name,party{id,party_name,party_type,party_full_name,phone_number},customer{id,cus_name,mobile_number,phone_number},bill_number,payment_status,invoice_path&${props.salesType}&searchBy=` +
-          searchBy,
+          (searchBy ?? ""),
         filterString,
         filters: {
           user_id: tableFilter.user_id ? tableFilter.user_id : undefined,
@@ -845,6 +859,7 @@ defineExpose({
       orderItemDetailsColumns,
       selectedLang,
       initialSetup,
+      tableScroll,
 
       convertToSale,
 

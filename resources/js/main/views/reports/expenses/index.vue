@@ -105,6 +105,7 @@
                         :data-source="table.data"
                         :pagination="table.pagination"
                         :loading="table.loading"
+                        :scroll="{ y: 500 }"
                         @change="handleTableChange"
                         id="expense-reports-table"
                         bordered
@@ -225,6 +226,12 @@ export default {
         });
 
         const getTableData = () => {
+            datatableVariables.table.pagination = {
+                ...datatableVariables.table.pagination,
+                pageSize: 100,
+                current: 1,
+                currentPage: 1,
+            };
             datatableVariables.tableUrl.value = {
                 url,
                 filters,
