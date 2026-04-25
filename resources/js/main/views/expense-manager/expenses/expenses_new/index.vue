@@ -113,7 +113,7 @@
                         <ExprotTable
                         exportType="payment_reports"
                         tableName="payment-reports-table"
-                        :title="`${$t('menu.payments')} ${$t('menu.reports')}`"
+                        :title="`${$t('Expenses Entry List')}`"
                     />
                     </a-col>
                 </a-row>

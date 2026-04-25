@@ -74,7 +74,7 @@ export default {
     },
     title: {
       type: String,
-      default: "Data",
+      default: "",
     },
     exportType: {
       type: String,

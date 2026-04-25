@@ -125,7 +125,7 @@
                         <ExprotTable
                         exportType="payment_reports"
                         tableName="payment-reports-table"
-                        :title="`${$t('menu.payments')} ${$t('menu.reports')}`"
+                        :title="`${$t('Return Bill List')}`"
                     />
 
                     </a-col>

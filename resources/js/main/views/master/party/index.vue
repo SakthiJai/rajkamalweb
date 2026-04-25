@@ -69,7 +69,13 @@
               <ExprotTable
                 exportType="payment_reports"
                 tableName="payment-reports-table"
-                :title="`${$t('menu.payments')} ${$t('menu.reports')}`"
+                :title="
+                  $route.path === '/admin/stock/customer/list'
+                    ? 'Customers List'
+                    : $route.path === '/admin/stock/supplier/list'
+                    ? 'Suppliers List'
+                    : $t('Party List')
+                "
               />
             </a-col>
           </a-row>
