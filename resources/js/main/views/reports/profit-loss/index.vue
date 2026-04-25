@@ -384,11 +384,13 @@ export default {
                         export_type: exportDataType,
                         data: [response.data.results],
                         url: "reports/profit-loss",
+                        route_path: window.location.pathname,
                     },
                     {
                         export_type: "profit_loss_reports_by_dates",
                         data: response.data.dates,
                         url: "reports/profit-loss",
+                        route_path: window.location.pathname,
                     },
                 ]);
             });

@@ -231,6 +231,7 @@ const datatable = () => {
                             export_type: exportDataType,
                             data: data,
                             url: sendingUrl.value,
+                            route_path: window.location.pathname,
                         },
                     ]);
                 }
