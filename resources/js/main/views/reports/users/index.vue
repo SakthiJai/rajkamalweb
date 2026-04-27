@@ -5,8 +5,8 @@
             <a-page-header :title="$t(`menu.users_reports`)" class="p-0">
                 <template #extra>
                     <ExprotTable
-                        exportType="user_reports"
-                        tableName="users-reports-table"
+                        exportType="user_reports_export_table"
+                        tableName="users-reports-export-table"
                         :title="$t('menu.users_reports')"
                     />
                 </template>
@@ -314,6 +314,62 @@
             :orderType="activeOrderType"
             :destroyOnClose="true"
         />
+
+        <div class="export-only-table">
+            <table id="users-reports-export-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Purchases</th>
+                        <th>Purchase Return / Dr.Note</th>
+                        <th>Sales</th>
+                        <th>Sales Return / Cr.Note</th>
+                        <th>Total Amount</th>
+                        <th>Paid Amount</th>
+                        <th>Due Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="record in table.data"
+                        :key="`export-${record.xid}`"
+                    >
+                        <td>{{ record.name || "" }}</td>
+                        <td>{{ record.details?.purchase_order_count ?? 0 }}</td>
+                        <td>{{ record.details?.purchase_return_count ?? 0 }}</td>
+                        <td>{{ record.details?.sales_order_count ?? 0 }}</td>
+                        <td>{{ record.details?.sales_return_count ?? 0 }}</td>
+                        <td>
+                            {{
+                                formatAmountCurrency(
+                                    convertToPositive(
+                                        record.details?.total_amount ?? 0
+                                    )
+                                )
+                            }}
+                        </td>
+                        <td>
+                            {{
+                                formatAmountCurrency(
+                                    convertToPositive(
+                                        record.details?.paid_amount ?? 0
+                                    )
+                                )
+                            }}
+                        </td>
+                        <td>
+                            {{
+                                formatAmountCurrency(
+                                    convertToPositive(
+                                        record.details?.due_amount ?? 0
+                                    )
+                                )
+                            }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </admin-page-table-content>
     </div>
 </template>
@@ -574,5 +630,14 @@ export default {
 #userreportsindex :deep(.ant-table-thead > tr > th),
 #userreportsindex :deep(.ant-table-tbody > tr > td) {
     padding: 5px !important;
+}
+
+.export-only-table {
+    position: absolute;
+    left: -99999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
 }
 </style>

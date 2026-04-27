@@ -319,7 +319,7 @@ export default {
         };
 
         const getStoreExportData = () => {
-            var allExportDatas = store.state.auth.allExportData;
+            var allExportDatas = store.state.auth.allExportData || [];
             const currentRoutePath = window.location.pathname;
             var storeExportData = find(
                 allExportDatas,
@@ -381,7 +381,7 @@ export default {
 
         const exportUsingStore = (pageTitle) => {
             const storeExportData = getStoreExportData();
-            const tablecolumn = getColumns(props.exportType);
+            const tablecolumn = getColumns(props.exportType) || [];
             const tableData = storeExportData?.data || [];
 
             let createXLSLFormatObj = [];
