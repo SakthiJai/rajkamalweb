@@ -325,7 +325,7 @@ let selectedRowKeysValue = [];
 
             datatableVariables.tableUrl.value = {
                 url:
-                    `${props.orderType}?fields=id,xid,return_by,partyName{id,party_name},customer{id,cus_name},dr_number,order_id,order_date,invoice_path,total_amount,&searchBy=` +
+                    `${props.orderType}?fields=id,xid,return_by,partyName{id,party_full_name,party_name},customer{id,cus_name},dr_number,order_id,order_date,invoice_path,total_amount,&searchBy=` +
                     searchBy,
                 filterString,
                 filters: {
