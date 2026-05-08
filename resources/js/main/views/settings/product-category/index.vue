@@ -33,7 +33,7 @@
                     >
                         <a-button type="primary" @click="addItem" style="background-color: #1f6d70;">
                             <PlusOutlined />
-                            {{ $t("product_category.add") }} / F2
+                            {{ $t("Add New Product Category") }} / F2
                         </a-button>
                     </template>
                     <!-- <a-button

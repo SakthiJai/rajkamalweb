@@ -60,32 +60,32 @@ const fields = () => {
     const setupTableColumns = () => {
         columns.value = [
             {
-                title: t(`expense1.party`),
+                title: t(`Party`),
                 dataIndex: ["party", "party_full_name"],
                 sorter: true,
                 //sorter_field:"orders.user_id"
             },
             {
-                title: t(`expense1.expense_category`),
+                title: t(`Expense Category`),
                 dataIndex: ["expense_category", "name"],
                 sorter: true,
                 //sorter_field:"orders.user_id"
             },
             {
-                title: t(`expense1.entry_date`),
+                title: t(`Entry Date`),
                 dataIndex: "order_date",
                 sorter: true,
                 //sorter_field:"orders.user_id"
             },
             {
-                title: t(`expense1.expense_date`),
+                title: t(`Expense Date`),
                 dataIndex: "expense_date",
                 sorter: true,
                 //sorter_field:"orders.user_id"
             },
 
             {
-                title: t(`expense1.bill_amount`),
+                title: t(`Bill Amount`),
                 dataIndex: "bill_amount",
                 align: "right",
                 sorter: true,

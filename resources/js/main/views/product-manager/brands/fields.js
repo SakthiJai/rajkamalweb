@@ -13,7 +13,7 @@ const fields = () => {
 
     const columns = [
         {
-            title: t("brand.brands_name"),
+            title: t("Brand Name"),
             dataIndex: "brands_name",
             sorter: true,
         },

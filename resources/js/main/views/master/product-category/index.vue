@@ -32,7 +32,7 @@
                     >
                         <a-button type="primary" @click="addItem">
                             <PlusOutlined />
-                            {{ $t("product_category.add") }}
+                            {{ $t("Add New Product Category") }}
                         </a-button>
                     </template>
                     <a-button

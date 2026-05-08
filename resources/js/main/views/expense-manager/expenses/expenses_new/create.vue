@@ -87,7 +87,7 @@
                             :lg="6"
                         >
                             <a-form-item
-                                :label="$t('expense1.party')"
+                                :label="$t('Party')"
                                 name="party_name"
                                 ref="input"
                                 :help="
@@ -152,7 +152,7 @@
                         </a-col>
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
-                                :label="$t('expense1.expense_category')"
+                                :label="$t('Expense Category')"
                                 class="required"
                                 :help="
                                     rules.expense_category_id
@@ -191,7 +191,7 @@
                     <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
-                                :label="$t('expense1.entry_date')"
+                                :label="$t('Entry Date')"
                                 name="bill_number"
                                 :help="
                                     rules.order_date
@@ -216,7 +216,7 @@
                         </a-col>
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
-                                :label="$t('expense1.expense_date')"
+                                :label="$t('Expense Date')"
                                 name="expense_date"
                                 :help="
                                     rules.expense_date
@@ -243,7 +243,7 @@
                     <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
-                                :label="$t('expense1.orginal_bill_number')"
+                                :label="$t('Original Bill Number')"
                                 name="orginalinvoice"
                                 :help="
                                     rules.orginal_bill_number
@@ -274,7 +274,7 @@
                         </a-col>
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
-                                :label="$t('expense1.bill_amount')"
+                                :label="$t('Bill Amount')"
                                 name="bill_amount"
                                 :help="
                                     rules.bill_amount
@@ -332,7 +332,7 @@
 
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
-                                :label="$t('expense1.payment_mode')"
+                                :label="$t('Payment Mode')"
                                 name="payment_mode_id"
                                 class="required"
                                 :help="
@@ -371,7 +371,7 @@
                     <a-row :gutter="16">
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
-                                :label="$t('expense1.note')"
+                                :label="$t('Note')"
                                 name="notes"
                             >
                                 <textarea
@@ -394,7 +394,7 @@
                         </a-col>
                         <a-col :xs="24" :sm="24" :md="3" :lg="3">
                             <a-form-item
-                                :label="$t('expense1.upload')"
+                                :label="$t('Upload Bill')"
                                 name="image"
                                 id="img"
                             >

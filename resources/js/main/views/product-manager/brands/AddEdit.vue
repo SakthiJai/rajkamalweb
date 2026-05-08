@@ -12,7 +12,7 @@
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('brand.brands_name')"
+                        :label="$t('Brand Name')"
                         name="brands_name"
                         :help="rules.brands_name ? rules.brands_name.message : null"
                         :validateStatus="rules.brands_name ? 'error' : null"

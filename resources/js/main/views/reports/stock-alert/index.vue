@@ -292,9 +292,6 @@ export default {
                 filters: {
                     "products.id": searchProductId.value,
                 },
-                extraFilters: {
-                    fetch_stock_alert: true,
-                },
             };
             datatableVariables.hashable.value = [...stockAlertHashableColumns];
             datatableVariables.exportDetails.value = {

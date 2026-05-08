@@ -127,7 +127,6 @@ export default defineComponent({
                 url: "order-items?fields=id,xid,quantity,single_unit_price,unit_price,total_discount,discount_rate,total_tax,tax_rate,subtotal,order_id,x_order_id,order{id,xid,order_type,order_date},unit_id,x_unit_id,unit{id,xid,short_name},product_id,x_product_id,product{id,xid,unit_id,x_unit_id},product:unit{id,xid,short_name}",
                 filters,
                 extraFilters: {
-                    product_sales_summary: true,
                     dates: propsData.dates,
                     category_id: propsData.category_id,
                 },

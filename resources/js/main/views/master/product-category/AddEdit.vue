@@ -10,7 +10,7 @@
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
-                        :label="$t('product_category.name')"
+                        :label="$t('Product Category Name')"
                         name="product_category_name"
                         :help="
                             rules.product_category_name
