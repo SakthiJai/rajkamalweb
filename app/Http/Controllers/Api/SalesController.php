@@ -362,7 +362,15 @@ public function createReciept($payment)
 		$order = DB::select("select party_id, order_date from orders where invoice_number='".$payment['bill_number']."'");
 		//Order::where("invoice_number",$payment['bill_number'])->get();
 		//dd($order[0]->party_id);
+		if (empty($order)) {
+			return; // Exit if order not found
+		}
+		
 		$cr = DB::select("select recent_bill_number from settings where setting_type='voucher_number'");
+		if (empty($cr)) {
+			return; // Exit if settings not found
+		}
+		
             $subtotal = 0;
             $short_subtotal = 0;
             $create= Receipt::create([

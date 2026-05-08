@@ -151,7 +151,7 @@ const checkLogFog = (to, from, next) => {
             ) {
                 next({ name: "superadmin.setup_app.index" });
             } else {
-                if (to.meta.requireAuth && !store.getters["auth/isLoggedIn"]) {
+                if (to.meta.requireAuth && !store.getters["auth/isLoggedIn"]) { console.log("need login");
                     next({ name: "admin.login" });
                 } else {
                     to.meta.requireUnauth && store.getters["auth/isLoggedIn"]
@@ -161,6 +161,7 @@ const checkLogFog = (to, from, next) => {
             }
         }
     } else {
+        console.log("else part calling");
         if (
             nameParts.length > 0 &&
             nameParts[0] == "admin" &&
@@ -168,27 +169,32 @@ const checkLogFog = (to, from, next) => {
             store.state.auth.user &&
             store.state.auth.user.is_superadmin
         ) {
+             console.log("else part calling 11");
             next({ name: "superadmin.dashboard.index" });
         } else {
-            if (nameParts.length > 0 && nameParts[0] == "admin") {
-                if (to.meta.requireAuth && !store.getters["auth/isLoggedIn"]) {
+            if (nameParts.length > 0 && nameParts[0] == "admin") {  console.log("else part calling 12");
+                if (to.meta.requireAuth && !store.getters["auth/isLoggedIn"]) {  console.log("else part calling 13");
                     store.dispatch("auth/logout");
                     next({ name: "admin.login" });
                 } else {
+                     console.log("else part calling 14");
                     if (
                         to.meta.requireAuth &&
                         isAdminCompanySetupCorrect() == false &&
                         nameParts[1] != "setup_app"
                     ) {
+                         console.log("else part calling 15");
                         next({ name: "admin.setup_app.index" });
-                    } else {
+                    } else {  console.log("else part calling 16");
                         if (to.meta.requireUnauth && store.getters["auth/isLoggedIn"]) {
                             next({ name: "admin.dashboard.index" });
                         } else {
-                            if (to.name == prefix + ".settings.modules.index") {
+                            if (to.name == prefix + ".settings.modules.index") { console.log("else part calling 17");
+
                                 store.commit("auth/updateAppChecking", false);
                                 next();
                             } else {
+                                 console.log("else part calling 18");
                                 var permission = to.meta.permission;
                                 if (nameParts[1] == "stock") {
                                     permission = replace(permission, "-", "_");
@@ -323,7 +329,7 @@ router.beforeEach((to, from, next) => {
                 data: {
                     verified_name: mainProductName,
                     ...modules,
-                    domain: window.location.host,
+                    domain: "localhost",
                 },
                 timeout: 4000,
             })

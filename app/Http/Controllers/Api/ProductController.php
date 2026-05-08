@@ -200,7 +200,15 @@ class ProductController extends ApiBaseController
 
                 $productDetails->save();
             }
-            Cache::tags(['products'])->flush();
+            
+            // Clear products cache if the cache driver supports tagging
+            try {
+                Cache::tags(['products'])->flush();
+            } catch (\Exception $cacheException) {
+                // If tagging is not supported, just continue
+                // The cache will be cleared on next update or manually
+            }
+            
             return response()->json(['message' => 'Successfully stored product'], 200);
 
         } catch (\Exception $e) {

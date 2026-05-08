@@ -244,7 +244,7 @@
                         <template #summary>
                             <a-table-summary fixed>
                                 <a-table-summary-row>
-                                    <a-table-summary-cell :col-span="4">
+                                    <a-table-summary-cell :col-span="5">
                                     </a-table-summary-cell>
                                     <a-table-summary-cell :col-span="1">
                                         <a-typography-text strong>

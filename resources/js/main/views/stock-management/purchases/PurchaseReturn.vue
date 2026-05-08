@@ -125,13 +125,13 @@
                     <!-- sales modal number -->
 
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
-                        <a-form-item :label="$t('stock._note')" name="bill_number"
+                        <a-form-item :label="$t('Bill Number')" name="bill_number"
                             :help="rules.bill_number ? rules.bill_number.message : null"
                             :validateStatus="rules.bill_number ? 'error' : null" class="required">
 
                             <input v-model="formData.bill_number" id="form_item_bill_number" readonly tabindex="-1" @keydown="validateMobile($event,index)"
                                 @input="formData.bill_number = $event.target.value"  class="ant-input css-dev-only-do-not-override-wosfq4"
-                                :placeholder="$t('stock.cr_note', [$t('stock.bill_number')])" />
+                                :placeholder="$t('Bill Number', [$t('stock.bill_number')])" />
                         </a-form-item>
                 </a-col>
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">

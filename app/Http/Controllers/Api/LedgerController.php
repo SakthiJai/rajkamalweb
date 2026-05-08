@@ -117,31 +117,58 @@ class LedgerController extends ApiBaseController
     }
     public function saveCustomInformation(Request $request)
     {
-
+        $savedItems = [];
+        $skippedItems = [];
         foreach ($request->data as $information) {
             $data  = new LedgerItem();
+            $ledgerId = $information['ledger_id'] ?? $information['id'] ?? null;
 
-                $data->ledger_id =$information['id']; // Use the saved ledger's ID
-                $data->keyword =$information['keyword'];
-                $data->value =$information['value'];
-                $data->save();
-                return response()->json(['message' => 'Custom Detalis created successfully', 'LedgerItem' => $data], 201);
+            if (empty($ledgerId)) {
+                $skippedItems[] = [
+                    'reason' => 'missing_ledger_id',
+                    'data' => $information,
+                ];
+                continue;
+            }
 
+            $data->ledger_id = $ledgerId; // Use the saved ledger's ID
+            $data->keyword = $information['keyword'];
+            $data->value = $information['value'];
+            $data->save();
+            $savedItems[] = $data;
         }
+
+        if (count($savedItems) === 0) {
+            return response()->json([
+                'message' => 'No custom details were saved',
+                'LedgerItem' => [],
+                'skipped' => $skippedItems,
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Custom Detalis created successfully',
+            'LedgerItem' => $savedItems,
+            'skipped' => $skippedItems,
+        ], 201);
     }
 
 
 
     public function saveContactInformation(Request $request)
     {
+        $savedItems = [];
+        $skippedItems = [];
         foreach ($request->data as $information) {
             $data = new ContactModel();
+            $ledgerId = $information['ledger_id'] ?? $information['id'] ?? null;
             if (
+                !empty($ledgerId) &&
                 !empty($information['contact_name']) &&
                 !empty($information['contact_number']) &&
                 !empty($information['contact_name'])
             ) {
-                $data->ledger_id = $information['id']; // Use the ledger's ID
+                $data->ledger_id = $ledgerId; // Use the ledger's ID
                 $data->contact_tittle = $information['contact_tittle'];
                 $data->contact_number = $information['contact_number'];
                 $data->contact_whatsapp_number = $information['contact_whatsapp_number'];
@@ -150,22 +177,45 @@ class LedgerController extends ApiBaseController
                 $data->contact_last_name = $information['contact_last_name'];
                 $data->contact_designation = $information['contact_designation'];
                 $data->save();
+                $savedItems[] = $data;
+            } else {
+                $skippedItems[] = [
+                    'reason' => empty($ledgerId) ? 'missing_ledger_id' : 'missing_required_fields',
+                    'data' => $information,
+                ];
             }
         }
 
+        if (count($savedItems) === 0) {
+            return response()->json([
+                'message' => 'No contact details were saved',
+                'ContactInfo' => [],
+                'skipped' => $skippedItems,
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Contact details created successfully',
+            'ContactInfo' => $savedItems,
+            'skipped' => $skippedItems,
+        ], 201);
     }
 
 
     public function saveBankDetails(Request $request)
     {
+        $savedItems = [];
+        $skippedItems = [];
         foreach ($request->data as $information) {
             $data = new BankDetail();
+            $ledgerId = $information['ledger_id'] ?? $information['id'] ?? null;
             if (
+                !empty($ledgerId) &&
                 !empty($information['bank_bank_name']) &&
                 !empty($information['bank_account_number']) &&
                 !empty($information['bank_account_type'])
             ) {
-                $data->ledger_id = $information['id']; // Use the ledger's ID
+                $data->ledger_id = $ledgerId; // Use the ledger's ID
                 $data->bank_bank_name = $information['bank_bank_name'];
                 $data->bank_account_number = $information['bank_account_number'];
                 $data->bank_branch = $information['bank_branch'];
@@ -173,23 +223,45 @@ class LedgerController extends ApiBaseController
                 $data->bank_ifsc_code = $information['bank_ifsc_code'];
                 $data->bank_account_holder_name = $information['bank_account_holder_name'];
                 $data->save();
+                $savedItems[] = $data;
+            } else {
+                $skippedItems[] = [
+                    'reason' => empty($ledgerId) ? 'missing_ledger_id' : 'missing_required_fields',
+                    'data' => $information,
+                ];
             }
         }
 
-        return response()->json(['message' => 'Bank details created successfully' , 'BankDetail' => $data], 201);
+        if (count($savedItems) === 0) {
+            return response()->json([
+                'message' => 'No bank details were saved',
+                'BankDetail' => [],
+                'skipped' => $skippedItems,
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Bank details created successfully',
+            'BankDetail' => $savedItems,
+            'skipped' => $skippedItems,
+        ], 201);
     }
 
 
     public function saveShippingDetails(Request $request)
     {
+        $savedItems = [];
+        $skippedItems = [];
         foreach ($request->data as $information) {
             $data = new ShippingDetail();
+            $ledgerId = $information['ledger_id'] ?? $information['id'] ?? null;
             if (
+                !empty($ledgerId) &&
                 !empty($information['shipping_address']) &&
                 !empty($information['shipping_city']) &&
                 !empty($information['shipping_pincode'])
             ) {
-                $data->ledger_id = $information['id'];
+                $data->ledger_id = $ledgerId;
                 $data->shipping_address = $information['shipping_address'];
                 $data->shipping_city = $information['shipping_city'];
                 $data->shipping_pincode = $information['shipping_pincode'];
@@ -197,10 +269,28 @@ class LedgerController extends ApiBaseController
                 $data->shipping_contact_number = $information['shipping_contact_number'] ;
 
                 $data->save();
+                $savedItems[] = $data;
+            } else {
+                $skippedItems[] = [
+                    'reason' => empty($ledgerId) ? 'missing_ledger_id' : 'missing_required_fields',
+                    'data' => $information,
+                ];
             }
         }
 
-        return response()->json(['message' => 'Shipping details created successfully', 'ShippingDetail' => $data], 201);
+        if (count($savedItems) === 0) {
+            return response()->json([
+                'message' => 'No shipping details were saved',
+                'ShippingDetail' => [],
+                'skipped' => $skippedItems,
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Shipping details created successfully',
+            'ShippingDetail' => $savedItems,
+            'skipped' => $skippedItems,
+        ], 201);
     }
 
 

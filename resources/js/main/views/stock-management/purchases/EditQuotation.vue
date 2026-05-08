@@ -52,7 +52,7 @@
                     </router-link>
                 </a-breadcrumb-item>
                 <a-breadcrumb-item>
-                    {{ $t(`common.createwe`) }}
+                    {{ $t(`common.create`) }}
                 </a-breadcrumb-item>
             </a-breadcrumb>
             <div style="float:right;font-size: 12px;margin-top:-2%"> <b>Balance&nbsp; ₹  :&nbsp;<span id="balance_amt" ></span></b>&nbsp;&nbsp;<b>Due&nbsp; ₹ :&nbsp;<span id="Due_amt" style="color:red"></span></b>&nbsp;&nbsp;&nbsp;
