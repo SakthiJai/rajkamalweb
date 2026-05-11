@@ -417,7 +417,7 @@
       const reFetchDatatable = (formParty) => {
         focus = null;
 
-        let tempUrl = "&party=" + formParty;
+        let tempUrl = "&ledger_id=" + formParty;
         console.log("<>", tempUrl);
         filterableColumns.push({
           key: "mobile_number",
@@ -425,7 +425,7 @@
         });
         crudVariables.tableUrl.value = {
           url:
-            `sales-number?fields=id,xid,ledger_id,cus_name,address,mobile_number,gender,customer_city,whatsapp_numbner,age,billing_discount,customer_type,customer_state,customer_status&party=` +
+            `sales-number?fields=id,xid,ledger_id,cus_name,address,mobile_number,gender,customer_city,whatsapp_numbner,age,billing_discount,customer_type,customer_state,customer_status&ledger_id=` +
             formParty,
           filterableColumns,
         };

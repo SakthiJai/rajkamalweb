@@ -38,6 +38,8 @@ const datatable = () => {
 
         const url = generateUrl(limit, offset);
         sendingUrl.value = url;
+        console.log("🌐 DEBUG datatable - Final URL being sent:", url);
+        console.log("🌐 DEBUG datatable - Params:", params);
         if(url.includes('undefined')==false){
         return axiosAdmin.get(url);
         }
@@ -49,6 +51,8 @@ const datatable = () => {
         var hashableString = "";
         var trimString = false;
         var trimHashable = false;
+
+        console.log("🛠️ DEBUG generateUrl - Starting URL:", url);
 
         // Filters
         if (
@@ -104,6 +108,8 @@ const datatable = () => {
         } else if (filterString.length > 0 && trimString == false) {
             url += `&filters=${encodeURIComponent(filterString)}`;
         }
+
+        console.log("🛠️ DEBUG generateUrl - After filters:", url);
 
         // Extra Filters
         // Used for sending as query params
@@ -173,6 +179,9 @@ const datatable = () => {
             url += `&hashable=${hashableString}`;
         }
 
+        console.log("🛠️ DEBUG generateUrl - Final constructed URL:", url);
+        console.log("🛠️ DEBUG generateUrl - URL with baseURL will be:", window.config.path + '/api/v1' + '/' + url);
+
         return url;
     };
 
@@ -204,6 +213,9 @@ const datatable = () => {
             const data = results.data;
             const pagination = { ...table.pagination };
             console.log("table params",pagination)
+            console.log("✅ DEBUG fetch - API Response received:", results);
+            console.log("✅ DEBUG fetch - Data records count:", data.length);
+            console.log("✅ DEBUG fetch - Total count from API:", results.meta?.paging?.total);
             // Read total count from server
             // pagination.total = data.totalCount;
             pagination.total = results.meta.paging.total;
@@ -247,6 +259,11 @@ const datatable = () => {
             if (params.success != undefined) {
                 params.success(data);
             }
+        }).catch((error) => {
+            console.error("❌ DEBUG fetch - API Error:", error);
+            console.error("❌ DEBUG fetch - Error status:", error?.response?.status);
+            console.error("❌ DEBUG fetch - Error data:", error?.response?.data);
+            table.loading = false;
         });
     };
 

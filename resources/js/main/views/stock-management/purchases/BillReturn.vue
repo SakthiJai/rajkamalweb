@@ -1130,10 +1130,13 @@ console.log("formData",formData.selectedInvoice)
 
         document.getElementById('salescreatevue').addEventListener('keydown', this.handleKeyDowning);
         this.autoFocusInput();
+        if (!this.hasValidSelectedInvoice(this.selectedInvoice)) {
+            this.selectedInvoice = null;
+        }
         const billNumberUrl = `sales/billNumber`;
                 axiosAdmin.get(billNumberUrl).then((response) => {
                     //console.log(response)
-                    if (this.selectedInvoice == null || this.selectedInvoice == "" || this.selectedInvoice == undefined || this.selectedInvoice == "null") {
+                    if (!this.hasValidSelectedInvoice(this.selectedInvoice)) {
                        // this.formData.bill_number = response.data.ref;
                     }
                 this.discountTypes = response.data.discountItems;
@@ -1222,7 +1225,7 @@ deleteItem()
 
       getInvoiceDetails(){
         console.log("selectedInvoice inside method",this.formData.selectedInvoice);
-        if(this.selectedInvoice!="null")
+        if(this.hasValidSelectedInvoice(this.selectedInvoice))
         {
             this.formData.bill_number=this.selectedInvoice;
             this.formData.original_bill_number=this.selectedInvoice;
@@ -1236,6 +1239,7 @@ deleteItem()
 
                 this.formData.party_name                =   response.data.invoiceData.party_name,
 
+                console.log("party id=>",this.formData.party_id);
                 // Fetch party state separately since it's not in invoiceData
                 axiosAdmin.get("store-ledger/" + this.formData.party_id).then(partyResponse => {
                     console.log("Party response:", partyResponse);
@@ -1391,6 +1395,16 @@ console.log("invoice itemscc=>",this.formData.party_state);
             })
         }
 
+      },
+
+      hasValidSelectedInvoice(invoiceNumber) {
+        return !(
+            invoiceNumber === null ||
+            invoiceNumber === undefined ||
+            `${invoiceNumber}`.trim() === "" ||
+            `${invoiceNumber}` === "null" ||
+            `${invoiceNumber}` === "undefined"
+        );
       },
 
 //          getInvoiceDetails(){

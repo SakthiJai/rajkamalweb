@@ -16,6 +16,8 @@ use App\Models\BankDetail;
 use App\Models\ShippingDetail;
 use App\Models\ContactModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
 class LedgerController extends ApiBaseController
 {
     protected $model = LedgerModel::class;
@@ -24,6 +26,96 @@ class LedgerController extends ApiBaseController
     protected $updateRequest = UpdateRequest::class;
     protected $deleteRequest = DeleteRequest::class;
 
+    /**
+     * Modify the index query to ensure proper scope and structure
+     */
+    public function modifyIndex($query)
+    {
+        // Ensure we're working with the base query without complex appends that might fail
+        return $query->select([
+            'id',
+            'party_name',
+            'party_full_name',
+            'party_type',
+            'station',
+            'Address',
+            'stock_country',
+            'stock_state',
+            'stock_city',
+            'parent_ledger',
+            'account_group',
+            'mail_to',
+            'stock_pincode',
+            'balancing_method',
+            'opening_balance',
+            'credit_type',
+            'credit_days',
+            'phone_number',
+            'mobile_number',
+            'whatsapp_number',
+            'ledger_type',
+            'pan_number',
+            'customer_title',
+            'customer_first_name',
+            'customer_last_name',
+            'gender',
+            'designation',
+            'website',
+            'customer_email',
+            'bank_name',
+            'branch',
+            'ifsc_code',
+            'account_number',
+            'account_type',
+            'account_holder_name',
+            'ship_address',
+            'ship_city',
+            'ship_pincode',
+            'ship_contactno',
+            'gst_number',
+            'debit',
+            'credit',
+            'credit_limit',
+            'with_gst_number',
+            'with_pan_number',
+            'contact_mobile',
+            'category',
+            'trade_name',
+            'created_at',
+            'updated_at'
+        ]);
+    }
+
+    /**
+     * Override show() to handle ledger retrieval with proper error handling
+     * This prevents "Undefined array key 0" errors when appends are processed
+     */
+    public function show(...$args)
+    {
+        try {
+            // Log the request for debugging
+            Log::info("LedgerController@show called", ['args' => $args]);
+            
+            // Call parent's show method which handles ID decoding and model retrieval
+            return parent::show(...$args);
+        } catch (\Throwable $ex) {
+            // Catch any error including "Undefined array key" errors
+            Log::error("Error in LedgerController@show: " . $ex->getMessage(), [
+                'exception' => get_class($ex),
+                'file' => $ex->getFile(),
+                'line' => $ex->getLine(),
+                'trace' => $ex->getTraceAsString()
+            ]);
+            
+            // Return error response
+            return response()->json([
+                'error' => [
+                    'message' => 'An error occurred while retrieving ledger details: ' . $ex->getMessage(),
+                    'code' => 500
+                ]
+            ], 500);
+        }
+    }
 
     public function customer(CustomerRequest $request)
     {

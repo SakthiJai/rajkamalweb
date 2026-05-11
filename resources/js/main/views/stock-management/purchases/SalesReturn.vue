@@ -1896,45 +1896,64 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
 
         },
 
+        extractInvoiceItems(payload) {
+            if (Array.isArray(payload)) {
+                return payload;
+            }
+
+            if (Array.isArray(payload?.invoiceItems)) {
+                return payload.invoiceItems;
+            }
+
+            if (Array.isArray(payload?.data?.invoiceItems)) {
+                return payload.data.invoiceItems;
+            }
+
+            return [];
+        },
+
         openProduct(data)
         {
             console.log("Open Product method",data);
-            data.invoiceItems.forEach((data)=>{
-                if(data.freeQty>0)
-                { 
-                    data.quantity= data.quantity-data.freeQty;
+            const invoiceItems = this.extractInvoiceItems(data);
+
+            invoiceItems.forEach((item) => {
+                const productSaleRate = Number(item?.product?.sale_rate ?? item?.single_unit_price ?? 0);
+                const quantity = Number(item?.quantity ?? 0);
+                const discountRate = Number(item?.discount_rate ?? 0);
+
+                item.product_name = item?.product_name || item?.product?.name || "Unknown";
+
+                if (Number(item?.freeQty) > 0) {
+                    item.quantity = quantity - Number(item.freeQty);
                 }
-                if(data.discount_type_id==2)
+
+                if (item.discount_type_id == 2 && quantity > 0) {
+                    const total = quantity * productSaleRate;
+                    if (discountRate > 0) {
+                        const discountTotal = total - (total * (discountRate / 100));
+                        item.discount = discountTotal / quantity;
+                    }
+                }
+                else if (item.discount_type_id == 1)
                 {
-                    let total = (data.quantity*data.product.sale_rate);
-                    if(data.discount_rate>0){
-                    let disctotal =(total-(total*(data.discount_rate/100)));
-                    data.discount = disctotal/data.quantity;
-                    }   
+                    item.discount = productSaleRate;
                 }
-                else if(data.discount_type_id==1)
+                else if (item.discount_type_id == 3 && quantity > 0)
                 {
-                   
-                    data.discount = data.product.sale_rate;
+                    item.discount = Number((productSaleRate - (discountRate / quantity)).toFixed(2));
                 }
-                else if(data.discount_type_id==3)
+                else if (item.discount_type_id == 4)
                 {
-                    let total = (data.quantity * data.product.sale_rate);
-                    data.discount = Number((data.product.sale_rate - ( data.discount_rate/data.quantity)).toFixed(2));
-                       
+                    item.discount = Number((productSaleRate - discountRate).toFixed(2));
                 }
-                else if(data.discount_type_id==4)
-                {
-                    let total = (data.quantity * data.product.sale_rate);
-                    data.discount = Number((data.product.sale_rate - data.discount_rate).toFixed(2));
-                       
-                }
-            })
-            this.invoiceData.invoiceItems = data.invoiceItems;
+            });
+
+            this.invoiceData.invoiceItems = invoiceItems;
             console.log( this.invoiceData.invoiceItems);
             this.spinning = false;
             // Auto-populate table with all invoice items
-            this.updateItems(data.invoiceItems);
+            this.updateItems(invoiceItems);
         },
         getProducts(selectedInvoice) {
             selectedInvoice = typeof selectedInvoice === 'object' && selectedInvoice !== null && 'id' in selectedInvoice ? String(selectedInvoice.id) : String(selectedInvoice);
@@ -2032,7 +2051,8 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                         inv = this.invoiceData.invoiceItems.find(x =>
                             String(x.product_id) === String(sel) ||
                             String(x.id) === String(sel) ||
-                            String(x.invoice_number) === String(sel)
+                            String(x.invoice_number) === String(sel) ||
+                            String(x.unique_id) === String(sel)
                         );
                     }
                     // if still not found and an invoice is loaded, request fresh items
@@ -2041,7 +2061,7 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                             const resp = await axiosAdmin.get(`sales/getInvoiceItems/${this.formData.selectedInvoice}`);
                             if (resp && resp.data) {
                                 // server may return array directly or {invoiceItems: []}
-                                const arr = Array.isArray(resp.data) ? resp.data : (resp.data.invoiceItems || []);
+                                const arr = this.extractInvoiceItems(resp.data);
                                 if (arr.length) {
                                     this.invoiceData = this.invoiceData || {};
                                     this.invoiceData.invoiceItems = arr;
@@ -2049,7 +2069,8 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                                 inv = arr.find(x =>
                                     String(x.product_id) === String(sel) ||
                                     String(x.id) === String(sel) ||
-                                    String(x.invoice_number) === String(sel)
+                                    String(x.invoice_number) === String(sel) ||
+                                    String(x.unique_id) === String(sel)
                                 );
                             }
                         } catch (err) {
@@ -2061,7 +2082,8 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                     if (this.invoiceData && Array.isArray(this.invoiceData.invoiceItems)) {
                         const found = this.invoiceData.invoiceItems.find(x =>
                             Number(x.product_id) === Number(inv.product_id) ||
-                            Number(x.id) === Number(inv.id)
+                            Number(x.id) === Number(inv.id) ||
+                            String(x.unique_id) === String(inv.unique_id)
                         );
                         if (found) inv = found;
                     }
@@ -2093,7 +2115,7 @@ else if (!isNaN(Number(event.key)) && event.key !== ' ') {
                                 row.index = writeIdx + 1;
                                 row.selected = true;
                                 row.item_id = inv.product_id || inv.id || (inv.product && inv.product.id) || row.item_id;
-                                row.item_name = inv.product_name || (inv.product && inv.product.name) || inv.name || row.item_name;
+                                row.item_name = inv.product_name || (inv.product && inv.product.name) || inv.name || row.item_name || "Unknown";
                                 row.packing = inv.packing || (inv.product && inv.product.packing) || row.packing;
                                 row.quantity = quantity;
                                 row.maxquantity = inv.maxquantity || inv.quantity || inv.qty || 0;

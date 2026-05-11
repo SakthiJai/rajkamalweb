@@ -77,7 +77,7 @@
             <div class="partytable table-responsive">
               <a-table
                 :columns="invoiceDataColumns"
-                :row-key="(record) => record.product_id"
+                :row-key="(record) => record.unique_id || record.id || `${record.product_id}-${record.invoice_number}`"
                 :data-source="invoiceList"
                 :pagination="table.pagination"
                 :loading="table.loading"
@@ -99,7 +99,7 @@
                         'row-highlight': rowIndex === selectedIndex,
                       }"
                     >
-                      {{ record.product_name }}
+                      {{ record.product_name || record.product?.name || "Unknown" }}
                     </a-badge>
                   </template>
                   <template v-if="column.dataIndex === 'single_unit_price'">
@@ -406,8 +406,17 @@ selectInvoiceData() {
               break;
             }
             const selectedRowKey = currentRow.getAttribute("data-row-key");
+            const selectedRow = Array.isArray(this.invoiceList)
+              ? this.invoiceList.find((row) =>
+                  String(row.unique_id || row.id || `${row.product_id}-${row.invoice_number}`) === String(selectedRowKey)
+                )
+              : null;
 
-            this.selectedItems.push(selectedRowKey);
+            if (selectedRow && !this.selectedItems.some((row) =>
+              String(row.unique_id || row.id || `${row.product_id}-${row.invoice_number}`) === String(selectedRowKey)
+            )) {
+              this.selectedItems.push(selectedRow);
+            }
             console.log("<>", this.selectedItems);
           } else {
             console.log(currentRadioInput);
@@ -420,8 +429,12 @@ selectInvoiceData() {
             }
             const selectedRowKey = currentRow.getAttribute("data-row-key");
 
-            if (this.selectedItems.indexOf(selectedRowKey) != -1) {
-              this.selectedItems.splice(this.selectedItems.indexOf(selectedRowKey), 1);
+            const existingIndex = this.selectedItems.findIndex((row) =>
+              String(row.unique_id || row.id || `${row.product_id}-${row.invoice_number}`) === String(selectedRowKey)
+            );
+
+            if (existingIndex !== -1) {
+              this.selectedItems.splice(existingIndex, 1);
             }
             console.log("<>", this.selectedItems);
           }

@@ -89,19 +89,21 @@ class LedgerModel extends BaseModel
 
     public function getNameAttribute()
     {
-
-        return $this->attributes['id'];
+        return isset($this->attributes['id']) ? $this->attributes['id'] : null;
     }
+    
     public function getPartyNameAttribute()
     {
-
-        return isset($this->attributes['party_name'])?$this->attributes['party_name']:(isset($this->attributes['party_full_name'])?$this->attributes['party_full_name']:"");
+        return isset($this->attributes['party_name']) ? $this->attributes['party_name'] : 
+               (isset($this->attributes['party_full_name']) ? $this->attributes['party_full_name'] : "");
     }
 
 
     public function getStationNameAttribute()
     {
-        $station = Station::find($this->station);
+        if (empty($this->station) || empty($this->stock_country)) {
+            return 'Unknown';
+        }
         $counrty = Country::find($this->stock_country);
         return $counrty ? $counrty->country_name : 'Unknown';
     }
@@ -114,18 +116,27 @@ class LedgerModel extends BaseModel
 
     public function getCountryNameAttribute()
     {
+        if (empty($this->stock_country)) {
+            return 'Unknown';
+        }
         $counrty = Country::find($this->stock_country);
         return $counrty ? $counrty->country_name: 'Unknown';
     }
 
     public function getCategoryNameAttribute()
     {
+        if (empty($this->category)) {
+            return 'Unknown';
+        }
         $counrty = Categorys::find($this->category);
         return $counrty ? $counrty->category_name	: 'Unknown';
     }
 
     public function getStateNameAttribute()
     {
+        if (empty($this->stock_state)) {
+            return 'Unknown';
+        }
         $state = State::find($this->stock_state);
         return $state ? $state->state_name : 'Unknown';
     }

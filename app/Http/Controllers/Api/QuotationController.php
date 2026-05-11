@@ -39,6 +39,16 @@ class QuotationController extends ApiBaseController
         $this->orderType = "quotations";
     }
 
+    public function index()
+    {
+        // This endpoint is already quotation-specific via OrderTraits,
+        // so we ignore the shared salestype query param to avoid package-level misfiltering.
+        request()->query->remove('salestype');
+        request()->request->remove('salestype');
+
+        return parent::index();
+    }
+
     public function convertToSale(Request $request, $id)
     {
         $order = Order::where('unique_id', $id)->first();

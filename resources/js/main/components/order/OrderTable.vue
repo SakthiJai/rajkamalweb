@@ -464,6 +464,7 @@ const initialSetup = () => {
 
     const setUrlData = (searchBy) => {
       if (
+        props.orderType !== "stock-transfers" &&
         searchBy == undefined &&
         (!props.filters?.dates || props.filters.dates.length === 0)
       ) {
@@ -497,6 +498,15 @@ const initialSetup = () => {
         },
         extraFilters: extraFilterObject,
       };
+      console.log("🔍 DEBUG OrderTable - URL Config:", {
+        baseUrl: datatableVariables.tableUrl.value.url,
+        filterString: filterableColumns,
+        filters: datatableVariables.tableUrl.value.filters,
+        extraFilters: datatableVariables.tableUrl.value.extraFilters,
+        searchBy: searchBy,
+        orderType: props.orderType,
+        salesType: props.salesType
+      });
       datatableVariables.table.filterableColumns = filterableColumns;
 
       if (
