@@ -99,6 +99,14 @@ th {
 
 <body>
 
+@php
+    $subTotal = 0;
+    $totalDiscountAmount = 0;
+    $totalCgst = 0;
+    $totalSgst = 0;
+    $grandTotal = 0;
+@endphp
+
 <div id="invoiceholder">
 
 
@@ -134,7 +142,7 @@ th {
     </table>
     <table  class="maintabing">
 
-        <tr class="tableheading">
+          <tr class="tableheading">
             <th style="width:5%">#</th>
             <th style="width:7%">Qty</th>
             <th style="width:25%">Product</th>
@@ -145,19 +153,29 @@ th {
             <th style="width:15%">Disc(%)</th>
             <th style="text-align:right"> Amount</th>
           </tr>
-          <?php $subTotal = 0;$sumsgst=0;$sumcgst=0; ?>
           @foreach($products as $key =>$product)
           @php
-            $cgstAmount     = isset($product->cgst_amount) ? intval($product->cgst_amount) : 0;
-            $saleRate       = isset($product->sale_rate) ? intval($product->sale_rate) : 0;
-            $percentage     = $cgstAmount / 100;
-            $gstAmount      = $percentage * $saleRate;
-            $totalGstAmount = $gstAmount * intval($product->quantity);
-            $subTotal       = $subTotal+$product->subtotal;
-            $sumsgst        = $sumsgst + $product->sgst_amount;
-            $sumcgst        = $sumcgst + $product->cgst_amount;
+            $qty = (float) ($product->quantity ?? 0);
+            $freeQty = (float) ($product->free ?? 0);
+            $price = (float) ($product->single_unit_price ?? 0);
+            $discountPercent = (float) ($product->discount_rate ?? 0);
+            $cgstPercent = (float) ($product->cgst_amount ?? 0);
+            $sgstPercent = (float) ($product->sgst_amount ?? 0);
+
+            $effectiveQty = $qty - $freeQty;
+            $effectiveQty = $effectiveQty > 0 ? $effectiveQty : 0;
+
+            $itemSubTotal = $effectiveQty * $price;
+            $itemDiscountAmount = ($itemSubTotal * $discountPercent) / 100;
+            $itemNetAmount = $itemSubTotal - $itemDiscountAmount;
+            $itemCgstAmount = ($itemNetAmount * $cgstPercent) / 100;
+            $itemSgstAmount = ($itemNetAmount * $sgstPercent) / 100;
+
+            $subTotal += $itemNetAmount;
+            $totalDiscountAmount += $itemDiscountAmount;
+            $totalCgst += $itemCgstAmount;
+            $totalSgst += $itemSgstAmount;
         @endphp
-          @endphp
             <tr>
                 <td>{{$key+1}}</td>
                 <td>{{$product->quantity}}</td>
@@ -167,67 +185,29 @@ th {
                 <td>{{$product->single_unit_price ?? 0.00}}</td>
                 <td>{{$product->sale_rate ?? 0.00}}</td>
                 <td>{{number_format($product->discount_rate, 2, '.', ',') ?? 0.00}}</td>
-                                <td style="text-align:right">
-                                    @php
-                                        $totalDiscount = $product->discount_rate ?? 0;
-                                        $rate = $product->sale_rate ?? 0;
-                                        $qty = $product->quantity ?? 0;
-                                        $freeQty = $product->free ?? 0;
-                                        $actualQty = $qty - $freeQty;
-                                        $actualQty = $actualQty > 0 ? $actualQty : 0;
-                                        $amount = $rate * $actualQty;
-                                        $subTotalAll = $subTotal > 0 ? $subTotal : 1; // avoid division by zero
-                                        $itemDiscount = ($amount / 100) * $totalDiscount;
-                                        $netSubtotal = $amount - $itemDiscount;
-                                          \Log::info('TOTAL  Value', [ 
-    'totalDiscount' => $totalDiscount, 
-    'rate' => $rate,
-    'qty' => $qty,
-    'freeQty' => $freeQty,
-    'actualQty' => $actualQty,
-    'amount' => $amount,
-    'subTotalAll' => $subTotalAll,
-    'itemDiscount' => $itemDiscount,
-    'netSubtotal' => $netSubtotal
-]);
-                                    @endphp
-                                    {{ number_format($netSubtotal, 2, '.', ',') }}
-                                </td>
+                <td style="text-align:right">{{ number_format($itemNetAmount, 2, '.', ',') }}</td>
             </tr>
 
           @endforeach
+        @php
+            $grandTotal = $subTotal + $totalCgst + $totalSgst;
+            $displayDiscount = (float) ($invoice_details->total_discount ?? $totalDiscountAmount);
+            $displayTaxAmount = (float) ($invoice_details->tax_amount ?? ($totalCgst + $totalSgst));
+            $halfStoredTax = $displayTaxAmount / 2;
+            $displaySgst = $totalSgst > 0 ? $totalSgst : $halfStoredTax;
+            $displayCgst = $totalCgst > 0 ? $totalCgst : $halfStoredTax;
+        @endphp
         <tr style="height:4px !important;" >
             <td colspan="7" style="padding:23px 12px;"><b></b></td>
             <td style="text-align:left;border:none; color:#1250b7;"><b>Sub Total</b></td>
             <td>
                 <table style="border:none;">
                     <tr>
-                    <td style="text-align:right;border:none;color:#1250b7; ">
-                         @php
-                                        $totalDiscount = $product->discount_rate ?? 0;
-                                        $rate = $product->sale_rate ?? 0;
-                                        $qty = $product->quantity ?? 0;
-                                        $freeQty = $product->free ?? 0;
-                                        $actualQty = $qty - $freeQty;
-                                        $actualQty = $actualQty > 0 ? $actualQty : 0;
-                                        $amount = $rate * $actualQty;
-                                        $subTotalAll = $subTotal > 0 ? $subTotal : 1; // avoid division by zero
-                                        $itemDiscount = ($amount / 100) * $totalDiscount;
-                                        $netSubtotal = $amount - $itemDiscount;
-                                    @endphp
-                                    {{ number_format($netSubtotal, 2, '.', ',') }}
-                    </td>
+                    <td style="text-align:right;border:none;color:#1250b7; ">{{ number_format($subTotal, 2, '.', ',') }}</td>
                     </tr>
                 </table>
             </td>
         </tr>
-        <?php
-            $taxAmount = 0.00;
-            if (isset($invoice_details->tax_amount) && !is_null($invoice_details->tax_amount) && $invoice_details->tax_amount > 0) {
-                $taxAmount = $invoice_details->tax_amount / 2;
-            }
-            $singleTaxAmount = number_format($taxAmount, 2, '.', ',');
-        ?>
         <tr>
             <td colspan="7" >
                 <b style="text-decoration: underline;  font-weight:bold;">Terms & Conditions:</b><br>
@@ -235,81 +215,24 @@ th {
                 2) Bills not paid due date will attract 24% interest.<br>
                 3) All disputes subject to Jurisdiction only.<br>
                 4) Prescribed Sales Tax declaration will be given.<br><br><br>
-                @php
-                    // Calculate grand total as above
-                    $subTotalNew = 0;
-                    foreach ($products as $prod) {
-                        $rate = $prod->sale_rate ?? 0;
-                        $qty = $prod->quantity ?? 0;
-                        $freeQty = $prod->free ?? 0;
-                        $actualQty = $qty - $freeQty;
-                        $actualQty = $actualQty > 0 ? $actualQty : 0;
-                        $subTotalNew += $rate * $actualQty;
-                    }
-                    $totalDiscount = $product->discount_rate ?? 0;
-                    $subTotalAll = $subTotalNew > 0 ? $subTotalNew : 1; // avoid division by zero
-                    $discountedTotal = 0;
-                    foreach ($products as $prod) {
-                        $rate = $prod->sale_rate ?? 0;
-                        $qty = $prod->quantity ?? 0;
-                        $freeQty = $prod->free ?? 0;
-                        $actualQty = $qty - $freeQty;
-                        $actualQty = $actualQty > 0 ? $actualQty : 0;
-                        $amount = $rate * $actualQty;
-                        $itemDiscount = ($amount / 100) * $totalDiscount;
-                        $discountedTotal += ($amount - $itemDiscount);
-                    }
-                    $sgstAmount = ($invoice_details->total_amount - $invoice_details->tax_amount) * ($sumsgst / 100);
-                    $cgstAmount = ($invoice_details->total_amount - $invoice_details->tax_amount) * ($sumcgst / 100);
-                    $grandTotal = $discountedTotal + $sgstAmount + $cgstAmount;
-                @endphp
                 <b>Rs.&nbsp;{{ ucfirst(numToWordsRec(round($grandTotal))) }}&nbsp;only</b>
             </td>
             <td style="padding:0px;" colspan="2">
                 <table style="border:none;">
                     <tr><td style="text-align:left;border:none;"><b>Bill Disc</b></td>
-                    <td style="text-align:right;border:none;">{{ $invoice_details->total_discount? number_format($invoice_details->total_discount,2):"0.00"}}</td>
+                    <td style="text-align:right;border:none;">{{ number_format($displayDiscount, 2, '.', ',') }}</td>
                     </tr>
                     <tr><td style="text-align:left;border:none;"><b>SGST</b></td>
-                    <td style="text-align:right;border:none;">{{number_format((($invoice_details->total_amount-$invoice_details->tax_amount) *($sumsgst/100)),2) }}</td>
+                    <td style="text-align:right;border:none;">{{ number_format($displaySgst, 2, '.', ',') }}</td>
                     </tr>
                     <tr><td style="text-align:left;border:none;"><b>CGST</b></td>
-                    <td style="text-align:right;border:none;">{{number_format((($invoice_details->total_amount-$invoice_details->tax_amount) *($sumcgst/100)),2) }}</td>
+                    <td style="text-align:right;border:none;">{{ number_format($displayCgst, 2, '.', ',') }}</td>
                     </tr>
                     <tr><td style="text-align:left;border:none;"><b>Round Off</b></td>
                     <td style="text-align:right;border:none;">0.00</td>
                     </tr>
                     <tr style="background-color:#1250b7;"><td style="text-align:left;border:none; color:white;"><b>Grand Total</b></td>
                     <td style="text-align:right;border:none;color:white; font-weight:bold;">
-                        @php
-                            // Calculate subtotal using item-wise logic
-                            $subTotalNew = 0;
-                            foreach ($products as $prod) {
-                                $rate = $prod->sale_rate ?? 0;
-                                $qty = $prod->quantity ?? 0;
-                                $freeQty = $prod->free ?? 0;
-                                $actualQty = $qty - $freeQty;
-                                $actualQty = $actualQty > 0 ? $actualQty : 0;
-                                $subTotalNew += $rate * $actualQty;
-                            }
-                            $totalDiscount = $product->discount_rate ?? 0;
-                            $subTotalAll = $subTotalNew > 0 ? $subTotalNew : 1; // avoid division by zero
-                            $discountedTotal = 0;
-                            foreach ($products as $prod) {
-                                $rate = $prod->sale_rate ?? 0;
-                                $qty = $prod->quantity ?? 0;
-                                $freeQty = $prod->free ?? 0;
-                                $actualQty = $qty - $freeQty;
-                                $actualQty = $actualQty > 0 ? $actualQty : 0;
-                                $amount = $rate * $actualQty;
-                                $itemDiscount = ($amount / 100) * $totalDiscount;
-                                $discountedTotal += ($amount - $itemDiscount);
-                            }
-                            $sgstAmount = ($invoice_details->total_amount - $invoice_details->tax_amount) * ($sumsgst / 100);
-                            $cgstAmount = ($invoice_details->total_amount - $invoice_details->tax_amount) * ($sumcgst / 100);
-                            $grandTotal = $discountedTotal + $sgstAmount + $cgstAmount;
-                            \Log::info('grandTotal', ['grandTotal' => $grandTotal]);
-                        @endphp
                         {{ number_format($grandTotal, 2, '.', ',') }}
                     </td>
                     </tr>

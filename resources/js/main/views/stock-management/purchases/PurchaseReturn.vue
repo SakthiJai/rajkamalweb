@@ -6,7 +6,7 @@
                 :successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess"  @closed="handleProductModal"
                  v-on:productclose-method="handleClose"  v-on:child-method="updateProduct" />
            <!-- payments modal-->
-             <SalesReturnRecent v-if="isSalesReturnRecentVisible"  :visible="isSalesReturnRecentVisible" :formData="invoiceData" :url="url":successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess" @closed="handleClosePayments"  v-on:child-method="getProducts" :bill-value="formData.total" :bill-number="invoiceData"
+             <SalesReturnRecent v-if="isSalesReturnRecentVisible"  :visible="isSalesReturnRecentVisible" :formData="invoiceData" :url="url":successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess" @closed="handleClosePayments"  v-on:product-method="getProducts" :bill-value="formData.total" :bill-number="invoiceData" return-type="purchase"
                />
              <!-- end payments modal-->
 
@@ -112,10 +112,7 @@
                         :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
                         @addEditSuccess="handleSuccess" @closed="handleCloseCustomer" v-on:child-method="updateParent"  v-on:close-method="focusEelment" />
 
-                    <InvoiceItemSelectModel v-if="isInvoiceItemSelectModel" :visible="isInvoiceItemSelectModel" :invoice-list="invoiceData.invoiceItems" :url="url"
-                        :addEditType="addEditType" :pageTitle="pageTitle" :successMessage="successMessage"
-                        @addEditSuccess="handleSuccess" @closed="handleCloseCustomer" v-on:select-method="updateItems"  v-on:close-method="focusEelment" />
-                    <!-- end new modal-->
+
 
                     <!-- sales modal number -->
                     <SalesCustomerModel v-if="isCustomerVisible" :visible="isCustomerVisible" :formData="formData"
@@ -229,7 +226,8 @@
                                             </td>
 
                                             <td style="width:15%">
-                                                <input readonly  autocomplete="off"
+                                                <input disabled
+                                                   autocomplete="off"
                                                 :id="`item_product_disc_${index}`"
                                                 @input="getDiscount(index,$event)"
                                                 @focus="updateFree(),focusinputvalue($event)"
@@ -628,7 +626,7 @@ import { message, notification } from "ant-design-vue";
 //import {useToast} from 'vue-toast-notification';
 //import 'vue-toast-notification/dist/theme-sugar.css';
  import PurchaseReturnPrintModel from "./PurchaseReturnPrintModel.vue";
-import InvoiceItemSelectModel from "./InvoiceItemSelectModel.vue";
+
 import DeleteConfirmationPopupModel from "./DeleteConfirmationPopupModel.vue";
 import { Modal } from 'ant-design-vue';
 import { createVNode } from 'vue';
@@ -647,7 +645,6 @@ export default {
         SaveOutlined,
         LoadingOutlined,
         SalesModel,
-        InvoiceItemSelectModel,
         TaxAddButton,
         WarehouseAddButton,
         ProductAddButton,
@@ -951,7 +948,6 @@ export default {
             isModalPopup:false,
             isCustomerVisible: false,
             isModalVisible: false,
-            isInvoiceItemSelectModel:false,
             isProuctsModalVisible: false,
             deleteConfirmationPopup:false,
             stockDateColor: '',
@@ -1112,109 +1108,205 @@ export default {
             }
         },
 
-      getInvoiceDetails(){
-
-        //console.log("selectedInvoice inside method",this.selectedInvoice);
-        if(this.selectedInvoice!="null")
-        {
-            this.formData.bill_number=this.selectedInvoice;
-            this.spinning = true;
-            axiosAdmin
-            .get("sales/getpurchaseInvoiceDetails/"+this.selectedInvoice)
-            .then(response => {  //console.log(response)
-                // Toastr Notificaiton
-
-                this.formData.party_id=response.data.invoiceData.party_id;
-
-                this.formData.party_name=response.data.invoiceData.party_name,
-                // this.formData.party_customer_id=response.data.customerData.id,
-                // this.formData.customer_name=response.data.customerData.cus_name,
-                // this.formData.party_customer_mobile=response.data.customerData.mobile_number,
-                // this.formData.address = response.data.customerData.address;
-                this.spinning= false;
-                if(response.data.invoiceItems && response.data.invoiceItems.length>0)
-                {
-                    let finalIndex  =   0;
-                    let grand_total =   0;
-                    let total_disc  =   0;
-                    let totalcgst   =   0;
-                    let totalsgst   =   0;
-                    let total_gst    =   0;
-                    let total_cgst   = 0;
-                    let total_sgst   = 0 ;
-                    response.data.invoiceItems.forEach((data,index)=>{
-
-                        this.formData.items[index].item_id                  = data.product_id;
-                        this.formData.items[index].item_name                = data.product_name;
-                        this.formData.items[index].unit_id                  = "";
-                        this.formData.items[index].quantity                 = this.formatNumber(data.quantity);
-                        this.formData.items[index].free                 = this.formatNumber(data.free);
-                        this.formData.items[index].mrp                      = this.formatNumber(data.mrp);
-                        this.formData.items[index].single_unit_price        = this.formatNumber(data.single_unit_price);
-                        console.log("single_unit_price",this.formData.items[index].single_unit_price);
-                        this.formData.items[index].discount_rate            = data.discount_rate;
-                        this.formData.items[index].amount                   = this.formatNumber(data.subtotal);
-                        this.formData.items[index].maxquantity              = this.formatNumber(data.stock);
-                        this.formData.items[index].max_single_unit_price    = this.formatNumber(data.mrp);
-                        this.formData.items[index].packing                  = data.pack;
-                        this.formData.items[index].cgst                     =  (data.cgst >= 0 ? data.cgst : 0);
-                        this.formData.items[index].sgst                     =  (data.sgst >= 0 ? data.sgst : 0);
-                        total_cgst                                           = (Number(data.subtotal)/100) * (data.cgst >= 0 ? data.cgst : 0);
-                        total_sgst                                           = (Number(data.subtotal)/100) * (data.sgst >= 0 ? data.sgst : 0);
-                        total_gst                          = total_cgst + total_sgst;
-
-                        grand_total                                         = grand_total+Number(data.subtotal) + total_gst;
-                        total_disc                                          =  total_disc+Number(data.discount_rate);
-                        totalcgst                                           = totalcgst+ (data.cgst >= 0 ? data.cgst : 0);
-                        totalsgst                                           =  totalsgst+ (data.sgst >= 0 ? data.
-                        sgst : 0);
-                        console.log("cgst",totalcgst,"sgst",totalsgst)
-                        document.getElementById('item_product_price_'+index).value=this.formatNumber(data.single_unit_price)
-                        document.getElementById('item_product_amount_'+index).value=this.formatNumber(data.subtotal)
-
-                        document.getElementById('item_product_disc_'+index).value=this.formatNumber(data.discount_rate)
-                        document.getElementById('item_discount_total_'+index).value=data.discount_rate;
-
-                        finalIndex= index
-
-                    })
-
-                    total_disc = total_disc>0?(total_disc/100)*grand_total:0;
-
-                    const subtotalElem = document.getElementById('total_goods_value');
-                    const igstAmount0Elem = document.getElementById('igst_amount_0');
-                    const igstAmount1Elem = document.getElementById('igst_amount_1');
-                    const grandTotalElem = document.getElementById('grand_total');
-                    if (subtotalElem && igstAmount0Elem && igstAmount1Elem && grandTotalElem) {
-                        // Parse values, removing commas and converting to numbers
-                        const subtotal = parseFloat((subtotalElem.value || '0').replace(/,/g, ''));
-                        const igst0 = parseFloat((igstAmount0Elem.value || '0').replace(/,/g, ''));
-                        const igst1 = parseFloat((igstAmount1Elem.value || '0').replace(/,/g, ''));
-                        const grandTotal = subtotal + igst0 + igst1;
-                        grandTotalElem.innerHTML = this.formatCurrency(isNaN(grandTotal) ? 0 : grandTotal);
-                    }
-
-                    console.log("grand_total=>",this.formatCurrency(totalsgst>0?((totalsgst/2)/100)*grand_total:0));
-                    this.selectedItermIndex=(finalIndex);
-
-                    console.log(this.formData.items)
-                    this.$nextTick(() => {
-                        response.data.invoiceItems.forEach((item, itemIndex) => {
-                            this.getQuantity(itemIndex, null);
-                        });
-
-                        this.focusQuantityInput(0);
-                    });
-
-
-                }
-
-            })
-            .catch(errorResponse => {
-                this.spinning= false;
-            })
+      extractPurchaseBillRows(payload) {
+        if (Array.isArray(payload)) {
+            return payload;
         }
 
+        if (Array.isArray(payload?.data)) {
+            return payload.data;
+        }
+
+        if (Array.isArray(payload?.recentBill)) {
+            return payload.recentBill;
+        }
+
+        if (Array.isArray(payload?.data?.recentBill)) {
+            return payload.data.recentBill;
+        }
+
+        return [];
+      },
+
+      extractPurchaseBillPayload(payload) {
+        if (payload?.invoiceData || payload?.invoiceItems) {
+            return payload;
+        }
+
+        if (payload?.data?.invoiceData || payload?.data?.invoiceItems) {
+            return payload.data;
+        }
+
+        return payload || {};
+      },
+
+      formatRecentBillDate(orderDate) {
+        if (!orderDate) {
+            return "";
+        }
+
+        if (typeof orderDate === "string" && orderDate.includes("-")) {
+            const rawDate = orderDate.split("T")[0];
+            const parts = rawDate.split("-");
+
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+        }
+
+        return orderDate;
+      },
+
+      buildPurchaseBillLookupData(rows) {
+        const selectedPartyId = `${this.formData.party_id || ""}`;
+        const filteredRows = rows.filter((row) => {
+            const rowPartyId = row?.partyName?.id ?? row?.party_id ?? row?.partyId;
+
+            if (!selectedPartyId || rowPartyId === undefined || rowPartyId === null) {
+                return true;
+            }
+
+            return `${rowPartyId}` === selectedPartyId;
+        });
+
+        const recentBill = filteredRows.map((row) => ({
+            id: row.id,
+            invoice_number: row.invoice_number,
+            total: row.total_amount ?? row.total ?? 0,
+            total_amount: row.total_amount ?? row.total ?? 0,
+            tax_amount: row.tax_amount ?? 0,
+            invoiceDate: this.formatRecentBillDate(row.order_date ?? row.invoiceDate),
+            party_customer_id: row?.customer?.id ?? row?.party_customer_id ?? 0,
+        }));
+
+        const firstRow = filteredRows[0];
+        const customer = firstRow?.customer
+            ? {
+                id: firstRow.customer.id,
+                cus_name: firstRow.customer.cus_name,
+                mobile_number: firstRow.customer.mobile_number ?? "",
+                address: firstRow.customer.address ?? "",
+            }
+            : null;
+
+        return {
+            recentBill,
+            customer,
+            invoiceItems: [],
+        };
+      },
+
+      getInvoiceDetails(){
+
+        if (
+            this.selectedInvoice === null ||
+            this.selectedInvoice === undefined ||
+            `${this.selectedInvoice}`.trim() === "" ||
+            `${this.selectedInvoice}` === "null" ||
+            `${this.selectedInvoice}` === "undefined"
+        ) {
+            return;
+        }
+
+        this.formData.bill_number = this.selectedInvoice;
+        this.formData.selectedInvoice = this.selectedInvoice;
+        this.spinning = true;
+
+        axiosAdmin
+        .get("sales/getpurchaseInvoiceDetails/" + this.selectedInvoice)
+        .then(response => {
+            const payload = response.data?.data || response.data || {};
+            const invoiceData = payload.invoiceData || {};
+            const invoiceItems = Array.isArray(payload.invoiceItems) ? payload.invoiceItems : [];
+            const customerData = payload.customerData || {};
+
+            this.formData.party_id = invoiceData.party_id || "";
+            this.formData.party_name = invoiceData.party_name || customerData.cus_name || "Unknown";
+            this.formData.party_customer_id = invoiceData.party_customer_id || customerData.id || 0;
+            this.formData.customer_name = customerData.cus_name || "";
+            this.formData.party_customer_mobile = customerData.mobile_number || "";
+            this.formData.address = customerData.address || "";
+            this.formData.invoice_number = invoiceData.order_id || "";
+            this.formData.order_date = invoiceData.order_date
+                ? invoiceData.order_date.split("T")[0]
+                : new Date().toISOString().split("T")[0];
+            this.formData.invoice_date = invoiceData.invoice_date
+                ? invoiceData.invoice_date.split("T")[0]
+                : this.formData.order_date;
+            this.formData.total_amount = invoiceData.total_amount || 0;
+            this.formData.tax_amount = invoiceData.tax_amount || 0;
+
+            this.spinning = false;
+
+            if (invoiceItems.length > 0) {
+                let finalIndex = 0;
+                let totalcgst = 0;
+                let totalsgst = 0;
+
+                invoiceItems.forEach((item, index) => {
+                    if (!this.formData.items[index]) {
+                        return;
+                    }
+
+                    const cgst = Number(item.cgst || item.product?.cgst || 0);
+                    const sgst = Number(item.sgst || item.product?.sgst || 0);
+                    const price = Number(item.single_unit_price || item.unit_price || 0);
+                    const quantity = Number(item.quantity || 0);
+                    const lineSubtotal = Number(item.subtotal || (price * quantity));
+
+                    this.formData.items[index].item_id = item.product_id || item.product?.id;
+                    this.formData.items[index].item_name = item.product_name || item.product?.name || "Unknown";
+                    this.formData.items[index].unit_id = "";
+                    this.formData.items[index].quantity = this.formatNumber(quantity);
+                    this.formData.items[index].free = this.formatNumber(item.free || 0);
+                    this.formData.items[index].freeQty = this.formatNumber(item.free || 0);
+                    this.formData.items[index].mrp = this.formatNumber(item.mrp || item.product?.mrp || 0);
+                    this.formData.items[index].single_unit_price = this.formatNumber(price);
+                    this.formData.items[index].discount_rate = item.discount_rate || 0;
+                    this.formData.items[index].amount = this.formatNumber(lineSubtotal);
+                    this.formData.items[index].maxquantity = this.formatNumber(quantity);
+                    this.formData.items[index].max_single_unit_price = this.formatNumber(item.mrp || item.product?.mrp || 0);
+                    this.formData.items[index].packing = item.pack || item.product?.packing || "";
+                    this.formData.items[index].cgst = cgst >= 0 ? cgst : 0;
+                    this.formData.items[index].sgst = sgst >= 0 ? sgst : 0;
+
+                    totalcgst += cgst >= 0 ? cgst : 0;
+                    totalsgst += sgst >= 0 ? sgst : 0;
+
+                    const priceElem = document.getElementById("item_product_price_" + index);
+                    const amountElem = document.getElementById("item_product_amount_" + index);
+                    const discElem = document.getElementById("item_product_disc_" + index);
+                    const discTotalElem = document.getElementById("item_discount_total_" + index);
+
+                    if (priceElem) priceElem.value = this.formatNumber(price);
+                    if (amountElem) amountElem.value = this.formatNumber(lineSubtotal);
+                    if (discElem) discElem.value = this.formatNumber(item.discount_rate || 0);
+                    if (discTotalElem) discTotalElem.value = item.discount_rate || 0;
+
+                    finalIndex = index;
+                });
+
+                this.selectedItermIndex = finalIndex;
+
+                this.$nextTick(() => {
+                    invoiceItems.forEach((item, itemIndex) => {
+                        this.getQuantity(itemIndex, null);
+                    });
+
+                    const cgstTotalElem = document.getElementById("cgst_total_text");
+                    const sgstTotalElem = document.getElementById("sgst_total_text");
+
+                    if (cgstTotalElem) cgstTotalElem.innerHTML = this.formatOfAmount(totalcgst);
+                    if (sgstTotalElem) sgstTotalElem.innerHTML = this.formatOfAmount(totalsgst);
+
+                    this.focusQuantityInput(0);
+                });
+            }
+        })
+        .catch(errorResponse => {
+            this.spinning = false;
+            console.error("Error fetching purchase return details:", errorResponse);
+        });
       },
         formatNumber (num) {
        return parseFloat(num).toFixed(2)
@@ -1362,10 +1454,7 @@ export default {
     },
     handleClosePayments(){
         this.isSalesReturnRecentVisible = false;
-        // this.isPurchaseReturnModalVisible= true;
-        this.isInvoiceItemSelectModel= true;
-
-        document.getElementById('billing_print').focus();
+        this.focusQuantityInput(0);
     },
 
         inputData($event) {
@@ -1430,18 +1519,37 @@ export default {
         this.invoiceData = null;
             this.isModalVisible = false;
             this.spinning= true;
-                const billNumberUrl = `sales/crNumber/`+this.formData.party_id;
-                axiosAdmin.get(billNumberUrl).then((response) => {
-                //console.log(response)
-                this.formData.bill_number = response.data.cr;
-                this.formData.invoice_number = response.data.recentBill[0].invoice_number;
-                if( response.data.customer){
-                    this.formData.party_customer_id=response.data.customer.id
-                    this.formData.customer_name=response.data.customer.cus_name
-                    this.formData.party_customer_mobile=response.data.customer.mobile_number
-                    this.formData.address=response.data.customer.address
+            const billNumberUrl = `bill/invoiceNumber/${this.formData.party_id}`;
+            const recentBillUrl = "bill-returns?fields=id,xid,partyName{id,party_name,party_full_name},customer{id,cus_name},order_id,order_date,total_amount,invoice_path,invoice_number&searchBy=Today&order=id%20desc&offset=0&limit=100";
+
+            Promise.all([
+                axiosAdmin.get(billNumberUrl),
+                axiosAdmin.get(recentBillUrl),
+            ]).then(([billNumberResponse, recentBillResponse]) => {
+                const billNumberData = billNumberResponse.data?.data || billNumberResponse.data || {};
+                const recentBillRows = this.extractPurchaseBillRows(recentBillResponse.data);
+                const lookupData = this.buildPurchaseBillLookupData(recentBillRows);
+
+                this.formData.bill_number = billNumberData.ref || billNumberData.cr || this.formData.bill_number;
+                this.invoiceData = lookupData;
+
+                if (lookupData.recentBill.length > 0) {
+                    this.formData.invoice_number = lookupData.recentBill[0].invoice_number;
+                } else {
+                    this.formData.invoice_number = "";
+                    notification.warning({
+                        placement: "bottomRight",
+                        message: "No purchase bills found for the selected party!",
+                    });
                 }
-                this.invoiceData = response.data;
+
+                if(lookupData.customer){
+                    this.formData.party_customer_id=lookupData.customer.id
+                    this.formData.customer_name=lookupData.customer.cus_name
+                    this.formData.party_customer_mobile=lookupData.customer.mobile_number
+                    this.formData.address=lookupData.customer.address
+                }
+
                 console.log(this.invoiceData)
                 document.getElementById("form_item_bill_number").value = this.formData.bill_number;
 
@@ -1563,7 +1671,8 @@ export default {
          openProduct(data)
         {
             console.log("Open Product method",data);
-            this.invoiceData.invoiceItems = data.invoiceItems;
+            const payload = this.extractPurchaseBillPayload(data);
+            this.invoiceData.invoiceItems = payload.invoiceItems || [];
              console.log( this.invoiceData.invoiceItems);
                 this.spinning = false;
                 this.isInvoiceItemSelectModel = true
@@ -1571,25 +1680,120 @@ export default {
 
         getProducts(selectedParty){
             console.log("selectedParty",selectedParty);
-             this.spinning= true;
-            axiosAdmin
-            .get("sales/getInvoiceItems/"+selectedInvoice, )
-            .then(response => {  console.log(response)
-                // Toastr Notificaiton
-
-                this.openProduct(response.data);
-
-            })
             if(selectedParty=="manual")
             {
+                this.spinning= false;
                 this.isSalesReturnRecentVisible = false;
                 document.getElementById("item_product_name_0").focus();
             }
             else if(selectedParty=="single")
             {
+                this.spinning= false;
                 console.log(this.invoiceData)
-                // this.isInvoiceItemSelectModel =! this.isInvoiceItemSelectModell
-                /**/
+            }
+            else
+            {
+                this.spinning= true;
+                const invoiceNumber = typeof selectedParty === "object" && selectedParty !== null
+                    ? (selectedParty.invoice || selectedParty.invoice_number || "")
+                    : (() => {
+                        const selectedBill = Array.isArray(this.invoiceData?.recentBill)
+                            ? this.invoiceData.recentBill.find((item) => `${item.id}` === `${selectedParty}`)
+                            : null;
+                        return selectedBill?.invoice_number || selectedParty;
+                    })();
+
+                axiosAdmin
+                .get("purchase/getbillInvoiceDetails/"+invoiceNumber)
+                .then(response => {
+                    console.log("Purchase bill response:", response.data);
+                    
+                    // Extract data from response
+                    const data = response.data?.data || response.data;
+                    const invoiceData = data?.invoiceData || data || {};
+                    const invoiceItems = Array.isArray(data?.invoiceItems) ? data.invoiceItems : (Array.isArray(data?.items) ? data.items : []);
+                    const customer = data?.customer || invoiceData?.customer || {};
+
+                    // Map party and invoice details
+                    this.formData.party_id = invoiceData?.party_id || invoiceData?.supplier_id || '';
+                    this.formData.party_name = customer?.cus_name || customer?.name || invoiceData?.party_name || invoiceData?.supplier_name || 'Unknown';
+                    this.formData.party_customer_id = customer?.id || invoiceData?.party_customer_id || invoiceData?.supplier_id || 0;
+                    this.formData.customer_name = customer?.cus_name || customer?.name || '';
+                    this.formData.party_customer_mobile = customer?.mobile_number || customer?.phone || '';
+                    this.formData.address = customer?.address || '';
+                    this.formData.invoice_number = invoiceData?.invoice_number || invoiceData?.bill_number || '';
+                    this.formData.order_date = invoiceData?.invoiceDate || invoiceData?.order_date || invoiceData?.bill_date || new Date().toISOString().split('T')[0];
+
+                    // Populate invoice items directly
+                    if(invoiceItems && invoiceItems.length > 0) {
+                        let finalIndex = 0;
+                        
+                        invoiceItems.forEach((data, index) => {
+                            this.formData.items[index].item_id = data.product_id || data.product?.id;
+                            this.formData.items[index].item_name = data.product?.name || data.product_name || 'Unknown';
+                            this.formData.items[index].unit_id = "";
+                            this.formData.items[index].quantity = Number(data.quantity || 0);
+                            this.formData.items[index].free = Number(data.free || 0);
+                            this.formData.items[index].mrp = Number(data.product?.mrp || data.mrp || 0);
+                            this.formData.items[index].single_unit_price = Number(data.unit_price || data.single_unit_price || 0);
+                            this.formData.items[index].discount_rate = Number(data.discount_rate || 0);
+                            this.formData.items[index].amount = Number(data.subtotal || 0);
+                            this.formData.items[index].maxquantity = Number(data.quantity || 0);
+                            this.formData.items[index].max_single_unit_price = Number(data.product?.mrp || data.mrp || 0);
+                            this.formData.items[index].packing = data.product?.packing || data.pack || '';
+                            
+                            // Get tax values
+                            const cgst = data.product?.cgst || data.cgst || 0;
+                            const sgst = data.product?.sgst || data.sgst || 0;
+                            this.formData.items[index].cgst = (cgst >= 0 ? cgst : 0);
+                            this.formData.items[index].sgst = (sgst >= 0 ? sgst : 0);
+
+                            finalIndex = index;
+                        });
+
+                        this.selectedItermIndex = finalIndex;
+                        
+                        // Update DOM and calculate totals
+                        this.$nextTick(() => {
+                            invoiceItems.forEach((item, itemIndex) => {
+                                // Set all DOM fields that getQuantity() will read
+                                const quantityElem = document.getElementById(`item_product_quantity_${itemIndex}`);
+                                if (quantityElem) {
+                                    quantityElem.value = this.formatNumber(this.formData.items[itemIndex].quantity);
+                                }
+                                
+                                const freeElem = document.getElementById(`item_product_free_${itemIndex}`);
+                                if (freeElem) {
+                                    freeElem.value = this.formatNumber(this.formData.items[itemIndex].free);
+                                }
+                                
+                                // Set Rate field value
+                                const priceElem = document.getElementById(`item_product_price_${itemIndex}`);
+                                if (priceElem) {
+                                    priceElem.value = this.formatNumber(this.formData.items[itemIndex].single_unit_price);
+                                }
+
+                                 // Set Discount % field value
+                                const discElem = document.getElementById(`item_product_disc_${itemIndex}`);
+                                if (discElem) {
+                                    discElem.value = this.formatNumber(this.formData.items[itemIndex].discount_rate);
+                                }
+
+                                // Now calculate totals
+                                this.getQuantity(itemIndex, null);
+                            });
+                            this.focusQuantityInput(0);
+                        });
+                    }
+
+                    this.spinning = false;
+                    this.isSalesReturnRecentVisible = false;
+
+                })
+                .catch((error) => {
+                    console.error("Error fetching purchase bill:", error);
+                    this.spinning = false;
+                });
             }
 
         },
@@ -1597,96 +1801,95 @@ export default {
 
         updateItems(selectedKeys)
         {
-            let list =[];
-            this.spinning= true;
+            console.log("updateItems selectedKeys", selectedKeys, this.invoiceData?.invoiceItems);
+
+            const selectedRows = Array.isArray(selectedKeys) ? selectedKeys : [selectedKeys];
+            if (!selectedRows.length) {
+                this.isInvoiceItemSelectModel = false;
+                return false;
+            }
+
+            this.spinning = true;
             this.isSalesReturnRecentVisible = false;
-            selectedKeys.forEach((element)=>{   list.push(Number(element));});
-            console.log(list);
-            this.isInvoiceItemSelectModel =false;
-            if(this.invoiceData.invoiceItems && this.invoiceData.invoiceItems.length>0)
-                {
-                    let finalIndex  =   0;
-                    let grand_total =   0;
-                    let total_disc  =   0;
-                    let totalcgst   =   0;
-                    let totalsgst   =   0;
-                    let total_sgst = 0;
-                    let total_cgst  = 0 ;
-                    let total_gst   = 0;
-                    let sub_total_amount = 0;
-                    this.invoiceData.invoiceItems.forEach((data,index)=>{
-                        console.log(data.product_id,list.indexOf(data.product_id));
-                        if(list.indexOf(data.product_id)!=-1 && this.formData.items[index].selected==false){
-                        this.formData.items[index].item_id                  = data.product_id;
-                        this.formData.items[index].item_name                = data.product_name;
-                        document.getElementById('item_product_name_'+index).value=data.product_name
-                        this.formData.items[index].unit_id                  = "";
-                        this.formData.items[index].quantity                 = this.formatNumber(data.quantity);
-                        document.getElementById('item_product_quantity_'+index).value=data.quantity;
-                        this.formData.items[index].free = (typeof data.free === 'undefined' || data.free === null) ? 0.00 : data.free;
-                        document.getElementById('item_product_free_' + index).value = (typeof data.free === 'undefined' || data.free === null) ? 0.00 : data.free;
-                        this.formData.items[index].mrp                      = this.formatNumber(data.mrp);
-                        this.formData.items[index].single_unit_price        = this.formatNumber(data.single_unit_price);
-                        console.log("this.formatNumber(data.single_unit_price)",this.formatNumber(data.single_unit_price));
-                        document.getElementById('item_product_price_'+index).value=this.formatNumber(data.single_unit_price)
-                        this.formData.items[index].discount_rate            = data.discount_rate;
-                        this.formData.items[index].amount                   = this.formatNumber(data.subtotal);
-                        this.formData.items[index].maxquantity              = this.formatNumber(data.stock);
-                        this.formData.items[index].max_single_unit_price    = this.formatNumber(data.mrp);
-                        this.formData.items[index].packing                  = data.pack;
-                        this.formData.items[index].cgst                     = (data.product?.cgst >= 0 ? data.product.cgst : 0);
-                        this.formData.items[index].sgst                     = (data.product?.sgst >= 0 ? data.product.sgst : 0);
-                        this.formData.items[index].selected                 = true;
-                        total_disc                                          =  total_disc+Number(data.discount_rate);
-                        totalcgst                                           =  totalcgst+ (data.product?.cgst >= 0 ? data.product.cgst : 0);
-                        totalsgst                                           =  totalsgst+ (data.product?.sgst >= 0 ? data.product.sgst : 0);
-                        total_cgst     =   (Number(data.subtotal) / 100 ) * totalcgst;
-                        total_sgst     =    (Number(data.subtotal) / 100) * totalsgst ;
-                        total_gst      =  total_cgst + total_sgst ;
-                        console.log("total_gst", total_gst)
-                        sub_total_amount      = Number(data.subtotal);
-                        grand_total                                         = Number(data.subtotal) + total_gst ;
-                        console.log("totalcgst",totalcgst,"sgst",totalsgst)
+            this.isInvoiceItemSelectModel = false;
 
-                        document.getElementById('item_product_amount_'+index).value=this.formatNumber(data.subtotal)
-                        document.getElementById('item_product_packing_'+index).value=data.pack
+            let writeIndex = 0;
+            let firstFilledIndex = null;
 
-                        document.getElementById('item_product_disc_'+index).value=this.formatNumber(data.discount_rate)
-                        document.getElementById('item_discount_total_'+index).value=data.discount_rate;
+            selectedRows.forEach((selectedRow) => {
+                const productId = selectedRow?.product_id ?? selectedRow?.id;
+                const invoiceItem = Array.isArray(this.invoiceData?.invoiceItems)
+                    ? this.invoiceData.invoiceItems.find((item) =>
+                        String(item.product_id ?? item.id) === String(productId)
+                    ) || selectedRow
+                    : selectedRow;
 
-                        finalIndex= index
-                        }
-
-                    })
-
-
-                    total_disc = total_disc > 0 ? (total_disc / 100) * grand_total : 0;
-                    const totalGstAmount = (totalcgst > 0 ? ((totalcgst) / 100) * sub_total_amount : 0) + (totalsgst > 0 ? ((totalsgst) / 100) * sub_total_amount : 0);
-                    console.log("totalgstamount", totalGstAmount);
-                    document.getElementById('total_goods_value').value = this.formatCurrency(grand_total);
-                    document.getElementById('grand_total').innerHTML = this.formatCurrency((grand_total) + (totalGstAmount));
-                    this.formData.total = grand_total;
-                    this.formData.tax_amount = totalGstAmount;
-                    this.formData.total_discount = total_disc;
-                    this.formData.total_items = finalIndex + 1;
-
-                    document.getElementById('total_discount_text').innerHTML = this.formatCurrency(total_disc);
-                    document.getElementById('cgst_total_text').innerHTML = this.formatCurrency(totalcgst > 0 ? ((totalcgst / 2) / 100) * grand_total : 0);
-                    document.getElementById('sgst_total_text').innerHTML = this.formatCurrency(totalsgst > 0 ? ((totalsgst / 2) / 100) * grand_total : 0);
-
-                    document.getElementById('igst_amount_0').value = this.formatCurrency(totalcgst > 0 ? ((totalcgst) / 100) * grand_total : 0);
-                    document.getElementById('igst_amount_1').value = this.formatCurrency(totalsgst > 0 ? ((totalsgst) / 100) * grand_total : 0);
-                    this.spinning = false;
-
-                    console.log("<>",this.formatCurrency((grand_total-total_disc)+(totalsgst>0?((totalsgst/2)/100)*grand_total:0)));
-
-                    this.selectedItermIndex=(finalIndex);
-
-                    console.log(this.formData.items)
-                    this.focusQuantityInput(0)
-
-
+                while (this.formData.items[writeIndex] && this.formData.items[writeIndex].selected === true) {
+                    writeIndex++;
                 }
+
+                if (!this.formData.items[writeIndex] || !invoiceItem) {
+                    return;
+                }
+
+                const row = this.formData.items[writeIndex];
+                row.item_id = invoiceItem.product_id ?? invoiceItem.id ?? null;
+                row.item_name = invoiceItem.product_name ?? invoiceItem.name ?? "";
+                row.unit_id = "";
+                row.quantity = this.formatNumber(invoiceItem.quantity ?? 0);
+                row.free = this.formatNumber(invoiceItem.free ?? 0);
+                row.mrp = this.formatNumber(invoiceItem.mrp ?? invoiceItem.single_unit_price ?? 0);
+                row.single_unit_price = this.formatNumber(invoiceItem.single_unit_price ?? 0);
+                row.discount_rate = Number(invoiceItem.discount_rate ?? 0);
+                row.amount = this.formatNumber(invoiceItem.subtotal ?? 0);
+                row.maxquantity = this.formatNumber(invoiceItem.stock ?? invoiceItem.quantity ?? 0);
+                row.max_single_unit_price = this.formatNumber(invoiceItem.mrp ?? invoiceItem.single_unit_price ?? 0);
+                row.packing = invoiceItem.pack ?? invoiceItem.packing ?? "";
+                row.cgst = Number(invoiceItem.product?.cgst ?? invoiceItem.cgst ?? 0);
+                row.sgst = Number(invoiceItem.product?.sgst ?? invoiceItem.sgst ?? 0);
+                row.selected = true;
+
+                if (firstFilledIndex === null) {
+                    firstFilledIndex = writeIndex;
+                }
+
+                writeIndex++;
+            });
+
+            this.$nextTick(() => {
+                this.formData.items.forEach((row, index) => {
+                    if (!row?.selected) {
+                        return;
+                    }
+
+                    const itemNameEl = document.getElementById(`item_product_name_${index}`);
+                    const qtyEl = document.getElementById(`item_product_quantity_${index}`);
+                    const freeEl = document.getElementById(`item_product_free_${index}`);
+                    const packEl = document.getElementById(`item_product_packing_${index}`);
+                    const priceEl = document.getElementById(`item_product_price_${index}`);
+                    const amountEl = document.getElementById(`item_product_amount_${index}`);
+                    const discEl = document.getElementById(`item_product_disc_${index}`);
+                    const discTotalEl = document.getElementById(`item_discount_total_${index}`);
+
+                    if (itemNameEl) itemNameEl.value = row.item_name ?? "";
+                    if (qtyEl) qtyEl.value = row.quantity ?? "0.00";
+                    if (freeEl) freeEl.value = row.free ?? "0.00";
+                    if (packEl) packEl.value = row.packing ?? "";
+                    if (priceEl) priceEl.value = row.single_unit_price ?? "0.00";
+                    if (amountEl) amountEl.value = row.amount ?? "0.00";
+                    if (discEl) discEl.value = this.formatNumber(row.discount_rate ?? 0);
+                    if (discTotalEl) discTotalEl.value = row.discount_rate ?? 0;
+
+                    this.getQuantity(index, null);
+                });
+
+                this.updateAgg();
+                this.updateFree();
+                this.updateGoodsValue();
+                this.selectedItermIndex = firstFilledIndex ?? 0;
+                this.focusQuantityInput(0);
+                this.spinning = false;
+            });
         },
 
         focusproductEelment()

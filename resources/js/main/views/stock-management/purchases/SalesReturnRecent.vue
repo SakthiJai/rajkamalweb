@@ -11,7 +11,7 @@
     >
       <template v-slot:title>
         <div style="display: flex; justify-content: space-between; align-items: center">
-          <span>Sales Return: </span>
+          <span>{{ modalHeading }}: </span>
           <div @keydown="onKeydown">
             <div v-if="isLoading" class="loader-container">
               <div class="loader">
@@ -168,6 +168,7 @@ export default defineComponent({
     "successMessage",
     "billValue",
     "billNumber",
+    "returnType",
   ],
   created() {
     console.log("created:", this.billNumber);
@@ -229,6 +230,11 @@ export default defineComponent({
 
     const onClose = () => {
       emit("closed");
+      // Focus on invoiceSearch only if it exists
+      const invoiceSearchElem = document.getElementById("invoiceSearch");
+      if (invoiceSearchElem) {
+        invoiceSearchElem.focus();
+      }
       reFetchDatatable();
     };
     const onSelectChange = (changableRowKeys) => {
@@ -495,6 +501,11 @@ export default defineComponent({
       if (currentIndex !== -1 && currentIndex < formElements.length - 1) {
         formElements[currentIndex + 1].focus();
       }
+    },
+  },
+  computed: {
+    modalHeading() {
+      return this.returnType === "purchase" ? "Purchase Return" : "Sales Return";
     },
   },
 });

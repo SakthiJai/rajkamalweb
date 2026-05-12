@@ -6,7 +6,7 @@
                 :successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess"  @closed="handleProductModal"
                  v-on:productclose-method="handleClose"  v-on:child-method="updateProduct" />
            <!-- payments modal-->
-             <SalesReturnRecent v-if="isSalesReturnRecentVisible"  :visible="isSalesReturnRecentVisible" :formData="invoiceData" :url="url":successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess" @closed="handleClosePayments"  v-on:product-method="getProducts" :bill-value="formData.total" :bill-number="invoiceData"
+             <SalesReturnRecent v-if="isSalesReturnRecentVisible"  :visible="isSalesReturnRecentVisible" :formData="invoiceData" :url="url":successMessage="successMessage" :addEditType="addEditType" @addEditSuccess="handleSuccess" @closed="handleClosePayments"  v-on:product-method="getProducts" :bill-value="formData.total" :bill-number="invoiceData" return-type="sales"
                />
              <!-- end payments modal-->
               <!-- Print modal-->
