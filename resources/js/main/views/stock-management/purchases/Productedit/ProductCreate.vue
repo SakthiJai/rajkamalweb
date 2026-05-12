@@ -445,7 +445,7 @@
                         <a-row :gutter="16">
                           <a-col :xs="24" :sm="24" :md="8" :lg="8">
                             <a-form-item
-                              :label="$t('stock.godowns')"
+                              :label="$t('Godowns')"
                               name="god_owns"
                               :help="rules.god_owns ? rules.god_owns.message : null"
                               :validateStatus="rules.god_owns ? 'error' : null"
@@ -477,7 +477,7 @@
                         <a-row :gutter="16">
                           <a-col :xs="24" :sm="24" :md="8" :lg="8">
                             <a-form-item
-                              :label="$t('stock.opening_stock')"
+                              :label="$t('Opening Stock')"
                               name="opening_stock"
                               :help="
                                 rules.opening_stock ? rules.opening_stock.message : null
@@ -508,7 +508,7 @@
                         <a-row :gutter="16">
                           <a-col :xs="24" :sm="24" :md="8" :lg="8">
                             <a-form-item
-                              :label="$t('stock.as_date')"
+                              :label="$t('As on Date')"
                               name="packing"
                               :help="rules.packing ? rules.packing.message : null"
                               :validateStatus="rules.packing ? 'error' : null"
@@ -531,7 +531,7 @@
                     <a-row :gutter="16">
                       <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-form-item
-                          :label="$t('stock.low_Stock')"
+                          :label="$t('Low Stock Quantity')"
                           name="name"
                           :help="rules.low_stock ? rules.low_stock.message : null"
                           :validateStatus="rules.low_stock ? 'error' : null"

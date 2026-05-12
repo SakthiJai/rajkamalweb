@@ -33,7 +33,6 @@ class SalesNumberController extends ApiBaseController
         }
 
         $results = $this->addPaging()
-            ->modify()
             ->getResults()
             ->toArray();
 

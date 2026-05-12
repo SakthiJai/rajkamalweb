@@ -767,6 +767,30 @@ export default {
             name: `admin.expenses1.edit`
       });*/
         },
+        triggerFocusedRowEdit() {
+            if (this.table.data.length === 0) {
+                return false;
+            }
+
+            if (
+                selectedRowKeysValue != undefined &&
+                selectedRowKeysValue.length > 0 &&
+                this.selectedInvoice
+            ) {
+                this.editReturn(this.selectedInvoice);
+                return true;
+            }
+
+            this.focus = this.focus === null ? 0 : this.focus;
+            this.updateSelection();
+
+            if (this.selectedInvoice) {
+                this.editReturn(this.selectedInvoice);
+                return true;
+            }
+
+            return false;
+        },
         test(event) {
             switch (event.keyCode) {
                 case 38: // Arrow up
@@ -811,24 +835,7 @@ export default {
                         this.setUrlData();
                     } else if (this.table.data.length > 0) {
                         console.log("<>", this.selectedInvoice);
-
-                        if (
-                            selectedRowKeysValue != undefined &&
-                            selectedRowKeysValue.length > 0
-                        ) {
-                            this.$emit("child-select", this.selectedInvoice);
-                        } else {
-                            this.focus = 0;
-                            this.updateSelection();
-
-                            // Use an arrow function to preserve the 'this' context
-                            setTimeout(() => {
-                                this.$emit(
-                                    "child-select",
-                                    this.selectedInvoice
-                                );
-                            }, 1500);
-                        }
+                        this.triggerFocusedRowEdit();
                     }
                     break;
             }

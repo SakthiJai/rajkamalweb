@@ -218,11 +218,18 @@ export default {
 
 
         handleEnterKey() {
+            const openedEdit =
+                this.expensesTableRef?.triggerFocusedRowEdit?.() ?? false;
+
+            if (openedEdit) {
+                return;
+            }
+
             console.log("dropfownwww");
-           this.isDropdownOpen= false;
-           this.$nextTick(() => {
-            this.$refs.dropdownButton.focus();
-        });
+            this.isDropdownOpen = false;
+            this.$nextTick(() => {
+                this.$refs.dropdownButton.focus();
+            });
 
         },
         handleEnterKeyDrop() {
