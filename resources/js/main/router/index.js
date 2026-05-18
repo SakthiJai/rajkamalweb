@@ -195,8 +195,11 @@ const checkLogFog = (to, from, next) => {
                                 next();
                             } else {
                                  console.log("else part calling 18");
-                                var permission = to.meta.permission;
-                                if (nameParts[1] == "stock") {
+                                var permission =
+                                    typeof to.meta.permission === "function"
+                                        ? to.meta.permission(to)
+                                        : to.meta.permission;
+                                if (nameParts[1] == "stock" && typeof permission === "string") {
                                     permission = replace(permission, "-", "_");
                                 }
                                 !to.meta.permission || checkUserPermission(permission, store.state.auth.user)

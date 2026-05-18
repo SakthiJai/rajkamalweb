@@ -45,11 +45,11 @@ class PaymentController extends ApiBaseController
         }
 
         // Chekcing payments permissions
-        if (!($user->ability('admin', 'payment_in_view') && $user->ability('admin', 'payment_out_view'))) {
+        if (!($user->ability('admin', 'payment_in_view') || $user->ability('admin', 'payment_out_view'))) {
             throw new ApiException("Don't have valid permission");
-        } else if ($user->ability('admin', 'payment_in_view')) {
+        } else if ($user->ability('admin', 'payment_in_view') && !$user->ability('admin', 'payment_out_view')) {
             $query = $query->where('payment_type', 'in');
-        } else if ($user->ability('admin', 'payment_out_view')) {
+        } else if ($user->ability('admin', 'payment_out_view') && !$user->ability('admin', 'payment_in_view')) {
             $query = $query->where('payment_type', 'out');
         }
 
