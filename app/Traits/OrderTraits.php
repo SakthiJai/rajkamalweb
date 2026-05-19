@@ -29,6 +29,7 @@ trait OrderTraits
         $warehouse = warehouse();
 
         $query = $query->where('orders.order_type', $this->orderType);
+        $query = $this->applyLoggedUserScope($query, 'orders', 'user_id');
 
         // Dates Filters
         if ($request->has('dates') && $request->dates != "") {
@@ -75,6 +76,16 @@ trait OrderTraits
             return ApiResponse::make(null, $results, $meta);
         } else {
             $orderDetails = Order::find($id);
+
+            if (!$orderDetails) {
+                throw new ResourceNotFoundException();
+            }
+
+            $loggedUserScopeId = $this->getLoggedUserScopeId();
+            if ($loggedUserScopeId && (int) $orderDetails->user_id !== $loggedUserScopeId) {
+                throw new ResourceNotFoundException();
+            }
+
             $orderType = $orderDetails->order_type;
             $allProducs = [];
             $selectProductIds = [];

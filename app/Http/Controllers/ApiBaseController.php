@@ -97,4 +97,39 @@ class ApiBaseController extends ApiController
             'message' => $message
         ], 403);
     }
+
+    protected function shouldScopeToLoggedUser(): bool
+    {
+        $loggedUser = auth('api')->user();
+
+        if (!$loggedUser) {
+            return false;
+        }
+
+        if (method_exists($loggedUser, 'hasRole') && $loggedUser->hasRole('admin')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function getLoggedUserScopeId(): ?int
+    {
+        $loggedUser = auth('api')->user();
+
+        return $this->shouldScopeToLoggedUser() && $loggedUser ? (int) $loggedUser->id : null;
+    }
+
+    protected function applyLoggedUserScope($query, string $table = '', string $column = 'user_id')
+    {
+        $loggedUserId = $this->getLoggedUserScopeId();
+
+        if (!$loggedUserId) {
+            return $query;
+        }
+
+        $qualifiedColumn = $table !== '' ? "{$table}.{$column}" : $column;
+
+        return $query->where($qualifiedColumn, $loggedUserId);
+    }
 }

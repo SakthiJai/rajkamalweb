@@ -587,6 +587,7 @@ export default {
             salesReturnStatus,
             purchaseReturnStatus,
             permsArray,
+            user,
             selectedWarehouse,
         } = common();
         let selectedItermIndex = ref('');
@@ -613,6 +614,7 @@ export default {
                 total_quantity:0,
                 subtotal:0,
                 payment_id:0,
+                login_user_id: user.value?.login_user_id ?? null,
                 items:[
                     {index:1,item_id:null,item_name:null,unit_id:null,quantity:'',mrp:null,single_unit_price:null,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null},
                     {index:3,item_id:null,item_name:null,unit_id:null,quantity:'',mrp:null,single_unit_price:null,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null},

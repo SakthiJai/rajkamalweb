@@ -22,6 +22,7 @@ use App\Models\OrderPayment;
 use App\Models\Payment;
 use App\Models\PaymentMode;
 use App\Models\Product;
+use App\Models\LedgerModel;
 use App\Models\Settings;
 use App\Models\StaffMember;
 use App\Models\Translation;
@@ -44,6 +45,85 @@ use PDF;
 
 class AuthController extends ApiBaseController
 {
+    protected function withPlainLoginUserId($user)
+    {
+        if (!$user) {
+            return $user;
+        }
+
+        $user->setAttribute('login_user_id', $user->getRawOriginal('id'));
+
+        return $user;
+    }
+
+    protected function shouldScopeDashboardToLoggedUser()
+    {
+        $loggedUser = auth('api')->user();
+
+        if (!$loggedUser) {
+            return false;
+        }
+
+        if (method_exists($loggedUser, 'hasRole') && $loggedUser->hasRole('salesman')) {
+            return true;
+        }
+
+        return $loggedUser->user_type === 'staff_members'
+            && $loggedUser->role
+            && $loggedUser->role->name === 'salesman';
+    }
+
+    protected function getDashboardScopedUserId()
+    {
+        $loggedUser = auth('api')->user();
+
+        return $this->shouldScopeDashboardToLoggedUser() && $loggedUser ? $loggedUser->id : null;
+    }
+
+    protected function applyDashboardOrderScope($query, string $table = 'orders')
+    {
+        $loggedUserId = $this->getDashboardScopedUserId();
+
+        if ($loggedUserId) {
+            $query->where("{$table}.user_id", $loggedUserId);
+        }
+
+        return $query;
+    }
+
+    protected function applyDashboardExpenseScope($query, string $table = 'expenses')
+    {
+        $loggedUserId = $this->getDashboardScopedUserId();
+
+        if ($loggedUserId) {
+            $query->where("{$table}.user_id", $loggedUserId);
+        }
+
+        return $query;
+    }
+
+    protected function applyDashboardProductScope($query, string $table = 'products')
+    {
+        $loggedUserId = $this->getDashboardScopedUserId();
+
+        if ($loggedUserId) {
+            $query->where("{$table}.user_id", $loggedUserId);
+        }
+
+        return $query;
+    }
+
+    protected function applyDashboardPaymentScope($query, string $paymentsTable = 'payments')
+    {
+        $loggedUserId = $this->getDashboardScopedUserId();
+
+        if ($loggedUserId) {
+            $query->where("{$paymentsTable}.user_id", $loggedUserId);
+        }
+
+        return $query;
+    }
+
 
     public function companySetting()
     {
@@ -352,6 +432,7 @@ class AuthController extends ApiBaseController
     protected function respondWithToken($token)
     {
         $user = user();
+        $user = $this->withPlainLoginUserId($user);
 
         return [
             'token' => $token,
@@ -378,6 +459,7 @@ class AuthController extends ApiBaseController
     {
         $user = auth('api')->user();
         $user = $user->load('role', 'role.perms', 'warehouse', 'userWarehouses');
+        $user = $this->withPlainLoginUserId($user);
 
         session(['user' => $user]);
 
@@ -427,7 +509,9 @@ class AuthController extends ApiBaseController
         $user->save();
 
         return ApiResponse::make('Profile updated successfull', [
-            'user' => $user->load('role', 'role.perms', 'userWarehouses')
+            'user' => $this->withPlainLoginUserId(
+                $user->load('role', 'role.perms', 'userWarehouses')
+            )
         ]);
     }
 
@@ -484,6 +568,7 @@ class AuthController extends ApiBaseController
         // then he can only view reords
         // of warehouse assigned to him
         $warehouseStocks = $warehouseStocks->where('product_details.warehouse_id', '=', $warehouseId);
+        $warehouseStocks = $this->applyDashboardProductScope($warehouseStocks);
 
         if ($request->has('product_id') && $request->product_id != null) {
             $productId = $this->getIdFromHash($request->product_id);
@@ -510,6 +595,11 @@ class AuthController extends ApiBaseController
         $paymentSent = Payment::where('payments.payment_type', 'out');
         // Payment Received
         $paymentReceived = Payment::where('payments.payment_type', 'in');
+
+        $totalSalesAmount = $this->applyDashboardOrderScope($totalSalesAmount);
+        $totalExpenses = $this->applyDashboardExpenseScope($totalExpenses);
+        $paymentSent = $this->applyDashboardPaymentScope($paymentSent);
+        $paymentReceived = $this->applyDashboardPaymentScope($paymentReceived);
 
         // Warehouse Filter
         if ($warehouseId && $warehouseId != null) {
@@ -581,6 +671,8 @@ class AuthController extends ApiBaseController
             ->whereRaw($timezoneDbString . ' >= ?', [$startDate])
             ->whereRaw($timezoneDbString . ' <= ?', [$endDate]);
 
+        $allSentPayments = $this->applyDashboardPaymentScope($allSentPayments);
+        $allReceivedPayments = $this->applyDashboardPaymentScope($allReceivedPayments);
 
 
         // Sent Payments
@@ -630,6 +722,11 @@ class AuthController extends ApiBaseController
         // Purchase Returns
         $totalPurchaseReturns = OrderItem::join('orders', 'orders.id', '=', 'order_items.order_id')->where('order_type', 'purchase-returns');
 
+        $totalSales = $this->applyDashboardOrderScope($totalSales);
+        $totalSalesReturns = $this->applyDashboardOrderScope($totalSalesReturns);
+        $totalPurchases = $this->applyDashboardOrderScope($totalPurchases);
+        $totalPurchaseReturns = $this->applyDashboardOrderScope($totalPurchaseReturns);
+
         // Warehouse Filter
         if ($warehouseId && $warehouseId != null) {
             $totalSales = $totalSales->where('orders.warehouse_id', $warehouseId);
@@ -674,6 +771,8 @@ class AuthController extends ApiBaseController
         $maxSellingProducts = OrderItem::select('order_items.product_id', DB::raw('sum(order_items.subtotal) as total_amount'))
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.order_type', 'sales');
+
+        $maxSellingProducts = $this->applyDashboardOrderScope($maxSellingProducts);
 
         if ($warehouseId && $warehouseId != null) {
             $maxSellingProducts = $maxSellingProducts->where('orders.warehouse_id', $warehouseId);
@@ -727,9 +826,10 @@ class AuthController extends ApiBaseController
         $request = request();
         $warehouseId = $this->getWarehouseId();
 
-        $topCustomers = Order::select(DB::raw('sum(orders.total) as total_amount, user_id, count(user_id) as total_sales'))
-            ->join('users', 'users.id', '=', 'orders.user_id')
+        $topCustomers = Order::select(DB::raw('sum(orders.total) as total_amount, party_id, count(party_id) as total_sales'))
             ->where('orders.order_type', '=', 'sales');
+
+        $topCustomers = $this->applyDashboardOrderScope($topCustomers);
 
         if ($warehouseId && $warehouseId != null) {
             $topCustomers = $topCustomers->where('orders.warehouse_id', $warehouseId);
@@ -743,7 +843,8 @@ class AuthController extends ApiBaseController
             $topCustomers = $topCustomers->whereBetween('orders.order_date', [$startDate, $endDate]);
         }
 
-        $topCustomers = $topCustomers->groupByRaw('user_id')
+        $topCustomers = $topCustomers->whereNotNull('party_id')
+            ->groupByRaw('party_id')
             ->orderByRaw('sum(orders.total) desc')
             ->take(5)
             ->get();
@@ -751,15 +852,19 @@ class AuthController extends ApiBaseController
         $results = [];
 
         foreach ($topCustomers as $topCustomer) {
-            $customer = Customer::select('id', 'name', 'profile_image')->find($topCustomer->user_id);
-            if($customer){
-            $results[] = [
-                'customer_id' => $customer->xid ?? "",
-                'customer' => $customer,
-                'total_amount' => $topCustomer->total_amount,
-                'total_sales' => $topCustomer->total_sales,
-            ];
-        }
+            $customer = LedgerModel::select('id', 'party_name')->find($topCustomer->party_id);
+            if ($customer) {
+                $results[] = [
+                    'customer_id' => $customer->xid ?? "",
+                    'customer' => [
+                        'id' => $customer->id,
+                        'name' => $customer->party_name,
+                        'profile_image' => null,
+                    ],
+                    'total_amount' => $topCustomer->total_amount,
+                    'total_sales' => $topCustomer->total_sales,
+                ];
+            }
         }
 
         return $results;
@@ -795,6 +900,7 @@ class AuthController extends ApiBaseController
             ->where('orders.order_type', 'purchases')
             ->whereRaw($timezoneDbString . ' >= ?', [$startDate])
             ->whereRaw($timezoneDbString . ' <= ?', [$endDate]);
+        $allPurchases = $this->applyDashboardOrderScope($allPurchases);
         if ($warehouseId && $warehouseId != null) {
             $allPurchases = $allPurchases->where('orders.warehouse_id', $warehouseId);
         }
@@ -807,6 +913,7 @@ class AuthController extends ApiBaseController
             ->where('orders.order_type', 'sales')
             ->whereRaw($timezoneDbString . ' >= ?', [$startDate])
             ->whereRaw($timezoneDbString . ' <= ?', [$endDate]);
+        $sales = $this->applyDashboardOrderScope($sales);
 
         if ($warehouseId && $warehouseId != null) {
             $sales = $sales->where('orders.warehouse_id', $warehouseId);

@@ -793,6 +793,7 @@ export default {
             salesReturnStatus,
             purchaseReturnStatus,
             permsArray,
+            user,
             selectedWarehouse,
         } = common();
 
@@ -826,6 +827,7 @@ export default {
                 total_quantity:0,
                 subtotal:0,
                 payment_id:0,
+                login_user_id: user.value?.login_user_id ?? null,
                 selectedInvoice:localStorage.getItem("selectedInvoice"),
                 items:[
                     {index:1,item_id:null,item_name:null,unit_id:null,quantity:'',freeQty:"",remQty:"",withoutDisc:"",withDisc:"",mrp:null,single_unit_price:null,discount_type_id:null,discount_value:0,discount_rate:null,amount:null,maxquantity:0,max_single_unit_price:0,packing:null,cgst:null,sgst:null,cess:null,unique:Math.random().toString(36).substring(2,7),hsnCode:null,qtyUnit:null,isDelete:0},

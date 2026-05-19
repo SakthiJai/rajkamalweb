@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Examyou\RestAPI\Exceptions\ApiException;
 
 class SalesController extends ApiBaseController
 {
@@ -60,6 +61,34 @@ class SalesController extends ApiBaseController
 		$decodedId = $this->getIdFromHash($value);
 
 		return $decodedId ? (int) $decodedId : null;
+	}
+
+	protected function resolveLoginUserId($value = null)
+	{
+		$authUserId = auth('api')->user() ? auth('api')->user()->id : null;
+		$loggedUser = auth('api')->user();
+
+		if (
+			$loggedUser &&
+			(
+				(method_exists($loggedUser, 'hasRole') && $loggedUser->hasRole('salesman')) ||
+				($loggedUser->user_type === 'staff_members' && $loggedUser->role && $loggedUser->role->name === 'salesman')
+			)
+		) {
+			return $authUserId;
+		}
+
+		if ($value === null || $value === '') {
+			return $authUserId;
+		}
+
+		if (is_numeric($value)) {
+			return (int) $value;
+		}
+
+		$decodedId = $this->getIdFromHash($value);
+
+		return $decodedId ? (int) $decodedId : $authUserId;
 	}
 
 	public function salesCreate(SalesCreateRequest $request)
@@ -105,12 +134,13 @@ class SalesController extends ApiBaseController
 	{
 			//DB::beginTransaction();
 			$issue = false;
+			$loginUserId = $this->resolveLoginUserId($request->login_user_id ?? null);
 			$order = new Order();
 			$order->unique_id         = $this->generateUniqueId();
 			$order['invoice_number']    = ($type=="sales"?$request->bill_number:"QT-".$request->invoice_number);
 			$order->warehouse_id      = 1;
 			$order->order_date        = date('Y-m-d');
-			$order->user_id           = auth('api')->user()->id;
+			$order->user_id           = $loginUserId;
 			$order->tax_rate          = 2;
 			$order->order_type          = $type;
 
@@ -169,7 +199,7 @@ class SalesController extends ApiBaseController
 
 						// Insert order items
 						OrderItem::create([
-							'user_id'            => auth('api')->user()->id,
+							'user_id'            => $loginUserId,
 							'order_id'           => $order->id,
 							'product_id'        => $productId,
 							'quantity'           => $quantity,
@@ -223,11 +253,17 @@ class SalesController extends ApiBaseController
 	public function updateOrder($request,$type)
 	{
 			$issue = false;
-			$order = Order::where("invoice_number",$request->selectedInvoice)->first();
+			$loginUserId = $this->resolveLoginUserId($request->login_user_id ?? null);
+			$orderQuery = Order::where("invoice_number",$request->selectedInvoice);
+			$order = $this->applyLoggedUserScope($orderQuery, 'orders', 'user_id')->first();
+
+			if (!$order) {
+				throw new ApiException('You can access only your own sales data.');
+			}
 
 			$order->warehouse_id      = 1;
 			$order->order_date        = $request->order_date;
-			$order->user_id           = auth('api')->user()->id;
+			$order->user_id           = $loginUserId;
 			$order->tax_rate          = 2; // Static tax rate; you might want to make this dynamic
 			$order->tax_amount        = $request->tax_amount ?? 0.00;
 			$order->discount          = $request->discount ?? 0.00;
@@ -268,7 +304,7 @@ class SalesController extends ApiBaseController
 						$amount = $item['single_unit_price'] * $quantity;
 						// Insert order items
 						OrderItem::create([
-							'user_id'            => auth('api')->user()->id,
+							'user_id'            => $loginUserId,
 							'order_id'           => $order->id,
 							'product_id'        => $productId,
 							'quantity'           => $quantity,
@@ -317,7 +353,16 @@ class SalesController extends ApiBaseController
 		$invoiceItems=[];
 		$cr = DB::select("select recent_bill_number from settings where setting_type='cr_number'");
 		$cr = str_pad(($cr[0]->recent_bill_number+1),8,"0",STR_PAD_LEFT);
-		$recentBill	= Order::select(['due_amount',"orders.id","party_customer_id",'invoice_number','total','tax_amount',DB::raw('DATE_FORMAT(order_date, "%d-%m-%Y") as invoiceDate'),DB::raw('count(order_items.product_id) as totalProducts')])->where('party_id',$request->party_id)->where('order_type','sales')->where('total','>',0)->join('order_items', 'order_items.order_id', '=', 'orders.id')->groupBy('order_items.order_id')->orderBy('orders.id','DESC')->get()->take(10);
+		$recentBill	= Order::select(['due_amount',"orders.id","party_customer_id",'invoice_number','total','tax_amount',DB::raw('DATE_FORMAT(order_date, "%d-%m-%Y") as invoiceDate'),DB::raw('count(order_items.product_id) as totalProducts')])
+			->where('party_id',$request->party_id)
+			->where('order_type','sales')
+			->where('total','>',0)
+			->join('order_items', 'order_items.order_id', '=', 'orders.id');
+		$recentBill = $this->applyLoggedUserScope($recentBill, 'orders', 'user_id')
+			->groupBy('order_items.order_id')
+			->orderBy('orders.id','DESC')
+			->get()
+			->take(10);
 		if(count($recentBill)>0){
 		$customer = LedgerCustomerModel::select(['id','cus_name','mobile_number','address'])->where("id",$recentBill[0]->party_customer_id)->first();
 		$invoiceItems	=	OrderItem::where('order_id',$recentBill[0]->id)->get();
@@ -371,8 +416,8 @@ class SalesController extends ApiBaseController
 					'orders.party_shippingaddress_id as party_shippingaddress_id',
 					'orders.party_address_id as party_address_id',
 					'orders.unique_id as order_unique_id',
-				])
-				->get();
+				]);
+			$invoiceItems = $this->applyLoggedUserScope($invoiceItems, 'orders', 'user_id')->get();
 			return response()->json([
 				'message' => 'Data retrived successfully',
 				'data'=>["invoiceItems"=>$invoiceItems]
@@ -564,7 +609,12 @@ public function createReciept($payment)
 	{
 
 		try{
-		$invoiceData 	=	Order::where("invoice_number",$request->invoice)->first();
+		$invoiceDataQuery 	=	Order::where("invoice_number",$request->invoice);
+		$invoiceData = $this->applyLoggedUserScope($invoiceDataQuery, 'orders', 'user_id')->first();
+
+		if (!$invoiceData) {
+			return response()->json(['message' => 'Invoice not found'], 404);
+		}
 
 		$customerData 	=	LedgerCustomerModel::where("id",$invoiceData->party_customer_id)->first();
         $shipppingaddressData 	=	ShippingDetail::where("id",$invoiceData->party_shippingaddress_id)->first();
@@ -599,7 +649,12 @@ public function createReciept($payment)
 		try{
 		$discountItems = DiscountModel::where("status",'1')->get();
 		$returnTypes 	= ReturnReasonModel::where("status",'1')->get();
-		$invoiceData 	=	SalesReturn::where("cr_number",$request->invoice)->first();
+		$invoiceDataQuery 	=	SalesReturn::where("cr_number",$request->invoice);
+		$invoiceData = $this->applyLoggedUserScope($invoiceDataQuery, 'sales_return', 'return_by')->first();
+
+		if (!$invoiceData) {
+			return response()->json(['message' => 'Invoice not found'], 404);
+		}
 
 		$customerData 	=	LedgerCustomerModel::where("id",$invoiceData->party_customer_id)->first();
 		$partyDetails	=	LedgerModel::where('id',$customerData->ledger_id)->first();
@@ -651,6 +706,7 @@ public function createReciept($payment)
 		DB::beginTransaction();
 		try{
 		$issue = false;
+		$loginUserId = $this->resolveLoginUserId($request->login_user_id ?? null);
 		$invoiceData 	=	Order::where("invoice_number",$request['invoice_number']!=""?$request['invoice_number']:$request['bill_number'])->first();
 			$order = new SalesReturn();
 
@@ -658,7 +714,8 @@ public function createReciept($payment)
 			$order->order_id     		=	$invoiceData->id;
 			//$order->warehouse_id      = 1;
 			$order->order_date        	= $request->order_date;
-			$order->return_by        	 = auth('api')->user()->id;
+			$order->return_by        	 = $loginUserId;
+			$order->login_user_id      = $loginUserId;
 
 			$order->party_id          	= $request->party_id;
 			$order->party_customer_id 	= $request->party_customer_id;
@@ -698,7 +755,7 @@ public function createReciept($payment)
 
 						// Insert order items
 						if(SalesReturnItems::create([
-							'user_id'            => auth('api')->user()->id,
+							'user_id'            => $loginUserId,
 							'order_id'           => $order->id,
 							'product_id'        => $productId,
 							'quantity'           => $item['quantity'],
@@ -768,6 +825,7 @@ public function createReciept($payment)
 		DB::beginTransaction();
 		try{
 		$issue = false;
+		$loginUserId = $this->resolveLoginUserId($request->login_user_id ?? null);
 		$invoiceData 	=	SalesReturn::where("cr_number",$request['bill_number'])->first();
 
 			$order = new SalesReturn();
@@ -776,7 +834,8 @@ public function createReciept($payment)
 			//$invoiceData->order_id     		=	$invoiceData->id;
 			//$order->warehouse_id      = 1;
 			$invoiceData->order_date        	= $request->order_date;
-			$invoiceData->return_by        	 = auth('api')->user()->id;
+			$invoiceData->return_by        	 = $loginUserId;
+			$invoiceData->login_user_id      = $loginUserId;
 
 			$invoiceData->party_id          	= $request->party_id;
 			$invoiceData->party_customer_id 	= $request->party_customer_id;
@@ -817,7 +876,7 @@ public function createReciept($payment)
 
 						// Insert order items
 						if(SalesReturnItems::create([
-							'user_id'            => auth('api')->user()->id,
+							'user_id'            => $loginUserId,
 							'order_id'           => $invoiceData->id,
 							'product_id'        => $productId,
 							'quantity'           => $item['quantity'],

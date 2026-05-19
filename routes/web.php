@@ -1,6 +1,26 @@
 <?php
 
 use Examyou\RestAPI\Facades\ApiRoute;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
+
+Route::get('maintenance/clear/{token}', function (string $token) {
+    $expectedToken = env('MAINTENANCE_CLEAR_TOKEN');
+
+    abort_if(blank($expectedToken), 404);
+    abort_unless(hash_equals($expectedToken, $token), 403);
+
+    Artisan::call('optimize:clear');
+    Artisan::call('route:clear');
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('view:clear');
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Laravel caches cleared successfully.',
+    ]);
+});
 
 // Admin Routes
     ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {

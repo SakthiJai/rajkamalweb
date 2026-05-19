@@ -712,6 +712,7 @@ export default {
             salesReturnStatus,
             purchaseReturnStatus,
             permsArray,
+            user,
             selectedWarehouse,
         } = common();
 const company = appSetting.value;
@@ -742,6 +743,7 @@ const company = appSetting.value;
                 total_quantity:0,
                 subtotal:0,
                 payment_id:0,
+                login_user_id: user.value?.login_user_id ?? null,
                 salesReturnType:null,
                 selectedInvoice:localStorage.getItem("selectedInvoice"),
                 items:[
@@ -2836,6 +2838,7 @@ getTotalAmount(type) {
 
                 const payload = {
                     order_date: this.formData.order_date,
+                    login_user_id: this.formData.login_user_id,
                     party_id: this.formData.party_id,
                     party_customer_id: this.formData.party_customer_id,
                     party_customer_mobile: this.formData.party_customer_mobile,

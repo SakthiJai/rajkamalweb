@@ -28,6 +28,7 @@ class SalesReturn extends BaseModel
         'order_date',
         'description',
         'return_by',
+        'login_user_id',
         'total_amount',
         'tax_amount',
         'total_discount',

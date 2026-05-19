@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
 
 
 class SalesReturnsController extends ApiBaseController
@@ -31,11 +32,51 @@ class SalesReturnsController extends ApiBaseController
 
 		$this->orderType = "sales-returns";
 	}
+
+	protected function scopeSalesReturnAccess(Builder $query): Builder
+	{
+		$loggedUserId = $this->getLoggedUserScopeId();
+
+		if (!$loggedUserId) {
+			return $query;
+		}
+
+		return $query->where(function ($innerQuery) use ($loggedUserId) {
+			$innerQuery->where('sales_return.login_user_id', $loggedUserId)
+				->orWhere(function ($fallbackQuery) use ($loggedUserId) {
+					$fallbackQuery->whereNull('sales_return.login_user_id')
+						->where('sales_return.return_by', $loggedUserId);
+				});
+		});
+	}
+
+	protected function modifyIndex($query)
+	{
+		return $this->scopeSalesReturnAccess($query);
+	}
+
+	protected function modifyShow($query)
+	{
+		return $this->scopeSalesReturnAccess($query);
+	}
+
+	protected function modifyUpdate($query)
+	{
+		return $this->scopeSalesReturnAccess($query);
+	}
+
+	protected function modifyDelete($query)
+	{
+		return $this->scopeSalesReturnAccess($query);
+	}
+
 	public function getInvoicePdf(Request $request)
 	{
 		$documentFileName = "sales_return_".$request->invoice.".pdf";
 
-		$invoice_details  = SalesReturn::where('cr_number',$request->invoice)->first();
+		$invoice_details = $this->scopeSalesReturnAccess(
+			SalesReturn::where('cr_number', $request->invoice)
+		)->first();
 		if (!$invoice_details) {
 			// Return error response or handle gracefully
 			return response()->json(['error' => 'Sales Return not found'], 404);
