@@ -119,7 +119,8 @@ public function createReceipt(SalesCreateRequest $request)
                      'payment_reference' =>  $paymentRef->id,
                      'payment_type' => 'sales',
                      'payment_added_by' => '1',
-                     'payment_added_at' => Carbon::now()
+                     'payment_added_at' => Carbon::now(),
+                     'login_user_id' => auth('api')->user() ? auth('api')->user()->id : null,
                      //'balance_adjusted' => $balanceAdjusted // Store the calculated balance adjusted
                  ]);
                  $totalAmount = PaymentModeModel::where('order_id',$orderId->id)->sum('amount');

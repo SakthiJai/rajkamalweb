@@ -108,7 +108,8 @@ class ReceiptPaymentController extends ApiBaseController
                         'payment_reference' =>  $paymentRef->id,
                         'payment_type' => 'purchase',
                         'payment_added_by' => '1',
-                        'payment_added_at' => Carbon::now()
+                        'payment_added_at' => Carbon::now(),
+                        'login_user_id' => auth('api')->user() ? auth('api')->user()->id : null,
                         //'balance_adjusted' => $balanceAdjusted // Store the calculated balance adjusted
                     ]);
                     

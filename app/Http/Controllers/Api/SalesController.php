@@ -243,7 +243,8 @@ class SalesController extends ApiBaseController
 						"settlement_mode" =>$list->bank_name,
 						"settlement_id" =>$list->id,
 						"bill_number" => $request->bill_number,
-						"order_id" => $order->id
+						"order_id" => $order->id,
+						"login_user_id" => $loginUserId,
 					]);
 					
 			endforeach;
@@ -426,46 +427,96 @@ class SalesController extends ApiBaseController
 
 	public function savepayment(Request $request)
 {
-    $totalAmount = 0;
-   // $totalBillAmount = $request->data[0]['bill_amount'];  // Assuming bill_amount is the same for all items
-    $totalBillAmount = (float) round($request->data[0]['bill_amount'], 2); // Ensure consistent rounding
+    DB::beginTransaction();
 
+    try {
+        $totalAmount = 0;
+        $totalBillAmount = (float) round($request->data[0]['bill_amount'], 2);
+        $currentRequestTranxNumber = null;
 
-    foreach ($request->data as $key => $value) {
-        if ($value['bill_amount'] != null && $value['bill_amount'] != "" && $value['amount'] > 0) {
-             $balanceAdjusted = $value['bill_amount'] - $value['amount'];  // Assuming this is the logic for balance adjustment
-            $newPay = PaymentModeModel::where('bill_number', $value['bill_number'])
-                ->where('settlement_mode', $value['settlement_mode'])
-                ->update([
-                    'bill_amount' => $value['bill_amount'],
-                    'amount' => $value['amount'],
-                    'remarks' => $value['remarks'],
-                    'cash_tender' => $value['cash_tender'],
-                    'cash_return' => $value['cash_return'],
-					'payment_type' =>"sales",
-                    'balance_adjusted' => $balanceAdjusted // Store the calculated balance adjusted
-                ]);
-            $totalAmount += $value['amount'];
-			$this->createReciept($value);
+        foreach ($request->data as $key => $value) {
+            if ($value['bill_amount'] != null && $value['bill_amount'] != "" && $value['amount'] > 0) {
+                $balanceAdjusted = $value['bill_amount'] - $value['amount'];
+                $paymentModeRow = PaymentModeModel::where('bill_number', $value['bill_number'])
+                    ->where('settlement_mode', $value['settlement_mode'])
+                    ->first();
+
+                $tranxNumber = $paymentModeRow && !empty($paymentModeRow->tranx_number)
+                    ? $paymentModeRow->tranx_number
+                    : null;
+
+                if (!$tranxNumber) {
+                    if ($currentRequestTranxNumber === null) {
+                        $currentRequestTranxNumber = $this->formatPaymentTranxNumber($this->getNextPaymentTranxSequence());
+                    }
+
+                    $tranxNumber = $currentRequestTranxNumber;
+                }
+
+                PaymentModeModel::where('bill_number', $value['bill_number'])
+                    ->where('settlement_mode', $value['settlement_mode'])
+                    ->update([
+                        'bill_amount' => $value['bill_amount'],
+                        'amount' => $value['amount'],
+                        'remarks' => $value['remarks'],
+                        'cash_tender' => $value['cash_tender'],
+                        'cash_return' => $value['cash_return'],
+						'payment_type' => "sales",
+                        'balance_adjusted' => $balanceAdjusted,
+                        'tranx_number' => $tranxNumber,
+                        'login_user_id' => $this->resolveLoginUserId($request->login_user_id ?? null),
+                    ]);
+
+                $totalAmount += $value['amount'];
+			    $this->createReciept($value);
+            }
         }
-    }
-    $totalAmount = round($totalAmount, 2);
-    $invoice_number = isset($request->data[0]['invoice_number'])?$request->data[0]['invoice_number']:$request->data[0]['bill_number'];
 
-    //\Log::info("Total Paid: $totalAmount, Total Bill: $totalBillAmount, Invoice: $invoice_number");
-    if ($totalAmount >= $totalBillAmount)
-    {
-        Order::where('invoice_number', $invoice_number)
-            ->update(['payment_status' => 'Paid','due_amount'=>0]);
+        $totalAmount = round($totalAmount, 2);
+        $invoice_number = isset($request->data[0]['invoice_number']) ? $request->data[0]['invoice_number'] : $request->data[0]['bill_number'];
+
+        if ($totalAmount >= $totalBillAmount) {
+            Order::where('invoice_number', $invoice_number)
+                ->update(['payment_status' => 'Paid', 'due_amount' => 0]);
+        } elseif ($totalAmount > 0) {
+            Order::where('invoice_number', $invoice_number)
+                ->update(['payment_status' => 'Partially paid', 'due_amount' => ($totalBillAmount - $totalAmount)]);
+        }
+
+        DB::commit();
+
+        return response()->json(['message' => 'Sales Entry Saved successfully.'], 201);
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        Log::error('Error saving sales payment', [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+
+        return response()->json(['message' => 'Unable to save payment details.'], 500);
     }
-    elseif ($totalAmount > 0)
-     {
-        Order::where('invoice_number', $invoice_number)
-            ->update(['payment_status' => 'Partially paid','due_amount'=>( $totalBillAmount-$totalAmount)]);
-    }
-    // Return a success response
-    return response()->json(['message' => 'Sales Entry Saved successfully.'], 201);
 }
+
+	protected function getNextPaymentTranxSequence(): int
+	{
+		$maxSequence = PaymentModeModel::whereNotNull('tranx_number')
+			->where('tranx_number', 'like', 'PAY-%')
+			->selectRaw("MAX(CAST(SUBSTRING(tranx_number, 5) AS UNSIGNED)) as max_sequence")
+			->value('max_sequence');
+
+		if (!$maxSequence) {
+			return 1;
+		}
+
+		return ((int) $maxSequence) + 1;
+	}
+
+	protected function formatPaymentTranxNumber(int $sequence): string
+	{
+		return 'PAY-' . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+	}
 public function createReciept($payment)
 {
 		$order = DB::select("select party_id, order_date from orders where invoice_number='".$payment['bill_number']."'");
