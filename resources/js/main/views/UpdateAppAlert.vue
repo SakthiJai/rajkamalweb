@@ -34,11 +34,10 @@
 </template>
 
 <script>
-import { watch, onMounted, computed, ref, defineComponent } from "vue";
+import { onMounted, ref, defineComponent } from "vue";
 import { SyncOutlined, CloudDownloadOutlined } from "@ant-design/icons-vue";
 import axios from "axios";
 import common from "../../common/composable/common";
-import { getUrlByAppType } from "../../common/scripts/functions";
 
 export default defineComponent({
 	components: {
@@ -53,27 +52,24 @@ export default defineComponent({
 
 		onMounted(() => {
 			if (appSetting.value.update_app_notification && appType == "non-saas") {
-				axiosAdmin(getUrlByAppType("update-app")).then((response) => {
-					axios
-						.post("https://envato.codeifly.com/product", {
-							verified_name: window.config.product_name,
-							domain: window.location.host,
-						})
-						.then((res) => {
-							product.value = res.data;
+				axios
+					.post("https://envato.codeifly.com/product", {
+						verified_name: window.config.product_name,
+						domain: window.location.host,
+					})
+					.then((res) => {
+						product.value = res.data;
 
-							if (product.value.product.version != appVersion) {
-								productStatus.value = "update_available";
-							} else {
-								productStatus.value = "success";
-							}
-						})
-						.catch((error) => {
-							productStatus.value = "error";
-							// Optionally, log or show a notification
-							console.error("Product check failed:", error);
-						});
-				});
+						if (product.value.product.version != appVersion) {
+							productStatus.value = "update_available";
+						} else {
+							productStatus.value = "success";
+						}
+					})
+					.catch((error) => {
+						productStatus.value = "error";
+						console.error("Product check failed:", error);
+					});
 			}
 		});
 
