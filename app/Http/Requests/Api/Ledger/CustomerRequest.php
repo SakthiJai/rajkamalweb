@@ -6,6 +6,30 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CustomerRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $customerName = $this->input('cus_name')
+            ?? $this->input('party_customer_name')
+            ?? $this->input('customer_name')
+            ?? $this->input('name');
+
+        $mobileNumber = $this->input('mobile_number')
+            ?? $this->input('party_customer_mobile')
+            ?? $this->input('customer_mobile')
+            ?? $this->input('phone_number')
+            ?? $this->input('mobile')
+            ?? $this->input('phone');
+
+        $email = $this->input('email')
+            ?? $this->input('mail_to');
+
+        $this->merge([
+            'cus_name' => is_string($customerName) ? trim($customerName) : $customerName,
+            'mobile_number' => is_string($mobileNumber) ? trim($mobileNumber) : $mobileNumber,
+            'email' => is_string($email) ? trim($email) : $email,
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -26,8 +50,8 @@ class CustomerRequest extends FormRequest
             'mobile_number' => 'required',
 		];
 
-        if ($this->filled('mail_to')) {
-            $rules['mail_to'] = 'required|email';
+        if ($this->filled('email')) {
+            $rules['email'] = 'required|email';
         }
 
 		return $rules;

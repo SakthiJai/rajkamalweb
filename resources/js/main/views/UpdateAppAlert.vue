@@ -50,26 +50,30 @@ export default defineComponent({
 		const productStatus = ref("fetching");
 		const product = ref([]);
 
-		onMounted(() => {
-			if (appSetting.value.update_app_notification && appType == "non-saas") {
-				axios
-					.post("https://envato.codeifly.com/product", {
+		onMounted(async () => {
+			// Skip product check if API endpoint is unavailable
+			if (appSetting.value.update_app_notification && appType == "non-saas" && false) {
+				try {
+					const res = await axios.post("https://envato.codeifly.com/product", {
 						verified_name: window.config.product_name,
 						domain: window.location.host,
-					})
-					.then((res) => {
-						product.value = res.data;
+					}, {
+						timeout: 10000
+					});
 
+					if (res.data && res.data.product) {
+						product.value = res.data;
 						if (product.value.product.version != appVersion) {
 							productStatus.value = "update_available";
 						} else {
 							productStatus.value = "success";
 						}
-					})
-					.catch((error) => {
+					} else {
 						productStatus.value = "error";
-						console.error("Product check failed:", error);
-					});
+					}
+				} catch {
+					productStatus.value = "error";
+				}
 			}
 		});
 

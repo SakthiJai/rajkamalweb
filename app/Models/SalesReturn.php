@@ -20,7 +20,6 @@ class SalesReturn extends BaseModel
     protected $default = [
         'xid',
         'id',
-        'unique_id',
         'cr_number',
         'order_id',
         'party_id',

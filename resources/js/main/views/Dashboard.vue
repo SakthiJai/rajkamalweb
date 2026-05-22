@@ -292,6 +292,7 @@
                         <a-col :xs="24" :sm="24" :md="12" :lg="18" :xl="18">
                             <OrderTable
                                 :orderType="activeOrderType"
+                                :data="orderTableData"
                                 :filters="filters"
                                 :perPageItems="5"
                             />
@@ -478,6 +479,7 @@ export default {
             dates: [],
         });
         const responseData = ref([]);
+        const orderTableData = ref([]);
         const route = useRoute();
         const activeDateSelector = ref("");
         const serachDateRangePicker = ref(null);
@@ -569,16 +571,56 @@ export default {
             }
         };
 
+        const fetchOrderTableData = async (orderType) => {
+            if (!orderType) return;
+            try {
+                let endpoint = "";
+
+                // Map order type to API endpoint
+                if (orderType === "sales") {
+                    endpoint = "sales";
+                } else if (orderType === "sales-returns") {
+                    endpoint = "sales-returns";
+                } else if (orderType === "purchases") {
+                    endpoint = "bill-returns";
+                } else if (orderType === "purchase-returns") {
+                    endpoint = "purchase-returns";
+                }
+
+                const params = new URLSearchParams();
+                params.append("offset", "0");
+                params.append("limit", "5");
+                params.append("order", "id desc");
+
+                const response = await axiosAdmin.get(`${endpoint}?${params.toString()}`);
+                orderTableData.value = response.data;
+            } catch (error) {
+                console.error(`Failed to fetch ${orderType} data:`, error);
+                orderTableData.value = [];
+            }
+        };
+
         watch([filters, selectedWarehouse], (newVal, oldVal) => {
             axiosAdmin.post("dashboard", filters).then((response) => {
                 responseData.value = response.data;
             });
+
+            if (activeOrderType.value) {
+                fetchOrderTableData(activeOrderType.value);
+            }
+        });
+
+        watch(activeOrderType, (newOrderType) => {
+            if (newOrderType) {
+                fetchOrderTableData(newOrderType);
+            }
         });
 
         return {
             filters,
             activeOrderType,
             responseData,
+            orderTableData,
             stockQuantityColumns,
             topCustomerColumns,
             formatQuantity,

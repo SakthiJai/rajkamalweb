@@ -56,6 +56,14 @@ class CheckPermission
             return true;
         }
 
+        if ($request->isMethod('post') && $path === 'api/v1/store-ledger/customer') {
+            if (!$this->userHasAnyPermission($user, ['sales_create', 'sales_edit'])) {
+                throw new UnauthorizedException("Don't have valid permission");
+            }
+
+            return true;
+        }
+
         if ($request->isMethod('get') && $this->isApiPathMatch($path, 'products')) {
             if (!$this->userHasAnyPermission($user, ['products_view', 'sales_view', 'sales_create', 'sales_edit'])) {
                 throw new UnauthorizedException("Don't have valid permission");

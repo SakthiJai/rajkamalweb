@@ -482,14 +482,23 @@ const initialSetup = () => {
         extraFilterObject.transfer_type = tableFilter.transfer_type;
       }
 
+      let endpoint = props.orderType;
+      
+      // Map purchases to bill-returns
+      if (props.orderType === "purchases") {
+        endpoint = "bill-returns";
+      }
+
       const fields =
         props.orderType === "sales-returns"
           ? "id,xid,cr_number,order_id,party_id,party_customer_id,order_date,return_by,total_amount,tax_amount,total_discount,total_items,invoice_path,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,return_qty,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},party{id,party_name,party_type,party_full_name,phone_number},customer{id,cus_name,mobile_number,phone_number}"
-          : "id,total_items,invoice_number,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},party_name,party{id,party_name,party_type,party_full_name,phone_number},customer{id,cus_name,mobile_number,phone_number},bill_number,payment_status,invoice_path";
+          : props.orderType === "purchases"
+          ? "id,xid,partyName{id,party_name,party_full_name},customer{id,cus_name},order_id,order_date,total_amount,invoice_path,invoice_number"
+          : "id,total_items,invoice_number,total_quantity,xid,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},party_name,party{id,party_name,party_type,party_full_name,phone_number},customer{id,cus_name,mobile_number,phone_number},bill_number,payment_status,invoice_path";
 
       datatableVariables.tableUrl.value = {
         url:
-          `${props.orderType}?fields=${fields}&${props.salesType}&searchBy=` +
+          `${endpoint}?fields=${fields}&${props.salesType}&searchBy=` +
           (searchBy ?? ""),
         filterString,
         filters: {
