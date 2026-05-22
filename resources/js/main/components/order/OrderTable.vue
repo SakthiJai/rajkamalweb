@@ -8,6 +8,7 @@
           :data-source="table.data"
           :pagination="table.pagination"
           :loading="table.loading"
+          table-layout="fixed"
           :scroll="tableScroll"
           :sticky="{ offsetHeader: 60 }"
           @change="handleTableChange"
@@ -23,16 +24,37 @@
           id="payment-reports-table"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.dataIndex === 'invoice_number'">
+            <template
+              v-if="
+                column.dataIndex === 'invoice_number' ||
+                column.dataIndex === 'cr_number' ||
+                column.dataIndex === 'dr_number'
+              "
+            >
               <a-typography-link>
-                {{ record.invoice_number }}
+                {{ getReferenceNumber(record) }}
               </a-typography-link>
             </template>
             <template v-if="column.dataIndex === 'order_date'">
               {{ formatDate(record.order_date) }}
             </template>
-            <template v-if="column.dataIndex === 'party'">
-              {{ record.party?.party_name || record.party_name || "" }}
+            <template
+              v-if="
+                column.dataIndex === 'party' ||
+                column.dataIndex === 'party_display'
+              "
+            >
+              <span class="table-cell-ellipsis">
+                {{
+                  record.party_display ||
+                  record.party_name ||
+                  record.party?.party_name ||
+                  record.party?.party_full_name ||
+                  record.partyName?.party_name ||
+                  record.partyName?.party_full_name ||
+                  ""
+                }}
+              </span>
             </template>
             <template v-if="column.dataIndex.includes('party_type')">
               {{ record.party?.party_type == 1 ? "Customer" : "Supplier" }}
@@ -139,34 +161,15 @@
             </a-table>
           </template>
           <template #summary>
-            <a-table-summary-row >
-              <a-table-summary-cell
-                :col-span="selectable && orderType != 'online-orders' ? 6 : 7"
-              >
+            <a-table-summary-row>
+              <a-table-summary-cell :col-span="summaryConfig.leadingColSpan">
               </a-table-summary-cell>
-              <a-table-summary-cell :col-span="1">
-                <a-typography-text strong> </a-typography-text>
-              </a-table-summary-cell>
-              <a-table-summary-cell  :col-span="2">
+              <a-table-summary-cell :col-span="summaryConfig.totalColSpan">
                 <a-typography-text strong >
                   {{ $t("common.total") }}:
                   <span style="float: right"> ₹{{ totals.totalAmount.toFixed(2) }} </span>
                 </a-typography-text>
               </a-table-summary-cell>
-
-              
-              <a-table-summary-cell :col-span="1">
-                <a-typography-text strong>
-                  <a-typography-text strong>
-                    <a-tooltip>
-                      <a-typography-text strong>
-                        <a-tooltip> <span> </span></a-tooltip>
-                      </a-typography-text>
-                    </a-tooltip>
-                  </a-typography-text>
-                </a-typography-text>
-              </a-table-summary-cell>
-              
             </a-table-summary-row>
           </template>
         </a-table>
@@ -369,7 +372,7 @@ export default {
     const printInvoiceModalVisible = ref(false);
     const payNowVisible = ref(false);
     const printInvoiceOrder = ref({});
-    let newcolumns = [];
+    const newcolumns = ref([]);
     // For Online Orders
     const confirmModalVisible = ref(false);
     const viewModalVisible = ref(false);
@@ -406,16 +409,60 @@ export default {
       initialSetup();
     });
 
+    const getReferenceNumber = (record) => {
+      return (
+        record?.invoice_number ||
+        record?.cr_number ||
+        record?.dr_number ||
+        record?.bill_number ||
+        ""
+      );
+    };
+
+    const normalizeDashboardRows = (rows) => {
+      if (!Array.isArray(rows)) {
+        return [];
+      }
+
+      if (
+        props.orderType !== "purchases" &&
+        props.orderType !== "purchase-returns"
+      ) {
+        return rows;
+      }
+
+      return rows.map((row) => {
+        const nestedPartyName =
+          typeof row?.party_name === "object" && row?.party_name !== null
+            ? row.party_name.party_name || row.party_name.party_full_name || ""
+            : row?.party_name || "";
+
+        const partyDisplay =
+          nestedPartyName ||
+          row?.party?.party_name ||
+          row?.party?.party_full_name ||
+          row?.partyName?.party_name ||
+          row?.partyName?.party_full_name ||
+          "";
+
+        return {
+          ...row,
+          party_display: partyDisplay,
+          party_name: partyDisplay,
+          total: row?.total ?? row?.total_amount ?? 0,
+        };
+      });
+    };
+
     const onSelectChange = (changableRowKeys, $event) => {
       console.log("selectedRowKeys changed:  ", changableRowKeys, $event);
       datatableVariables.table.data.forEach((data) => {
         if (data.id == changableRowKeys[0]) {
-          emit("mouse-select", data.invoice_number);
+          const referenceNumber = getReferenceNumber(data);
+          emit("mouse-select", referenceNumber);
           // Store selected invoice in localStorage
-          if (data.xid) {
-            localStorage.setItem("selectedInvoice", data.invoice_number);
-          } else if (data.id) {
-            localStorage.setItem("selectedInvoice", data.invoice_number);
+          if ((data.xid || data.id) && referenceNumber) {
+            localStorage.setItem("selectedInvoice", referenceNumber);
           }
         }
       });
@@ -459,8 +506,42 @@ const initialSetup = () => {
   }
 
   setupTableColumns();
+  syncDisplayedColumns();
   setUrlData();
 };
+
+    const syncDisplayedColumns = () => {
+      if (route.name == "admin.stock.quotations.index") {
+        newcolumns.value = columns.value.filter(
+          (data) => data.dataIndex != "total" && data.dataIndex != "payment_status"
+        );
+      } else {
+        newcolumns.value = [...columns.value];
+      }
+    };
+
+    const summaryConfig = computed(() => {
+      const visibleColumns = Array.isArray(newcolumns.value) ? newcolumns.value : [];
+      const amountColumnIndex = visibleColumns.findIndex(
+        (column) => column.dataIndex === "total"
+      );
+
+      if (amountColumnIndex === -1) {
+        return {
+          leadingColSpan: 1,
+          totalColSpan: Math.max(visibleColumns.length + 1, 1),
+        };
+      }
+
+      const utilityColumns = 2;
+      const leadingColSpan = utilityColumns + amountColumnIndex;
+      const totalColSpan = Math.max(visibleColumns.length - amountColumnIndex, 1);
+
+      return {
+        leadingColSpan,
+        totalColSpan,
+      };
+    });
 
     const setUrlData = (searchBy) => {
       if (
@@ -484,14 +565,18 @@ const initialSetup = () => {
 
       let endpoint = props.orderType;
       
-      // Map purchases to bill-returns
+      // Map dashboard order types to their API endpoints
       if (props.orderType === "purchases") {
         endpoint = "bill-returns";
+      } else if (props.orderType === "purchase-returns") {
+        endpoint = "purchases-return";
       }
 
       const fields =
         props.orderType === "sales-returns"
           ? "id,xid,cr_number,order_id,party_id,party_customer_id,order_date,return_by,total_amount,tax_amount,total_discount,total_items,invoice_path,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,return_qty,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},party{id,party_name,party_type,party_full_name,phone_number},customer{id,cus_name,mobile_number,phone_number}"
+          : props.orderType === "purchase-returns"
+          ? "id,xid,return_by,partyName{id,party_full_name,party_name},customer{id,cus_name},dr_number,order_id,order_date,invoice_path,total_amount"
           : props.orderType === "purchases"
           ? "id,xid,partyName{id,party_name,party_full_name},customer{id,cus_name},order_id,order_date,total_amount,invoice_path,invoice_number"
           : "id,total_items,invoice_number,total_quantity,xid,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode},party_name,party{id,party_name,party_type,party_full_name,phone_number},customer{id,cus_name,mobile_number,phone_number},bill_number,payment_status,invoice_path";
@@ -532,6 +617,9 @@ const initialSetup = () => {
       // crudVariables.table.sorter = { field: "id", order: "desc" };
       var response = datatableVariables.fetch({
         page: 1,
+        success: (data) => {
+          datatableVariables.table.data = normalizeDashboardRows(data);
+        },
       });
       //datatableVariables.fetch();
       setTimeout(function () {
@@ -861,6 +949,7 @@ defineExpose({
       filterableColumns,
       pageObject,
       totals,
+      summaryConfig,
       formatDate,
       orderStatus,
       orderStatusColors,
@@ -924,6 +1013,9 @@ defineExpose({
       printInvoicePDF,
       onSelectChange,
       editRow,
+      getReferenceNumber,
+      normalizeDashboardRows,
+      syncDisplayedColumns,
     };
   },
   data() {
@@ -933,16 +1025,7 @@ defineExpose({
   mounted() {
     console.log(this.$route.name, this.columns, this.newcolumns);
     document.addEventListener("keyup", this.handleKeyDown);
-    if (this.$route.name == "admin.stock.quotations.index") {
-      this.columns.forEach((data) => {
-        if (data.dataIndex != "total" && data.dataIndex != "payment_status") {
-          this.newcolumns.push(data);
-        }
-      });
-    } else {
-      this.newcolumns = this.columns;
-      //this.columns = this.newcolumns;
-    }
+    this.syncDisplayedColumns();
     setTimeout(function () {
       this.selectedRowKeysValue = [];
     }, 2000);
@@ -1042,10 +1125,10 @@ editRow(record) {
         }
 
         if (selectedData) {
-            this.selectedInvoice = selectedData.invoice_number;
+            this.selectedInvoice = this.getReferenceNumber(selectedData);
 
             // 🔥 THIS IS KEY
-            this.$emit("child-select", selectedData.invoice_number);
+            this.$emit("child-select", this.selectedInvoice);
         }
     }
     break;
@@ -1099,13 +1182,13 @@ editRow(record) {
   const selectedData = this.table.data.find(item => item.id == selectedRowKey);
 
 if (selectedData) {
-    this.selectedInvoice = selectedData.invoice_number;
+    this.selectedInvoice = this.getReferenceNumber(selectedData);
 
     this.selectedRowKeysValue = [selectedData.id];
 
-    localStorage.setItem("selectedInvoice", selectedData.invoice_number);
+    localStorage.setItem("selectedInvoice", this.selectedInvoice);
 
-    this.$emit("row-select", selectedData.invoice_number);
+    this.$emit("row-select", this.selectedInvoice);
 }
 
   currentRow.classList.add("ant-table-row-selected");
@@ -1128,6 +1211,15 @@ if (selectedData) {
 };
 </script>
 <style>
+
+.table-cell-ellipsis {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
 
 ::v-deep(.ant-table-thead > tr > th),
 ::v-deep(.ant-table-tbody > tr > td) {

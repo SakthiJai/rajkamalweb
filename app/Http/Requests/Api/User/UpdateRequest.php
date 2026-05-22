@@ -31,8 +31,12 @@ class UpdateRequest extends FormRequest
         $convertedId = Hashids::decode($this->route('user'));
         $id = $convertedId[0];
 
+        $isAdmin = $loggedUser->hasRole('admin');
+        $isSalesman = $loggedUser->hasRole('salesman');
+
         $rules = [
             'phone'    => [
+                'nullable',
                 'numeric',
                 Rule::unique('users', 'phone')->where(function ($query) use ($company) {
                     return $query->where(function ($query) {
@@ -41,9 +45,10 @@ class UpdateRequest extends FormRequest
                     })->where('company_id', $company->id);
                 })->ignore($id)
             ],
-            'name' => 'required',
+            'name' => $isAdmin ? 'required' : 'nullable',
             'email'    => [
-                'required', 'email',
+                $isAdmin ? 'required' : 'nullable',
+                'email',
                 Rule::unique('users', 'email')->where(function ($query) use ($company) {
                     return $query->where(function ($query) {
                         $query->where('user_type', 'staff_members')
@@ -51,15 +56,15 @@ class UpdateRequest extends FormRequest
                     })->where('company_id', $company->id);
                 })->ignore($id)
             ],
-            'status' => 'required',
+            'status' => $isAdmin ? 'required' : 'nullable',
         ];
 
-        if ($loggedUser->hasRole('admin')) {
+        if ($isAdmin) {
             $rules['role_id'] = 'required';
         }
 
         // No need to add warehouse for admin user
-        if ($loggedUser->hasRole('admin')) {
+        if ($isAdmin) {
             $editUser = User::with(['role'])->find($id);
             if ($editUser->role && $editUser->role->name != 'admin') {
                 $rules['warehouse_id'] = 'required';

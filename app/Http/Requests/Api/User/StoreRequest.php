@@ -29,8 +29,12 @@ class StoreRequest extends FormRequest
         $company = company();
         $loggedUser = auth('api')->user();
 
+        $isAdmin = $loggedUser->hasRole('admin');
+        $isSalesman = $loggedUser->hasRole('salesman');
+
         $rules = [
             'phone'    => [
+                'nullable',
                 'numeric',
                 Rule::unique('users', 'phone')->where(function ($query) use ($company) {
                     return $query->where(function ($query) {
@@ -39,9 +43,10 @@ class StoreRequest extends FormRequest
                     })->where('company_id', $company->id);
                 })
             ],
-            'name' => 'required',
+            'name' => $isAdmin ? 'required' : 'nullable',
             'email'    => [
-                'required', 'email',
+                $isAdmin ? 'required' : 'nullable',
+                'email',
                 Rule::unique('users', 'email')->where(function ($query) use ($company) {
                     return $query->where(function ($query) {
                         $query->where('user_type', 'staff_members')
@@ -49,15 +54,15 @@ class StoreRequest extends FormRequest
                     })->where('company_id', $company->id);
                 })
             ],
-            'status' => 'required',
-            'password' => 'required|min:8',
+            'status' => $isAdmin ? 'required' : 'nullable',
+            'password' => $isAdmin ? 'required|min:8' : 'nullable|min:8',
         ];
 
-        if ($loggedUser->hasRole('admin')) {
+        if ($isAdmin) {
             $rules['role_id'] = 'required';
         }
 
-        if ($loggedUser->hasRole('admin')) {
+        if ($isAdmin) {
             if ($this->has('role_id') && $this->role_id != '') {
                 $roleId = Common::getIdFromHash($this->role_id);
                 $role = Role::find($roleId);

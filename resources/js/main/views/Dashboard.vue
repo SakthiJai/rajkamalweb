@@ -584,7 +584,7 @@ export default {
                 } else if (orderType === "purchases") {
                     endpoint = "bill-returns";
                 } else if (orderType === "purchase-returns") {
-                    endpoint = "purchase-returns";
+                    endpoint = "purchases-return";
                 }
 
                 const params = new URLSearchParams();

@@ -14,7 +14,7 @@ class PurchaseReturnDetalis extends BaseModel
 
 
 
-    protected $default = ['xid','id','dr_number','order_id','party_id','party_customer_id','order_date', 'description','return_by','party_name'];
+    protected $default = ['xid','id','dr_number','order_id','party_id','party_customer_id','order_date','return_by'];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
@@ -22,7 +22,7 @@ class PurchaseReturnDetalis extends BaseModel
     
     protected $allowedFilters = [ 'dr_number','order_id' ];
     
-    protected $filterable = ['id', 'cus_name','dr_number','order_id'];
+    protected $filterable = ['id','dr_number','order_id'];
 
     protected $casts = [
         'order_date' => 'datetime',

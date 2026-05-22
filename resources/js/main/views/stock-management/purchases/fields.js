@@ -270,11 +270,70 @@ const fields = () => {
     });
 
     const setupTableColumns = () => {
+        const invoiceColumnKey =
+            pageObject.value.type == "sales-returns"
+                ? "cr_number"
+                : pageObject.value.type == "purchase-returns"
+                ? "dr_number"
+                : "invoice_number";
+        const dateColumnTitle =
+            pageObject.value.type == "purchases"
+                ? t("purchase.purchase_date")
+                : pageObject.value.type == "purchase-returns"
+                ? "Purchase Return Date"
+                : pageObject.value.type == "sales-returns"
+                ? "Sales Return Date"
+                : t(`${pageObject.value.langKey}.${pageObject.value.langKey}_date`);
+
+        if (
+            pageObject.value.type == "purchases" ||
+            pageObject.value.type == "purchase-returns"
+        ) {
+            columns.value = [
+                {
+                    title:
+                        pageObject.value.type == "purchase-returns"
+                            ? t("stock.dr_numbers")
+                            : t("stock.bill_no"),
+                    dataIndex: invoiceColumnKey,
+                    sorter: true,
+                    width: 140,
+                    ellipsis: true,
+                },
+                {
+                    title: t("stock.party"),
+                    dataIndex: "party_display",
+                    sorter: true,
+                    width: 180,
+                    ellipsis: true,
+                },
+                {
+                    title: t("stock.sales_amount"),
+                    dataIndex: "total",
+                    sorter: true,
+                    width: 140,
+                },
+                {
+                    title: dateColumnTitle,
+                    dataIndex: "order_date",
+                    sorter: true,
+                    width: 180,
+                    ellipsis: true,
+                },
+                {
+                    title: t("common.action"),
+                    dataIndex: "action",
+                    width: 140,
+                },
+            ];
+
+            return;
+        }
 
         var allColumns = [
             {
                 title: t(`stock.bill_no`),
-                dataIndex: "invoice_number",
+                dataIndex: invoiceColumnKey,
                 sorter: true,
             },
         ];
@@ -304,9 +363,7 @@ const fields = () => {
         }
 
         allColumns.push({
-            title: t(
-                `${pageObject.value.langKey}.${pageObject.value.langKey}_date`
-            ),
+            title: dateColumnTitle,
             dataIndex: "order_date",
             sorter: true,
         });

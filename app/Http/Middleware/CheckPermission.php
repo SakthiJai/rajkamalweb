@@ -158,6 +158,13 @@ class CheckPermission
             return true;
         }
 
+        // Allow salesmen and admins to access users endpoint
+        if ($this->isApiPathMatch($path, 'users')) {
+            if ($user->hasRole('salesman') || $user->hasRole('admin')) {
+                return true;
+            }
+        }
+
         return false;
     }
 
