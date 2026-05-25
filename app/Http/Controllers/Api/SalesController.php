@@ -147,17 +147,13 @@ class SalesController extends ApiBaseController
 			$order->discount    = $request->discount ?? 0.00;
 			$order->subtotal          = $request->subtotal ?? 0.00;
 			$order->total             = $request->total ?? 0.00;
-			$order->due_amount        = $order->total;
-			$order->order_status      = $request->order_status;
-			$order->party_id          = $request->party_id;
-			$order->ledger_id          = $request->party_id;
-			$order->party_customer_id = $request->party_customer_id;
+		$order->due_amount        = $request->due_amount ?? $order->total;
+		$order->order_status      = $request->order_status;
+		$order->party_id          = $request->party_id;
+		$order->ledger_id          = $request->party_id;
+		$order->party_customer_id = $request->party_customer_id;
             $order->party_shippingaddress_id = $request->party_shippingaddress_id;
             $order->address           = $request->address;
-			$order->total      	= ($request->subtotal+$request->tax_amount)-($request->discount);
-			$order->tax_amount      	= ($request->tax_amount);
-
-			$order->total_items      	= ($request->total_items);
 			
 			 
 			if($order->save())

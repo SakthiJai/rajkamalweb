@@ -1,8 +1,12 @@
 <?php
 
 use Examyou\RestAPI\Facades\ApiRoute;
+use App\Models\Settings;
+use App\Notifications\TestMail;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 Route::get('maintenance/clear/{token}', function (string $token) {
     $expectedToken = env('MAINTENANCE_CLEAR_TOKEN');
@@ -20,6 +24,82 @@ Route::get('maintenance/clear/{token}', function (string $token) {
         'success' => true,
         'message' => 'Laravel caches cleared successfully.',
     ]);
+});
+
+Route::get('debug/mail-test/{token}', function (string $token) {
+    $expectedToken = env('MAIL_DEBUG_TOKEN');
+
+    abort_if(blank($expectedToken), 404);
+    abort_unless(hash_equals($expectedToken, $token), 403);
+
+    $email = request('email', config('mail.from.address'));
+
+    abort_if(blank($email), 422, 'Email query parameter is required.');
+
+    $activeEmailSetting = Settings::withoutGlobalScopes()
+        ->where('setting_type', 'email')
+        ->where('status', 1)
+        ->latest('id')
+        ->first();
+
+    try {
+        config(['queue.default' => 'sync']);
+
+        Notification::route('mail', $email)->notify(new TestMail());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Test mail sent successfully.',
+            'target_email' => $email,
+            'mail_config' => [
+                'default' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+                'username' => config('mail.mailers.smtp.username'),
+                'from_address' => config('mail.from.address'),
+                'from_name' => config('mail.from.name'),
+            ],
+            'db_mail_setting' => $activeEmailSetting ? [
+                'name_key' => $activeEmailSetting->name_key,
+                'verified' => $activeEmailSetting->verified,
+                'status' => $activeEmailSetting->status,
+                'from_email' => data_get($activeEmailSetting->credentials, 'from_email'),
+                'from_name' => data_get($activeEmailSetting->credentials, 'from_name'),
+                'host' => data_get($activeEmailSetting->credentials, 'host'),
+                'port' => data_get($activeEmailSetting->credentials, 'port'),
+                'encryption' => data_get($activeEmailSetting->credentials, 'encryption'),
+                'username' => data_get($activeEmailSetting->credentials, 'username'),
+            ] : null,
+        ]);
+    } catch (TransportExceptionInterface | \Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Mail test failed.',
+            'target_email' => $email,
+            'error' => $e->getMessage(),
+            'mail_config' => [
+                'default' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+                'username' => config('mail.mailers.smtp.username'),
+                'from_address' => config('mail.from.address'),
+                'from_name' => config('mail.from.name'),
+            ],
+            'db_mail_setting' => $activeEmailSetting ? [
+                'name_key' => $activeEmailSetting->name_key,
+                'verified' => $activeEmailSetting->verified,
+                'status' => $activeEmailSetting->status,
+                'from_email' => data_get($activeEmailSetting->credentials, 'from_email'),
+                'from_name' => data_get($activeEmailSetting->credentials, 'from_name'),
+                'host' => data_get($activeEmailSetting->credentials, 'host'),
+                'port' => data_get($activeEmailSetting->credentials, 'port'),
+                'encryption' => data_get($activeEmailSetting->credentials, 'encryption'),
+                'username' => data_get($activeEmailSetting->credentials, 'username'),
+            ] : null,
+        ], 500);
+    }
 });
 
 // Admin Routes

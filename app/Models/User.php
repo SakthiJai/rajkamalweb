@@ -19,6 +19,8 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
 {
     use Notifiable, EntrustUserTrait, Authenticatable, HasFactory;
 
+    public $plain_text_password = null;
+
     protected $default = ["xid", "name", "profile_image"];
 
     protected $guarded = [
@@ -86,6 +88,7 @@ class User extends BaseModel implements AuthenticatableContract, JWTSubject
     public function setPasswordAttribute($value)
     {
         if ($value) {
+            $this->plain_text_password = $value;
             $this->attributes['password'] = FacadesHash::make($value);
         }
     }

@@ -21,6 +21,8 @@ class StaffMember extends BaseModel implements AuthenticatableContract, JWTSubje
 {
     use Notifiable, EntrustUserTrait, Authenticatable, HasFactory;
 
+    public $plain_text_password = null;
+
     protected  $table = 'users';
 
     protected $default = ["xid", "name", "profile_image"];
@@ -92,6 +94,7 @@ class StaffMember extends BaseModel implements AuthenticatableContract, JWTSubje
     public function setPasswordAttribute($value)
     {
         if ($value) {
+            $this->plain_text_password = $value;
             $this->attributes['password'] = FacadesHash::make($value);
         }
     }
