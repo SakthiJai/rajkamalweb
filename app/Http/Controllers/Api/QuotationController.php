@@ -49,11 +49,31 @@ class QuotationController extends ApiBaseController
         return parent::index();
     }
 
+    protected function modifyIndex($query)
+    {
+        $request = request();
+        $warehouse = warehouse();
+
+        $query = $query->whereIn('orders.order_type', ['quotations', 'quotation']);
+        $query = $this->applyLoggedUserScope($query, 'orders', 'user_id');
+
+        if ($request->has('dates') && $request->dates != "") {
+            $dates = explode(',', $request->dates);
+            $startDate = $dates[0];
+            $endDate = $dates[1];
+
+            $query = $query->whereRaw('orders.order_date >= ?', [$startDate])
+                ->whereRaw('orders.order_date <= ?', [$endDate]);
+        }
+
+        return $query->where('orders.warehouse_id', $warehouse->id);
+    }
+
     public function convertToSale(Request $request, $id)
     {
         $order = Order::where('unique_id', $id)->first();
 
-        if ($order->order_type == "quotations") {
+        if (in_array($order->order_type, ['quotations', 'quotation'])) {
             $order->order_type = 'sales';
             $order->order_status = 'confirmed';
             $order->save();

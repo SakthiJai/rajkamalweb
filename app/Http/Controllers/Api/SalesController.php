@@ -208,22 +208,20 @@ class SalesController extends ApiBaseController
 							'subtotal'           => $amount
 						]);
 
-						// Reduce stock in ProductDetails for sales, increase for returns
-						$productDetailsList = \App\Models\ProductDetails::where('product_id', $productId)->get();
-						foreach ($productDetailsList as $productDetails) {
-							if ($type === 'sales') {
+						if ($type === 'sales') {
+							// Only confirmed sales should affect stock.
+							$productDetailsList = \App\Models\ProductDetails::where('product_id', $productId)->get();
+							foreach ($productDetailsList as $productDetails) {
 								$productDetails->current_stock = max(0, $productDetails->current_stock - $quantity);
-							} else {
-								$productDetails->current_stock += $quantity;
+								$productDetails->save();
 							}
-							$productDetails->save();
-						}
-						// Always recalculate products.current_stock as sum of all product_details.current_stock
-						$totalCurrentStock = \App\Models\ProductDetails::where('product_id', $productId)->sum('current_stock');
-						$product = \App\Models\Product::find($productId);
-						if ($product) {
-							$product->current_stock = $totalCurrentStock;
-							$product->save();
+
+							$totalCurrentStock = \App\Models\ProductDetails::where('product_id', $productId)->sum('current_stock');
+							$product = \App\Models\Product::find($productId);
+							if ($product) {
+								$product->current_stock = $totalCurrentStock;
+								$product->save();
+							}
 						}
 					}	
 				}
@@ -314,11 +312,13 @@ class SalesController extends ApiBaseController
 							'subtotal'           => $amount
 						]);
 
-						// Reduce stock in ProductDetails
-						$productDetails = \App\Models\ProductDetails::where('product_id', $productId)->first();
-						if ($productDetails) {
-							$productDetails->current_stock = max(0, $productDetails->current_stock - $quantity);
-							$productDetails->save();
+						if ($type === 'sales') {
+							// Only confirmed sales should affect stock.
+							$productDetails = \App\Models\ProductDetails::where('product_id', $productId)->first();
+							if ($productDetails) {
+								$productDetails->current_stock = max(0, $productDetails->current_stock - $quantity);
+								$productDetails->save();
+							}
 						}
 					}
 				}
@@ -553,13 +553,13 @@ public function createReciept($payment)
 			// Create new Order instance
 			if($request->selectedInvoice==null || $request->selectedInvoice=="null")
 			{
-				if($this->createOrder($request,"quotation"))
+				if($this->createOrder($request,"quotations"))
 				{
 					return response()->json(['message' => 'Order and items stored successfully.'], 201);
 				}
 			}
 			else{
-				if(!$this->updateOrder($request,"quotation"))
+				if(!$this->updateOrder($request,"quotations"))
 				{
 					return response()->json(['message' => 'Order and items updated successfully.'], 201);
 				}
