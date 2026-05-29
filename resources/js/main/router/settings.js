@@ -187,6 +187,18 @@ export default [
                 },
             },
 
+            {
+                path: "payment-due-date",
+                component: () =>
+                    import("../views/settings/payment-due-date/Edit.vue"),
+                name: "admin.settings.payment_due_date.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "settings",
+                    menuKey: (route) => "payment_due_date",
+                },
+            },
+
             // {
             //     path: "account",
             //     component: () => import("../views/settings/account/index.vue"),

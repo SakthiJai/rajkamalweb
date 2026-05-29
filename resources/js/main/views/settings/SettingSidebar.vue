@@ -416,6 +416,21 @@
                     {{ "Discount" }}
                 </a-menu-item>
 
+                <a-menu-item
+                    key="payment_due_date"
+                    v-if="
+                        permsArray.includes('admin')
+                    "
+                    @click="
+                        $router.push({ name: 'admin.settings.payment_due_date.index' })
+                    "
+                >
+                    <template #icon>
+                        <CalendarOutlined />
+                    </template>
+                    {{ "Payment Due Date" }}
+                </a-menu-item>
+
                 <!-- my try    -->
 
                 <!-- end  station-->
@@ -443,6 +458,7 @@ import {
     HistoryOutlined,
     FormOutlined,
     DatabaseOutlined,
+    CalendarOutlined,
 } from "@ant-design/icons-vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
@@ -466,6 +482,7 @@ export default defineComponent({
         HistoryOutlined,
         FormOutlined,
         DatabaseOutlined,
+        CalendarOutlined,
     },
     setup() {
         const { appSetting, user, permsArray, appModules, appType } = common();

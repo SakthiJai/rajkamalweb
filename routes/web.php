@@ -148,6 +148,22 @@ Route::get('debug/mail-test/{token}', function (string $token) {
     ApiRoute::get('product-category', ['as' => 'api.product-category.index', 'uses' => 'ProductCategoryController@index']);
     ApiRoute::get('god-owns', ['as' => 'api.godown.index', 'uses' => 'GodownsController@index']);
     ApiRoute::get('receiptbank', ['as' => 'api.receiptbank.index', 'uses' => 'ReceiptBankController@index']);
+    ApiRoute::get('user-by-email', [
+        'as' => 'api.users.user_by_email',
+        'uses' => 'UsersController@userByEmail'
+    ]);
+    ApiRoute::post('users/{id}', [
+        'as' => 'api.users.public_show',
+        'uses' => 'UsersController@publicShow'
+    ]);
+    ApiRoute::put('users/{id}', [
+        'as' => 'api.users.public_update',
+        'uses' => 'UsersController@publicUpdate'
+    ]);
+    ApiRoute::patch('users/{id}', [
+        'as' => 'api.users.public_update_patch',
+        'uses' => 'UsersController@publicUpdate'
+    ]);
 
 
     ApiRoute::get('parties-category', ['as' => 'api.godown.index', 'uses' => 'CategorysController@index']);

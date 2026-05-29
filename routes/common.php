@@ -57,6 +57,8 @@ ApiRoute::group($routeArray, function () {
     ApiRoute::group(['prefix' => 'settings'], function () {
         ApiRoute::post('storage/update', ['as' => 'api.settings.storage.update', 'uses' => 'SettingsController@updateStorage']);
         ApiRoute::get('storage', ['as' => 'api.settings.storage.index', 'uses' => 'SettingsController@getStorage']);
+        ApiRoute::get('payment-due-date', ['as' => 'api.settings.payment_due_date.index', 'uses' => 'PaymentDueDateController@index']);
+        ApiRoute::post('payment-due-date', ['as' => 'api.settings.payment_due_date.update', 'uses' => 'PaymentDueDateController@update']);
         ApiRoute::post('email/send-test-mail', ['as' => 'api.settings.email.send-test-mail', 'uses' => 'SettingsController@sendTestMail']);
         ApiRoute::post('email/send-mail-settings', ['as' => 'api.settings.send-mail-settings', 'uses' => 'SettingsController@sendMailSettings']);
         ApiRoute::post('email/update', ['as' => 'api.settings.email.update', 'uses' => 'SettingsController@updateEmailSetting']);
